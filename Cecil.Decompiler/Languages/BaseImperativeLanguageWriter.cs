@@ -3482,7 +3482,7 @@ namespace Telerik.JustDecompiler.Languages
 			Visit(node.Field);
 		}
 
-		protected void WriteArrayDimensions(ExpressionCollection dimensions, TypeReference arrayType, bool isInitializerPresent)
+		protected virtual void WriteArrayDimensions(ExpressionCollection dimensions, TypeReference arrayType, bool isInitializerPresent)
 		{
 			List<int> emptyDimensions = new List<int>();
 			TypeReference elementType = arrayType;
