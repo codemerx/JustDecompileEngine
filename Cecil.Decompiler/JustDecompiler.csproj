@@ -691,11 +691,13 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' ">
     <ProjectReference Include="..\..\Tools\JustDecompile.Settings\JustDecompile.Settings.csproj">
       <Project>{52E3BBFD-EF5C-4520-8EDF-0BD827A08D83}</Project>
       <Name>JustDecompile.Settings</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Mono.Cecil\Mono.Cecil.csproj">
       <Project>{D68133BD-1E63-496E-9EDE-4FBDBF77B486}</Project>
       <Name>Mono.Cecil</Name>
