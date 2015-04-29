@@ -1821,10 +1821,75 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 			string variableName = GetVariableName(node.Variable.Variable);
 			Write(variableName);
 
-			WriteArrayDimensions(node.Dimensions, node.ArrayType, node.HasInitializer);
+            WriteArrayDimensions(node.Dimensions, node.ArrayType, node.HasInitializer);
 			WriteAsBetweenSpaces();
 			WriteReferenceAndNamespaceIfInCollision(GetBaseElementType(node.ArrayType));
 		}
+
+        protected override void WriteArrayDimensions(ExpressionCollection dimensions, TypeReference arrayType, bool isInitializerPresent)
+        {
+            ExpressionCollection clonedDimensions = dimensions.Clone();
+            TypeSystem typeSystem = this.ModuleContext.Module.TypeSystem;
+            for (int i = 0; i < clonedDimensions.Count; i++)
+            {
+                if (clonedDimensions[i] is LiteralExpression)
+                {
+                    LiteralExpression literal = clonedDimensions[i] as LiteralExpression;
+                    literal.Value = GetDecrementedValue(literal);
+                }
+                else
+                {
+                    clonedDimensions[i] = new BinaryExpression(BinaryOperator.Subtract, clonedDimensions[i], new LiteralExpression(1, typeSystem, null), typeSystem, null);
+                }
+            }
+
+            base.WriteArrayDimensions(clonedDimensions, arrayType, isInitializerPresent);
+        }
+
+        private object GetDecrementedValue(LiteralExpression expression)
+        {
+            switch (expression.ExpressionType.Name)
+            {
+                case "Byte":
+                    byte byteValue = (byte)expression.Value;
+                    byteValue--;
+                    return byteValue;
+                case "SByte":
+                    sbyte sbyteValue = (sbyte)expression.Value;
+                    sbyteValue--;
+                    return sbyteValue;
+                case "Int16":
+                    short shortValue = (short)expression.Value;
+                    shortValue--;
+                    return shortValue;
+                case "UInt16":
+                    ushort ushortValue = (ushort)expression.Value;
+                    ushortValue--;
+                    return ushortValue;
+                case "Int32":
+                    int intValue = (int)expression.Value;
+                    intValue--;
+                    return intValue;
+                case "UInt32":
+                    uint uintValue = (uint)expression.Value;
+                    uintValue--;
+                    return uintValue;
+                case "Int64":
+                    long longValue = (long)expression.Value;
+                    longValue--;
+                    return longValue;
+                case "UInt64":
+                    ulong ulongValue = (ulong)expression.Value;
+                    ulongValue--;
+                    return ulongValue;
+                case "Char":
+                    char charValue = (char)expression.Value;
+                    charValue--;
+                    return charValue;
+                default:
+                    throw new ArgumentException("Invalid data type for dimension of an array.");
+            }
+        }
 
 		public override void VisitArrayCreationExpression(ArrayCreationExpression node)
 		{
