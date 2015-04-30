@@ -90,7 +90,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug EngineOnly|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug EngineOnly\</OutputPath>
+    <OutputPath>..\..\..\ConsoleRunner\bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;NET_3_5;NET_4_0;ENGINEONLYBUILD</DefineConstants>
     <NoWarn>0649</NoWarn>
     <DebugType>full</DebugType>
@@ -99,7 +99,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release EngineOnly|AnyCPU'">
-    <OutputPath>bin\Release EngineOnly\</OutputPath>
+    <OutputPath>..\..\..\ConsoleRunner\bin\Release\</OutputPath>
     <DefineConstants>TRACE;NET_3_5;NET_4_0;ENGINEONLYBUILD</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>0649</NoWarn>
