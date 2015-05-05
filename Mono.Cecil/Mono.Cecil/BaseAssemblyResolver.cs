@@ -214,7 +214,7 @@ namespace Mono.Cecil
                 {
                     foreach (string file in Directory.GetFiles(directory, "*" + extension))
                     {
-                        if (resolvableExtensionsSet.Contains(Path.GetExtension(file)))
+                        if (resolvableExtensionsSet.Contains(Path.GetExtension(file)) && file.Length < 260)
                         //Check is added because of the behaviour of Directory.GetFiles
                         {
                             yield return CreateDirectoryAssemblyInfo(file);
