@@ -158,6 +158,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 
 				CachedDecompiledMember decompiledMember = this.cacheService.GetDecompiledMemberFromCache(method, language, this.renameInvalidMembers);
 				AddDecompiledMemberToDecompiledType(decompiledMember, decompiledType);
+                AddFieldAssignmentDataToDecompiledType(decompiledMember, decompiledType);
 
 				return;
 			}
@@ -220,6 +221,26 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 				}
 			}
 		}
+
+        private static void AddFieldAssignmentDataToDecompiledType(CachedDecompiledMember decompiledMember, DecompiledType decompiledType)
+        {
+            if (!decompiledType.TypeContext.FieldInitializationFailed)
+            {
+                foreach (KeyValuePair<string, FieldInitializationAssignment> pair in decompiledMember.FieldAssignmentData)
+                {
+                    if (!decompiledType.TypeContext.FieldAssignmentData.ContainsKey(pair.Key))
+                    {
+                        decompiledType.TypeContext.FieldAssignmentData.Add(pair.Key, pair.Value);
+                    }
+                    else if (!decompiledType.TypeContext.FieldAssignmentData[pair.Key].AssignmentExpression.Equals(pair.Value.AssignmentExpression))
+                    {
+                        decompiledType.TypeContext.FieldInitializationFailed = true;
+                        decompiledType.TypeContext.FieldAssignmentData = new Dictionary<string, FieldInitializationAssignment>();
+                        return;
+                    }
+                }
+            }
+        }
   
 		private void MergeConstructorsTypeContexts(List<CachedDecompiledMember> allConstructors, DecompiledType decompiledType)
 		{
