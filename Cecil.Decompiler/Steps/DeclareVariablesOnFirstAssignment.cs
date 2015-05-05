@@ -247,6 +247,10 @@ namespace Telerik.JustDecompiler.Steps
 
         public override ICodeNode VisitLambdaExpression(LambdaExpression node)
         {
+            // The following visit of the body of the lambda expression is needed, because variables that are declared in the
+            // containing method, may be used in it. The clone is needed, because the lambda expression is already visited
+            // and processed, and the only thing we need is to visit the variable references in it.
+            Visit((node.CloneExpressionOnly() as LambdaExpression).Body);
             return node;
         }
 
