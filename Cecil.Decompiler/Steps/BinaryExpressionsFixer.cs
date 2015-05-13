@@ -46,7 +46,7 @@ namespace Telerik.JustDecompiler.Steps
                 if (endsWithConditionalJump)
                 {
                     expressionList[expressionList.Count - 1] = (Expression)
-                    FixBranchingExpression(expressionList[expressionList.Count - 1], methodContext.ControlFlowGraph.InstructionToBlockMapping[key].Last);
+                        FixBranchingExpression(expressionList[expressionList.Count - 1], methodContext.ControlFlowGraph.InstructionToBlockMapping[key].Last);
                 }
                 //if (lastInstructionCode == Code.Switch)
                 //{
@@ -273,7 +273,17 @@ namespace Telerik.JustDecompiler.Steps
                 {
                     operand = expression;
                 }
-                UnaryExpression result = new UnaryExpression(UnaryOperator.None, operand, instructions);
+
+                Expression result;
+                if (expression is SafeCastExpression)
+                {
+                    result = new BinaryExpression(operation, expression, GetLiteralExpression(false, null), typeSystem, instructions);
+                }
+                else
+                {
+                    result = new UnaryExpression(UnaryOperator.None, operand, instructions);
+                }
+
                 return result;
             }
             if (expressionType.Name == "Char")

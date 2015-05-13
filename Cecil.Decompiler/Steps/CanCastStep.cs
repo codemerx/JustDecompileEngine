@@ -96,16 +96,36 @@ namespace Telerik.JustDecompiler.Steps
             Right = new Pattern.Literal { Value = 0 }
         };
 
+        static readonly Pattern.ICodePattern canCastComparisonToFalsePattern = new Pattern.Binary
+        {
+            Left = new Pattern.SafeCast { Bind = sc => new Pattern.MatchData(SafeCastKey, sc) },
+            Operator = new Pattern.Constant { Value = BinaryOperator.ValueInequality },
+            Right = new Pattern.Literal { Value = false }
+        };
+
+        static readonly Pattern.ICodePattern negatedCanCastComparisonToFalsePattern = new Pattern.Binary
+        {
+            Left = new Pattern.SafeCast { Bind = sc => new Pattern.MatchData(SafeCastKey, sc) },
+            Operator = new Pattern.Constant { Value = BinaryOperator.ValueEquality },
+            Right = new Pattern.Literal { Value = false }
+        };
+
         public ICodeNode VisitBinaryExpression(BinaryExpression node)
         {
             CanCastExpression canCastExpression;
-            if (TryMatchCanCastPattern(node, new Pattern.ICodePattern[] { canCastToReferenceTypePattern, canCastToValueTypePattern,
-                                                                        canCastComparisonToNullPattern, canCastComparisonToZeroPattern}, out canCastExpression))
+            if (TryMatchCanCastPattern(node, new Pattern.ICodePattern[]
+                                             {
+                                                 canCastToReferenceTypePattern, canCastToValueTypePattern, canCastComparisonToNullPattern,
+                                                 canCastComparisonToZeroPattern, canCastComparisonToFalsePattern
+                                             }, out canCastExpression))
             {
                 return canCastExpression;
             }
-            else if (TryMatchCanCastPattern(node, new Pattern.ICodePattern[] { negatedCanCastToReferenceTypePattern, negatedCanCastToValueTypePattern,
-                                                                        negatedCanCastComparisonToNullPattern, negatedCanCastComparisonToZeroPattern}, out canCastExpression))
+            else if (TryMatchCanCastPattern(node, new Pattern.ICodePattern[]
+                                                  {
+                                                      negatedCanCastToReferenceTypePattern, negatedCanCastToValueTypePattern, negatedCanCastComparisonToNullPattern,
+                                                      negatedCanCastComparisonToZeroPattern, negatedCanCastComparisonToFalsePattern
+                                                  }, out canCastExpression))
             {
                 return new UnaryExpression(UnaryOperator.LogicalNot, canCastExpression, null);
             }
