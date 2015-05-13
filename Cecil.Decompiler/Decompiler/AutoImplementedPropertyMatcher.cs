@@ -37,10 +37,22 @@ namespace Telerik.JustDecompiler.Decompiler
             processed = true;
 
             if (propertyDef.GetMethod == null || propertyDef.GetMethod.Parameters.Count != 0 || !propertyDef.GetMethod.HasBody ||
-                propertyDef.SetMethod == null || propertyDef.SetMethod.Parameters.Count != 1 || !propertyDef.SetMethod.HasBody ||
                 propertyDef.OtherMethods.Count != 0)
             {
                 return false;
+            }
+
+            if (propertyDef.SetMethod != null)
+            {
+                if (propertyDef.SetMethod.Parameters.Count != 1 || !propertyDef.SetMethod.HasBody)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                // Getter only auto-implemented property
+                return CheckGetter();
             }
 
             return CheckGetter() && CheckSetter();
