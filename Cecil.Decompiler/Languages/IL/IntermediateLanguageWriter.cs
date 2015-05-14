@@ -243,10 +243,18 @@ namespace Telerik.JustDecompiler.Languages.IL
             WriteToken("}");
         }
 
-        protected override void WriteBeginBlock()
+        protected override void WriteBeginBlock(bool inline = false)
         {
-            WriteOpeningBraceAndNewLine();
-            Indent();
+            if (inline)
+            {
+                WriteOpeningBrace();
+                WriteSpace();
+            }
+            else
+            {
+                WriteOpeningBraceAndNewLine();
+                Indent();
+            }
         }
 
         private void WriteEndBlock()
@@ -278,8 +286,13 @@ namespace Telerik.JustDecompiler.Languages.IL
         {
             //this.formatter.WriteStartBlock();
 
-            WriteToken("{");
+            WriteOpeningBrace();
             WriteLine();
+        }
+
+        private void WriteOpeningBrace()
+        {
+            WriteToken("{");
         }
 
         private void WriteNestedMethod(string keyword, MethodDefinition method)

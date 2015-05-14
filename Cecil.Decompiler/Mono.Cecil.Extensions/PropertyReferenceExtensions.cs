@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Telerik.JustDecompiler.Decompiler;
 
 namespace Mono.Cecil.Extensions
 {
@@ -267,6 +268,11 @@ namespace Mono.Cecil.Extensions
                 }
             }
             return result;
+        }
+
+        public static bool IsAutoImplemented(this PropertyDefinition property, out FieldDefinition field)
+        {
+            return new AutoImplementedPropertyMatcher(property).IsAutoImplemented(out field);
         }
 
 		public static bool IsPrivate(this PropertyDefinition self)

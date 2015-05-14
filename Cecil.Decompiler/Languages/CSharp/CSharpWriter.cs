@@ -129,9 +129,17 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             return new CSharpKeyWordWriter();
         }
 
-        protected override void WriteBeginBlock()
+        protected override void WriteBeginBlock(bool inline = false)
         {
-            WriteLine();
+            if (inline)
+            {
+                WriteSpace();
+            }
+            else
+            {
+                WriteLine();
+            }
+
             WriteToken("{");
         }
 

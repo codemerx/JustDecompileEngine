@@ -998,7 +998,7 @@ namespace Telerik.JustDecompiler.Languages
         {
         }
 
-        protected virtual void WriteBeginBlock()
+        protected virtual void WriteBeginBlock(bool inline = false)
         {
         }
 

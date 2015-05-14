@@ -738,7 +738,7 @@ namespace Telerik.JustDecompiler.Languages
 			WriteTypeAndName(field.FieldType, fieldName, field);
 		}
 
-		protected void WritePropertyMethods(PropertyDefinition property)
+		protected void WritePropertyMethods(PropertyDefinition property, bool inline = false)
 		{
 			bool isAutoImplemented = TypeContext.AutoImplementedProperties.Contains(property);
 
@@ -751,7 +751,14 @@ namespace Telerik.JustDecompiler.Languages
 			{
 				if (property.GetMethod != null)
 				{
-					WriteLine();
+                    if (inline)
+                    {
+                        WriteSpace();
+                    }
+                    else
+                    {
+					    WriteLine();
+                    }
 				}
 
 				WriteSetMethod(property, isAutoImplemented);
@@ -1179,28 +1186,38 @@ namespace Telerik.JustDecompiler.Languages
 				return;
 			}
 
-			WritePropertyDeclaration(property);
+            FieldDefinition field;
+            if (property.IsAutoImplemented(out field) &&
+                field != null &&
+                TypeContext.FieldAssignmentData.ContainsKey(field.FullName) &&
+                TypeContext.FieldAssignmentData[field.FullName] != null)
+            {
+                WriteInitializedAutoProperty(property, TypeContext.FieldAssignmentData[field.FullName].AssignmentExpression);
+                return;
+            }
 
-			int startFoldingOffset = this.formatter.CurrentPosition;
+            WritePropertyDeclaration(property);
 
-			this.formatter.WriteStartBlock();
+            int startFoldingOffset = this.formatter.CurrentPosition;
 
-			WriteLine();
+            this.formatter.WriteStartBlock();
 
-			WriteBlock(() =>
-			{
-				WritePropertyMethods(property);
-				WriteLine();
-			}
-					   , "");
+            WriteLine();
 
-			if (KeyWordWriter.Property != null)
-			{
-				WriteSpecialEndBlock(KeyWordWriter.Property);
-			}
-			this.currentWritingInfo.MemberDefinitionToFoldingPositionMap[property] = new OffsetSpan(startFoldingOffset, formatter.CurrentPosition - 1);
+            WriteBlock(() =>
+            {
+                WritePropertyMethods(property);
+                WriteLine();
+            }
+                        , "");
 
-			this.formatter.WriteEndBlock();
+            if (KeyWordWriter.Property != null)
+            {
+                WriteSpecialEndBlock(KeyWordWriter.Property);
+            }
+            this.currentWritingInfo.MemberDefinitionToFoldingPositionMap[property] = new OffsetSpan(startFoldingOffset, formatter.CurrentPosition - 1);
+
+            this.formatter.WriteEndBlock();
 		}
 
 		#region Split properties
@@ -1322,6 +1339,23 @@ namespace Telerik.JustDecompiler.Languages
 			Outdent();
 			WriteEndBlock("Set");
 		}
+
+        private void WriteInitializedAutoProperty(PropertyDefinition property, Expression assignment)
+        {
+            WritePropertyDeclaration(property);
+
+            WriteBeginBlock(inline: true);
+            WriteSpace();
+            WritePropertyMethods(property, inline: true);
+            WriteSpace();
+            WriteEndBlock(property.Name);
+
+            WriteSpace();
+            WriteToken("=");
+            WriteSpace();
+            Visit(assignment);
+            WriteEndOfStatement();
+        }
 
 		private ExpressionCollection CopyMethodParametersAsArguments(MethodDefinition method)
 		{
