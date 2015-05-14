@@ -23,11 +23,18 @@ JustDecompile UI remains private at this time. JustDecompile, however, has rich 
 One can use the console project generation feature to see the results of the changes made to the engine. The ConsoleRunner project
 is a console app that exposes that functionality and makes testing easy. When started it prints out all the available commands and switches. 
 
-## How to Contribute
+## How to Contribute to JustDecompile Engine
 
 We encourage and support an active, healthy community that accepts contributions from the public. We'd like you to be a part of that community.
 
 Before submitting a pull request, please, read and sign the [Contributors License Agreement] (https://drive.google.com/open?id=1HUQQ4snF53eSXWrKtuqei6cQ_NTRhgQpz1oXh5W_UB4&authuser=0)
+
+## How to Contribute to JustDecompile
+
+
+[Feature Suggestions](http://justdecompile.uservoice.com)
+
+[Bug Reports / Discussion](http://www.telerik.com/forums/justdecompile/general-discussions)
 
 ## Related
 
