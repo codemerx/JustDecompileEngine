@@ -24,16 +24,17 @@
 //
 #endregion
 using Mono.Cecil;
+using Mono.Cecil.Extensions;
 using Telerik.JustDecompiler.Ast;
 using Telerik.JustDecompiler.Ast.Expressions;
 
 namespace Telerik.JustDecompiler.Steps
 {
-	public class PropertyStep
+	public class PropertyRecognizer
 	{
 		private readonly TypeSystem typeSystem;
 
-		public PropertyStep(TypeSystem typeSystem)
+		public PropertyRecognizer(TypeSystem typeSystem)
 		{
 			this.typeSystem = typeSystem;
 		}
@@ -83,5 +84,16 @@ namespace Telerik.JustDecompiler.Steps
 			}
 			return null;
 		}
-	}
+
+        public ICodeNode VisitFieldReferenceExpression(FieldReferenceExpression node)
+        {
+            PropertyDefinition property;
+            if (node.Field.IsAutoPropertyConstructorInitializerExpression(out property))
+            {
+                return new AutoPropertyConstructorInitializerExpression(property, node.Target, node.MappedInstructions);
+            }
+
+            return node;
+        }
+    }
 }

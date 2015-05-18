@@ -7,12 +7,12 @@ using Mono.Cecil;
 
 namespace Telerik.JustDecompiler.Decompiler
 {
-	public class FieldInitializationAssignment
+	public class InitializationAssignment
 	{
 		public MethodDefinition AssignmentMethod { get; private set; }
 		public Expression AssignmentExpression { get; private set; }
 
-		public FieldInitializationAssignment(MethodDefinition assignmentMethod, Expression assignmentExpression)
+		public InitializationAssignment(MethodDefinition assignmentMethod, Expression assignmentExpression)
 		{
 			this.AssignmentMethod = assignmentMethod;
 			this.AssignmentExpression = assignmentExpression;

@@ -13,7 +13,7 @@ namespace Telerik.JustDecompiler.Steps
 
         private readonly TypeOfStep typeOfStep = new TypeOfStep();
         private readonly ReplaceDelegateInvokeStep replaceDelegateInvokeStep;
-        private PropertyStep propertyStep;
+        private PropertyRecognizer propertyRecognizer;
         private RebuildEventsStep rebuildEventsStep;
         private readonly HandleVirtualMethodInvocations replaceThisWithBaseStep;
         private OperatorStep operatorStep;
@@ -36,7 +36,7 @@ namespace Telerik.JustDecompiler.Steps
             this.operatorStep = new OperatorStep(this, typeSystem);
             this.removePIDStep = new RemovePrivateImplementationDetailsStep(typeSystem);
             this.rebuildEventsStep = new RebuildEventsStep(typeSystem);
-            this.propertyStep = new PropertyStep(typeSystem);
+            this.propertyRecognizer = new PropertyRecognizer(typeSystem);
             this.rebuildAnonymousInitializersStep = new RebuildAnonymousTypesInitializersStep(this, typeSystem);
 			this.fixSwitchConditionStep = new FixSwitchConditionStep(context);
             return (BlockStatement)VisitBlockStatement(body);
@@ -64,7 +64,7 @@ namespace Telerik.JustDecompiler.Steps
 			{
 				return base.VisitDelegateInvokeExpression(newNode as DelegateInvokeExpression);
 			}
-			newNode = propertyStep.VisitMethodInvocationExpression(node);
+			newNode = propertyRecognizer.VisitMethodInvocationExpression(node);
 
             if (newNode != null)
             {
@@ -205,6 +205,16 @@ namespace Telerik.JustDecompiler.Steps
                 return result;
             }
             return base.VisitObjectCreationExpression(node);
+        }
+
+        public override ICodeNode VisitFieldReferenceExpression(FieldReferenceExpression node)
+        {
+            if (Method.IsConstructor && node.Field.DeclaringType.FullName == Method.DeclaringType.FullName)
+            {
+                return propertyRecognizer.VisitFieldReferenceExpression(node);
+            }
+
+            return base.VisitFieldReferenceExpression(node);
         }
 	}
 }

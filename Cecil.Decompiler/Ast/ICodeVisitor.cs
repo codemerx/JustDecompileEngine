@@ -103,5 +103,6 @@ namespace Telerik.JustDecompiler.Ast {
 		void VisitInitializerExpression(InitializerExpression node);
         void VisitCheckedExpression(CheckedExpression node);
         void VisitMemberHandleExpression(MemberHandleExpression node);
+        void VisitAutoPropertyConstructorInitializerExpression(AutoPropertyConstructorInitializerExpression node);
 	}
 }

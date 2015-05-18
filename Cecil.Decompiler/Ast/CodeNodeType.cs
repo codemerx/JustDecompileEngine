@@ -118,6 +118,7 @@ namespace Telerik.JustDecompiler.Ast
 		ParenthesesExpression,
 		InitializerExpression,
         CheckedExpression,
-        MemberHandleExpression
+        MemberHandleExpression,
+        AutoPropertyConstructorInitializerExpression
 	}
 }

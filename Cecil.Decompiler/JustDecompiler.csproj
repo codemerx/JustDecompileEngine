@@ -222,6 +222,7 @@
     <Compile Include="Ast\Expressions\LinqQueryExpression.cs" />
     <Compile Include="Ast\Expressions\OrderByClause.cs" />
     <Compile Include="Ast\Expressions\QueryClause.cs" />
+    <Compile Include="Ast\Expressions\AutoPropertyConstructorInitializerExpression.cs" />
     <Compile Include="Ast\Expressions\SelectClause.cs" />
     <Compile Include="Ast\Expressions\ShortFormReturnExpression.cs" />
     <Compile Include="Ast\Expressions\ArrayVariableDeclarationExpression.cs" />
@@ -239,7 +240,7 @@
     <Compile Include="Decompiler\AttributesUtilities.cs" />
     <Compile Include="Decompiler\AutoImplementedPropertyMatcher.cs" />
     <Compile Include="Decompiler\ExplicitlyImplementedMembersCollection.cs" />
-    <Compile Include="Decompiler\FieldInitializationAssignment.cs" />
+    <Compile Include="Decompiler\InitializationAssignment.cs" />
     <Compile Include="Decompiler\MemberRenamingServices\DefaultMemberRenamingService.cs" />
     <Compile Include="Decompiler\MemberRenamingServices\IMemberRenamingService.cs" />
     <Compile Include="Decompiler\MemberRenamingServices\MemberRenamingData.cs" />
@@ -334,7 +335,7 @@
     <Compile Include="Steps\CodePatterns\CollectionInitializationPattern.cs" />
     <Compile Include="Steps\CodePatterns\CommonPatterns.cs" />
     <Compile Include="Steps\CodePatterns\DefineUseCount.cs" />
-    <Compile Include="Steps\CodePatterns\FieldInitializationPattern.cs" />
+    <Compile Include="Steps\CodePatterns\InitializationPattern.cs" />
     <Compile Include="Steps\CodePatterns\ICodePattern.cs" />
     <Compile Include="Steps\CodePatterns\NullCoalescingPattern.cs" />
     <Compile Include="Steps\CodePatterns\MultiAssignPattern.cs" />
@@ -357,7 +358,7 @@
     <Compile Include="Steps\MapUnconditionalBranchesStep.cs" />
     <Compile Include="Steps\OutParameterAssignmentAnalysisStep.cs" />
     <Compile Include="Steps\ParenthesizeExpressionsStep.cs" />
-    <Compile Include="Steps\PropertyStep.cs" />
+    <Compile Include="Steps\PropertyRecognizer.cs" />
     <Compile Include="Decompiler\AssignmentAnalysis\VariableUsageFinder.cs" />
     <Compile Include="Steps\RebuildDoWhileStatements.cs" />
     <Compile Include="Steps\RebuildExpressionTreesStep.cs" />

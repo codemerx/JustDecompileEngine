@@ -32,7 +32,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 					cachedTypeContext.BackingFieldToNameMap, 
 					cachedTypeContext.UsedNamespaces, 
 					new HashSet<string>(), 
-					cachedTypeContext.FieldAssignmentData,
+					cachedTypeContext.AssignmentData,
 					cachedTypeContext.AutoImplementedProperties,
 					cachedTypeContext.AutoImplementedEvents,
 					cachedTypeContext.ExplicitlyImplementedMembers,

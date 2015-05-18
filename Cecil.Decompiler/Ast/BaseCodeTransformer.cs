@@ -235,6 +235,8 @@ namespace Telerik.JustDecompiler.Ast
 					return VisitCheckedExpression((CheckedExpression)node);
 				case CodeNodeType.MemberHandleExpression:
 					return VisitMemberHandleExpression((MemberHandleExpression)node);
+                case CodeNodeType.AutoPropertyConstructorInitializerExpression:
+                    return VisitAutoPropertyConstructorInitializerExpression((AutoPropertyConstructorInitializerExpression)node);
 				default:
 					throw new ArgumentException();
 			}
@@ -893,5 +895,10 @@ namespace Telerik.JustDecompiler.Ast
 		{
 			return node;
 		}
+
+        public virtual ICodeNode VisitAutoPropertyConstructorInitializerExpression(AutoPropertyConstructorInitializerExpression node)
+        {
+            return node;
+        }
 	}
 }

@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using Telerik.JustDecompiler.Decompiler;
 
 namespace Mono.Cecil.Extensions
 {
@@ -60,6 +63,25 @@ namespace Mono.Cecil.Extensions
             }
             //return IsCompilerGenerated(fieldDefinition);
             return fieldDefinition.HasCompilerGeneratedAttribute();
+        }
+
+        public static bool IsAutoPropertyConstructorInitializerExpression(this FieldReference fieldReference, out PropertyDefinition property)
+        {
+            FieldDefinition fieldDefinition = fieldReference.Resolve();
+            if (fieldDefinition != null)
+            {
+                Dictionary<FieldDefinition, PropertyDefinition> map = fieldDefinition.DeclaringType.GetFieldToPropertyMap();
+                if (map.ContainsKey(fieldDefinition) &&
+                    map[fieldDefinition] != null &&
+                    !map[fieldDefinition].ShouldStaySplit())
+                {
+                    property = map[fieldDefinition];
+                    return true;
+                }
+            }
+
+            property = null;
+            return false;
         }
     }
 }

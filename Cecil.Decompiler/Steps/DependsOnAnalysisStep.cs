@@ -16,9 +16,9 @@ namespace Telerik.JustDecompiler.Steps
 		{
 			DependsOnAnalysisVisitor visitor = new DependsOnAnalysisVisitor(context.MethodContext.AnalysisResults.TypesDependingOn, context.MethodContext.AnalysisResults.AmbiguousCastsToObject);
 			visitor.Visit(body);
-			if(context.TypeContext.FieldAssignmentData != null)
+			if(context.TypeContext.AssignmentData != null)
 			{
-				foreach (FieldInitializationAssignment fieldAsssignment in context.TypeContext.FieldAssignmentData.Values)
+				foreach (InitializationAssignment fieldAsssignment in context.TypeContext.AssignmentData.Values)
 				{
 					visitor.Visit(fieldAsssignment.AssignmentExpression);
 				}

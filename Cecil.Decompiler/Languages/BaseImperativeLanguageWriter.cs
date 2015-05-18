@@ -664,13 +664,13 @@ namespace Telerik.JustDecompiler.Languages
 				return;
 			}
 			WriteFieldDeclaration(field);
-			if (TypeContext.FieldAssignmentData.ContainsKey(field.FullName) &&
-				TypeContext.FieldAssignmentData[field.FullName] != null)
+			if (TypeContext.AssignmentData.ContainsKey(field.FullName) &&
+				TypeContext.AssignmentData[field.FullName] != null)
 			{
 				WriteSpace();
 				WriteToken("=");
 				WriteSpace();
-				Visit(TypeContext.FieldAssignmentData[field.FullName].AssignmentExpression);
+				Visit(TypeContext.AssignmentData[field.FullName].AssignmentExpression);
 			}
 			WriteEndOfStatement();
 		}
@@ -757,8 +757,8 @@ namespace Telerik.JustDecompiler.Languages
                     }
                     else
                     {
-					    WriteLine();
-                    }
+					WriteLine();
+				}
 				}
 
 				WriteSetMethod(property, isAutoImplemented);
@@ -1189,35 +1189,35 @@ namespace Telerik.JustDecompiler.Languages
             FieldDefinition field;
             if (property.IsAutoImplemented(out field) &&
                 field != null &&
-                TypeContext.FieldAssignmentData.ContainsKey(field.FullName) &&
-                TypeContext.FieldAssignmentData[field.FullName] != null)
+                TypeContext.AssignmentData.ContainsKey(field.FullName) &&
+                TypeContext.AssignmentData[field.FullName] != null)
             {
-                WriteInitializedAutoProperty(property, TypeContext.FieldAssignmentData[field.FullName].AssignmentExpression);
+                WriteInitializedAutoProperty(property, TypeContext.AssignmentData[field.FullName].AssignmentExpression);
                 return;
             }
 
-            WritePropertyDeclaration(property);
+			WritePropertyDeclaration(property);
 
-            int startFoldingOffset = this.formatter.CurrentPosition;
+			int startFoldingOffset = this.formatter.CurrentPosition;
 
-            this.formatter.WriteStartBlock();
+			this.formatter.WriteStartBlock();
 
-            WriteLine();
+			WriteLine();
 
-            WriteBlock(() =>
-            {
-                WritePropertyMethods(property);
-                WriteLine();
-            }
-                        , "");
+			WriteBlock(() =>
+			{
+				WritePropertyMethods(property);
+				WriteLine();
+			}
+					   , "");
 
-            if (KeyWordWriter.Property != null)
-            {
-                WriteSpecialEndBlock(KeyWordWriter.Property);
-            }
-            this.currentWritingInfo.MemberDefinitionToFoldingPositionMap[property] = new OffsetSpan(startFoldingOffset, formatter.CurrentPosition - 1);
+			if (KeyWordWriter.Property != null)
+			{
+				WriteSpecialEndBlock(KeyWordWriter.Property);
+			}
+			this.currentWritingInfo.MemberDefinitionToFoldingPositionMap[property] = new OffsetSpan(startFoldingOffset, formatter.CurrentPosition - 1);
 
-            this.formatter.WriteEndBlock();
+			this.formatter.WriteEndBlock();
 		}
 
 		#region Split properties
@@ -2118,7 +2118,7 @@ namespace Telerik.JustDecompiler.Languages
 			if (this.membersStack.Peek() is FieldDefinition)
 			{
 				FieldDefinition field = this.membersStack.Peek() as FieldDefinition;
-				return GetMethodContext(TypeContext.FieldAssignmentData[field.FullName].AssignmentMethod);
+				return GetMethodContext(TypeContext.AssignmentData[field.FullName].AssignmentMethod);
 			}
 			else
 			{
@@ -4826,5 +4826,18 @@ namespace Telerik.JustDecompiler.Languages
 			Visit(parenthesesExpression.Expression);
 			WriteToken(")");
 		}
+
+        public override void VisitAutoPropertyConstructorInitializerExpression(AutoPropertyConstructorInitializerExpression node)
+        {
+            // sanity check
+            if (!(node.Target is ThisReferenceExpression))
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            Visit(node.Target);
+            WriteToken(".");
+            WritePropertyName(node.Property);
+        }
 	}
 }

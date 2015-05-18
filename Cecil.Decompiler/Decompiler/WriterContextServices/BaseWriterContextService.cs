@@ -158,7 +158,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 
 				CachedDecompiledMember decompiledMember = this.cacheService.GetDecompiledMemberFromCache(method, language, this.renameInvalidMembers);
 				AddDecompiledMemberToDecompiledType(decompiledMember, decompiledType);
-                AddFieldAssignmentDataToDecompiledType(decompiledMember, decompiledType);
+                AddAssignmentDataToDecompiledType(decompiledMember, decompiledType);
 
 				return;
 			}
@@ -222,20 +222,20 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 			}
 		}
 
-        private static void AddFieldAssignmentDataToDecompiledType(CachedDecompiledMember decompiledMember, DecompiledType decompiledType)
+        private static void AddAssignmentDataToDecompiledType(CachedDecompiledMember decompiledMember, DecompiledType decompiledType)
         {
             if (!decompiledType.TypeContext.FieldInitializationFailed)
             {
-                foreach (KeyValuePair<string, FieldInitializationAssignment> pair in decompiledMember.FieldAssignmentData)
+                foreach (KeyValuePair<string, InitializationAssignment> pair in decompiledMember.FieldAssignmentData)
                 {
-                    if (!decompiledType.TypeContext.FieldAssignmentData.ContainsKey(pair.Key))
+                    if (!decompiledType.TypeContext.AssignmentData.ContainsKey(pair.Key))
                     {
-                        decompiledType.TypeContext.FieldAssignmentData.Add(pair.Key, pair.Value);
+                        decompiledType.TypeContext.AssignmentData.Add(pair.Key, pair.Value);
                     }
-                    else if (!decompiledType.TypeContext.FieldAssignmentData[pair.Key].AssignmentExpression.Equals(pair.Value.AssignmentExpression))
+                    else if (!decompiledType.TypeContext.AssignmentData[pair.Key].AssignmentExpression.Equals(pair.Value.AssignmentExpression))
                     {
                         decompiledType.TypeContext.FieldInitializationFailed = true;
-                        decompiledType.TypeContext.FieldAssignmentData = new Dictionary<string, FieldInitializationAssignment>();
+                        decompiledType.TypeContext.AssignmentData = new Dictionary<string, InitializationAssignment>();
                         return;
                     }
                 }
@@ -259,13 +259,13 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 			}
 
 			int i = 0;
-			Dictionary<string, FieldInitializationAssignment> combinedDictionary = new Dictionary<string, FieldInitializationAssignment>();
+			Dictionary<string, InitializationAssignment> combinedDictionary = new Dictionary<string, InitializationAssignment>();
 			for (; i < allConstructors.Count; i++)
 			{
 				if (allConstructors[i].Member.Context != null &&  allConstructors[i].Member.Context.IsBaseConstructorInvokingConstructor)
 				{
 					/// at least one constructor will call the base's ctor
-					combinedDictionary = new Dictionary<string, FieldInitializationAssignment>(allConstructors[i].FieldAssignmentData);
+					combinedDictionary = new Dictionary<string, InitializationAssignment>(allConstructors[i].FieldAssignmentData);
 					break;
 				}
 			}
@@ -281,10 +281,10 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 				{
 					// merge should fail
 					decompiledType.TypeContext.FieldInitializationFailed = true;
-					decompiledType.TypeContext.FieldAssignmentData = new Dictionary<string, FieldInitializationAssignment>();
+					decompiledType.TypeContext.AssignmentData = new Dictionary<string, InitializationAssignment>();
 					return;				
 				}
-				foreach (KeyValuePair<string, FieldInitializationAssignment> pair in constructor.FieldAssignmentData)
+				foreach (KeyValuePair<string, InitializationAssignment> pair in constructor.FieldAssignmentData)
 				{
 					if (combinedDictionary.ContainsKey(pair.Key) && combinedDictionary[pair.Key].AssignmentExpression.Equals(pair.Value.AssignmentExpression))
 					{
@@ -292,11 +292,11 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 					}
 					// merge should fail otherwise
 					decompiledType.TypeContext.FieldInitializationFailed = true;
-					decompiledType.TypeContext.FieldAssignmentData = new Dictionary<string, FieldInitializationAssignment>();
+					decompiledType.TypeContext.AssignmentData = new Dictionary<string, InitializationAssignment>();
 					return;
 				}
 			}
-			decompiledType.TypeContext.FieldAssignmentData = combinedDictionary;
+			decompiledType.TypeContext.AssignmentData = combinedDictionary;
 		}
 
 		protected Dictionary<string, DecompiledType> GetNestedDecompiledTypes(TypeDefinition type, ILanguage language)
@@ -467,7 +467,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 					decompiledCurrentType.TypeContext.BackingFieldToNameMap, 
 					usedNamespaces, 
 					visibleMembersNames, 
-					decompiledCurrentType.TypeContext.FieldAssignmentData,
+					decompiledCurrentType.TypeContext.AssignmentData,
 					GetAutoImplementedProperties(decompiledTypes),
 					GetAutoImplementedEvents(decompiledTypes), 
 					explicitlyImplementedInterfaceMethods,

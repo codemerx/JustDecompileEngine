@@ -8,12 +8,12 @@ using Telerik.JustDecompiler.Decompiler;
 
 namespace Telerik.JustDecompiler.Steps.CodePatterns
 {
-	class FieldInitializationPattern : CommonPatterns, ICodePattern
+	class InitializationPattern : CommonPatterns, ICodePattern
 	{
 		private readonly TypeSpecificContext typeContext;
 		private readonly MethodDefinition method;
 
-		public FieldInitializationPattern(CodePatternsContext patternsContext, DecompilationContext context)
+		public InitializationPattern(CodePatternsContext patternsContext, DecompilationContext context)
 			: base(patternsContext, context.MethodContext.Method.Module.TypeSystem)
 		{
             this.typeContext = context.TypeContext;
@@ -31,7 +31,7 @@ namespace Telerik.JustDecompiler.Steps.CodePatterns
 				return true;
 			}
 			replacedStatementsCount = 1;
-			return TryMatchDirectFieldAssignmentInternal(statements);
+			return TryMatchDirectAssignmentInternal(statements);
 		}
 
 		/// Pattern:
@@ -62,29 +62,30 @@ namespace Telerik.JustDecompiler.Steps.CodePatterns
 			/// At the moment, no IL samples that violate this rule were found.
 			Expression assignedValue = theAssignment.Right;
 
-			ExpressionStatement fieldAssignmentStatement = statements[1] as ExpressionStatement;
-			if (fieldAssignmentStatement == null)
+			ExpressionStatement assignmentStatement = statements[1] as ExpressionStatement;
+			if (assignmentStatement == null)
 			{
 				return false;
 			}
 
 			Expression variableReference;
-			FieldReference theField;
-			if (!IsFieldAssignment(fieldAssignmentStatement, out variableReference, out theField))
+            string memberFullName;
+            if (!IsFieldAssignment(assignmentStatement, out variableReference, out memberFullName) &&
+                !IsAutoPropertyAssignment(assignmentStatement, out variableReference, out memberFullName))
 			{
-				return false;
+                return false;
 			}
 
-			if (variableReference.CodeNodeType != CodeNodeType.VariableReferenceExpression ||
+            if (variableReference.CodeNodeType != CodeNodeType.VariableReferenceExpression ||
 				(variableReference as VariableReferenceExpression).Variable != variable)
 			{
-				return false;
+                return false;
 			}
 
-			/// The simple name of the field can be used here as well.
-			/// Using the full name for consistency with other maps.
-
-			return MapFieldAssignmentIntoContext(theField, assignedValue);
+            /// The simple name of the field can be used here as well.
+            /// Using the full name for consistency with other maps.
+            
+            return MapAssignmentIntoContext(memberFullName, assignedValue);
 		}
 
 		/// Pattern:
@@ -92,7 +93,7 @@ namespace Telerik.JustDecompiler.Steps.CodePatterns
 		/// where
 		/// Expression is either array creation expression, literal constant, consturctor call from another class
 		/// or combination of all of the above.
-		private bool TryMatchDirectFieldAssignmentInternal(StatementCollection statements)
+		private bool TryMatchDirectAssignmentInternal(StatementCollection statements)
 		{
 			ExpressionStatement theStatement = statements[0] as ExpressionStatement;
 			if (theStatement == null || !string.IsNullOrEmpty(statements[0].Label))
@@ -100,21 +101,22 @@ namespace Telerik.JustDecompiler.Steps.CodePatterns
 				return false;
 			}
 
-			FieldReference theField;
+			string memberFullName;
 			Expression assignedValue;
-			if (!IsFieldAssignment(theStatement, out assignedValue, out theField))
-			{
-				return false;
+            if (!IsFieldAssignment(theStatement, out assignedValue, out memberFullName) &&
+                !IsAutoPropertyAssignment(theStatement, out assignedValue, out memberFullName))
+            {
+                return false;
 			}
-			/// A check of wheather the assigned value can be used in field declaration context could be performed.
-			/// At the moment, no IL samples that violate this rule were found.
-			/// The simple name of the field can be used here as well.
-			/// Using the full name for consistency with other maps.
-
-			return MapFieldAssignmentIntoContext(theField, assignedValue);
+            /// A check of wheather the assigned value can be used in field declaration context could be performed.
+            /// At the moment, no IL samples that violate this rule were found.
+            /// The simple name of the field can be used here as well.
+            /// Using the full name for consistency with other maps.
+            
+            return MapAssignmentIntoContext(memberFullName, assignedValue);
 		}
   
-		private bool MapFieldAssignmentIntoContext(FieldReference theField, Expression assignedValue)
+		private bool MapAssignmentIntoContext(string memberFullName, Expression assignedValue)
 		{
 			/// With the current workflow, each method is decompiled using new TypeContext.
 			/// Thus, each constructor will be decompiled with new TypeContext, making
@@ -122,13 +124,13 @@ namespace Telerik.JustDecompiler.Steps.CodePatterns
 			/// All type contexts are merged in the ContextService, and all checks about the validity
 			/// of the FieldAssignmentData dictionary are made there.
 
-			typeContext.FieldAssignmentData.Add(theField.FullName, new FieldInitializationAssignment(this.method, assignedValue));
+			typeContext.AssignmentData.Add(memberFullName, new InitializationAssignment(this.method, assignedValue));
 			return true;
 		}
 
-		private bool IsFieldAssignment(ExpressionStatement fieldAssignmentStatement, out Expression assignedValue, out FieldReference theField)
+		private bool IsFieldAssignment(ExpressionStatement fieldAssignmentStatement, out Expression assignedValue, out string fieldFullName)
 		{
-			theField = null;
+            fieldFullName = null;
 			assignedValue = null;
 			BinaryExpression theFieldAssignment = fieldAssignmentStatement.Expression as BinaryExpression;
 			if (theFieldAssignment == null || !theFieldAssignment.IsAssignmentExpression || theFieldAssignment.Left.CodeNodeType != CodeNodeType.FieldReferenceExpression)
@@ -136,15 +138,38 @@ namespace Telerik.JustDecompiler.Steps.CodePatterns
 				return false;
 			}
 
-			theField = (theFieldAssignment.Left as FieldReferenceExpression).Field;
+			FieldReference theField = (theFieldAssignment.Left as FieldReferenceExpression).Field;
 			if (theField == null)
 			{
 				return false;
 			}
 
 			assignedValue = theFieldAssignment.Right;
+            fieldFullName = theField.FullName;
 
 			return true;
 		}
+
+        private bool IsAutoPropertyAssignment(ExpressionStatement propertyAssignmentStatement, out Expression assignedValue, out string propertyFullName)
+        {
+            propertyFullName = null;
+            assignedValue = null;
+            BinaryExpression thePropertyAssignment = propertyAssignmentStatement.Expression as BinaryExpression;
+            if (thePropertyAssignment == null || !thePropertyAssignment.IsAssignmentExpression || thePropertyAssignment.Left.CodeNodeType != CodeNodeType.AutoPropertyConstructorInitializerExpression)
+            {
+                return false;
+            }
+
+            PropertyDefinition theProperty = (thePropertyAssignment.Left as AutoPropertyConstructorInitializerExpression).Property;
+            if (theProperty == null)
+            {
+                return false;
+            }
+
+            assignedValue = thePropertyAssignment.Right;
+            propertyFullName = theProperty.FullName;
+
+            return true;
+        }
 	}
 }

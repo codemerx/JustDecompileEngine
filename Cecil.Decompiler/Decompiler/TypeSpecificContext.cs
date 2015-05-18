@@ -26,7 +26,7 @@ namespace Telerik.JustDecompiler.Decompiler
 			}
 		}
 
-		public Dictionary<string, FieldInitializationAssignment> FieldAssignmentData { get; set; }
+		public Dictionary<string, InitializationAssignment> AssignmentData { get; set; }
 
         public TypeDefinition CurrentType { get; private set; }
 		public Dictionary<MethodDefinition, string> MethodDefinitionToNameMap { get; set; }
@@ -44,7 +44,7 @@ namespace Telerik.JustDecompiler.Decompiler
 
 		public TypeSpecificContext(TypeDefinition currentType, Dictionary<MethodDefinition, string> methodDefinitionToNameMap, 
 			Dictionary<FieldDefinition, string> backingFieldToNameMap, ICollection<string> usedNamespaces, ICollection<string> visibleMembersNames,
-			Dictionary<string, FieldInitializationAssignment> fieldToAssignedExpression, HashSet<PropertyDefinition> autoImplementedProperties,
+			Dictionary<string, InitializationAssignment> fieldToAssignedExpression, HashSet<PropertyDefinition> autoImplementedProperties,
 			HashSet<EventDefinition> autoImplementedEvents, ExplicitlyImplementedMembersCollection explicitlyImplementedMembers,
 			ICollection<MethodDefinition> exceptionsWhileDecompiling)
 		{
@@ -53,7 +53,7 @@ namespace Telerik.JustDecompiler.Decompiler
 			this.BackingFieldToNameMap = backingFieldToNameMap;
 			this.UsedNamespaces = usedNamespaces;
 			this.VisibleMembersNames = visibleMembersNames;
-			this.FieldAssignmentData = fieldToAssignedExpression;
+			this.AssignmentData = fieldToAssignedExpression;
 			this.BaseCtorInvocators = new HashSet<MethodDefinition>();
 			this.FieldInitializationFailed = false;
 			this.AutoImplementedProperties = autoImplementedProperties;
@@ -69,7 +69,7 @@ namespace Telerik.JustDecompiler.Decompiler
 			this.BackingFieldToNameMap = new Dictionary<FieldDefinition, string>();
 			this.UsedNamespaces = new HashSet<string>();
 			this.VisibleMembersNames = new HashSet<string>();
-			this.FieldAssignmentData = new Dictionary<string, FieldInitializationAssignment>();
+			this.AssignmentData = new Dictionary<string, InitializationAssignment>();
 			this.BaseCtorInvocators = new HashSet<MethodDefinition>();
 			this.FieldInitializationFailed = false;
 			this.AutoImplementedProperties = new HashSet<PropertyDefinition>();
@@ -95,7 +95,7 @@ namespace Telerik.JustDecompiler.Decompiler
             partialClone.methodToPropertyMap = this.MethodToPropertyMap;
             partialClone.IsWinRTImplementation = this.IsWinRTImplementation;
 
-			partialClone.FieldAssignmentData = new Dictionary<string, FieldInitializationAssignment>();
+			partialClone.AssignmentData = new Dictionary<string, InitializationAssignment>();
             partialClone.BaseCtorInvocators = new HashSet<MethodDefinition>();
             partialClone.FieldInitializationFailed = false;
 

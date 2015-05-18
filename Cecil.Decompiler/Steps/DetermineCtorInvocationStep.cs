@@ -54,7 +54,7 @@ namespace Telerik.JustDecompiler.Steps
 
             if (isBaseCtor)
             {
-                patternArray.Add(new FieldInitializationPattern(patternsContext, context));
+                patternArray.Add(new InitializationPattern(patternsContext, context));
             }
 
             if (!ProcessStatementCollection(statements, patternArray))
