@@ -270,11 +270,6 @@ namespace Mono.Cecil.Extensions
             return result;
         }
 
-        public static bool IsAutoImplemented(this PropertyDefinition property, out FieldDefinition field)
-        {
-            return new AutoImplementedPropertyMatcher(property).IsAutoImplemented(out field);
-        }
-
 		public static bool IsPrivate(this PropertyDefinition self)
 		{
 			return (self.GetMethod == null || self.GetMethod.IsPrivate) && (self.SetMethod == null || self.SetMethod.IsPrivate);

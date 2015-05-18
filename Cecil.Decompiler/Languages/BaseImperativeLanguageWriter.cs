@@ -1186,13 +1186,11 @@ namespace Telerik.JustDecompiler.Languages
 				return;
 			}
 
-            FieldDefinition field;
-            if (property.IsAutoImplemented(out field) &&
-                field != null &&
-                TypeContext.AssignmentData.ContainsKey(field.FullName) &&
-                TypeContext.AssignmentData[field.FullName] != null)
+            if (this.TypeContext.AutoImplementedProperties.Contains(property) &&
+                TypeContext.AssignmentData.ContainsKey(property.FullName) &&
+                TypeContext.AssignmentData[property.FullName] != null)
             {
-                WriteInitializedAutoProperty(property, TypeContext.AssignmentData[field.FullName].AssignmentExpression);
+                WriteInitializedAutoProperty(property, TypeContext.AssignmentData[property.FullName].AssignmentExpression);
                 return;
             }
 
