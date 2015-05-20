@@ -16,6 +16,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 - Clone the repository and open JustDecompileEngine.sln in Microsoft (r) Visual Studio (r).
 - Set your startup project to ConsoleRunner.
 - Enjoy
+- See this [getting started](http://developer.telerik.com/featured/a-look-at-the-open-source-justdecompile-engine/) post for more info. 
 
 ## Working with JustDecompile Engine
 
