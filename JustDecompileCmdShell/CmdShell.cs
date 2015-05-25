@@ -149,9 +149,10 @@ namespace JustDecompileCmdShell
             MSBuildProjectBuilder projectBuilder = GetProjectBuilder(assembly, projectInfo, settings, projectInfo.Language, projFilePath, preferences, frameworkResolver);
             ConfigurateProjectBuilder(projectBuilder);
 
-            DateTime startTime = DateTime.Now;
+            //As per https://github.com/telerik/JustDecompileEngine/pull/2
+            DateTime startTime = DateTime.UtcNow;
             projectBuilder.BuildProject();
-            TimeSpan projectGenerationTime = DateTime.Now - startTime;
+            TimeSpan projectGenerationTime = DateTime.UtcNow - startTime;
             return projectGenerationTime;
         }
 
