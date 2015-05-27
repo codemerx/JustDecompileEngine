@@ -17,6 +17,8 @@ Unless required by applicable law or agreed to in writing, software distributed 
 - Set your startup project to ConsoleRunner.
 - Enjoy
 
+See this [getting started](http://developer.telerik.com/featured/a-look-at-the-open-source-justdecompile-engine/) post for more info. 
+
 ## Working with JustDecompile Engine
 
 JustDecompile UI remains private at this time. JustDecompile, however, has rich console functionality and that has been opensourced here.
