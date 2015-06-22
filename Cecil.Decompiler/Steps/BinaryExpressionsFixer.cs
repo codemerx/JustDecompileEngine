@@ -184,6 +184,33 @@ namespace Telerik.JustDecompiler.Steps
                 }
             }
 
+            if (expression.Operator == BinaryOperator.GreaterThan &&
+                expression.MappedInstructions.Count() == 1 &&
+                expression.MappedInstructions.First().OpCode.Code == Code.Cgt_Un)
+            {
+                LiteralExpression literal = null;
+                if (expression.Right.CodeNodeType == CodeNodeType.LiteralExpression)
+                {
+                    literal = expression.Right as LiteralExpression;
+                }
+                else if (expression.Right.CodeNodeType == CodeNodeType.CastExpression)
+                {
+                    CastExpression cast = expression.Right as CastExpression;
+                    if (cast.Expression.CodeNodeType == CodeNodeType.LiteralExpression)
+                    {
+                        literal = cast.Expression as LiteralExpression;
+                    }
+                }
+
+                if (literal != null)
+                {
+                    if (literal.Value == null || literal.Value.Equals(0))
+                    {
+                        expression.Operator = BinaryOperator.ValueInequality;
+                    }
+                }
+            }
+
             /// Adds cast to object if needed.
             if (expression.IsObjectComparison)
             {
