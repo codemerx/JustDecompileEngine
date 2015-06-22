@@ -178,6 +178,11 @@ namespace Telerik.JustDecompiler.Languages
 					return this.TypeContext.MethodDefinitionToNameMap[methodDefinition];
 				}
 
+                if (this.TypeContext.GeneratedMethodDefinitionToNameMap.ContainsKey(methodDefinition))
+                {
+                    return this.TypeContext.GeneratedMethodDefinitionToNameMap[methodDefinition];
+                }
+
 				return this.ModuleContext.RenamedMembersMap[methodDefinition.MetadataToken.ToUInt32()];
 			}
 
@@ -354,6 +359,10 @@ namespace Telerik.JustDecompiler.Languages
 
             writingInfo.AutoImplementedProperties.UnionWith(writerContext.TypeContext.AutoImplementedProperties);
             writingInfo.AutoImplementedEvents.UnionWith(writerContext.TypeContext.AutoImplementedEvents);
+            foreach (GeneratedMethod generatedFilterMethod in writerContext.TypeContext.GeneratedFilterMethods)
+            {
+                writingInfo.GeneratedFilterMethods.Add(generatedFilterMethod.Method);
+            }
         }
 
         public virtual List<WritingInfo> Write(IMemberDefinition member, IWriterContextService writerContextService, bool writeDocumentation, bool showCompilerGeneratedMembers = false)
@@ -858,7 +867,8 @@ namespace Telerik.JustDecompiler.Languages
         private void WriteTypeMembers(TypeDefinition type, Action<IMemberDefinition> writeMember, bool showCompilerGeneratedMembers,
             IEnumerable<string> attributesToSkip = null, ICollection<string> fieldsToSkip = null)
         {
-            List<IMemberDefinition> members = Utilities.GetTypeMembers(type, showCompilerGeneratedMembers, attributesToSkip, fieldsToSkip);
+            List<IMemberDefinition> members = Utilities.GetTypeMembers(type, showCompilerGeneratedMembers, attributesToSkip, fieldsToSkip,
+                currentWritingInfo.GeneratedFilterMethods);
 
             if (type.IsEnum)
             {

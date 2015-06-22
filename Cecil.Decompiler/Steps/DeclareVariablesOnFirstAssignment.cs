@@ -242,7 +242,13 @@ namespace Telerik.JustDecompiler.Steps
         void PopulateNotAssigned()
         {
             not_assigned.Clear();
-            not_assigned.UnionWith(methodContext.Variables);
+            foreach (VariableDefinition variable in methodContext.Variables)
+            {
+                if (!methodContext.VariablesToNotDeclare.Contains(variable))
+                {
+                    not_assigned.Add(variable);
+                }
+            }
         }
 
         public override ICodeNode VisitLambdaExpression(LambdaExpression node)

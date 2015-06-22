@@ -478,6 +478,7 @@ namespace Telerik.JustDecompiler.Ast
 		{
 			node.Body = (BlockStatement)Visit(node.Body);
 			node.Variable = (VariableDeclarationExpression)Visit(node.Variable);
+            node.Filter = (Statement)Visit(node.Filter);
 			return node;
 		}
 

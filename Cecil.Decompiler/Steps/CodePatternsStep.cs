@@ -12,6 +12,7 @@ namespace Telerik.JustDecompiler.Steps
 	class CodePatternsStep : BaseCodeTransformer, IDecompilationStep
 	{
         private readonly bool isAggressive;
+        private bool isInFilter;
 
 		private DecompilationContext context;
         private TypeSystem typeSystem;
@@ -20,6 +21,7 @@ namespace Telerik.JustDecompiler.Steps
         public CodePatternsStep(bool isAggressive)
         {
             this.isAggressive = isAggressive;
+            this.isInFilter = false;
         }
 
 		public BlockStatement Process(DecompilationContext context, BlockStatement body)
@@ -77,6 +79,23 @@ namespace Telerik.JustDecompiler.Steps
 			return node;
 		}
 
+        public override ICodeNode VisitCatchClause(CatchClause node)
+        {
+            // If we have a catch clause with filter, we need aggressive inlining (only for TernaryConditionPattern) of the filter block, because our pattern matching relies on this.
+            if (node.Filter != null)
+            {
+                this.isInFilter = true;
+                node.Filter = (Statement)Visit(node.Filter);
+                this.isInFilter = false;
+
+                node.Body = (BlockStatement)Visit(node.Body);
+
+                return node;
+            }
+
+            return base.VisitCatchClause(node);
+        }
+
         private VariableInliningPattern GetVariableInliningPattern(CodePatternsContext patternsContext)
         {
             return isAggressive ? new VariableInliningPatternAggressive(patternsContext, context.MethodContext) : new VariableInliningPattern(patternsContext, context.MethodContext);
@@ -84,7 +103,7 @@ namespace Telerik.JustDecompiler.Steps
 
         private TernaryConditionPattern GetTernaryPattern(CodePatternsContext patternsContext)
         {
-            return isAggressive ? new TernaryConditionPatternAgressive(patternsContext, typeSystem) : new TernaryConditionPattern(patternsContext, typeSystem);
+            return isAggressive || isInFilter ? new TernaryConditionPatternAgressive(patternsContext, typeSystem) : new TernaryConditionPattern(patternsContext, typeSystem);
         }
 
 		private void RemoveRangeAndInsert(BlockStatement block, int startIndex, int length, Statement newStatement)

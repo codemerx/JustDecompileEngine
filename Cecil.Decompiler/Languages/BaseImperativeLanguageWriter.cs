@@ -1772,7 +1772,7 @@ namespace Telerik.JustDecompiler.Languages
 			bool writedOpenBrecket = false;
 			try
 			{
-				Statement statement = method.Body != null && method.Body.Instructions.Count > 0 ? GetStatement(method) : null;
+                Statement statement = method.Body != null && (method.Body.Instructions.Count > 0 || method.IsJustDecompileGenerated) ? GetStatement(method) : null;
 
 				WriteMethodDeclaration(method);
 
@@ -1784,7 +1784,7 @@ namespace Telerik.JustDecompiler.Languages
 				}
 
 				// Empty block
-				if (method.Body.Instructions.Count == 0)
+				if (method.Body.Instructions.Count == 0 && !method.IsJustDecompileGenerated)
 				{
 					WriteBeginBlock();
 					WriteLine();
@@ -1943,7 +1943,7 @@ namespace Telerik.JustDecompiler.Languages
 		protected string GetParameterName(ParameterDefinition parameter)
 		{
 			string paramName = parameter.Name;
-			if (MethodContext != null && MethodContext.Method.Body.Instructions.Count() > 0 && MethodContext.Method == parameter.Method) // this check should be removed once the context is maintained in correct state
+			if (MethodContext != null && (MethodContext.Method.Body.Instructions.Count() > 0 || MethodContext.Method.IsJustDecompileGenerated) && MethodContext.Method == parameter.Method) // this check should be removed once the context is maintained in correct state
 			{
 				if (!MethodContext.ParameterDefinitionToNameMap.TryGetValue(parameter, out paramName))
 				{

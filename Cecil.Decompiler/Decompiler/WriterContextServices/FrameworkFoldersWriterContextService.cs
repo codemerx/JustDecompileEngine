@@ -78,6 +78,8 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 				throw new NotSupportedException("FrameworkFolderWriterContext service supports only methods and properties.");
 			}
 
+            AddGeneratedFilterMethodsToDecompiledType(decompiledType, decompiledType.TypeContext, language);
+
 			return decompiledType;
 		}
 

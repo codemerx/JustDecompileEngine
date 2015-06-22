@@ -367,6 +367,11 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             return CreatePipelineInternal(method, context, true);
         }
 
+        public override BlockDecompilationPipeline CreateFilterMethodPipeline(MethodDefinition method, DecompilationContext context)
+        {
+            return new BlockDecompilationPipeline(VisualBasicFilterMethodDecompilationSteps(method, false), context);
+        }
+
         private DecompilationPipeline CreatePipelineInternal(MethodDefinition method, DecompilationContext context, bool inlineAggressively)
         {
             DecompilationPipeline result = base.CreatePipeline(method, context);
@@ -405,10 +410,36 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
                 new RebuildExpressionTreesStep(),
                 new TransformMemberHandlersStep(),
 				new CodePatternsStep(inlineAggressively),
+                // TransformCatchClausesFilterExpressionStep needs to be after CodePatternsStep,
+                // because it works only if the TernaryConditionPattern has been applied.
+                new TransformCatchClausesFilterExpressionStep(),
                 new DeduceImplicitDelegates(),
 				new CreateIfElseIfStatementsStep(),
 				new ParenthesizeExpressionsStep(),
                 new RemoveUnusedVariablesStep(),
+                // RebuildCatchClausesFilterStep needs to be before DeclareVariablesOnFirstAssignment and after RemoveUnusedVariablesStep.
+                // RebuildCatchClausesFilterStep contains pattern matching and need to be after TransformCatchClausesFilterExpressionStep.
+                new RebuildCatchClausesFilterStep() { Language = this },
+                new DeclareVariablesOnFirstAssignment(),
+                new DeclareTopLevelVariables(),
+                // There were a lot of issues when trying to merge the SelfAssignment step with the CombinedTransformerStep.
+                new SelfAssignement(),
+				new RenameSplitPropertiesMethodsAndBackingFields(),
+                new RenameVBVariables() { Language = this },
+				new CastEnumsToIntegersStep(),
+				new CastIntegersStep(),
+				new ArrayVariablesStep(),
+				new UnsafeMethodBodyStep(),
+				new DetermineDestructorStep(),
+				new DependsOnAnalysisStep(),
+				new DetermineNotSupportedVBCodeStep(),
+            };
+        }
+
+        private IDecompilationStep[] VisualBasicFilterMethodDecompilationSteps(MethodDefinition method, bool inlineAggressively)
+        {
+            return new IDecompilationStep[]
+            {
                 new DeclareVariablesOnFirstAssignment(),
                 new DeclareTopLevelVariables(),
                 // There were a lot of issues when trying to merge the SelfAssignment step with the CombinedTransformerStep.

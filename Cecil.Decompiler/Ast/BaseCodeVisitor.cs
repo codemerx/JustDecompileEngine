@@ -499,6 +499,7 @@ namespace Telerik.JustDecompiler.Ast
 		{
 			Visit(node.Body);
 			Visit(node.Variable);
+            Visit(node.Filter);
 		}
 
 		public virtual void VisitTryStatement(TryStatement node)

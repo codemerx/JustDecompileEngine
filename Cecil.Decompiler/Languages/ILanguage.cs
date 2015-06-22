@@ -72,6 +72,8 @@ namespace Telerik.JustDecompiler.Languages
 
         DecompilationPipeline CreateLambdaPipeline(MethodDefinition method, DecompilationContext context);
 
+        BlockDecompilationPipeline CreateFilterMethodPipeline(MethodDefinition method, DecompilationContext context);
+
 		string GetExplicitName(IMemberDefinition member);
 
 		string ReplaceInvalidCharactersInIdentifier(string identifier);

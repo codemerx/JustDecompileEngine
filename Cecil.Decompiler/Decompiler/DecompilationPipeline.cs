@@ -36,9 +36,9 @@ namespace Telerik.JustDecompiler.Decompiler
     {
         private readonly List<IDecompilationStep> steps;
 
-        public DecompilationContext Context { get; private set; }
+        public DecompilationContext Context { get; protected set; }
 
-        public BlockStatement Body { get; private set; }
+        public BlockStatement Body { get; protected set; }
 
 		public DecompilationPipeline(params IDecompilationStep [] steps)
 		: this(steps as IEnumerable<IDecompilationStep>)
@@ -67,11 +67,16 @@ namespace Telerik.JustDecompiler.Decompiler
                 this.Context = GetNewContext(body);
             }
 
-			BlockStatement block = new BlockStatement();
+            Body = RunInternal(body, new BlockStatement(), language);
 
+            return Context;
+        }
+
+        protected BlockStatement RunInternal(MethodBody body, BlockStatement block, ILanguage language)
+        {
             try
             {
-                if (body.Instructions.Count != 0)
+                if (body.Instructions.Count != 0 || body.Method.IsJustDecompileGenerated)
                 {
                     foreach (IDecompilationStep step in steps)
                     {
@@ -92,8 +97,7 @@ namespace Telerik.JustDecompiler.Decompiler
                 }
             }
 
-            Body = block;
-            return Context;
+            return block;
         }
 
         private DecompilationContext GetNewContext(MethodBody body)

@@ -36,6 +36,7 @@ namespace Telerik.JustDecompiler.Decompiler
 			this.IsDestructor = false;
             this.UndeclaredLinqVariables = new HashSet<VariableDefinition>();
             this.ClosureVariableToFieldValue = new Dictionary<VariableReference, Dictionary<FieldDefinition, Expression>>();
+            this.VariablesToNotDeclare = new HashSet<VariableDefinition>();
         }
 
         public MethodSpecificContext(MethodBody body,
@@ -46,6 +47,53 @@ namespace Telerik.JustDecompiler.Decompiler
             this.VariableDefinitionToNameMap = variableDefinitionToNameMap;
             this.ParameterDefinitionToNameMap = parameterDefinitionTonameMap;
             this.CtorInvokeExpression = ctorInvokeExpression;
+        }
+
+        internal MethodSpecificContext(DecompilationAnalysisResults analysisResults, YieldData yieldData, AsyncData asyncData,
+            bool isMethodBodyChanged, Dictionary<string, Statement> gotoLabels, List<GotoStatement> gotoStatements,
+            StackUsageData stackData, bool isBaseConstructorInvokingConstructor, bool enableEventAnalysis,
+            MethodBody body, Collection<VariableDefinition> variables, ControlFlowGraph controlFlowGraph,
+            ExpressionDecompilerData expressions, BlockLogicalConstruct logicalConstructsTree, LogicalFlowBuilderContext logicalConstructsContext,
+            MethodInvocationExpression ctorInvokeExpression, Dictionary<Statement, ILogicalConstruct> statementToLogicalConstruct,
+            Dictionary<ILogicalConstruct, List<Statement>> logicalConstructToStatements, Dictionary<VariableDefinition, string> variableDefinitionToNameMap,
+            HashSet<string> variableNamesCollection, Dictionary<ParameterDefinition, string> parameterDefinitionToNameMap,
+            HashSet<VariableDefinition> variablesToRename, Dictionary<FieldDefinition, Expression> fieldToExpression,
+            int lambdaVariablesCount, Dictionary<VariableDefinition, AssignmentType> variableAssignmentData, List<ParameterDefinition> outParametersToAssign,
+            bool isDestructor, BlockStatement destructorStatements, HashSet<VariableDefinition> undeclaredLinqVariables,
+            Dictionary<VariableReference, Dictionary<FieldDefinition, Expression>> closureVariableToFieldValue,
+            HashSet<VariableDefinition> variablesToNotDeclare)
+        {
+            this.AnalysisResults = analysisResults;
+            this.YieldData = yieldData;
+            this.AsyncData = asyncData;
+            this.IsMethodBodyChanged = isMethodBodyChanged;
+            this.GotoLabels = gotoLabels;
+            this.GotoStatements = gotoStatements;
+            this.StackData = stackData;
+            this.IsBaseConstructorInvokingConstructor = isBaseConstructorInvokingConstructor;
+            this.EnableEventAnalysis = enableEventAnalysis;
+            this.Body = body;
+            this.Variables = variables;
+            this.ControlFlowGraph = controlFlowGraph;
+            this.Expressions = expressions;
+            this.LogicalConstructsTree = logicalConstructsTree;
+            this.LogicalConstructsContext = logicalConstructsContext;
+            this.CtorInvokeExpression = ctorInvokeExpression;
+            this.StatementToLogicalConstruct = statementToLogicalConstruct;
+            this.LogicalConstructToStatements = logicalConstructToStatements;
+            this.VariableDefinitionToNameMap = variableDefinitionToNameMap;
+            this.VariableNamesCollection = variableNamesCollection;
+            this.ParameterDefinitionToNameMap = parameterDefinitionToNameMap;
+            this.VariablesToRename = variablesToRename;
+            this.FieldToExpression = fieldToExpression;
+            this.LambdaVariablesCount = lambdaVariablesCount;
+            this.VariableAssignmentData = variableAssignmentData;
+            this.OutParametersToAssign = outParametersToAssign;
+            this.IsDestructor = isDestructor;
+            this.DestructorStatements = destructorStatements;
+            this.UndeclaredLinqVariables = undeclaredLinqVariables;
+            this.ClosureVariableToFieldValue = closureVariableToFieldValue;
+            this.VariablesToNotDeclare = variablesToNotDeclare;
         }
 
         public DecompilationAnalysisResults AnalysisResults { get; set; }
@@ -169,5 +217,7 @@ namespace Telerik.JustDecompiler.Decompiler
         public HashSet<VariableDefinition> UndeclaredLinqVariables { get; private set; }
 
         public Dictionary<VariableReference, Dictionary<FieldDefinition, Expression>> ClosureVariableToFieldValue { get; private set; }
+
+        public HashSet<VariableDefinition> VariablesToNotDeclare { get; private set; }
     }
 }

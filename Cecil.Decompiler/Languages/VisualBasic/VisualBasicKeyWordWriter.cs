@@ -559,5 +559,10 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
         {
             get { return "Descending"; }
         }
+
+        public string When
+        {
+            get { return "When"; }
+        }
     }
 }

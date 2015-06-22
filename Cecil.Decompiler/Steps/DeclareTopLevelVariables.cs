@@ -50,7 +50,14 @@ namespace Telerik.JustDecompiler.Steps
 		{
             this.context = context;
             this.typeSystem = context.MethodContext.Method.Module.TypeSystem;
-            this.methodVariables = new Collection<VariableDefinition>(context.MethodContext.Variables);
+            this.methodVariables = new Collection<VariableDefinition>();
+            foreach (VariableDefinition variable in context.MethodContext.Variables)
+            {
+                if (!context.MethodContext.VariablesToNotDeclare.Contains(variable))
+                {
+                    methodVariables.Add(variable);
+                }
+            }
 			codeNodeTypes.Push(CodeNodeType.BlockStatement);
 			Visit(block);
 			codeNodeTypes.Pop();

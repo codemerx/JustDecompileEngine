@@ -1602,6 +1602,14 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 				}
             }
 
+            if (node.Filter != null)
+            {
+                WriteSpace();
+                WriteKeyword(KeyWordWriter.When);
+                WriteSpace();
+                Visit((node.Filter as ExpressionStatement).Expression);
+            }
+
             WriteLine();
             Visit(node.Body);
         }

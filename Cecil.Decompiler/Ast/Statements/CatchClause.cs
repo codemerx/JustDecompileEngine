@@ -42,20 +42,15 @@ namespace Telerik.JustDecompiler.Ast.Statements
 		{
 		}
 
-		public CatchClause(BlockStatement body, TypeReference type, VariableDeclarationExpression variable)
-		{
-			this.Body = body;
-			this.Type = type;
-			this.Variable = variable;
+        public CatchClause(BlockStatement body, TypeReference type, VariableDeclarationExpression variable, Statement filter = null)
+        {
+            this.Body = body;
+            this.Type = type;
+            this.Variable = variable;
+            this.Filter = filter;
 		}
 
-		public CatchClause(BlockStatement filter, BlockStatement body)
-		{
-			this.Filter = filter;
-			this.Body = body;
-		}
-
-		public BlockStatement Filter { get; set; }
+		public Statement Filter { get; set; }
 
 		public BlockStatement Body { get; set; }
 
@@ -90,29 +85,19 @@ namespace Telerik.JustDecompiler.Ast.Statements
         public override Statement Clone()
         {
             BlockStatement bodyClone = Body != null ? (BlockStatement)Body.Clone() : null;
-            if (Filter != null)
-            {
-                return new CatchClause((BlockStatement)Filter.Clone(), bodyClone);
-            }
-            else
-            {
-                VariableDeclarationExpression variableClone = Variable != null ? (VariableDeclarationExpression)Variable.Clone() : null;
-                return new CatchClause(bodyClone, Type, variableClone);
-            }
+            VariableDeclarationExpression variableClone = Variable != null ? (VariableDeclarationExpression)Variable.Clone() : null;
+            Statement filterClone = Filter != null ? (Statement)Filter.Clone() : null;
+
+            return new CatchClause(bodyClone, Type, variableClone, filterClone);
         }
 
         public override Statement CloneStatementOnly()
         {
             BlockStatement bodyClone = Body != null ? (BlockStatement)Body.CloneStatementOnly() : null;
-            if (Filter != null)
-            {
-                return new CatchClause((BlockStatement)Filter.CloneStatementOnly(), bodyClone);
-            }
-            else
-            {
-                VariableDeclarationExpression variableClone = Variable != null ? (VariableDeclarationExpression)Variable.CloneExpressionOnly() : null;
-                return new CatchClause(bodyClone, Type, variableClone);
-            }
+            VariableDeclarationExpression variableClone = Variable != null ? (VariableDeclarationExpression)Variable.CloneExpressionOnly() : null;
+            Statement filterClone = Filter != null ? (Statement)Filter.CloneStatementOnly() : null;
+
+            return new CatchClause(bodyClone, Type, variableClone, filterClone);
         }
     }
 }

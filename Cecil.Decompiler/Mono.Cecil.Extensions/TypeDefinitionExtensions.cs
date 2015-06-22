@@ -209,7 +209,8 @@ namespace Mono.Cecil.Extensions
         }
 
 		public static IEnumerable<IMemberDefinition> GetMembersSorted(this TypeDefinition typeDefinition, bool showCompilerGeneratedMembers,
-            IEnumerable<string> attributesToSkip = null, ICollection<string> fieldsToSkip = null, HashSet<FieldReference> eventFields = null)
+            IEnumerable<string> attributesToSkip = null, ICollection<string> fieldsToSkip = null, HashSet<FieldReference> eventFields = null,
+            IEnumerable<MethodDefinition> generatedFilterMethods = null)
 		{
             HashSet<FieldReference> backingFields = new HashSet<FieldReference>();
             if (eventFields == null)
@@ -279,7 +280,13 @@ namespace Mono.Cecil.Extensions
 			}
 			if (typeDefinition.HasMethods)
 			{
-				foreach (MethodDefinition method in typeDefinition.Methods.OrderBy(m => m.Name))
+                IEnumerable<MethodDefinition> methods = typeDefinition.Methods;
+                if (generatedFilterMethods != null)
+                {
+                    methods = methods.Concat(generatedFilterMethods);
+                }
+
+				foreach (MethodDefinition method in methods.OrderBy(m => m.Name))
 				{
 					if (method.IsGetter || method.IsSetter)
 					{

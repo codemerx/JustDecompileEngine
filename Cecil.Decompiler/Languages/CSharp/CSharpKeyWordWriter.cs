@@ -556,5 +556,10 @@ namespace Telerik.JustDecompiler.Languages.CSharp
         {
             get { return "descending"; }
         }
+
+        public string When
+        {
+            get { return "when"; }
+        }
     }
 }

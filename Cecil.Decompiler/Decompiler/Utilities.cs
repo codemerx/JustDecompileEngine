@@ -111,11 +111,11 @@ namespace Telerik.JustDecompiler.Decompiler
 		}
 
 		public static List<IMemberDefinition> GetTypeMembers(TypeDefinition type, bool showCompilerGeneratedMembers = true, 
-			IEnumerable<string> attributesToSkip = null, ICollection<string> fieldsToSkip = null)
+			IEnumerable<string> attributesToSkip = null, ICollection<string> fieldsToSkip = null, IEnumerable<MethodDefinition> generatedFilterMethods = null)
 		{
 
 #if !NET35
-			List<IMemberDefinition> members = type.GetMembersSorted(showCompilerGeneratedMembers, attributesToSkip, fieldsToSkip, new HashSet<FieldReference>(type.GetFieldToEventMap().Keys)).ToList();
+            List<IMemberDefinition> members = type.GetMembersSorted(showCompilerGeneratedMembers, attributesToSkip, fieldsToSkip, new HashSet<FieldReference>(type.GetFieldToEventMap().Keys), generatedFilterMethods).ToList();
 #else
 			IEnumerable<FieldDefinition> fields = type.GetFieldToEventMap().Keys;
 			HashSet<FieldReference> temp = new HashSet<FieldReference>();
@@ -125,10 +125,10 @@ namespace Telerik.JustDecompiler.Decompiler
 				temp.Add(fdef);
 			}
 
-			List<IMemberDefinition> members = type.GetMembersSorted(showCompilerGeneratedMembers, attributesToSkip, fieldsToSkip, temp).ToList();
+			List<IMemberDefinition> members = type.GetMembersSorted(showCompilerGeneratedMembers, attributesToSkip, fieldsToSkip, temp, generatedFilterMethods).ToList();
 #endif
 
-			return members;
+            return members;
 		}
 
 		public static bool IsTypeNameInCollisionOnAssemblyLevel(string typeName, AssemblySpecificContext assemblyContext, ModuleSpecificContext mainModuleContext)

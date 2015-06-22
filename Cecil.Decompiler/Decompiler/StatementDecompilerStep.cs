@@ -748,7 +748,7 @@ namespace Telerik.JustDecompiler.Decompiler
                         BlockStatement filterBody = (BlockStatement)ProcessLogicalConstruct(filterHandler.Filter, gotoReachableConstruct)[0];
                         BlockStatement handlerBody = (BlockStatement)ProcessLogicalConstruct(filterHandler.Handler, gotoReachableConstruct)[0];
 
-                        theTry.AddToCatchClauses(new CatchClause(filterBody, handlerBody));
+                        theTry.AddToCatchClauses(new CatchClause(handlerBody, null, null, filterBody));
                     }
                 }
 

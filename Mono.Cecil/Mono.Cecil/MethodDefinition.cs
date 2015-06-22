@@ -81,7 +81,11 @@ namespace Mono.Cecil {
 				/*Telerik Authorship*/
 				return sem_attrs;
 			}
-			set { sem_attrs = value; }
+			set {
+                /*Telerik Authorship*/
+                sem_attrs_ready = true;
+                sem_attrs = value;
+            }
 		}
 		
         /*Telerik Authorship*/
@@ -596,6 +600,9 @@ namespace Mono.Cecil {
                 this.isUnsafe = value;
             }
         }
+
+        /*Telerik Authorship*/
+        public bool IsJustDecompileGenerated { get; set; }
     }
 	static partial class Mixin {
 

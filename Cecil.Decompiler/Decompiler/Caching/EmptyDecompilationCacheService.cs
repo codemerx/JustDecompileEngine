@@ -78,5 +78,9 @@ namespace Telerik.JustDecompiler.Decompiler.Caching
 		public void AddNestedDecompiledTypesToCache(TypeDefinition type, ILanguage language, bool renameInvalidMembers, Dictionary<string, DecompiledType> decompiledTypes)
 		{
 		}
-	}
+
+        public void ReplaceCachedTypeContext(TypeDefinition type, ILanguage language, bool renameInvalidMembers, TypeSpecificContext newContext)
+        {
+        }
+    }
 }

@@ -112,5 +112,6 @@
         string LinqLet { get; }
         string LinqOrderBy { get; }
         string LinqDescending { get; }
+        string When { get; }
     }
 }

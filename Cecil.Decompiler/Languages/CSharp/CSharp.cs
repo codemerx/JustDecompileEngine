@@ -24,6 +24,7 @@
 //
 #endregion
 using System;
+using System.Linq;
 using Telerik.JustDecompiler.Steps;
 using Mono.Cecil;
 using Telerik.JustDecompiler.Decompiler;
@@ -265,6 +266,11 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             return CreatePipelineInternal(method, context, true);
         }
 
+        public override BlockDecompilationPipeline CreateFilterMethodPipeline(MethodDefinition method, DecompilationContext context)
+        {
+            return new BlockDecompilationPipeline(CSharpFilterMethodDecompilationSteps(method, false), context);
+        }
+
         private DecompilationPipeline CreatePipelineInternal(MethodDefinition method, DecompilationContext context, bool inlineAggressively)
         {
             DecompilationPipeline result = base.CreatePipeline(method, context);
@@ -300,12 +306,40 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                 new RebuildExpressionTreesStep(),
                 new TransformMemberHandlersStep(),
 				new CodePatternsStep(inlineAggressively),
+                // TransformCatchClausesFilterExpressionStep needs to be after CodePatternsStep,
+                // because it works only if the TernaryConditionPattern has been applied.
+                new TransformCatchClausesFilterExpressionStep(),
                 new DetermineCtorInvocationStep(),
                 new DeduceImplicitDelegates(),
                 new RebuildLinqQueriesStep(),
 				new CreateIfElseIfStatementsStep(),
 				new ParenthesizeExpressionsStep(),
                 new RemoveUnusedVariablesStep(),
+                // RebuildCatchClausesFilterStep needs to be before DeclareVariablesOnFirstAssignment and after RemoveUnusedVariablesStep.
+                // RebuildCatchClausesFilterStep contains pattern matching and need to be after TransformCatchClausesFilterExpressionStep.
+                new RebuildCatchClausesFilterStep() { Language = this },
+                new DeclareVariablesOnFirstAssignment(),
+                new DeclareTopLevelVariables(),
+                new AssignOutParametersStep(),
+                // There were a lot of issues when trying to merge the SelfAssignment step with the CombinedTransformerStep.
+                new SelfAssignement(),
+				new RenameSplitPropertiesMethodsAndBackingFields(),
+                new RenameVariables() { Language = this },
+				new CastEnumsToIntegersStep(),
+				new CastIntegersStep(),
+				new ArrayVariablesStep(),
+				new CaseGotoTransformerStep(),
+				new UnsafeMethodBodyStep(),
+				new DetermineDestructorStep(),
+                // DependsOnAnalysisStep must be always last step, because it make analysis on the final decompilation result.
+				new DependsOnAnalysisStep(),
+            };
+        }
+
+        private IDecompilationStep[] CSharpFilterMethodDecompilationSteps(MethodDefinition method, bool inlineAggressively)
+        {
+            return new IDecompilationStep[]
+            {
                 new DeclareVariablesOnFirstAssignment(),
                 new DeclareTopLevelVariables(),
                 new AssignOutParametersStep(),

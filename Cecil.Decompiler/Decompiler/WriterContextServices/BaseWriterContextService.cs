@@ -138,6 +138,15 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 			}
 		}
 
+        protected void AddGeneratedFilterMethodsToDecompiledType(DecompiledType decompiledType, TypeSpecificContext context, ILanguage language)
+        {
+            foreach (GeneratedMethod generatedMethod in context.GeneratedFilterMethods)
+            {
+                CachedDecompiledMember member = new CachedDecompiledMember(new DecompiledMember(Utilities.GetMemberUniqueName(generatedMethod.Method), generatedMethod.Body, generatedMethod.Context));
+                AddDecompiledMemberToDecompiledType(member, decompiledType);
+            }
+        }
+
 		protected void DecompileMember(MethodDefinition method, ILanguage language, DecompiledType decompiledType)
 		{
 			if (method.IsConstructor && !method.IsStatic && method.HasBody)
@@ -168,7 +177,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 				this.cacheService.AddDecompiledMemberToCache(method, language, this.renameInvalidMembers, methodCache);
 				return;
 			}
-			CachedDecompiledMember originalConstructor = DecompileMethod(language, method, decompiledType.TypeContext.ShallowPartialClone());
+            CachedDecompiledMember originalConstructor = DecompileMethod(language, method, decompiledType.TypeContext.ShallowPartialClone());
 			List<CachedDecompiledMember> allConstructors = new List<CachedDecompiledMember>();
 			TypeDefinition declaringType = method.DeclaringType;
 			if (!method.IsStatic)
@@ -217,8 +226,8 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 						}
 					}
 					AddDecompiledMemberToDecompiledType(constructor, decompiledType);
-					//UpdateTypeContext(decompiledType.TypeContext, constructor);
-				}
+                    //UpdateTypeContext(decompiledType.TypeContext, constructor);
+                }
 			}
 		}
 
@@ -395,6 +404,11 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 				}
 			}
 
+            foreach (DecompiledType decompiledType in decompiledTypes.Values)
+            {
+                AddGeneratedFilterMethodsToDecompiledType(decompiledType, decompiledType.TypeContext, language);
+            }
+
 			return decompiledTypes;
 		}
 
@@ -452,33 +466,66 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 			TypeSpecificContext typeContext;
 			if (this.cacheService.IsTypeContextInCache(type, language, this.renameInvalidMembers))
 			{
+                if (decompiledCurrentType.TypeContext.GeneratedFilterMethods.Count > 0)
+                {
+                    this.cacheService.ReplaceCachedTypeContext(type, language, this.renameInvalidMembers, decompiledCurrentType.TypeContext);
+                }
+
 				typeContext = this.cacheService.GetTypeContextFromCache(type, language, this.renameInvalidMembers);
 			}
 			else
 			{
-				ICollection<TypeReference> typesDependingOn = GetTypesDependingOn(decompiledTypes, language);
-				ICollection<string> usedNamespaces = GetUsedNamespaces(typesDependingOn, type.Namespace);
-				ICollection<string> visibleMembersNames = GetTypeVisibleMembersNames(type, language);
-				ExplicitlyImplementedMembersCollection explicitlyImplementedInterfaceMethods = GetExplicitlyImplementedInterfaceMethods(type, language);
-
-				typeContext = new TypeSpecificContext(
-					type, 
-					decompiledCurrentType.TypeContext.MethodDefinitionToNameMap,
-					decompiledCurrentType.TypeContext.BackingFieldToNameMap, 
-					usedNamespaces, 
-					visibleMembersNames, 
-					decompiledCurrentType.TypeContext.AssignmentData,
-					GetAutoImplementedProperties(decompiledTypes),
-					GetAutoImplementedEvents(decompiledTypes), 
-					explicitlyImplementedInterfaceMethods,
-					this.ExceptionsWhileDecompiling
-				);
+                typeContext = CreateTypeContext(type, language, decompiledTypes, decompiledCurrentType);
 
 				this.cacheService.AddTypeContextToCache(type, language, this.renameInvalidMembers, typeContext);
 			}
 
 			return typeContext;
 		}
+
+        private TypeSpecificContext CreateTypeContext(TypeDefinition type, ILanguage language, Dictionary<string, DecompiledType> decompiledTypes, DecompiledType decompiledCurrentType)
+        {
+            ICollection<TypeReference> typesDependingOn = GetTypesDependingOn(decompiledTypes, language);
+            ICollection<string> usedNamespaces = GetUsedNamespaces(typesDependingOn, type.Namespace);
+            ICollection<string> visibleMembersNames = GetTypeVisibleMembersNames(type, language);
+            ExplicitlyImplementedMembersCollection explicitlyImplementedInterfaceMethods = GetExplicitlyImplementedInterfaceMethods(type, language);
+
+            return new TypeSpecificContext(
+                type,
+                decompiledCurrentType.TypeContext.MethodDefinitionToNameMap,
+                decompiledCurrentType.TypeContext.BackingFieldToNameMap,
+                usedNamespaces,
+                visibleMembersNames,
+                decompiledCurrentType.TypeContext.AssignmentData,
+                GetAutoImplementedProperties(decompiledTypes),
+                GetAutoImplementedEvents(decompiledTypes),
+                explicitlyImplementedInterfaceMethods,
+                this.ExceptionsWhileDecompiling,
+                decompiledCurrentType.TypeContext.GeneratedFilterMethods,
+                decompiledCurrentType.TypeContext.GeneratedMethodDefinitionToNameMap
+            );
+        }
+
+        protected void AddTypeContextsToCache(Dictionary<string, DecompiledType> decompiledTypes, TypeDefinition outerMostDeclaringType, ILanguage language)
+        {
+            foreach (KeyValuePair<string, DecompiledType> pair in decompiledTypes)
+            {
+                if (!this.cacheService.IsTypeContextInCache(pair.Value.Type, language, this.renameInvalidMembers))
+                {
+                    TypeSpecificContext context;
+                    if (pair.Value.Type == outerMostDeclaringType)
+                    {
+                        context = CreateTypeContext(pair.Value.Type, language, decompiledTypes, pair.Value);
+                    }
+                    else
+                    {
+                        context = pair.Value.TypeContext;
+                    }
+
+                    this.cacheService.AddTypeContextToCache(pair.Value.Type, language, this.renameInvalidMembers, context);
+                }
+            }
+        }
 
 		private ICollection<string> GetTypeVisibleMembersNames(TypeDefinition type, ILanguage language)
 		{

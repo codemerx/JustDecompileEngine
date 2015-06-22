@@ -196,6 +196,11 @@ namespace Telerik.JustDecompiler.Languages
             throw new NotSupportedException();
         }
 
+        public virtual BlockDecompilationPipeline CreateFilterMethodPipeline(MethodDefinition method, DecompilationContext context)
+        {
+            throw new NotSupportedException();
+        }
+
         public void StopPipeline()
         {
             IsStopped = true;

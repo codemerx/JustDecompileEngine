@@ -25,6 +25,7 @@ namespace Telerik.JustDecompiler.Languages
 			this.MemberTokenToDocumentationMap = new Dictionary<uint, OffsetSpan>();
 			this.MemberTokenToDecompiledCodeMap = new Dictionary<uint, OffsetSpan>();
 			this.MembersWithExceptions = new HashSet<uint>();
+            this.GeneratedFilterMethods = new List<MethodDefinition>();
         }
 
         public Dictionary<ICodeNode, OffsetSpan> StatementPositions { get; private set; }
@@ -44,5 +45,6 @@ namespace Telerik.JustDecompiler.Languages
 		public Dictionary<uint, OffsetSpan> MemberTokenToDecompiledCodeMap { get; private set; }
 		public HashSet<IMemberDefinition> ExceptionsWhileWriting;
 		public HashSet<uint> MembersWithExceptions { get; private set; }
+        public IList<MethodDefinition> GeneratedFilterMethods { get; private set; }
     }
 }

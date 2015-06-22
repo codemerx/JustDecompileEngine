@@ -41,12 +41,15 @@ namespace Telerik.JustDecompiler.Decompiler
 		public ExplicitlyImplementedMembersCollection ExplicitlyImplementedMembers { get; set; }
 		public ICollection<MethodDefinition> ExceptionWhileDecompiling { get; private set; }
         public bool IsWinRTImplementation { get; set; }
+        public IList<GeneratedMethod> GeneratedFilterMethods { get; set; }
+        public IDictionary<MethodDefinition, string> GeneratedMethodDefinitionToNameMap { get; set; }
 
 		public TypeSpecificContext(TypeDefinition currentType, Dictionary<MethodDefinition, string> methodDefinitionToNameMap, 
 			Dictionary<FieldDefinition, string> backingFieldToNameMap, ICollection<string> usedNamespaces, ICollection<string> visibleMembersNames,
 			Dictionary<string, InitializationAssignment> fieldToAssignedExpression, HashSet<PropertyDefinition> autoImplementedProperties,
 			HashSet<EventDefinition> autoImplementedEvents, ExplicitlyImplementedMembersCollection explicitlyImplementedMembers,
-			ICollection<MethodDefinition> exceptionsWhileDecompiling)
+            ICollection<MethodDefinition> exceptionsWhileDecompiling, IList<GeneratedMethod> generatedFilterMethods,
+            IDictionary<MethodDefinition, string> generatedMethodDefinitionToNameMap)
 		{
 			this.CurrentType = currentType;
 			this.MethodDefinitionToNameMap = methodDefinitionToNameMap;
@@ -59,7 +62,9 @@ namespace Telerik.JustDecompiler.Decompiler
 			this.AutoImplementedProperties = autoImplementedProperties;
 			this.AutoImplementedEvents = autoImplementedEvents;
 			this.ExplicitlyImplementedMembers = explicitlyImplementedMembers;
-			this.ExceptionWhileDecompiling = exceptionsWhileDecompiling;
+            this.ExceptionWhileDecompiling = exceptionsWhileDecompiling;
+            this.GeneratedFilterMethods = generatedFilterMethods;
+            this.GeneratedMethodDefinitionToNameMap = generatedMethodDefinitionToNameMap;
 		}
         
         public TypeSpecificContext(TypeDefinition currentType)
@@ -75,7 +80,9 @@ namespace Telerik.JustDecompiler.Decompiler
 			this.AutoImplementedProperties = new HashSet<PropertyDefinition>();
 			this.AutoImplementedEvents = new HashSet<EventDefinition>();
 			this.ExplicitlyImplementedMembers = new ExplicitlyImplementedMembersCollection();
-			this.ExceptionWhileDecompiling = new List<MethodDefinition>();
+            this.ExceptionWhileDecompiling = new List<MethodDefinition>();
+            this.GeneratedFilterMethods = new List<GeneratedMethod>();
+            this.GeneratedMethodDefinitionToNameMap = new Dictionary<MethodDefinition, string>();
 		}
 
         private TypeSpecificContext ()
@@ -94,6 +101,8 @@ namespace Telerik.JustDecompiler.Decompiler
             partialClone.fieldToEventMap = this.FieldToEventMap;
             partialClone.methodToPropertyMap = this.MethodToPropertyMap;
             partialClone.IsWinRTImplementation = this.IsWinRTImplementation;
+            partialClone.GeneratedFilterMethods = this.GeneratedFilterMethods;
+            partialClone.GeneratedMethodDefinitionToNameMap = this.GeneratedMethodDefinitionToNameMap;
 
 			partialClone.AssignmentData = new Dictionary<string, InitializationAssignment>();
             partialClone.BaseCtorInvocators = new HashSet<MethodDefinition>();

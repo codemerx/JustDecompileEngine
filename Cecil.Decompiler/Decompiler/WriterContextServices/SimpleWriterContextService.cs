@@ -16,39 +16,49 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 
 		public override WriterContext GetWriterContext(IMemberDefinition member, ILanguage language)
 		{
-			TypeSpecificContext typeContext;
+            TypeSpecificContext cachedTypeContext;
 			DecompiledType decompiledType;
 
 			if (member is TypeDefinition && member == Utilities.GetOuterMostDeclaringType(member))
 			{
 				TypeDefinition type = member as TypeDefinition;
 				Dictionary<string, DecompiledType> decompiledTypes = GetNestedDecompiledTypes(type, language);
-				
-				TypeSpecificContext cachedTypeContext = GetTypeContext(type, language, decompiledTypes);
 
-				typeContext = new TypeSpecificContext(
-					cachedTypeContext.CurrentType, 
-					cachedTypeContext.MethodDefinitionToNameMap, 
-					cachedTypeContext.BackingFieldToNameMap, 
-					cachedTypeContext.UsedNamespaces, 
-					new HashSet<string>(), 
-					cachedTypeContext.AssignmentData,
-					cachedTypeContext.AutoImplementedProperties,
-					cachedTypeContext.AutoImplementedEvents,
-					cachedTypeContext.ExplicitlyImplementedMembers,
-					cachedTypeContext.ExceptionWhileDecompiling
-				);
+				cachedTypeContext = GetTypeContext(type, language, decompiledTypes);
 
-				if (!decompiledTypes.TryGetValue(type.FullName, out decompiledType))
-				{
-					throw new Exception("Decompiled type not found in decompiled types cache.");
-				}
+                AddTypeContextsToCache(decompiledTypes, type, language);
+
+                if (!decompiledTypes.TryGetValue(type.FullName, out decompiledType))
+                {
+                    throw new Exception("Decompiled type not found in decompiled types cache.");
+                }
 			}
 			else
 			{
 				decompiledType = GetDecompiledType(member, language);
-				typeContext = decompiledType.TypeContext;
-			}
+                cachedTypeContext = GetTypeContext(decompiledType, language);
+            }
+
+            TypeSpecificContext typeContext = new TypeSpecificContext(
+                cachedTypeContext.CurrentType,
+                cachedTypeContext.MethodDefinitionToNameMap,
+                cachedTypeContext.BackingFieldToNameMap,
+                cachedTypeContext.UsedNamespaces,
+                new HashSet<string>(),
+                cachedTypeContext.AssignmentData,
+                cachedTypeContext.AutoImplementedProperties,
+                cachedTypeContext.AutoImplementedEvents,
+                cachedTypeContext.ExplicitlyImplementedMembers,
+                cachedTypeContext.ExceptionWhileDecompiling,
+                cachedTypeContext.GeneratedFilterMethods,
+                cachedTypeContext.GeneratedMethodDefinitionToNameMap
+            );
+
+            // If members were taken from the cache, generated filter methods must be added to decompiled type.
+            if (typeContext.GeneratedFilterMethods.Count > 0)
+            {
+                AddGeneratedFilterMethodsToDecompiledType(decompiledType, typeContext, language);
+            }
 
 			Dictionary<string, MethodSpecificContext> methodContexts = new Dictionary<string, MethodSpecificContext>();
 			Dictionary<string, Statement> decompiledStatements = new Dictionary<string, Statement>();
@@ -68,6 +78,29 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 
 			return writerContext;
 		}
+
+        private TypeSpecificContext GetTypeContext(DecompiledType decompiledType, ILanguage language)
+        {
+            TypeSpecificContext typeContext;
+            TypeDefinition type = decompiledType.Type;
+            if (this.cacheService.IsTypeContextInCache(type, language, this.renameInvalidMembers))
+            {
+                if (decompiledType.TypeContext.GeneratedFilterMethods.Count > 0)
+                {
+                    this.cacheService.ReplaceCachedTypeContext(type, language, this.renameInvalidMembers, decompiledType.TypeContext);
+                }
+
+                typeContext = this.cacheService.GetTypeContextFromCache(type, language, this.renameInvalidMembers);
+            }
+            else
+            {
+                typeContext = decompiledType.TypeContext;
+
+                this.cacheService.AddTypeContextToCache(type, language, this.renameInvalidMembers, typeContext);
+            }
+
+            return typeContext;
+        }
 
 		public override AssemblySpecificContext GetAssemblyContext(AssemblyDefinition assembly, ILanguage language)
 		{
@@ -201,6 +234,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 			}
 
 			decompiledType.TypeContext.ExplicitlyImplementedMembers = GetExplicitlyImplementedInterfaceMethods(declaringType, language);
+            AddGeneratedFilterMethodsToDecompiledType(decompiledType, decompiledType.TypeContext, language);
 
 			return decompiledType;
 		}

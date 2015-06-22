@@ -85,7 +85,9 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 			}
 
 			TypeSpecificContext typeContext = GetTypeContext(outerMostDeclaringType, language, decompiledTypes);
-			
+
+            AddTypeContextsToCache(decompiledTypes, outerMostDeclaringType, language);
+
 			Dictionary<string, MethodSpecificContext> methodContexts = new Dictionary<string, MethodSpecificContext>();
 			Dictionary<string, Statement> decompiledStatements = new Dictionary<string, Statement>();
 
@@ -96,7 +98,13 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 				throw new Exception("Decompiled type missing from DecompiledTypes cache.");
 			}
 			else
-			{
+            {
+                // If members were taken from the cache, generated filter methods must be added to decompiled type.
+                if (typeContext.GeneratedFilterMethods.Count > 0)
+                {
+                    AddGeneratedFilterMethodsToDecompiledType(decompiledType, typeContext, language);
+                }
+
 				foreach (DecompiledMember decompiledMember in decompiledType.DecompiledMembers.Values)
 				{
 					methodContexts.Add(decompiledMember.MemberFullName, decompiledMember.Context);

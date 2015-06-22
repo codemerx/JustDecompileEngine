@@ -160,6 +160,22 @@ namespace Telerik.JustDecompiler.Decompiler.Caching
 			typeContextsCache.Add(typeKey, typeContext);
 		}
 
+        public void ReplaceCachedTypeContext(TypeDefinition type, ILanguage language, bool renameInvalidMembers, TypeSpecificContext newContext)
+        {
+            if (newContext == null)
+            {
+                throw new ArgumentNullException("newContext");
+            }
+
+            RemoveTypeContextFromCache(type, language, renameInvalidMembers);
+            AddTypeContextToCache(type, language, renameInvalidMembers, newContext);
+        }
+
+        private void RemoveTypeContextFromCache(TypeDefinition type, ILanguage language, bool renameInvalidMembers)
+        {
+            typeContextsCache.Remove(GetTypeKey(type, language, renameInvalidMembers));
+        }
+
 		public bool IsDecompiledMemberInCache(IMemberDefinition member, ILanguage language, bool renameInvalidMembers)
 		{
 			return false;
@@ -181,5 +197,5 @@ namespace Telerik.JustDecompiler.Decompiler.Caching
 			moduleContextsCache.Clear();
 			moduleContextsKeysMap.Clear();
 		}
-	}
+    }
 }
