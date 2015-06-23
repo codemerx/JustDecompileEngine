@@ -36,7 +36,7 @@ namespace Telerik.JustDecompiler.Steps
             this.operatorStep = new OperatorStep(this, typeSystem);
             this.removePIDStep = new RemovePrivateImplementationDetailsStep(typeSystem);
             this.rebuildEventsStep = new RebuildEventsStep(typeSystem);
-            this.propertyRecognizer = new PropertyRecognizer(typeSystem);
+            this.propertyRecognizer = new PropertyRecognizer(typeSystem, context.TypeContext);
             this.rebuildAnonymousInitializersStep = new RebuildAnonymousTypesInitializersStep(this, typeSystem);
 			this.fixSwitchConditionStep = new FixSwitchConditionStep(context);
             return (BlockStatement)VisitBlockStatement(body);

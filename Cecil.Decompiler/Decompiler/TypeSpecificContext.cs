@@ -26,6 +26,20 @@ namespace Telerik.JustDecompiler.Decompiler
 			}
 		}
 
+        private Dictionary<FieldDefinition, PropertyDefinition> fieldToPropertyMap;
+        public Dictionary<FieldDefinition, PropertyDefinition> FieldToPropertyMap
+        {
+            get
+            {
+                if (fieldToPropertyMap == null)
+                {
+                    fieldToPropertyMap = this.CurrentType.GetFieldToPropertyMap();
+                }
+
+                return fieldToPropertyMap;
+            }
+        }
+
 		public Dictionary<string, InitializationAssignment> AssignmentData { get; set; }
 
         public TypeDefinition CurrentType { get; private set; }
@@ -101,6 +115,7 @@ namespace Telerik.JustDecompiler.Decompiler
             partialClone.fieldToEventMap = this.FieldToEventMap;
             partialClone.methodToPropertyMap = this.MethodToPropertyMap;
             partialClone.IsWinRTImplementation = this.IsWinRTImplementation;
+            partialClone.fieldToPropertyMap = this.fieldToPropertyMap;
             partialClone.GeneratedFilterMethods = this.GeneratedFilterMethods;
             partialClone.GeneratedMethodDefinitionToNameMap = this.GeneratedMethodDefinitionToNameMap;
 

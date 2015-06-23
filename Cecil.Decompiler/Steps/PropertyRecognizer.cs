@@ -25,18 +25,22 @@
 #endregion
 using Mono.Cecil;
 using Mono.Cecil.Extensions;
+using System.Collections.Generic;
 using Telerik.JustDecompiler.Ast;
 using Telerik.JustDecompiler.Ast.Expressions;
+using Telerik.JustDecompiler.Decompiler;
 
 namespace Telerik.JustDecompiler.Steps
 {
 	public class PropertyRecognizer
 	{
 		private readonly TypeSystem typeSystem;
+        private readonly TypeSpecificContext typeContext;
 
-		public PropertyRecognizer(TypeSystem typeSystem)
+        public PropertyRecognizer(TypeSystem typeSystem, TypeSpecificContext typeContext)
 		{
 			this.typeSystem = typeSystem;
+            this.typeContext = typeContext;
 		}
 
 		public ICodeNode VisitMethodInvocationExpression(MethodInvocationExpression node)
@@ -88,12 +92,31 @@ namespace Telerik.JustDecompiler.Steps
         public ICodeNode VisitFieldReferenceExpression(FieldReferenceExpression node)
         {
             PropertyDefinition property;
-            if (node.Field.IsAutoPropertyConstructorInitializerExpression(out property))
+            if (IsAutoPropertyConstructorInitializerExpression(node.Field, out property))
             {
                 return new AutoPropertyConstructorInitializerExpression(property, node.Target, node.MappedInstructions);
             }
 
             return node;
+        }
+
+        private bool IsAutoPropertyConstructorInitializerExpression(FieldReference fieldReference, out PropertyDefinition property)
+        {
+            FieldDefinition fieldDefinition = fieldReference.Resolve();
+            if (fieldDefinition != null)
+            {
+                Dictionary<FieldDefinition, PropertyDefinition> map = this.typeContext.FieldToPropertyMap;
+                if (map.ContainsKey(fieldDefinition) &&
+                    map[fieldDefinition] != null &&
+                    !map[fieldDefinition].ShouldStaySplit())
+                {
+                    property = map[fieldDefinition];
+                    return true;
+                }
+            }
+
+            property = null;
+            return false;
         }
     }
 }
