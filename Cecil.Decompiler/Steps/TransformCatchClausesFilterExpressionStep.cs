@@ -57,7 +57,7 @@ namespace Telerik.JustDecompiler.Steps
                 return false;
             }
 
-            if (binaryExpression.Operator != BinaryOperator.GreaterThan)
+            if (binaryExpression.Operator != BinaryOperator.ValueInequality)
             {
                 return false;
             }
