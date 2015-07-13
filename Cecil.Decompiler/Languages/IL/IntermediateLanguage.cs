@@ -119,5 +119,13 @@ namespace Telerik.JustDecompiler.Languages.IL
         {
             return "";
         }
+
+        public override bool SupportsGetterOnlyAutoProperties
+        {
+            get
+            {
+                return false;
+            }
+        }
     }
 }

@@ -189,6 +189,14 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             bool result = operators.TryGetValue(operatorName, out languageOperator);
             return result;
         }
+
+        public override bool SupportsGetterOnlyAutoProperties
+        {
+            get
+            {
+                return false;
+            }
+        }
     }
 
     public class CSharpV1 : CSharp
@@ -271,6 +279,13 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             return new BlockDecompilationPipeline(CSharpFilterMethodDecompilationSteps(method, false), context);
         }
 
+        // This pipeline is used by the PropertyDecompiler to finish the decompilation of properties, which are partially decompiled
+        // using the steps from the IntermediateRepresenationPipeline.
+        public override BlockDecompilationPipeline CreatePropertyPipeline(MethodDefinition method, DecompilationContext context)
+        {
+            return new BlockDecompilationPipeline(CSharpDecompilationSteps(method, false), context);
+        }
+
         private DecompilationPipeline CreatePipelineInternal(MethodDefinition method, DecompilationContext context, bool inlineAggressively)
         {
             DecompilationPipeline result = base.CreatePipeline(method, context);
@@ -291,7 +306,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                 new RebuildLambdaExpressions() { Language = this, Method = method },
                 new ResolveDynamicVariablesStep(),
                 new GotoCancelation(),
-                new CombinedTransformerStep() { Method = method },
+                new CombinedTransformerStep() { Language = this, Method = method },
                 new MergeUnaryAndBinaryExpression(),
                 new RemoveLastReturn(),
 				new RebuildSwitchByString(),
@@ -447,6 +462,14 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             return IsGlobalKeyword(word, CSharpV4.languageSpecificGlobalKeywords);
         }
 
+        public override bool SupportsGetterOnlyAutoProperties
+        {
+            get
+            {
+                // TODO: Fix when csharp languages are fixed and CSharpV6 is introduced.
+                return true;
+            }
+        }
     }
 
     public enum CSharpVersion

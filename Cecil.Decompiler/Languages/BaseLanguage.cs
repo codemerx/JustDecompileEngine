@@ -201,6 +201,14 @@ namespace Telerik.JustDecompiler.Languages
             throw new NotSupportedException();
         }
 
+        // This pipeline is used by the PropertyDecompiler to finish the decompilation of properties, which are partially decompiled
+        // using the steps from the IntermediateRepresenationPipeline.
+        public virtual BlockDecompilationPipeline CreatePropertyPipeline(MethodDefinition method, DecompilationContext context)
+        {
+            BlockDecompilationPipeline result = new BlockDecompilationPipeline(new IDecompilationStep[0], context);
+            return result;
+        }
+
         public void StopPipeline()
         {
             IsStopped = true;
@@ -294,5 +302,7 @@ namespace Telerik.JustDecompiler.Languages
 				return true;
 			}
 		}
+
+        public abstract bool SupportsGetterOnlyAutoProperties { get; }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Telerik.JustDecompiler.Languages;
 using Mono.Cecil;
+using Mono.Cecil.Extensions;
 using Telerik.JustDecompiler.Ast.Statements;
 using Telerik.JustDecompiler.Decompiler.MemberRenamingServices;
 
@@ -15,7 +16,9 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 		{
 			TypeDefinition type = Utilities.GetDeclaringTypeOrSelf(member);
 
-			HashSet<PropertyDefinition> autoImplementedProperties = GetAutoImplementedProperties(type);
+            Dictionary<FieldDefinition, PropertyDefinition> fieldToPropertyMap = type.GetFieldToPropertyMap(language);
+            IEnumerable<FieldDefinition> propertyFields = fieldToPropertyMap.Keys;
+            HashSet<PropertyDefinition> autoImplementedProperties = new HashSet<PropertyDefinition>(fieldToPropertyMap.Values);
 			HashSet<EventDefinition> autoImplementedEvents = GetAutoImplementedEvents(type);
 
 			TypeSpecificContext typeContext = new TypeSpecificContext(type) { AutoImplementedProperties = autoImplementedProperties, AutoImplementedEvents = autoImplementedEvents };
@@ -34,7 +37,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 				moduleContext,
 				typeContext,
 				new Dictionary<string, MethodSpecificContext>(), 
-				GetDecompiledStatements(member));
+				GetDecompiledStatements(member, language, propertyFields));
 		}
 
 		public TypeDeclarationsWriterContextService(bool renameInvalidMembers) : base(null, renameInvalidMembers) { }
@@ -46,27 +49,6 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 				// no decompilation is done in TypeDeclarationsWriterContextService
 				return false;
 			}
-		}
-
-		private HashSet<PropertyDefinition> GetAutoImplementedProperties(TypeDefinition type)
-		{
-			HashSet<PropertyDefinition> result = new HashSet<PropertyDefinition>();
-
-			if (type.HasProperties)
-			{
-				foreach (PropertyDefinition property in type.Properties)
-				{
-					AutoImplementedPropertyMatcher matcher = new AutoImplementedPropertyMatcher(property);
-					bool isAutoImplemented = matcher.IsAutoImplemented();
-
-					if (isAutoImplemented)
-					{
-						result.Add(property);
-					}
-				}
-			}
-
-			return result;
 		}
 
 		private HashSet<EventDefinition> GetAutoImplementedEvents(TypeDefinition type)
@@ -90,7 +72,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 			return result;
 		}
 
-		private Dictionary<string, Statement> GetDecompiledStatements(IMemberDefinition member)
+		private Dictionary<string, Statement> GetDecompiledStatements(IMemberDefinition member, ILanguage language, IEnumerable<FieldDefinition> propertyFields)
 		{
 			Dictionary<string, Statement> decompiledStatements = new Dictionary<string, Statement>();
 
@@ -105,7 +87,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 				{
 					TypeDefinition currentType = (currentMember as TypeDefinition);
 
-					List<IMemberDefinition> members = Utilities.GetTypeMembers(currentType);
+					List<IMemberDefinition> members = Utilities.GetTypeMembers(currentType, language, propertyFields: propertyFields);
 					foreach (IMemberDefinition typeMember in members)
 					{
 						decompilationQueue.Enqueue(typeMember);

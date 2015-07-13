@@ -308,6 +308,14 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 				return false;
 			}
 		}
+
+        public override bool SupportsGetterOnlyAutoProperties
+        {
+            get
+            {
+                return false;
+            }
+        }
     }
 
     public class VisualBasicV1 : VisualBasic
@@ -353,7 +361,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
         public override DecompilationPipeline CreatePipeline(MethodDefinition method)
         {
             DecompilationPipeline result = base.CreatePipeline(method);
-            result.AddSteps(VisualBasicDecompilationPipeline(method, false));
+            result.AddSteps(VisualBasicDecompilationSteps(method, false));
             return result;
         }
 
@@ -372,14 +380,21 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             return new BlockDecompilationPipeline(VisualBasicFilterMethodDecompilationSteps(method, false), context);
         }
 
+        // This pipeline is used by the PropertyDecompiler to finish the decompilation of properties, which are partially decompiled
+        // using the steps from the IntermediateRepresenationPipeline.
+        public override BlockDecompilationPipeline CreatePropertyPipeline(MethodDefinition method, DecompilationContext context)
+        {
+            return new BlockDecompilationPipeline(VisualBasicDecompilationSteps(method, false), context);
+        }
+
         private DecompilationPipeline CreatePipelineInternal(MethodDefinition method, DecompilationContext context, bool inlineAggressively)
         {
             DecompilationPipeline result = base.CreatePipeline(method, context);
-            result.AddSteps(VisualBasicDecompilationPipeline(method, inlineAggressively));
+            result.AddSteps(VisualBasicDecompilationSteps(method, inlineAggressively));
             return result;
         }
 
-        private IDecompilationStep[] VisualBasicDecompilationPipeline(MethodDefinition method, bool inlineAggressively)
+        private IDecompilationStep[] VisualBasicDecompilationSteps(MethodDefinition method, bool inlineAggressively)
         {
             return new IDecompilationStep[]
             {
@@ -392,7 +407,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
                 new RebuildAnonymousDelegatesStep() { Language = this },
                 new RebuildLambdaExpressions() { Language = this, Method = method },
 				
-                new CombinedTransformerStep() { Method = method },
+                new CombinedTransformerStep() { Language = this, Method = method },
                 // new RemoveConditionOnlyVariables(),
                 new MergeUnaryAndBinaryExpression(),
                 new RemoveLastReturn(),
@@ -534,6 +549,15 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
         public override bool IsGlobalKeyword(string word)
         {
             return IsGlobalKeyword(word, VisualBasicV4.languageSpecificGlobalKeywords);
+        }
+
+        public override bool SupportsGetterOnlyAutoProperties
+        {
+            get
+            {
+                // TODO: Fix when VB14 is added
+                return true;
+            }
         }
     }
 

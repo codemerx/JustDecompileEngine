@@ -381,25 +381,31 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 					{
 						PropertyDefinition propertyDefinition = (currentMember as PropertyDefinition);
 
-						AutoImplementedPropertyMatcher matcher = new AutoImplementedPropertyMatcher(propertyDefinition);
-						bool isAutoImplemented = matcher.IsAutoImplemented();
+                        DecompiledMember getMethod;
+                        DecompiledMember setMethod;
+                        bool isAutoImplemented;
+
+                        PropertyDecompiler propertyDecompiler = new PropertyDecompiler(propertyDefinition, language, decompiledType.TypeContext);
+                        propertyDecompiler.Decompile(out getMethod, out setMethod, out isAutoImplemented);
 
 						if (isAutoImplemented)
 						{
 							decompiledType.TypeContext.AutoImplementedProperties.Add(propertyDefinition);
 						}
 
-						if (propertyDefinition.GetMethod != null)
-						{
-							//Utilities.AddDecompiledMethodToDecompiledType(propertyDefinition.GetMethod, language, decompiledType);
-							DecompileMember(propertyDefinition.GetMethod, language, decompiledType);
-						}
+                        if (getMethod != null)
+                        {
+                            CachedDecompiledMember cachedGetMethod =
+                                AddDecompiledMemberToCache(propertyDefinition.GetMethod, getMethod, decompiledType.TypeContext, language);
+                            AddDecompiledMemberToDecompiledType(cachedGetMethod, decompiledType);
+                        }
 
-						if (propertyDefinition.SetMethod != null)
-						{
-							//Utilities.AddDecompiledMethodToDecompiledType(propertyDefinition.SetMethod, language, decompiledType);
-							DecompileMember(propertyDefinition.SetMethod, language, decompiledType);
-						}
+                        if (setMethod != null)
+                        {
+                            CachedDecompiledMember cachedSetMethod =
+                                AddDecompiledMemberToCache(propertyDefinition.SetMethod, setMethod, decompiledType.TypeContext, language);
+                            AddDecompiledMemberToDecompiledType(cachedSetMethod, decompiledType);
+                        }
 					}
 				}
 			}
@@ -411,6 +417,17 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 
 			return decompiledTypes;
 		}
+
+        protected CachedDecompiledMember AddDecompiledMemberToCache(IMemberDefinition member, DecompiledMember decompiledMember, TypeSpecificContext typeContext, ILanguage language)
+        {
+            CachedDecompiledMember cachedMember = new CachedDecompiledMember(decompiledMember, typeContext);
+            if (!this.cacheService.IsDecompiledMemberInCache(member, language, this.renameInvalidMembers))
+            {
+                this.cacheService.AddDecompiledMemberToCache(member, language, this.renameInvalidMembers, cachedMember);
+            }
+
+            return cachedMember;
+        }
 
 		private void AddExplicitlyImplementedMembers(ICollection<ImplementedMember> explicitlyImplementedMembers, ExplicitlyImplementedMembersCollection collection)
 		{
@@ -487,7 +504,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
         {
             ICollection<TypeReference> typesDependingOn = GetTypesDependingOn(decompiledTypes, language);
             ICollection<string> usedNamespaces = GetUsedNamespaces(typesDependingOn, type.Namespace);
-            ICollection<string> visibleMembersNames = GetTypeVisibleMembersNames(type, language);
+            ICollection<string> visibleMembersNames = GetTypeVisibleMembersNames(type, language, decompiledTypes);
             ExplicitlyImplementedMembersCollection explicitlyImplementedInterfaceMethods = GetExplicitlyImplementedInterfaceMethods(type, language);
 
             return new TypeSpecificContext(
@@ -527,7 +544,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
             }
         }
 
-		private ICollection<string> GetTypeVisibleMembersNames(TypeDefinition type, ILanguage language)
+		private ICollection<string> GetTypeVisibleMembersNames(TypeDefinition type, ILanguage language, Dictionary<string, DecompiledType> decompiledTypes)
 		{
 			HashSet<string> membersNames = new HashSet<string>(language.IdentifierComparer);
 
@@ -557,7 +574,19 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 					}
 				}
 
-				List<IMemberDefinition> members = Utilities.GetTypeMembers(currentType, true);
+                DecompiledType currentDecompiledType;
+                TypeSpecificContext currentTypeContext;
+                List<FieldDefinition> propertyFields = null;
+                if (decompiledTypes.TryGetValue(currentType.FullName, out currentDecompiledType))
+                {
+                    propertyFields = new List<FieldDefinition>(currentDecompiledType.TypeContext.GetFieldToPropertyMap(language).Keys);
+                }
+                else if (TryGetTypeContextFromCache(currentType, language, out currentTypeContext))
+                {
+                    propertyFields = new List<FieldDefinition>(currentTypeContext.GetFieldToPropertyMap(language).Keys);
+                }
+
+                List<IMemberDefinition> members = Utilities.GetTypeMembers(currentType, language, true, propertyFields: propertyFields);
 				foreach (IMemberDefinition member in members)
 				{
 					if (member is PropertyDefinition)
@@ -619,6 +648,18 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 
 			return membersNames;
 		}
+
+        private bool TryGetTypeContextFromCache(TypeDefinition type, ILanguage language, out TypeSpecificContext typeContext)
+        {
+            typeContext = null;
+
+            if (this.cacheService.IsTypeContextInCache(type, language, this.renameInvalidMembers))
+            {
+                typeContext = this.cacheService.GetTypeContextFromCache(type, language, this.renameInvalidMembers);
+            }
+
+            return typeContext != null;
+        }
 
 		protected ICollection<string> GetUsedNamespaces(ICollection<TypeReference> typesDependingOn, string currentNamespace = "")
 		{
@@ -693,7 +734,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 
 				typesDependingOn.UnionWith(AttributesUtilities.GetTypeAttributesUsedTypes(decompiledType.Type));
 
-				List<IMemberDefinition> members = Utilities.GetTypeMembers(decompiledType.Type);
+				List<IMemberDefinition> members = Utilities.GetTypeMembers(decompiledType.Type, language, propertyFields: decompiledType.TypeContext.GetFieldToPropertyMap(language).Keys);
 				foreach (IMemberDefinition member in members)
 				{
 					if (member is MethodDefinition)

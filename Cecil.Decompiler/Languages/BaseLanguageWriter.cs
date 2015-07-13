@@ -867,8 +867,8 @@ namespace Telerik.JustDecompiler.Languages
         private void WriteTypeMembers(TypeDefinition type, Action<IMemberDefinition> writeMember, bool showCompilerGeneratedMembers,
             IEnumerable<string> attributesToSkip = null, ICollection<string> fieldsToSkip = null)
         {
-            List<IMemberDefinition> members = Utilities.GetTypeMembers(type, showCompilerGeneratedMembers, attributesToSkip, fieldsToSkip,
-                currentWritingInfo.GeneratedFilterMethods);
+            List<IMemberDefinition> members = Utilities.GetTypeMembers(type, Language, showCompilerGeneratedMembers, attributesToSkip, fieldsToSkip,
+                currentWritingInfo.GeneratedFilterMethods, TypeContext.GetFieldToPropertyMap(Language).Keys);
 
             if (type.IsEnum)
             {

@@ -110,12 +110,13 @@ namespace Telerik.JustDecompiler.Decompiler
 			return members;
 		}
 
-		public static List<IMemberDefinition> GetTypeMembers(TypeDefinition type, bool showCompilerGeneratedMembers = true, 
-			IEnumerable<string> attributesToSkip = null, ICollection<string> fieldsToSkip = null, IEnumerable<MethodDefinition> generatedFilterMethods = null)
+		public static List<IMemberDefinition> GetTypeMembers(TypeDefinition type, ILanguage language, bool showCompilerGeneratedMembers = true,
+			IEnumerable<string> attributesToSkip = null, ICollection<string> fieldsToSkip = null, IEnumerable<MethodDefinition> generatedFilterMethods = null,
+            IEnumerable<FieldReference> propertyFields = null)
 		{
 
 #if !NET35
-            List<IMemberDefinition> members = type.GetMembersSorted(showCompilerGeneratedMembers, attributesToSkip, fieldsToSkip, new HashSet<FieldReference>(type.GetFieldToEventMap().Keys), generatedFilterMethods).ToList();
+            List<IMemberDefinition> members = type.GetMembersSorted(showCompilerGeneratedMembers, language, attributesToSkip, fieldsToSkip, new HashSet<FieldReference>(type.GetFieldToEventMap().Keys), generatedFilterMethods, propertyFields).ToList();
 #else
 			IEnumerable<FieldDefinition> fields = type.GetFieldToEventMap().Keys;
 			HashSet<FieldReference> temp = new HashSet<FieldReference>();
@@ -125,7 +126,7 @@ namespace Telerik.JustDecompiler.Decompiler
 				temp.Add(fdef);
 			}
 
-			List<IMemberDefinition> members = type.GetMembersSorted(showCompilerGeneratedMembers, attributesToSkip, fieldsToSkip, temp, generatedFilterMethods).ToList();
+			List<IMemberDefinition> members = type.GetMembersSorted(showCompilerGeneratedMembers, language, attributesToSkip, fieldsToSkip, temp, generatedFilterMethods, propertyFields).ToList();
 #endif
 
             return members;

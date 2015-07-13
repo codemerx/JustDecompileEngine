@@ -74,6 +74,10 @@ namespace Telerik.JustDecompiler.Languages
 
         BlockDecompilationPipeline CreateFilterMethodPipeline(MethodDefinition method, DecompilationContext context);
 
+        // This pipeline is used by the PropertyDecompiler to finish the decompilation of properties, which are partially decompiled
+        // using the step from the IntermediateRepresenationPipeline.
+        BlockDecompilationPipeline CreatePropertyPipeline(MethodDefinition method, DecompilationContext context);
+
 		string GetExplicitName(IMemberDefinition member);
 
 		string ReplaceInvalidCharactersInIdentifier(string identifier);
@@ -95,5 +99,7 @@ namespace Telerik.JustDecompiler.Languages
         string FloatingLiteralsConstant { get; }
 
 		bool HasOutKeyword { get; }
+
+        bool SupportsGetterOnlyAutoProperties { get; }
     }
 }

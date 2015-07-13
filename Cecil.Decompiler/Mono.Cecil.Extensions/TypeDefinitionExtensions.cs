@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Mono.Collections.Generic;
 using Telerik.JustDecompiler.Decompiler;
+using Telerik.JustDecompiler.Languages;
 
 namespace Mono.Cecil.Extensions
 {
@@ -192,13 +193,13 @@ namespace Mono.Cecil.Extensions
             return result;
         }
 
-        public static Dictionary<FieldDefinition, PropertyDefinition> GetFieldToPropertyMap(this TypeDefinition typeDefinition)
+        public static Dictionary<FieldDefinition, PropertyDefinition> GetFieldToPropertyMap(this TypeDefinition typeDefinition, ILanguage language)
         {
             Dictionary<FieldDefinition, PropertyDefinition> result = new Dictionary<FieldDefinition, PropertyDefinition>();
             foreach (PropertyDefinition property in typeDefinition.Properties)
             {
                 FieldDefinition propertyField;
-                AutoImplementedPropertyMatcher matcher = new AutoImplementedPropertyMatcher(property);
+                PropertyDecompiler matcher = new PropertyDecompiler(property, language);
                 if (matcher.IsAutoImplemented(out propertyField))
                 {
                     result[propertyField] = property;
@@ -209,8 +210,9 @@ namespace Mono.Cecil.Extensions
         }
 
 		public static IEnumerable<IMemberDefinition> GetMembersSorted(this TypeDefinition typeDefinition, bool showCompilerGeneratedMembers,
-            IEnumerable<string> attributesToSkip = null, ICollection<string> fieldsToSkip = null, HashSet<FieldReference> eventFields = null,
-            IEnumerable<MethodDefinition> generatedFilterMethods = null)
+            ILanguage language, IEnumerable<string> attributesToSkip = null, ICollection<string> fieldsToSkip = null,
+            HashSet<FieldReference> eventFields = null, IEnumerable<MethodDefinition> generatedFilterMethods = null,
+            IEnumerable<FieldReference> propertyFields = null)
 		{
             HashSet<FieldReference> backingFields = new HashSet<FieldReference>();
             if (eventFields == null)
@@ -232,9 +234,24 @@ namespace Mono.Cecil.Extensions
                 backingFields = new HashSet<FieldReference>(eventFields);
             }
 #if !NET35
-            backingFields.UnionWith(typeDefinition.GetFieldToPropertyMap().Keys);
+            if (propertyFields == null)
+            {
+                backingFields.UnionWith(typeDefinition.GetFieldToPropertyMap(language).Keys);
+            }
+            else
+            {
+                backingFields.UnionWith(propertyFields);
+            }
 #else
-            IEnumerable<FieldDefinition> properties = typeDefinition.GetFieldToPropertyMap().Keys;
+            IEnumerable<FieldDefinition> properties;
+            if (propertyFields == null)
+            {
+                properties = typeDefinition.GetFieldToPropertyMap(language).Keys;
+	        }
+            else
+            {
+                properties = propertyFields;
+            }
 
             foreach (FieldDefinition prop in properties)
             {
@@ -242,7 +259,7 @@ namespace Mono.Cecil.Extensions
             }
 #endif
 
-			if (typeDefinition.HasFields)
+            if (typeDefinition.HasFields)
 			{
 				foreach (FieldDefinition field in typeDefinition.Fields)//.OrderBy(f => f.Name))
 				{

@@ -238,7 +238,7 @@
     <Compile Include="Common\VariableFinder.cs" />
     <Compile Include="Decompiler\AssignmentAnalysis\OutParameterUsageFinder.cs" />
     <Compile Include="Decompiler\AttributesUtilities.cs" />
-    <Compile Include="Decompiler\AutoImplementedPropertyMatcher.cs" />
+    <Compile Include="Decompiler\PropertyDecompiler.cs" />
     <Compile Include="Decompiler\ExplicitlyImplementedMembersCollection.cs" />
     <Compile Include="Decompiler\FilterMethodToBeDecompiled.cs" />
     <Compile Include="Decompiler\GeneratedMethod.cs" />

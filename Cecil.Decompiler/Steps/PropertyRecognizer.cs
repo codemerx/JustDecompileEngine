@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using Telerik.JustDecompiler.Ast;
 using Telerik.JustDecompiler.Ast.Expressions;
 using Telerik.JustDecompiler.Decompiler;
+using Telerik.JustDecompiler.Languages;
 
 namespace Telerik.JustDecompiler.Steps
 {
@@ -36,11 +37,13 @@ namespace Telerik.JustDecompiler.Steps
 	{
 		private readonly TypeSystem typeSystem;
         private readonly TypeSpecificContext typeContext;
+        private readonly ILanguage language;
 
-        public PropertyRecognizer(TypeSystem typeSystem, TypeSpecificContext typeContext)
+        public PropertyRecognizer(TypeSystem typeSystem, TypeSpecificContext typeContext, ILanguage language)
 		{
 			this.typeSystem = typeSystem;
             this.typeContext = typeContext;
+            this.language = language;
 		}
 
 		public ICodeNode VisitMethodInvocationExpression(MethodInvocationExpression node)
@@ -105,7 +108,7 @@ namespace Telerik.JustDecompiler.Steps
             FieldDefinition fieldDefinition = fieldReference.Resolve();
             if (fieldDefinition != null)
             {
-                Dictionary<FieldDefinition, PropertyDefinition> map = this.typeContext.FieldToPropertyMap;
+                Dictionary<FieldDefinition, PropertyDefinition> map = this.typeContext.GetFieldToPropertyMap(language);
                 if (map.ContainsKey(fieldDefinition) &&
                     map[fieldDefinition] != null &&
                     !map[fieldDefinition].ShouldStaySplit())

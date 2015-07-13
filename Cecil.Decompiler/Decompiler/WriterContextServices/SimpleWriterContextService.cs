@@ -24,7 +24,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 				TypeDefinition type = member as TypeDefinition;
 				Dictionary<string, DecompiledType> decompiledTypes = GetNestedDecompiledTypes(type, language);
 
-				cachedTypeContext = GetTypeContext(type, language, decompiledTypes);
+                cachedTypeContext = GetTypeContext(type, language, decompiledTypes);
 
                 AddTypeContextsToCache(decompiledTypes, type, language);
 
@@ -154,7 +154,8 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 				{
 					TypeDefinition currentType = (currentMember as TypeDefinition);
 
-					List<IMemberDefinition> members = Utilities.GetTypeMembers(currentType);
+                    List<IMemberDefinition> members = Utilities.GetTypeMembers(currentType, language,
+                        propertyFields: decompiledType.TypeContext.GetFieldToPropertyMap(language).Keys);
 					foreach (IMemberDefinition typeMember in members)
 					{
 						decompilationQueue.Enqueue(typeMember);
@@ -196,23 +197,31 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 				{
 					PropertyDefinition propertyDefinition = (currentMember as PropertyDefinition);
 
-					AutoImplementedPropertyMatcher matcher = new AutoImplementedPropertyMatcher(propertyDefinition);
-					bool isAutoImplemented = matcher.IsAutoImplemented();
+                    DecompiledMember getMethod;
+                    DecompiledMember setMethod;
+                    bool isAutoImplemented;
+
+                    PropertyDecompiler matcher = new PropertyDecompiler(propertyDefinition, language, decompiledType.TypeContext);
+                    matcher.Decompile(out getMethod, out setMethod, out isAutoImplemented);
 
 					if (isAutoImplemented)
 					{
 						decompiledType.TypeContext.AutoImplementedProperties.Add(propertyDefinition);
 					}
 
-					if (propertyDefinition.GetMethod != null)
-					{
-						DecompileMember(propertyDefinition.GetMethod, language, decompiledType);
-					}
+                    if (getMethod != null)
+                    {
+                        CachedDecompiledMember cachedGetMethod =
+                            AddDecompiledMemberToCache(propertyDefinition.GetMethod, getMethod, decompiledType.TypeContext, language);
+                        AddDecompiledMemberToDecompiledType(cachedGetMethod, decompiledType);
+                    }
 
-					if (propertyDefinition.SetMethod != null)
-					{
-						DecompileMember(propertyDefinition.SetMethod, language, decompiledType);
-					}
+                    if (setMethod != null)
+                    {
+                        CachedDecompiledMember cachedSetMethod =
+                            AddDecompiledMemberToCache(propertyDefinition.SetMethod, setMethod, decompiledType.TypeContext, language);
+                        AddDecompiledMemberToDecompiledType(cachedSetMethod, decompiledType);
+                    }
 				}
 				if (currentMember is FieldDefinition)
 				{

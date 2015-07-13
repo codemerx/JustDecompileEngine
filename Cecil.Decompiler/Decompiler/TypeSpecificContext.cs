@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Extensions;
 using Telerik.JustDecompiler.Ast.Expressions;
+using Telerik.JustDecompiler.Languages;
 
 namespace Telerik.JustDecompiler.Decompiler
 {
@@ -27,17 +28,14 @@ namespace Telerik.JustDecompiler.Decompiler
 		}
 
         private Dictionary<FieldDefinition, PropertyDefinition> fieldToPropertyMap;
-        public Dictionary<FieldDefinition, PropertyDefinition> FieldToPropertyMap
+        public Dictionary<FieldDefinition, PropertyDefinition> GetFieldToPropertyMap(ILanguage language)
         {
-            get
+            if (fieldToPropertyMap == null)
             {
-                if (fieldToPropertyMap == null)
-                {
-                    fieldToPropertyMap = this.CurrentType.GetFieldToPropertyMap();
-                }
-
-                return fieldToPropertyMap;
+                fieldToPropertyMap = this.CurrentType.GetFieldToPropertyMap(language);
             }
+
+            return fieldToPropertyMap;
         }
 
 		public Dictionary<string, InitializationAssignment> AssignmentData { get; set; }
