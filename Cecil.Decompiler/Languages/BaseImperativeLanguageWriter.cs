@@ -4827,13 +4827,20 @@ namespace Telerik.JustDecompiler.Languages
 
         public override void VisitAutoPropertyConstructorInitializerExpression(AutoPropertyConstructorInitializerExpression node)
         {
-            // sanity check
-            if (!(node.Target is ThisReferenceExpression))
+            if (node.Target != null)
             {
-                throw new ArgumentOutOfRangeException();
+                if (!(node.Target is ThisReferenceExpression))
+                {
+                    throw new ArgumentException();
+                }
+
+                Visit(node.Target);
+            }
+            else
+            {
+                WriteReferenceAndNamespaceIfInCollision(node.Property.DeclaringType);
             }
 
-            Visit(node.Target);
             WriteToken(".");
             WritePropertyName(node.Property);
         }
