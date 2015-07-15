@@ -467,7 +467,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             get
             {
                 // TODO: Fix when csharp languages are fixed and CSharpV6 is introduced.
-                return true;
+                return false;
             }
         }
     }
