@@ -406,6 +406,11 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
                                 AddDecompiledMemberToCache(propertyDefinition.SetMethod, setMethod, decompiledType.TypeContext, language);
                             AddDecompiledMemberToDecompiledType(cachedSetMethod, decompiledType);
                         }
+
+                        foreach (MethodDefinition exceptionWhileDecompiling in propertyDecompiler.ExceptionsWhileDecompiling)
+                        {
+                            this.ExceptionsWhileDecompiling.Add(exceptionWhileDecompiling);
+                        }
 					}
 				}
 			}

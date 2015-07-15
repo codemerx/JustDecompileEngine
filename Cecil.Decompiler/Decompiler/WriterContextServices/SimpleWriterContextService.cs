@@ -201,8 +201,8 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
                     DecompiledMember setMethod;
                     bool isAutoImplemented;
 
-                    PropertyDecompiler matcher = new PropertyDecompiler(propertyDefinition, language, decompiledType.TypeContext);
-                    matcher.Decompile(out getMethod, out setMethod, out isAutoImplemented);
+                    PropertyDecompiler propertyDecompiler = new PropertyDecompiler(propertyDefinition, language, decompiledType.TypeContext);
+                    propertyDecompiler.Decompile(out getMethod, out setMethod, out isAutoImplemented);
 
 					if (isAutoImplemented)
 					{
@@ -221,6 +221,11 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
                         CachedDecompiledMember cachedSetMethod =
                             AddDecompiledMemberToCache(propertyDefinition.SetMethod, setMethod, decompiledType.TypeContext, language);
                         AddDecompiledMemberToDecompiledType(cachedSetMethod, decompiledType);
+                    }
+
+                    foreach (MethodDefinition exceptionWhileDecompiling in propertyDecompiler.ExceptionsWhileDecompiling)
+                    {
+                        this.ExceptionsWhileDecompiling.Add(exceptionWhileDecompiling);
                     }
 				}
 				if (currentMember is FieldDefinition)

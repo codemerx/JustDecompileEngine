@@ -7,6 +7,7 @@ using Telerik.JustDecompiler.Ast.Expressions;
 using Telerik.JustDecompiler.Ast.Statements;
 using Telerik.JustDecompiler.Languages;
 using Telerik.JustDecompiler.Cil;
+using System.Collections.Generic;
 
 namespace Telerik.JustDecompiler.Decompiler
 {
@@ -17,6 +18,8 @@ namespace Telerik.JustDecompiler.Decompiler
         private ILanguage language;
         private TypeSpecificContext typeContext;
 
+        public ICollection<MethodDefinition> ExceptionsWhileDecompiling { get; private set; }
+
         public PropertyDecompiler(PropertyDefinition property, ILanguage language, TypeSpecificContext typeContext = null)
         {
             this.propertyDef = property;
@@ -24,6 +27,7 @@ namespace Telerik.JustDecompiler.Decompiler
             this.typeContext = typeContext;
 
             this.propertyFieldDef = null;
+            this.ExceptionsWhileDecompiling = new List<MethodDefinition>();
         }
 
         public bool IsAutoImplemented(out FieldDefinition propertyField)
@@ -120,6 +124,15 @@ namespace Telerik.JustDecompiler.Decompiler
                 if (needDecompiledMember)
                 {
                     decompiledMember = DecompileMember(method);
+                }
+
+                return false;
+            }
+            else if (statements.Statements.Count == 1 && statements.Statements[0].CodeNodeType == CodeNodeType.ExceptionStatement)
+            {
+                if (needDecompiledMember)
+                {
+                    decompiledMember = new DecompiledMember(Utilities.GetMemberUniqueName(method), statements, new MethodSpecificContext(method.Body));
                 }
 
                 return false;
@@ -264,9 +277,9 @@ namespace Telerik.JustDecompiler.Decompiler
                 }
                 else
                 {
-                    DecompilationContext context;
-                    BlockStatement block = this.DecompileMethod(method.Body, out context);
-                    decompiledMember = new DecompiledMember(Utilities.GetMemberUniqueName(method), block, context.MethodContext);
+                    MethodSpecificContext methodContext;
+                    BlockStatement block = this.DecompileMethod(method.Body, out methodContext);
+                    decompiledMember = new DecompiledMember(Utilities.GetMemberUniqueName(method), block, methodContext);
                 }
             }
 
@@ -275,22 +288,39 @@ namespace Telerik.JustDecompiler.Decompiler
 
         private DecompiledMember FinishDecompilationOfMember(MethodDefinition method, BlockStatement block, DecompilationContext context)
         {
-            DecompilationContext fullyDecompiledContext;
-            BlockStatement fullyDecompiledBlock = this.FinishDecompilationOfMethod(block, context, out fullyDecompiledContext);
+            MethodSpecificContext methodContext;
+            BlockStatement fullyDecompiledBlock = this.FinishDecompilationOfMethod(block, context, out methodContext);
 
-            return new DecompiledMember(Utilities.GetMemberUniqueName(method), fullyDecompiledBlock, fullyDecompiledContext.MethodContext);
+            return new DecompiledMember(Utilities.GetMemberUniqueName(method), fullyDecompiledBlock, methodContext);
         }
 
-        private BlockStatement DecompileMethod(MethodBody body, out DecompilationContext context)
+        private BlockStatement DecompileMethod(MethodBody body, out MethodSpecificContext methodContext)
         {
-            DecompilationContext decompilationContext =
-                new DecompilationContext(new MethodSpecificContext(body), this.typeContext ?? new TypeSpecificContext(body.Method.DeclaringType));
+            methodContext = null;
 
-            DecompilationPipeline pipeline = this.language.CreatePipeline(body.Method, decompilationContext);
-            
-            context = pipeline.Run(body);
+            BlockStatement block;
+            try
+            {
+                DecompilationContext decompilationContext =
+                    new DecompilationContext(new MethodSpecificContext(body), this.typeContext ?? new TypeSpecificContext(body.Method.DeclaringType));
 
-            return pipeline.Body;
+                DecompilationPipeline pipeline = this.language.CreatePipeline(body.Method, decompilationContext);
+
+                methodContext = pipeline.Run(body).MethodContext;
+
+                block = pipeline.Body;
+            }
+            catch (Exception ex)
+            {
+                this.ExceptionsWhileDecompiling.Add(body.Method);
+
+                methodContext = new MethodSpecificContext(body);
+
+                block = new BlockStatement();
+                block.AddStatement(new ExceptionStatement(ex, body.Method));
+            }
+
+            return block;
         }
 
         private BlockStatement DecompileMethodPartially(MethodBody body, out DecompilationContext context, bool needDecompiledMember = false)
@@ -304,28 +334,58 @@ namespace Telerik.JustDecompiler.Decompiler
                 return null;
             }
 
-            DecompilationPipeline pipeline;
-            DecompilationContext decompilationContext =
-                new DecompilationContext(new MethodSpecificContext(body), this.typeContext ?? new TypeSpecificContext(body.Method.DeclaringType));
-            if (!needDecompiledMember)
+            BlockStatement block;
+            try
             {
-                decompilationContext.MethodContext.EnableEventAnalysis = false;
+                DecompilationPipeline pipeline;
+                DecompilationContext decompilationContext =
+                    new DecompilationContext(new MethodSpecificContext(body), this.typeContext ?? new TypeSpecificContext(body.Method.DeclaringType));
+                if (!needDecompiledMember)
+                {
+                    decompilationContext.MethodContext.EnableEventAnalysis = false;
+                }
+
+                pipeline = new DecompilationPipeline(BaseLanguage.IntermediateRepresenationPipeline.Steps, decompilationContext);
+
+                context = pipeline.Run(body);
+
+                block = pipeline.Body;
+            }
+            catch (Exception ex)
+            {
+                this.ExceptionsWhileDecompiling.Add(body.Method);
+
+                block = new BlockStatement();
+                block.AddStatement(new ExceptionStatement(ex, body.Method));
             }
 
-            pipeline = new DecompilationPipeline(BaseLanguage.IntermediateRepresenationPipeline.Steps, decompilationContext);
-
-            context = pipeline.Run(body);
-
-            return pipeline.Body;
+            return block;
         }
 
-        private BlockStatement FinishDecompilationOfMethod(BlockStatement block, DecompilationContext context, out DecompilationContext fullyDecompiledContext)
+        private BlockStatement FinishDecompilationOfMethod(BlockStatement block, DecompilationContext context, out MethodSpecificContext methodContext)
         {
-            BlockDecompilationPipeline pipeline = this.language.CreatePropertyPipeline(context.MethodContext.Method, context);
-            
-            fullyDecompiledContext = pipeline.Run(context.MethodContext.Method.Body, block, this.language);
+            methodContext = null;
 
-            return pipeline.Body;
+            BlockStatement fullyDecompiledBlock;
+            try
+            {
+                BlockDecompilationPipeline pipeline = this.language.CreatePropertyPipeline(context.MethodContext.Method, context);
+
+                methodContext = pipeline.Run(context.MethodContext.Method.Body, block, this.language).MethodContext;
+
+                fullyDecompiledBlock = pipeline.Body;
+            }
+            catch (Exception ex)
+            {
+                this.ExceptionsWhileDecompiling.Add(context.MethodContext.Method);
+
+                methodContext = new MethodSpecificContext(context.MethodContext.Method.Body);
+
+                fullyDecompiledBlock = new BlockStatement();
+                fullyDecompiledBlock.AddStatement(new ExceptionStatement(ex, context.MethodContext.Method));
+            }
+
+            return fullyDecompiledBlock;
         }
     }
 }
