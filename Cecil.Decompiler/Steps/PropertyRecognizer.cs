@@ -94,11 +94,11 @@ namespace Telerik.JustDecompiler.Steps
 
         public ICodeNode VisitFieldReferenceExpression(FieldReferenceExpression node)
         {
-            //PropertyDefinition property;
-            //if (IsAutoPropertyConstructorInitializerExpression(node.Field, out property))
-            //{
-            //    return new AutoPropertyConstructorInitializerExpression(property, node.Target, node.MappedInstructions);
-            //}
+            PropertyDefinition property;
+            if (IsAutoPropertyConstructorInitializerExpression(node.Field, out property))
+            {
+                return new AutoPropertyConstructorInitializerExpression(property, node.Target, node.MappedInstructions);
+            }
 
             return node;
         }
