@@ -77,6 +77,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
         public delegate void ProjectGenerationFailureEventHandler(object sender, Exception ex);
         public event ProjectGenerationFailureEventHandler ProjectGenerationFailure;
 
+        public event EventHandler ProjectGenerationFinished;
+
         public const int MaxPathLength = 259; // 259 + NULL == 260
 
         public MSBuildProjectBuilder(string assemblyPath, AssemblyDefinition assembly,
@@ -248,7 +250,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			}
         }
 
-        public event EventHandler<ProjectFileCreatedEvent> ProjectFileCreated;
+        public event EventHandler<ProjectFileCreated> ProjectFileCreated;
 
 		private ICollection<TypeReference> GetExpandedTypeDependanceList(ModuleDefinition module)
 		{
@@ -588,6 +590,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 {
                     ProjectGenerationFailure(this, ex);
                 }
+            }
+            finally
+            {
+                OnProjectGenerationFinished();
             }
             if (decompilationPreferences.WriteDocumentation)
             {
@@ -1527,12 +1533,21 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
         {
             if (ProjectFileCreated != null)
             {
-                ProjectFileCreated(this, new ProjectFileCreatedEvent(projectFileGeneratedCallbackArgs.FullPath, projectFileGeneratedCallbackArgs.HasErrors));
+                ProjectFileCreated(this, new ProjectFileCreated(projectFileGeneratedCallbackArgs.FullPath, projectFileGeneratedCallbackArgs.HasErrors));
             }
 			if (fileGeneratedNotifier != null)
 			{
 				fileGeneratedNotifier.OnProjectFileGenerated(projectFileGeneratedCallbackArgs);
 			}
         }
-	}
+
+        private void OnProjectGenerationFinished()
+        {
+            EventHandler handler = ProjectGenerationFinished;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
+            }
+        }
+    }
 }

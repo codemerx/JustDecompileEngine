@@ -193,7 +193,7 @@ namespace JustDecompileCmdShell
             CommandLineManager.WriteLineColor(ConsoleColor.Red, ex.Message);
         }
 
-        static void OnProjectFileCreated(object sender, ProjectFileCreatedEvent e)
+        static void OnProjectFileCreated(object sender, ProjectFileCreated e)
         {
             count++;
             CommandLineManager.SetForegroundColor(ConsoleColor.DarkGray);

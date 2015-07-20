@@ -113,7 +113,7 @@
       <DependentUpon>MSBuildProject.xsd</DependentUpon>
     </Compile>
     <Compile Include="MSBuildProjectBuilder.cs" />
-    <Compile Include="ProjectFileCreatedEvent.cs" />
+    <Compile Include="ProjectFileCreated.cs" />
     <Compile Include="ProjectItemFileWriters\AppDefinitionItemWriter.cs" />
     <Compile Include="ProjectItemFileWriters\BaseProjectItemFileWriter.cs" />
     <Compile Include="ProjectItemFileWriters\BaseXamlFileWriter.cs" />
