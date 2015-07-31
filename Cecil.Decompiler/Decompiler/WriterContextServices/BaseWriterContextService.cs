@@ -381,11 +381,11 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 					{
 						PropertyDefinition propertyDefinition = (currentMember as PropertyDefinition);
 
-                        DecompiledMember getMethod;
-                        DecompiledMember setMethod;
+                        CachedDecompiledMember getMethod;
+                        CachedDecompiledMember setMethod;
                         bool isAutoImplemented;
 
-                        PropertyDecompiler propertyDecompiler = new PropertyDecompiler(propertyDefinition, language, decompiledType.TypeContext);
+                        PropertyDecompiler propertyDecompiler = new PropertyDecompiler(propertyDefinition, language, renameInvalidMembers, this.cacheService, decompiledType.TypeContext);
                         propertyDecompiler.Decompile(out getMethod, out setMethod, out isAutoImplemented);
 
 						if (isAutoImplemented)
@@ -395,16 +395,12 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 
                         if (getMethod != null)
                         {
-                            CachedDecompiledMember cachedGetMethod =
-                                AddDecompiledMemberToCache(propertyDefinition.GetMethod, getMethod, decompiledType.TypeContext, language);
-                            AddDecompiledMemberToDecompiledType(cachedGetMethod, decompiledType);
+                            AddDecompiledMemberToDecompiledType(getMethod, decompiledType);
                         }
 
                         if (setMethod != null)
                         {
-                            CachedDecompiledMember cachedSetMethod =
-                                AddDecompiledMemberToCache(propertyDefinition.SetMethod, setMethod, decompiledType.TypeContext, language);
-                            AddDecompiledMemberToDecompiledType(cachedSetMethod, decompiledType);
+                            AddDecompiledMemberToDecompiledType(setMethod, decompiledType);
                         }
 
                         foreach (MethodDefinition exceptionWhileDecompiling in propertyDecompiler.ExceptionsWhileDecompiling)

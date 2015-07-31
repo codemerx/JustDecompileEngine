@@ -8,6 +8,7 @@ using Telerik.JustDecompiler.Ast.Statements;
 using Telerik.JustDecompiler.Languages;
 using Telerik.JustDecompiler.Cil;
 using System.Collections.Generic;
+using Telerik.JustDecompiler.Decompiler.Caching;
 
 namespace Telerik.JustDecompiler.Decompiler
 {
@@ -15,19 +16,36 @@ namespace Telerik.JustDecompiler.Decompiler
     {
         private readonly PropertyDefinition propertyDef;
         private FieldDefinition propertyFieldDef;
-        private ILanguage language;
-        private TypeSpecificContext typeContext;
+        private readonly ILanguage language;
+        private readonly bool renameInvalidMembers;
+        private readonly IDecompilationCacheService cacheService;
+        private readonly TypeSpecificContext typeContext;
 
         public ICollection<MethodDefinition> ExceptionsWhileDecompiling { get; private set; }
 
-        public PropertyDecompiler(PropertyDefinition property, ILanguage language, TypeSpecificContext typeContext = null)
+        public PropertyDecompiler(PropertyDefinition property, ILanguage language, bool renameInvalidMembers, IDecompilationCacheService cacheService, TypeSpecificContext typeContext = null)
         {
             this.propertyDef = property;
             this.language = language;
+            this.renameInvalidMembers = renameInvalidMembers;
+            this.cacheService = cacheService;
             this.typeContext = typeContext;
 
             this.propertyFieldDef = null;
             this.ExceptionsWhileDecompiling = new List<MethodDefinition>();
+        }
+
+        public PropertyDecompiler(PropertyDefinition property, ILanguage language, TypeSpecificContext typeContext = null)
+            : this(property, language, false, null, typeContext)
+        {
+        }
+
+        private bool IsCachingEnabled
+        {
+            get
+            {
+                return this.cacheService != null;
+            }
         }
 
         public bool IsAutoImplemented(out FieldDefinition propertyField)
@@ -53,8 +71,8 @@ namespace Telerik.JustDecompiler.Decompiler
                 }
 
                 // Auto-implemented property with getter and setter
-                DecompiledMember getMethod;
-                DecompiledMember setMethod;
+                CachedDecompiledMember getMethod;
+                CachedDecompiledMember setMethod;
                 return DecompileAndCheckForAutoImplementedPropertyMethod(propertyDef.GetMethod, out getMethod, false, CheckGetter) &&
                        DecompileAndCheckForAutoImplementedPropertyMethod(propertyDef.SetMethod, out setMethod, false, CheckSetter);
             }
@@ -65,12 +83,12 @@ namespace Telerik.JustDecompiler.Decompiler
             else
             {
                 // Getter only auto-implemented property
-                DecompiledMember getMethod;
+                CachedDecompiledMember getMethod;
                 return DecompileAndCheckForAutoImplementedPropertyMethod(propertyDef.GetMethod, out getMethod, false, CheckGetter);
             }
         }
 
-        public void Decompile(out DecompiledMember getMethod, out DecompiledMember setMethod, out bool isAutoImplemented)
+        public void Decompile(out CachedDecompiledMember getMethod, out CachedDecompiledMember setMethod, out bool isAutoImplemented)
         {
             getMethod = null;
             setMethod = null;
@@ -111,7 +129,7 @@ namespace Telerik.JustDecompiler.Decompiler
             }
         }
 
-        private bool DecompileAndCheckForAutoImplementedPropertyMethod(MethodDefinition method, out DecompiledMember decompiledMember,
+        private bool DecompileAndCheckForAutoImplementedPropertyMethod(MethodDefinition method, out CachedDecompiledMember decompiledMember,
             bool needDecompiledMember, Func<BlockStatement, bool> checker)
         {
             decompiledMember = null;
@@ -132,7 +150,7 @@ namespace Telerik.JustDecompiler.Decompiler
             {
                 if (needDecompiledMember)
                 {
-                    decompiledMember = new DecompiledMember(Utilities.GetMemberUniqueName(method), statements, new MethodSpecificContext(method.Body));
+                    decompiledMember = new CachedDecompiledMember(new DecompiledMember(Utilities.GetMemberUniqueName(method), statements, new MethodSpecificContext(method.Body)));
                 }
 
                 return false;
@@ -148,7 +166,7 @@ namespace Telerik.JustDecompiler.Decompiler
                     }
                     else
                     {
-                        decompiledMember = new DecompiledMember(Utilities.GetMemberUniqueName(method), statements, context.MethodContext);
+                        decompiledMember = new CachedDecompiledMember(new DecompiledMember(Utilities.GetMemberUniqueName(method), statements, context.MethodContext));
                     }
                 }
 
@@ -266,32 +284,50 @@ namespace Telerik.JustDecompiler.Decompiler
             return true;
         }
 
-        private DecompiledMember DecompileMember(MethodDefinition method)
+        private CachedDecompiledMember DecompileMember(MethodDefinition method)
         {
-            DecompiledMember decompiledMember = null;
+            CachedDecompiledMember cachedDecompiledMember = null;
             if (method != null)
             {
                 if (method.Body == null)
                 {
-                    decompiledMember = new DecompiledMember(Utilities.GetMemberUniqueName(method), null, null);
+                    cachedDecompiledMember = new CachedDecompiledMember(new DecompiledMember(Utilities.GetMemberUniqueName(method), null, null));
+                }
+                else if (this.IsCachingEnabled && this.cacheService.IsDecompiledMemberInCache(method, this.language, this.renameInvalidMembers))
+                {
+                    return this.cacheService.GetDecompiledMemberFromCache(method, this.language, this.renameInvalidMembers);
                 }
                 else
                 {
                     MethodSpecificContext methodContext;
                     BlockStatement block = this.DecompileMethod(method.Body, out methodContext);
-                    decompiledMember = new DecompiledMember(Utilities.GetMemberUniqueName(method), block, methodContext);
+                    cachedDecompiledMember = new CachedDecompiledMember(new DecompiledMember(Utilities.GetMemberUniqueName(method), block, methodContext));
+                    if (this.IsCachingEnabled)
+                    {
+                        this.cacheService.AddDecompiledMemberToCache(method, this.language, this.renameInvalidMembers, cachedDecompiledMember);
+                    }
                 }
             }
 
-            return decompiledMember;
+            return cachedDecompiledMember;
         }
 
-        private DecompiledMember FinishDecompilationOfMember(MethodDefinition method, BlockStatement block, DecompilationContext context)
+        private CachedDecompiledMember FinishDecompilationOfMember(MethodDefinition method, BlockStatement block, DecompilationContext context)
         {
+            if (this.IsCachingEnabled && this.cacheService.IsDecompiledMemberInCache(method, this.language, this.renameInvalidMembers))
+            {
+                return this.cacheService.GetDecompiledMemberFromCache(method, this.language, this.renameInvalidMembers);
+            }
+
             MethodSpecificContext methodContext;
             BlockStatement fullyDecompiledBlock = this.FinishDecompilationOfMethod(block, context, out methodContext);
+            CachedDecompiledMember cachedDecompiledMember = new CachedDecompiledMember(new DecompiledMember(Utilities.GetMemberUniqueName(method), fullyDecompiledBlock, methodContext));
+            if (this.IsCachingEnabled)
+            {
+                this.cacheService.AddDecompiledMemberToCache(method, this.language, this.renameInvalidMembers, cachedDecompiledMember);
+            }
 
-            return new DecompiledMember(Utilities.GetMemberUniqueName(method), fullyDecompiledBlock, methodContext);
+            return cachedDecompiledMember;
         }
 
         private BlockStatement DecompileMethod(MethodBody body, out MethodSpecificContext methodContext)
@@ -326,6 +362,12 @@ namespace Telerik.JustDecompiler.Decompiler
         private BlockStatement DecompileMethodPartially(MethodBody body, out DecompilationContext context, bool needDecompiledMember = false)
         {
             context = null;
+
+            if (this.IsCachingEnabled && this.cacheService.IsDecompiledMemberInCache(body.Method, this.language, this.renameInvalidMembers))
+            {
+                CachedDecompiledMember cachedDecompiledMember = this.cacheService.GetDecompiledMemberFromCache(body.Method, this.language, this.renameInvalidMembers);
+                return cachedDecompiledMember.Member.Statement as BlockStatement;
+            }
 
             //Performance improvement
             ControlFlowGraph cfg = new ControlFlowGraphBuilder(body.Method).CreateGraph();
