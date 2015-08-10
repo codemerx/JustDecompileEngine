@@ -121,7 +121,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			this.resourcesToPathsMap = this.filePathsService.GetResourcesToFilePathsMap();
 			this.xamlResourcesToPathsMap = this.filePathsService.GetXamlResourcesToFilePathsMap();
 
-            this.assemblyInfo = this.assemblyInfoService.GetAssemblyInfo(this.assembly, this.frameworkResolver);
+			this.assemblyInfo = GetAssemblyInfo();
         }
 
         public MSBuildProjectBuilder(string assemblyPath, string targetPath, ILanguage language,
@@ -164,7 +164,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			this.xamlResourcesToPathsMap = this.filePathsService.GetXamlResourcesToFilePathsMap();
             this.fileGeneratedNotifier = notifier;
 
-            this.assemblyInfo = this.assemblyInfoService.GetAssemblyInfo(this.assembly, this.frameworkResolver);
+			this.assemblyInfo = GetAssemblyInfo();
         }
 
         private Project CreateProject()
@@ -1549,5 +1549,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 handler(this, new EventArgs());
             }
         }
+
+		protected virtual AssemblyInfo GetAssemblyInfo()
+		{
+			return this.assemblyInfoService.GetAssemblyInfo(this.assembly, this.frameworkResolver);
+		}
     }
 }
