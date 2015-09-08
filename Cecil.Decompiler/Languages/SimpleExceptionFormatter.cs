@@ -46,7 +46,7 @@ namespace Telerik.JustDecompiler.Languages
 			exceptionLines.Append(Environment.NewLine)
 					  .Append("Product version: " +
 #if !ENGINEONLYBUILD
-                      SettingsService.Instance.GetSettings().CurrentProductVersion)
+                      VersionChecker.CurrentVersion)
 #else
                       System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString())
 #endif
