@@ -233,13 +233,15 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             return items;
         }
 
-        protected override void WriteSolutionFile()
+        protected override bool WriteSolutionFile()
         {
             WinRTSolutionWriter solutionWriter =
                 new WinRTSolutionWriter(this.assembly, this.platform, this.targetDir, this.filePathsService.GetSolutionRelativePath(),
                                         this.modulesToProjectsFilePathsMap, this.modulesProjectsGuids, this.visualStudioVersion,
                                         this.language, this.platforms);
             solutionWriter.WriteSolutionFile();
+
+			return true;
         }
 
         private void AddAdditionalProjectProperties(ProjectPropertyGroup project)

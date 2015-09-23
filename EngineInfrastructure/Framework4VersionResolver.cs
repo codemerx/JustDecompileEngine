@@ -18,29 +18,34 @@ namespace JustDecompile.EngineInfrastructure
         public static FrameworkVersion GetFrameworkVersionByFileVersion(string assemblyFilePath)
         {
             FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(assemblyFilePath);
-            if (versionInfo.FileMajorPart == 4 && versionInfo.FileMinorPart == 0 && versionInfo.FileBuildPart == 30319)
+            if (versionInfo.FileMajorPart == 4)
             {
-                if (versionInfo.FilePrivatePart >= 34209)
+                if (versionInfo.FileMinorPart == 6)
                 {
-                    return FrameworkVersion.v4_5_2;
+                    return FrameworkVersion.v4_6;
                 }
-                else if (versionInfo.FilePrivatePart >= 18402)
+                else if (versionInfo.FileMinorPart == 0 && versionInfo.FileBuildPart == 30319)
                 {
-                    return FrameworkVersion.v4_5_1;
-                }
-                else if (versionInfo.FilePrivatePart > 15000)
-                {
-                    return FrameworkVersion.v4_5;
-                }
-                else
-                {
-                    return FrameworkVersion.v4_0;
+                    if (versionInfo.FilePrivatePart >= 34209)
+                    {
+                        return FrameworkVersion.v4_5_2;
+                    }
+                    else if (versionInfo.FilePrivatePart >= 18402)
+                    {
+                        return FrameworkVersion.v4_5_1;
+                    }
+                    else if (versionInfo.FilePrivatePart > 15000)
+                    {
+                        return FrameworkVersion.v4_5;
+                    }
+                    else
+                    {
+                        return FrameworkVersion.v4_0;
+                    }
                 }
             }
-            else
-            {
-                return FrameworkVersion.Unknown;
-            }
+            
+            return FrameworkVersion.Unknown;
         }
 
         private static class InstalledFrameworkData

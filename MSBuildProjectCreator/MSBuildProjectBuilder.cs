@@ -67,6 +67,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
         private IAssemblyInfoService assemblyInfoService;
         private AssemblyInfo assemblyInfo;
         private ProjectGenerationSettings projectGenerationSettings;
+		private IProjectGenerationNotifier projectNotifier;
 
         public delegate void TypeWritingFailureEventHandler(object sender, string typeName, Exception ex);
         public delegate void ResourceWritingFailureEventHandler(object sender, string resourceName, Exception ex);
@@ -86,7 +87,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
  			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources,
 			string targetPath, ILanguage language, IFrameworkResolver frameworkResolver,
             IDecompilationPreferences preferences, IAssemblyInfoService assemblyInfoService,
-            VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010, ProjectGenerationSettings projectGenerationSettings = null)
+			VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010, ProjectGenerationSettings projectGenerationSettings = null,
+			IProjectGenerationNotifier projectNotifier = null)
         {
             this.assemblyPath = assemblyPath;
             this.assembly = assembly;
@@ -122,12 +124,13 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			this.xamlResourcesToPathsMap = this.filePathsService.GetXamlResourcesToFilePathsMap();
 
 			this.assemblyInfo = GetAssemblyInfo();
+			this.projectNotifier = projectNotifier;
         }
 
         public MSBuildProjectBuilder(string assemblyPath, string targetPath, ILanguage language,
             IFrameworkResolver frameworkResolver,IDecompilationPreferences preferences, IFileGenerationNotifier notifier,
             IAssemblyInfoService assemblyInfoService, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010,
-            ProjectGenerationSettings projectGenerationSettings = null)
+			ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null)
         {
             this.assemblyPath = assemblyPath;
             this.TargetPath = targetPath;
@@ -165,6 +168,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             this.fileGeneratedNotifier = notifier;
 
 			this.assemblyInfo = GetAssemblyInfo();
+			this.projectNotifier = projectNotifier;
         }
 
         private Project CreateProject()
@@ -214,7 +218,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			}
 		}
 
-		public uint NumberOfFilesToGenerate 
+		public virtual uint NumberOfFilesToGenerate 
 		{
 			get 
 			{
@@ -401,6 +405,11 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                             {
                                 TypeWritingFailure(this, type.FullName, ex);
                             }
+
+							if (this.projectNotifier != null)
+							{
+								this.projectNotifier.OnTypeWritingFailure(type.FullName, ex);
+							}
                         }
                     });
             }
@@ -546,15 +555,16 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                     else
                     {
                         bool exceptionsWhenCreatingProjectFile = false;
-                        try
+						bool projectFileCreated = false;
+						try
                         {
                             if (isMainModule)
                             {
-                                WriteMainModuleProjectFile(module);
+                                projectFileCreated = WriteMainModuleProjectFile(module);
                             }
                             else
                             {
-                                WriteNetModuleProjectFile(module);
+								projectFileCreated = WriteNetModuleProjectFile(module);
                             }
                         }
                         catch (Exception)
@@ -562,7 +572,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                             exceptionsWhenCreatingProjectFile = true;
                         }
 
-                        InformProjectFileCreated(module, this.language.VSProjectFileExtension, exceptionsWhenCreatingProjectFile);
+						if (projectFileCreated)
+						{
+							InformProjectFileCreated(module, this.language.VSProjectFileExtension, exceptionsWhenCreatingProjectFile);
+						}
                     }
 				}
 
@@ -570,18 +583,22 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 {
                     // Write the solution file
                     bool exceptionWhileWritingSolutionFile = false;
+					bool solutionFileCreated = false;
                     try
                     {
-                        WriteSolutionFile();
+						solutionFileCreated = WriteSolutionFile();
                     }
                     catch (Exception ex)
                     {
                         exceptionWhileWritingSolutionFile = true;
                     }
 
-                    string solutionFilePath = Path.Combine(this.targetDir, this.filePathsService.GetSolutionRelativePath());
-                    IFileGeneratedInfo solutionArgs = new FileGeneratedInfo(solutionFilePath, exceptionWhileWritingSolutionFile);
-                    this.OnProjectFileCreated(solutionArgs);
+					if (solutionFileCreated)
+					{
+						string solutionFilePath = Path.Combine(this.targetDir, this.filePathsService.GetSolutionRelativePath());
+						IFileGeneratedInfo solutionArgs = new FileGeneratedInfo(solutionFilePath, exceptionWhileWritingSolutionFile);
+						this.OnProjectFileCreated(solutionArgs);
+					}
                 }
             }
             catch (Exception ex)
@@ -590,6 +607,11 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 {
                     ProjectGenerationFailure(this, ex);
                 }
+
+				if (this.projectNotifier != null)
+				{
+					this.projectNotifier.OnProjectGenerationFailure(ex);
+				}
             }
             finally
             {
@@ -666,11 +688,13 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			this.currentAssemblyResolver.ClearAssemblyFailedResolverCache();
 		}
 
-		protected virtual void WriteSolutionFile()
+		protected virtual bool WriteSolutionFile()
 		{
 			SolutionWriter solutionWriter =
 				new SolutionWriter(this.assembly, this.platform, this.targetDir, this.filePathsService.GetSolutionRelativePath(), this.modulesToProjectsFilePathsMap, this.modulesProjectsGuids, this.visualStudioVersion, this.language);
 			solutionWriter.WriteSolutionFile();
+
+			return true;
 		}
 
 		protected virtual IFormatter GetFormatter(StringWriter writer)
@@ -847,7 +871,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
         }
 
-		protected virtual void WriteNetModuleProjectFile(ModuleDefinition module)
+		protected virtual bool WriteNetModuleProjectFile(ModuleDefinition module)
 		{
 			string moduleProjFilePath;
 			if (!modulesToProjectsFilePathsMap.TryGetValue(module, out moduleProjFilePath))
@@ -883,6 +907,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 				projectFile.Close();
 				projectFile.Dispose();
 			}
+
+			return true;
 		}
 
         protected virtual object[] GetProjectItems(ModuleDefinition module, ProjectPropertyGroup basicProjectProperties)
@@ -922,7 +948,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             return compileOptions;
         }
 
-		protected virtual void WriteMainModuleProjectFile(ModuleDefinition module)
+		protected virtual bool WriteMainModuleProjectFile(ModuleDefinition module)
 		{
             //FileStream projectFile = new FileStream(Path.GetDirectoryName(this.TestName) + Path.DirectorySeparatorChar + assembly.Name.Name + language.VSProjectFileExtension, FileMode.OpenOrCreate);
             FileStream projectFile = null;
@@ -960,6 +986,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 projectFile.Close();
                 projectFile.Dispose();
             }
+
+			return true;
 		}
   
 		protected virtual ProjectImport GenerateLanguageTargetsProjectImportProperty()
@@ -1400,6 +1428,11 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                         {
                             ResourceWritingFailure(this, embeddedResource.Name, ex);
                         }
+
+						if (this.projectNotifier != null)
+						{
+							this.projectNotifier.OnResourceWritingFailure(embeddedResource.Name, ex);
+						}
                     }
                 }
             }
@@ -1548,6 +1581,11 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             {
                 handler(this, new EventArgs());
             }
+
+			if (this.projectNotifier != null)
+			{
+				this.projectNotifier.OnProjectGenerationFinished();
+			}
         }
 
 		protected virtual AssemblyInfo GetAssemblyInfo()
