@@ -1,12 +1,12 @@
 ﻿using System;
 using Mono.Cecil;
+using System.Collections.Generic;
 
 namespace Telerik.JustDecompiler.Decompiler
 {
     internal struct YieldExceptionHandlerInfo : IComparable<YieldExceptionHandlerInfo>
     {
-        private readonly int tryBegin;
-        private readonly int tryEnd;
+        private readonly HashSet<int> tryStates;
         private readonly YieldExceptionHandlerType handlerType;
         private readonly MethodDefinition finallyMethodDef;
         private readonly int nextState;
@@ -14,24 +14,13 @@ namespace Telerik.JustDecompiler.Decompiler
         private readonly FieldReference disposableField;
 
         /// <summary>
-        /// Gets the state at which the try begins.
+        /// Gets the states which the try handles.
         /// </summary>
-        public int TryBeginState
+        public HashSet<int> TryStates
         {
             get
             {
-                return this.tryBegin;
-            }
-        }
-
-        /// <summary>
-        /// Gets the state at which the try ends.
-        /// </summary>
-        public int TryEndState
-        {
-            get
-            {
-                return this.tryEnd;
+                return this.tryStates;
             }
         }
 
@@ -90,10 +79,9 @@ namespace Telerik.JustDecompiler.Decompiler
             }
         }
 
-        private YieldExceptionHandlerInfo(int tryBegin, int tryEnd)
+        private YieldExceptionHandlerInfo(HashSet<int> tryStates)
         {
-            this.tryBegin = tryBegin;
-            this.tryEnd = tryEnd;
+            this.tryStates = tryStates;
             this.handlerType = default(YieldExceptionHandlerType);
             this.finallyMethodDef = null;
             this.nextState = -1;
@@ -101,15 +89,15 @@ namespace Telerik.JustDecompiler.Decompiler
             this.disposableField = null;
         }
 
-        public YieldExceptionHandlerInfo(int tryBegin, int tryEnd, MethodDefinition finallyMethodDef)
-            : this(tryBegin, tryEnd)
+        public YieldExceptionHandlerInfo(HashSet<int> tryStates, MethodDefinition finallyMethodDef)
+            : this(tryStates)
         {
             this.handlerType = YieldExceptionHandlerType.Method;
             this.finallyMethodDef = finallyMethodDef;
         }
 
-        public YieldExceptionHandlerInfo(int tryBegin, int tryEnd, int nextState, FieldReference enumeratorField, FieldReference disposableField)
-            : this(tryBegin, tryEnd)
+        public YieldExceptionHandlerInfo(HashSet<int> tryStates, int nextState, FieldReference enumeratorField, FieldReference disposableField)
+            : this(tryStates)
         {
             this.handlerType = enumeratorField == null ? YieldExceptionHandlerType.SimpleConditionalDispose : YieldExceptionHandlerType.ConditionalDispose;
             this.nextState = nextState;
@@ -119,20 +107,19 @@ namespace Telerik.JustDecompiler.Decompiler
 
         public int CompareTo(YieldExceptionHandlerInfo other)
         {
-            if(this.TryEndState == other.TryEndState && this.TryBeginState == other.TryBeginState)
+            if(this.TryStates.SetEquals(other.TryStates))
             {
                 return 0;
             }
 
-            int thisSize = this.tryEnd - this.tryBegin;
-            int otherSize = other.tryEnd - other.tryBegin;
-
-            if(thisSize != otherSize)
+            if (this.TryStates.IsProperSupersetOf(other.TryStates))
             {
-                return thisSize.CompareTo(otherSize);
+                return 1;
             }
-
-            return this.tryBegin.CompareTo(other.tryEnd);
+            else
+            {
+                return -1;
+            }
         }
     }
 }

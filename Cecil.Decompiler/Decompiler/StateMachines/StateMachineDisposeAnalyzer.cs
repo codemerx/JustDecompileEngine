@@ -156,11 +156,9 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
                 return false;
             }
 
-            //The algorithm works with the presumption that a try/finally construct contains a consecutive sequence of states.
             InstructionBlock[] orderedCases = switchBlockInfo.OrderedCasesArray;
             InstructionBlock currentBlock = null;
-            int intervalStart = -1;
-            int intervalEnd = -1;
+            HashSet<int> tryStates = new HashSet<int>();
             ExceptionHandler exceptionHandler = null;
             for (int i = 0; i < orderedCases.Length; i++)
             {
@@ -168,17 +166,13 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
 
                 if (currentBlock != null && currentCase == currentBlock) //Current block will be null, if we still haven't found an exception handler.
                 {
-                    intervalEnd = i + stateOffset;
+                    tryStates.Add(i + stateOffset);
                     continue;
                 }
 
                 ExceptionHandler theHandler;
                 if (!TryGetExceptionHandler(currentCase, out theHandler))
                 {
-                    //There are cases where a state is never reached (i.e. the state field is never assigned this state number).
-                    //This can create holes in the exception handlers, but since the states are never reached we can add them to the handler.
-                    //(We work with the assumption that if state 3 and state 6 are handled by the same try/finally construct and 4 and 5 are not handled by
-                    //any exception handler, then 4 and 5 are unreachable. True in general, but obfuscation can break this assumption.)
                     continue;
                 }
 
@@ -187,7 +181,7 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
                 if (currentBlock != null) //If currentBlock != null, then currentBlock != currentCase. This means that we have found a new exception
                 //handler, so we must store the data for the old one.
                 {
-                    if (!TryCreateYieldExceptionHandler(intervalStart, intervalEnd, exceptionHandler))
+                    if (!TryCreateYieldExceptionHandler(tryStates, exceptionHandler))
                     {
                         return false;
                     }
@@ -197,12 +191,12 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
                     currentBlock = currentCase;
                 }
 
-                intervalStart = i + stateOffset;
+                tryStates.Add(i + stateOffset);
                 exceptionHandler = theHandler;
             }
 
             return currentBlock == null ||
-                TryCreateYieldExceptionHandler(intervalStart, intervalEnd, exceptionHandler); //Store the data for the last found exception handler.
+                TryCreateYieldExceptionHandler(tryStates, exceptionHandler); //Store the data for the last found exception handler.
         }
 
         /// <summary>
@@ -250,10 +244,9 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
         /// <summary>
         /// Creates the yield exception handler info using the given information.
         /// </summary>
-        /// <param name="intervalStart"></param>
-        /// <param name="intervalEnd"></param>
+        /// <param name="tryStates"></param>
         /// <param name="handler"></param>
-        private bool TryCreateYieldExceptionHandler(int intervalStart, int intervalEnd, ExceptionHandler handler)
+        private bool TryCreateYieldExceptionHandler(HashSet<int> tryStates, ExceptionHandler handler)
         {
             if (handler.HandlerType != ExceptionHandlerType.Finally)
             {
@@ -267,11 +260,11 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
 
             if (TryGetFinallyMethodDefinition(handler, out methodDef))
             {
-                yieldsExceptionData.Add(new YieldExceptionHandlerInfo(intervalStart, intervalEnd, methodDef));
+                yieldsExceptionData.Add(new YieldExceptionHandlerInfo(tryStates, methodDef));
             }
             else if (TryGetDisposableConditionData(handler, out nextState, out enumeratorField, out disposableField))
             {
-                yieldsExceptionData.Add(new YieldExceptionHandlerInfo(intervalStart, intervalEnd, nextState, enumeratorField, disposableField));
+                yieldsExceptionData.Add(new YieldExceptionHandlerInfo(tryStates, nextState, enumeratorField, disposableField));
             }
             else
             {

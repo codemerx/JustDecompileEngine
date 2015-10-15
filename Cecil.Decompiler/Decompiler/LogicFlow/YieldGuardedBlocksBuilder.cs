@@ -68,7 +68,7 @@ namespace Telerik.JustDecompiler.Decompiler.LogicFlow
             this.stateFieldRef = methodContext.YieldData.FieldsInfo.StateHolderField;
 
             YieldExceptionHandlerInfo[] handlerInfoArray = methodContext.YieldData.ExceptionHandlers;
-            Array.Sort(handlerInfoArray); //The order ensures that if interval[i] is nested in interval[j] then i < j
+            Array.Sort(handlerInfoArray); //The order ensures that if we have 2 or more nested handlers, the most inner will be first, then the second most inner, etc.
             GetOrderedCFGNodes();
 
             foreach (YieldExceptionHandlerInfo handlerInfo in handlerInfoArray)
@@ -124,7 +124,7 @@ namespace Telerik.JustDecompiler.Decompiler.LogicFlow
         {
             finallyBlocks = new HashSet<ILogicalConstruct>();
 
-            entryOfTry = GetStateBeginBlockConstruct(handlerInfo.TryBeginState);
+            entryOfTry = GetStateBeginBlockConstruct(handlerInfo.TryStates);
 
             BuildTryBody(handlerInfo);
 
@@ -210,7 +210,7 @@ namespace Telerik.JustDecompiler.Decompiler.LogicFlow
                     int value;
                     if(TryGetStateAssignValue(currentExpression, out value))
                     {
-                        if(value < handlerInfo.TryBeginState || value > handlerInfo.TryEndState) //sanity check
+                        if(!handlerInfo.TryStates.Contains(value)) //sanity check
                         {
                             if(handlerInfo.HandlerType != YieldExceptionHandlerType.Method &&
                                 TryProcessConditionalDisposeHandler(handlerInfo, currentCFGNode))
@@ -284,7 +284,7 @@ namespace Telerik.JustDecompiler.Decompiler.LogicFlow
                 TryFinallyLogicalConstruct tryFinallyConstruct = currentNode as TryFinallyLogicalConstruct;
                 YieldExceptionHandlerInfo oldHandlerInfo;
                 if(createdConstructsToIntervalMap.TryGetValue(tryFinallyConstruct, out oldHandlerInfo) &&
-                    (oldHandlerInfo.TryBeginState < handlerInfo.TryBeginState || oldHandlerInfo.TryEndState > handlerInfo.TryEndState))
+                    oldHandlerInfo.TryStates.IsProperSupersetOf(handlerInfo.TryStates))
                 {
                     throw new Exception("This try/finally construct cannot be nested in the current construct");
                 }
@@ -310,16 +310,16 @@ namespace Telerik.JustDecompiler.Decompiler.LogicFlow
         }
 
         /// <summary>
-        /// Gets the entry CFGBlockLogicalConstruct of the specified state.
+        /// Gets the first found entry CFGBlockLogicalConstruct for a state from the tryStates.
         /// </summary>
         /// <remarks>
-        /// We try to get the first CFGBlockLC, that is going to be reached by the control flow, in which the state field is assigned the specified
-        /// <paramref name="state"/>. If the assignment is not at the begining of the CFGConstruct then we need to split it, since the try begins
+        /// We try to get the first CFGBlockLC, that is going to be reached by the control flow, in which the state field is assigned to a state of the
+        /// <paramref name="tryStates"/>. If the assignment is not at the begining of the CFGConstruct then we need to split it, since the try begins
         /// at the assignment.
         /// </remarks>
-        /// <param name="state"></param>
+        /// <param name="tryStates"></param>
         /// <returns></returns>
-        private CFGBlockLogicalConstruct GetStateBeginBlockConstruct(int state)
+        private CFGBlockLogicalConstruct GetStateBeginBlockConstruct(HashSet<int> tryStates)
         {
             for (int i = 0; i < this.orderedCFGNodes.Count; i++)
             {
@@ -329,7 +329,7 @@ namespace Telerik.JustDecompiler.Decompiler.LogicFlow
                 for (int j = 0; j < blockExpressions.Count; j++)
                 {
                     int value;
-                    if (TryGetStateAssignValue(blockExpressions[j], out value) && value == state)
+                    if (TryGetStateAssignValue(blockExpressions[j], out value) && tryStates.Contains(value))
                     {
                         if (j != 0)
                         {
