@@ -471,6 +471,14 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
         /// ............
         /// 
         /// In some cases there is no state variable. Instead the state field is loaded.
+        /// 
+        /// Update:
+        /// Since C#6.0 this case is added:
+        /// 
+        /// ...
+        /// ldloc.1
+        /// brfalse.s IL_0012
+        /// ...
         /// </remarks>
         /// <param name="theBlock"></param>
         /// <param name="stateNumber"></param>
@@ -507,6 +515,13 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
                 {
                     return false;
                 }
+            }
+            else if (IsBrFalseInstruction(theBlock.Last))
+            {
+                controllerType = StateMachineControllerType.Condition;
+
+                currentInstruction = theBlock.Last;
+                stateNumber = 0;
             }
             else if (IsBneInstruction(theBlock.Last))
             {
@@ -562,6 +577,16 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
         private bool IsBneInstruction(Instruction theInstruction)
         {
             return theInstruction.OpCode.Code == Code.Bne_Un || theInstruction.OpCode.Code == Code.Bne_Un_S;
+        }
+
+        /// <summary>
+        /// Determines whether the specified instruction is brfalse* instruction.
+        /// </summary>
+        /// <param name="theInstruction"></param>
+        /// <returns></returns>
+        private bool IsBrFalseInstruction(Instruction theInstruction)
+        {
+            return theInstruction.OpCode.Code == Code.Brfalse || theInstruction.OpCode.Code == Code.Brfalse_S;
         }
 
         /// <summary>

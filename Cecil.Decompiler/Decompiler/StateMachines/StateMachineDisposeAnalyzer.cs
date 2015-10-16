@@ -10,6 +10,7 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
     class StateMachineDisposeAnalyzer
     {
         private readonly List<YieldExceptionHandlerInfo> yieldsExceptionData = new List<YieldExceptionHandlerInfo>();
+        private readonly Dictionary<ExceptionHandler, HashSet<int>> handlerToStatesMap = new Dictionary<ExceptionHandler, HashSet<int>>();
 
         private readonly MethodDefinition moveNextMethodDefinition;
 
@@ -59,7 +60,7 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
                 {
                     return YieldStateMachineVersion.V2;
                 }
-                else if (DetermineTryFinallyStateIntervals())
+                else if (GetYieldExceptionData())
                 {
                     return YieldStateMachineVersion.V1;
                 }
@@ -100,12 +101,52 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
         /// <remarks>
         /// We use the switch blocks information and the exception handler data of the dispose method to determine which states
         /// are covered by each try/finally construct. We also get the information for the finally method.
+        /// 
+        /// Update:
+        /// Since C#6.0 in some simpler cases the compiler doesn't use switch but conditional branch instructions, so
+        /// we now look for conditional branches who jump to try/finally constructs too.
         /// </remarks>
-        private bool DetermineTryFinallyStateIntervals()
+        private bool GetYieldExceptionData()
         {
+            if (theDisposeCFG.Blocks.Length == 1)
+            {
+                // The dispose method contains only return statement.
+                return true;
+            }
+
+            // The Dispose method should looks like this:
+            // IL_0000: ldarg.0
+            // IL_0001: ldfld int32 YieldBreakInDoWhile.TestCase/'<Main1>d__1'::'<>1__state'
+            // IL_0006: stloc.0
+            // ...
+
+            Instruction currentInstruction = theDisposeCFG.OffsetToInstruction[0];
+            if (currentInstruction.OpCode.Code != Code.Ldarg_0)
+            {
+                return false;
+            }
+
+            currentInstruction = theDisposeCFG.OffsetToInstruction[1];
+            if (currentInstruction.OpCode.Code != Code.Ldfld || !(currentInstruction.Operand is FieldReference) ||
+                !CheckAndSaveStateField(currentInstruction.Operand as FieldReference))
+            {
+                //sanity check - the state field used by the Dispose method should be the same as the field used by the MoveNext method
+                return false;
+            }
+
             foreach (SwitchData switchBlockInfo in theDisposeCFG.SwitchBlocksInformation.Values)
             {
-                if (!DetermineExceptionHandlingIntervalsFromSwitchData(switchBlockInfo))
+                if (!DetermineExceptionHandlingStatesFromSwitchData(switchBlockInfo))
+                {
+                    return false;
+                }
+            }
+
+            DetermineExceptionHandlingStatesFromCFGBlocks();
+
+            foreach (KeyValuePair<ExceptionHandler, HashSet<int>> pair in this.handlerToStatesMap)
+            {
+                if (!TryCreateYieldExceptionHandler(pair.Value, pair.Key))
                 {
                     return false;
                 }
@@ -117,12 +158,8 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
         /// <summary>
         /// Process each switch block to determine which cases lead to try/finally constructs.
         /// </summary>
-        /// <remarks>
-        /// E.g.: If the cases from 3 to 5 lead to the same try/finally construct then there is a try/finally construct in the MoveNext method
-        /// that covers states 3, 4 and 5.
-        /// </remarks>
         /// <param name="switchBlockInfo"></param>
-        private bool DetermineExceptionHandlingIntervalsFromSwitchData(SwitchData switchBlockInfo)
+        private bool DetermineExceptionHandlingStatesFromSwitchData(SwitchData switchBlockInfo)
         {
             //Since the first try/finally that this switch covers can start at state 20, the complier will optimize this by subtracting 20 from the value of
             //the state field.
@@ -139,36 +176,10 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
                 currentInstruction = currentInstruction.Previous;
             }
 
-            //The switch instruction block usually looks like this:
-            //
-            //ldarg.0 <- this
-            //ldfld stateField
-            //stloc.0
-            //ldloc.0                  <- currentInstruction
-            //(ldc.i4 stateOffset)
-            //(sub)
-            //switch .... 
-            currentInstruction = currentInstruction.Previous.Previous;
-            if (currentInstruction.OpCode.Code != Code.Ldfld || !(currentInstruction.Operand is FieldReference) ||
-                !CheckAndSaveStateField(currentInstruction.Operand as FieldReference))
-            {
-                //sanity check - the state field used by the Dispose method should be the same as the field used by the MoveNext method
-                return false;
-            }
-
             InstructionBlock[] orderedCases = switchBlockInfo.OrderedCasesArray;
-            InstructionBlock currentBlock = null;
-            HashSet<int> tryStates = new HashSet<int>();
-            ExceptionHandler exceptionHandler = null;
             for (int i = 0; i < orderedCases.Length; i++)
             {
                 InstructionBlock currentCase = GetActualCase(orderedCases[i]);
-
-                if (currentBlock != null && currentCase == currentBlock) //Current block will be null, if we still haven't found an exception handler.
-                {
-                    tryStates.Add(i + stateOffset);
-                    continue;
-                }
 
                 ExceptionHandler theHandler;
                 if (!TryGetExceptionHandler(currentCase, out theHandler))
@@ -178,25 +189,53 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
 
                 //We've found an exception handler.
 
-                if (currentBlock != null) //If currentBlock != null, then currentBlock != currentCase. This means that we have found a new exception
-                //handler, so we must store the data for the old one.
+                if (!this.handlerToStatesMap.ContainsKey(theHandler))
                 {
-                    if (!TryCreateYieldExceptionHandler(tryStates, exceptionHandler))
-                    {
-                        return false;
-                    }
-                }
-                else //Otherwise this is the first handler found for the switch block.
-                {
-                    currentBlock = currentCase;
+                    this.handlerToStatesMap.Add(theHandler, new HashSet<int>());
                 }
 
-                tryStates.Add(i + stateOffset);
-                exceptionHandler = theHandler;
+                this.handlerToStatesMap[theHandler].Add(i + stateOffset);
             }
 
-            return currentBlock == null ||
-                TryCreateYieldExceptionHandler(tryStates, exceptionHandler); //Store the data for the last found exception handler.
+            return true;
+        }
+
+        /// <summary>
+        /// Process each CFG block to determine which cases lead to try/finally construct.
+        /// </summary>
+        private void DetermineExceptionHandlingStatesFromCFGBlocks()
+        {
+            foreach (InstructionBlock block in theDisposeCFG.Blocks)
+            {
+                int state;
+                if ((block.Last.OpCode.Code != Code.Beq && block.Last.OpCode.Code != Code.Beq_S) ||
+                    !StateMachineUtilities.TryGetOperandOfLdc(block.Last.Previous, out state))
+                {
+                    continue;
+                }
+
+                Instruction branchTargetInstruction = block.Last.Operand as Instruction;
+                if (branchTargetInstruction == null)
+                {
+                    throw new Exception("Invalid operand of branch instruction.");
+                }
+
+                InstructionBlock targetBlock = SkipSingleNopInstructionBlock(theDisposeCFG.InstructionToBlockMapping[branchTargetInstruction.Offset]);
+                ExceptionHandler theHandler;
+                if (!TryGetExceptionHandler(targetBlock, out theHandler))
+                {
+                    continue;
+                }
+
+                //We've found an exception handler.
+
+                if (!this.handlerToStatesMap.ContainsKey(theHandler))
+                {
+                    this.handlerToStatesMap.Add(theHandler, new HashSet<int>());
+                }
+
+                this.handlerToStatesMap[theHandler].Add(state);
+            }
         }
 
         /// <summary>
@@ -216,7 +255,23 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
                 theBlock = theDisposeCFG.InstructionToBlockMapping[branchTarget.Offset];
             }
 
+            theBlock = SkipSingleNopInstructionBlock(theBlock);
+
             return theBlock;
+        }
+
+        /// <summary>
+        /// If the given instruction block contains only a single nop instruction, this method returns it's successor, if such exists.
+        /// </summary>
+        private static InstructionBlock SkipSingleNopInstructionBlock(InstructionBlock theBlock)
+        {
+            InstructionBlock result = theBlock;
+            if (theBlock.First == theBlock.Last && theBlock.First.OpCode.Code == Code.Nop && theBlock.Successors.Length == 1)
+            {
+                result = theBlock.Successors[0];
+            }
+
+            return result;
         }
 
         /// <summary>

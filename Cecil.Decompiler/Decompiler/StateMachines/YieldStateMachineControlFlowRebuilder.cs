@@ -221,6 +221,10 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
         /// If a predecessor is a block that contains a single unconditional branch instruction then we recursively call the method for that
         /// predecessor and we mark it for removal.
         /// This means that the block, that we initially call this method for, will not be removed and will be left to be marked as an yield break.
+        /// 
+        /// Update:
+        /// Since C#6.0 not all of the predecessors should contain instructions for settings the flag variable. There could be a predecessor
+        /// which contains invocation of finally method. In this case we recursively call this method for it's predecessors.
         /// </remarks>
         /// <param name="theBlock"></param>
         private bool MarkTrueReturningPredecessorsAsYieldReturn(InstructionBlock theBlock)
@@ -255,7 +259,28 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
                 }
 
                 int returnValue;
-                if (TryGetVariableFromInstruction(lastInstruction, out flagVarReference) && CheckAndSaveReturnFlagVariable(flagVarReference) &&
+                if (lastInstruction.OpCode.Code == Code.Nop &&
+                    lastInstruction.Previous.OpCode.Code == Code.Call &&
+                    lastInstruction.Previous.Previous.OpCode.Code == Code.Ldarg_0 &&
+                    predecessor.First == lastInstruction.Previous.Previous)
+                {
+                    MethodReference finallyMethod = lastInstruction.Previous.Operand as MethodReference;
+                    if (finallyMethod == null)
+                    {
+                        return false;
+                    }
+
+                    if (!finallyMethod.Name.StartsWith("<>m__Finally"))
+                    {
+                        return false;
+                    }
+                    
+                    if (!MarkTrueReturningPredecessorsAsYieldReturn(predecessor))
+                    {
+                        return false;
+                    }
+                }
+                else if (TryGetVariableFromInstruction(lastInstruction, out flagVarReference) && CheckAndSaveReturnFlagVariable(flagVarReference) &&
                     StateMachineUtilities.TryGetOperandOfLdc(lastInstruction.Previous, out returnValue))
                 {
                     if (returnValue == 1)
