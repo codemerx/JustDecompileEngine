@@ -163,6 +163,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                 case CSharpVersion.V3:
                     return new CSharpV3();
                 case CSharpVersion.V4:
+                case CSharpVersion.V6:
                     return new CSharpV4();
                 default:
                     throw new ArgumentException();
@@ -479,5 +480,6 @@ namespace Telerik.JustDecompiler.Languages.CSharp
         V2,
         V3,
         V4,
+        V6
     }
 }
