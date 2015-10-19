@@ -42,15 +42,6 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 
 		public TypeDeclarationsWriterContextService(bool renameInvalidMembers) : base(null, renameInvalidMembers) { }
 
-		public bool ExceptionsWhileDecompiling
-		{
-			get
-			{
-				// no decompilation is done in TypeDeclarationsWriterContextService
-				return false;
-			}
-		}
-
 		private HashSet<EventDefinition> GetAutoImplementedEvents(TypeDefinition type)
 		{
 			HashSet<EventDefinition> result = new HashSet<EventDefinition>();

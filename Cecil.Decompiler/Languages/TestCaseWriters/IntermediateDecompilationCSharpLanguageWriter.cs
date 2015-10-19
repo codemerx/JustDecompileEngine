@@ -57,10 +57,5 @@ namespace Telerik.JustDecompiler.Languages.TestCaseWriters
 				}
 			}
 		}
-
-		public void SetContext(IMemberDefinition member)
-		{
-			this.writerContext = this.writerContextService.GetWriterContext(member, this.Language);
-		}
     }
 }
