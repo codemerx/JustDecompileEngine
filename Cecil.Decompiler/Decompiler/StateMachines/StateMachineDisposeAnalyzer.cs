@@ -208,16 +208,25 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
             foreach (InstructionBlock block in theDisposeCFG.Blocks)
             {
                 int state;
-                if ((block.Last.OpCode.Code != Code.Beq && block.Last.OpCode.Code != Code.Beq_S) ||
+                if ((!IsBeqInstruction(block.Last) && !IsBneUnInstruction(block.Last)) ||
                     !StateMachineUtilities.TryGetOperandOfLdc(block.Last.Previous, out state))
                 {
                     continue;
                 }
 
-                Instruction branchTargetInstruction = block.Last.Operand as Instruction;
+                Instruction branchTargetInstruction = null;
+                if (IsBeqInstruction(block.Last))
+                {
+                    branchTargetInstruction = block.Last.Operand as Instruction;
+                }
+                else // bne.un*
+                {
+                    branchTargetInstruction = block.Last.Next as Instruction;
+                }
+
                 if (branchTargetInstruction == null)
                 {
-                    throw new Exception("Invalid operand of branch instruction.");
+                    throw new Exception("branchTargetInstruction cannot be null.");
                 }
 
                 InstructionBlock targetBlock = SkipSingleNopInstructionBlock(theDisposeCFG.InstructionToBlockMapping[branchTargetInstruction.Offset]);
@@ -236,6 +245,22 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
 
                 this.handlerToStatesMap[theHandler].Add(state);
             }
+        }
+
+        /// <summary>
+        /// Determines whether the specified instruction is beq* instruction.
+        /// </summary>
+        protected bool IsBeqInstruction(Instruction theInstruction)
+        {
+            return theInstruction.OpCode.Code == Code.Beq || theInstruction.OpCode.Code == Code.Beq_S;
+        }
+
+        /// <summary>
+        /// Determines whether the specified instruction is bne.un* instruction.
+        /// </summary>
+        protected bool IsBneUnInstruction(Instruction theInstruction)
+        {
+            return theInstruction.OpCode.Code == Code.Bne_Un || theInstruction.OpCode.Code == Code.Bne_Un_S;
         }
 
         /// <summary>
