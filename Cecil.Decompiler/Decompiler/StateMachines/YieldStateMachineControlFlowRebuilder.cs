@@ -259,22 +259,8 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
                 }
 
                 int returnValue;
-                if (lastInstruction.OpCode.Code == Code.Nop &&
-                    lastInstruction.Previous.OpCode.Code == Code.Call &&
-                    lastInstruction.Previous.Previous.OpCode.Code == Code.Ldarg_0 &&
-                    predecessor.First == lastInstruction.Previous.Previous)
+                if (IsFinallyMethodInvocationBlock(predecessor))
                 {
-                    MethodReference finallyMethod = lastInstruction.Previous.Operand as MethodReference;
-                    if (finallyMethod == null)
-                    {
-                        return false;
-                    }
-
-                    if (!finallyMethod.Name.StartsWith("<>m__Finally"))
-                    {
-                        return false;
-                    }
-                    
                     if (!MarkTrueReturningPredecessorsAsYieldReturn(predecessor))
                     {
                         return false;
@@ -299,6 +285,61 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
                 {
                     return false;
                 }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Checks if the given block is block that contains only Finally method invocation. This pattern is brought by the new C#6.0 compiler.
+        /// </summary>
+        private bool IsFinallyMethodInvocationBlock(InstructionBlock block)
+        {
+            // The pattern is like so:
+            // ldarg.0
+            // call instance void ... (the finally method)
+            // nop <- could be missing
+            // leave.s ...
+
+            Instruction current = block.First;
+            if (current.OpCode.Code != Code.Ldarg_0)
+            {
+                return false;
+            }
+
+            current = current.Next;
+            if (current.OpCode.Code != Code.Call)
+            {
+                return false;
+            }
+
+            Instruction callInstruction = current;
+
+            current = current.Next;
+            if (current.OpCode.Code == Code.Nop)
+            {
+                current = current.Next;
+            }
+
+            if (!StateMachineUtilities.IsUnconditionalBranch(current))
+            {
+                return false;
+            }
+
+            if (block.Last != current)
+            {
+                return false;
+            }
+
+            MethodReference finallyMethod = callInstruction.Operand as MethodReference;
+            if (finallyMethod == null)
+            {
+                return false;
+            }
+
+            if (!finallyMethod.Name.StartsWith("<>m__Finally"))
+            {
+                return false;
             }
 
             return true;
