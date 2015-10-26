@@ -16,6 +16,7 @@ namespace Telerik.JustDecompiler.Steps
         private Dictionary<FieldDefinition, Expression> fieldsToRemove;
         private Dictionary<VariableReference, Expression> variablesToRemove;
         private Dictionary<VariableReference, Statement> initializationsToRemove;
+        private DelegateCachingVersion cachingVersion;
 
         public BlockStatement Process(DecompilationContext context, BlockStatement body)
         {
@@ -60,8 +61,7 @@ namespace Telerik.JustDecompiler.Steps
 
         private bool CheckIfStatement(IfStatement theIf)
         {
-            if (theIf.Else != null || theIf.Then.Statements.Count != 1 || theIf.Then.Statements[0].CodeNodeType != CodeNodeType.ExpressionStatement ||
-                theIf.Condition.CodeNodeType != CodeNodeType.BinaryExpression)
+            if (!CheckIfStatementStructure(theIf))
             {
                 return false;
             }
@@ -75,6 +75,70 @@ namespace Telerik.JustDecompiler.Steps
             else if (theCondition.Left.CodeNodeType == CodeNodeType.VariableReferenceExpression)
             {
                 return CheckVariableCaching(theIf);
+            }
+
+            return false;
+        }
+
+        private bool CheckIfStatementStructure(IfStatement theIf)
+        {
+            if (theIf.Else == null && theIf.Condition.CodeNodeType == CodeNodeType.BinaryExpression)
+            {
+                if (theIf.Then.Statements.Count == 1 && theIf.Then.Statements[0].CodeNodeType == CodeNodeType.ExpressionStatement)
+                {
+                    this.cachingVersion = DelegateCachingVersion.V1;
+                    return true;
+                }
+                else if (theIf.Then.Statements.Count == 3)
+                {
+                    ExpressionStatement first = theIf.Then.Statements[0] as ExpressionStatement;
+                    if (first == null)
+                    {
+                        return false;
+                    }
+
+                    BinaryExpression firstBinary = first.Expression as BinaryExpression;
+                    if (firstBinary == null)
+                    {
+                        return false;
+                    }
+
+                    if (!firstBinary.IsAssignmentExpression ||
+                        firstBinary.Left.CodeNodeType != CodeNodeType.VariableReferenceExpression ||
+                        firstBinary.Right.CodeNodeType != CodeNodeType.VariableReferenceExpression ||
+                        !initializationsToRemove.ContainsKey((firstBinary.Right as VariableReferenceExpression).Variable))
+                    {
+                        return false;
+                    }
+
+                    if (theIf.Then.Statements[1].CodeNodeType != CodeNodeType.ExpressionStatement)
+                    {
+                        return false;
+                    }
+
+                    ExpressionStatement third = theIf.Then.Statements[2] as ExpressionStatement;
+                    if (third == null)
+                    {
+                        return false;
+                    }
+
+                    BinaryExpression thirdBinary = third.Expression as BinaryExpression;
+                    if (thirdBinary == null)
+                    {
+                        return false;
+                    }
+
+                    if (!thirdBinary.IsAssignmentExpression ||
+                        thirdBinary.Left.CodeNodeType != CodeNodeType.FieldReferenceExpression ||
+                        thirdBinary.Right.CodeNodeType != CodeNodeType.VariableReferenceExpression ||
+                        !initializationsToRemove.ContainsKey((thirdBinary.Right as VariableReferenceExpression).Variable))
+                    {
+                        return false;
+                    }
+
+                    this.cachingVersion = DelegateCachingVersion.V2;
+                    return true;
+                }
             }
 
             return false;
@@ -141,7 +205,8 @@ namespace Telerik.JustDecompiler.Steps
                 return false;
             }
 
-            BinaryExpression theAssignExpression = (theIf.Then.Statements[0] as ExpressionStatement).Expression as BinaryExpression;
+            int theAssignExpressionIndex = this.cachingVersion == DelegateCachingVersion.V1 ? 0 : 1;
+            BinaryExpression theAssignExpression = (theIf.Then.Statements[theAssignExpressionIndex] as ExpressionStatement).Expression as BinaryExpression;
             if (theAssignExpression == null || !theAssignExpression.IsAssignmentExpression ||
                 theAssignExpression.Left.CodeNodeType != CodeNodeType.VariableReferenceExpression ||
                 (theAssignExpression.Left as VariableReferenceExpression).Variable != theVariable)
@@ -241,13 +306,39 @@ namespace Telerik.JustDecompiler.Steps
                 value = (value as CastExpression).Expression;
             }
 
-            if (value.CodeNodeType != CodeNodeType.LiteralExpression || (value as LiteralExpression).Value != null)
+            if ((value.CodeNodeType != CodeNodeType.LiteralExpression || (value as LiteralExpression).Value != null) &&
+                (value.CodeNodeType != CodeNodeType.FieldReferenceExpression))
             {
                 return false;
             }
 
+            if (value.CodeNodeType == CodeNodeType.FieldReferenceExpression)
+            {
+                FieldReferenceExpression fieldReferenceExpression = value as FieldReferenceExpression;
+                
+                TypeDefinition fieldType = fieldReferenceExpression.ExpressionType.Resolve();
+                if (fieldType == null || fieldType.BaseType == null || fieldType.BaseType.FullName != "System.MulticastDelegate")
+                {
+                    return false;
+                }
+
+                // Slow checks
+                FieldDefinition fieldDef = fieldReferenceExpression.Field.Resolve();
+                if (!fieldDef.DeclaringType.IsNestedIn(this.context.MethodContext.Method.DeclaringType) ||
+                    !fieldDef.DeclaringType.IsCompilerGenerated())
+                {
+                    return false;
+                }
+            }
+
             initializationsToRemove[(theAssignExpression.Left as VariableReferenceExpression).Variable] = node;
             return true;
+        }
+
+        private enum DelegateCachingVersion
+        {
+            V1, // Before C# 6.0
+            V2  // C# 6.0
         }
     }
 }
