@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Telerik.JustDecompiler.Ast;
 using Telerik.JustDecompiler.Ast.Statements;
 using Telerik.JustDecompiler.Decompiler;
@@ -267,6 +268,9 @@ namespace Telerik.JustDecompiler.Steps
 
 				parentBlock.Statements.RemoveAt(tryIndex);
 				parentBlock.AddStatementAt(tryIndex, @foreach);
+
+                YieldStateMachineCodeRemover ysmcr = new YieldStateMachineCodeRemover(@foreach, theEnumerator);
+                ysmcr.ProcessForEachStatement();
 
 				CopyLabel();
 
@@ -718,6 +722,117 @@ namespace Telerik.JustDecompiler.Steps
                 {
                     node.Variable = newVariable;
                 }
+            }
+        }
+
+        /// <summary>
+        /// This class takes care for removing redundant code from the yield state machine.
+        /// </summary>
+        private class YieldStateMachineCodeRemover
+        {
+            private ForEachStatement @foreach;
+            private VariableReference enumeratorVariable;
+
+            public YieldStateMachineCodeRemover(ForEachStatement @foreach, VariableReference enumeratorVariable)
+            {
+                this.@foreach = @foreach;
+                this.enumeratorVariable = enumeratorVariable;
+            }
+
+            public void ProcessForEachStatement()
+            {
+                RemoveLastForeachStatementIfNeeded();
+                RemoveFirstSuccessorIfNeeded();
+            }
+
+            private void RemoveLastForeachStatementIfNeeded()
+            {
+                if (@foreach.Body.Statements.Count == 0)
+                {
+                    return;
+                }
+
+                ExpressionStatement expressionStatement = @foreach.Body.Statements.Last() as ExpressionStatement;
+                if (expressionStatement == null)
+                {
+                    return;
+                }
+
+                BinaryExpression binaryExpression = expressionStatement.Expression as BinaryExpression;
+                if (binaryExpression == null)
+                {
+                    return;
+                }
+
+                if (!binaryExpression.IsAssignmentExpression)
+                {
+                    return;
+                }
+
+                VariableReferenceExpression variableRef = binaryExpression.Left as VariableReferenceExpression;
+                if (variableRef == null || variableRef.Variable != @foreach.Variable.Variable)
+                {
+                    return;
+                }
+
+                LiteralExpression literalExpression = binaryExpression.Right as LiteralExpression;
+                if (literalExpression != null && literalExpression.Value == null)
+                {
+                    RemoveStatement(this.@foreach.Body.Statements, expressionStatement);
+                    return;
+                }
+
+                DefaultObjectExpression defaultObjectExpression = binaryExpression.Right as DefaultObjectExpression;
+                if (defaultObjectExpression != null)
+                {
+                    RemoveStatement(this.@foreach.Body.Statements, expressionStatement);
+                    return;
+                }
+            }
+
+            private void RemoveFirstSuccessorIfNeeded()
+            {
+                BlockStatement block = @foreach.Parent as BlockStatement;
+                int foreachIndex = block.Statements.IndexOf(@foreach);
+
+                if (block.Statements.Count <= foreachIndex + 1)
+                {
+                    return;
+                }
+
+                ExpressionStatement expressionStatement = block.Statements[foreachIndex + 1] as ExpressionStatement;
+                if (expressionStatement == null)
+                {
+                    return;
+                }
+
+                BinaryExpression binaryExpression = expressionStatement.Expression as BinaryExpression;
+                if (binaryExpression == null)
+                {
+                    return;
+                }
+
+                VariableReferenceExpression variableRef = binaryExpression.Left as VariableReferenceExpression;
+                if (variableRef == null)
+                {
+                    return;
+                }
+
+                LiteralExpression literal = binaryExpression.Right as LiteralExpression;
+                if (literal == null)
+                {
+                    return;
+                }
+
+                if (variableRef.Variable == this.enumeratorVariable && literal.Value == null)
+                {
+                    RemoveStatement(block.Statements, expressionStatement);
+                }
+            }
+
+            private void RemoveStatement(StatementCollection collection, Statement statement)
+            {
+                collection.Remove(statement);
             }
         }
     }
