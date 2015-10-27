@@ -324,7 +324,8 @@ namespace Telerik.JustDecompiler.Steps
 
                 // Slow checks
                 FieldDefinition fieldDef = fieldReferenceExpression.Field.Resolve();
-                if (!fieldDef.DeclaringType.IsNestedIn(this.context.MethodContext.Method.DeclaringType) ||
+                if ((fieldDef.DeclaringType != this.context.MethodContext.Method.DeclaringType &&
+                    !fieldDef.DeclaringType.IsNestedIn(this.context.MethodContext.Method.DeclaringType)) ||
                     !fieldDef.DeclaringType.IsCompilerGenerated())
                 {
                     return false;
