@@ -6,12 +6,12 @@ namespace Telerik.JustDecompiler.Decompiler.DefineUseAnalysis
     class StackVariableDefineUseInfo
     {
         public HashSet<int> DefinedAt { get; private set; }
-        public HashSet<int> UsedAt { get; private set; }
+        public List<int> UsedAt { get; private set; }
 
         public StackVariableDefineUseInfo()
         {
             DefinedAt = new HashSet<int>();
-            UsedAt = new HashSet<int>();
+            UsedAt = new List<int>();
         }
     }
 }
