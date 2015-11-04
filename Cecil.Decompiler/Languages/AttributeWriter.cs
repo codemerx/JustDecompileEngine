@@ -14,7 +14,8 @@ namespace Telerik.JustDecompiler.Languages
 	public abstract class AttributeWriter
 	{
         protected readonly HashSet<string> attributesNotToShow = new HashSet<string>(new string[] { "System.Runtime.CompilerServices.ExtensionAttribute",
-                                                                                                    "System.ParamArrayAttribute"});
+                                                                                                    "System.ParamArrayAttribute",
+                                                                                                    "System.Runtime.CompilerServices.IteratorStateMachineAttribute" });
         protected NamespaceImperativeLanguageWriter genericWriter;
         private Dictionary<SecurityAttribute, SecurityDeclaration> securityAttributeToDeclaration = new Dictionary<SecurityAttribute, SecurityDeclaration>();
         private const string ASSEMBLYNOTRESOLVEDERROR = "JustDecompile was unable to locate the assembly where attribute parameters types are defined. Generating parameters values is impossible.";
