@@ -19,41 +19,13 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
     /// 
     /// The purpose of this class is to detach the compiler generated blocks at the begining of the finally handlers and then mark them for removal.
     /// </remarks>
-    class StateMachineDoFinallyCheckRemover
+    class StateMachineDoFinallyCheckRemover : StateMachineFinallyCheckRemoverBase
     {
-        private readonly HashSet<InstructionBlock> toBeRemoved = new HashSet<InstructionBlock>();
-
-        private readonly ControlFlowGraph theCFG;
-        private readonly Collection<VariableDefinition> methodVariables;
-
         private VariableReference doFinallyVariable;
 
-        /// <summary>
-        /// Gets the doFinallyBodies variable.
-        /// </summary>
-        public VariableReference DoFinallyVariable
-        {
-            get
-            {
-                return doFinallyVariable;
-            }
-        }
-
-        /// <summary>
-        /// Gets the blocks that were marked for removal during the cleaning of the CFG.
-        /// </summary>
-        public HashSet<InstructionBlock> BlocksMarkedForRemoval
-        {
-            get
-            {
-                return toBeRemoved;
-            }
-        }
-
         public StateMachineDoFinallyCheckRemover(MethodSpecificContext methodContext)
+            : base(methodContext)
         {
-            this.methodVariables = methodContext.Body.Variables;
-            this.theCFG = methodContext.ControlFlowGraph;
         }
 
         /// <summary>
@@ -64,21 +36,20 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
         {
             if (GetDoFinallyVariable())
             {
-                foreach (ExceptionHandler exHandler in theCFG.RawExceptionHandlers)
-                {
-                    InstructionBlock finallyEntry;
-                    if (exHandler.HandlerType == ExceptionHandlerType.Finally &&
-                        theCFG.InstructionToBlockMapping.TryGetValue(exHandler.HandlerStart.Offset, out finallyEntry) &&
-                        IsDoFinallyCheck(finallyEntry))
-                    {
-                        toBeRemoved.Add(finallyEntry);
-                        finallyEntry.Successors = new InstructionBlock[0];
-                    }
-                }
+                MarkFinallyConditionsForRemovalInternal();
                 return true;
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Finds and marks the do-finally-check blocks for removal.
+        /// </summary>
+        public override void MarkFinallyConditionsForRemoval(VariableReference doFinallyVariable)
+        {
+            this.doFinallyVariable = doFinallyVariable;
+            MarkFinallyConditionsForRemovalInternal();
         }
 
         /// <summary>
@@ -109,7 +80,7 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
         /// </remarks>
         /// <param name="theBlock"></param>
         /// <returns></returns>
-        private bool IsDoFinallyCheck(InstructionBlock theBlock)
+        protected override bool IsFinallyCheckBlock(InstructionBlock theBlock)
         {
             Instruction currentInstruction = theBlock.First;
             while (currentInstruction.OpCode.Code == Code.Nop)

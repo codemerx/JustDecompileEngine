@@ -4,6 +4,7 @@ using Telerik.JustDecompiler.Cil;
 using Mono.Cecil.Cil;
 using System.Collections.Generic;
 using Mono.Cecil;
+using Telerik.JustDecompiler.Decompiler;
 
 namespace Telerik.JustDecompiler.Steps
 {
@@ -52,15 +53,23 @@ namespace Telerik.JustDecompiler.Steps
                 return false;
             }
 
-            StateMachineDoFinallyCheckRemover doFinallyCheckRemover = new StateMachineDoFinallyCheckRemover(this.moveNextMethodContext);
-            if (!doFinallyCheckRemover.MarkFinallyConditionsForRemoval())
+            AsyncMoveNextMethodAnalyzer analyzer = new AsyncMoveNextMethodAnalyzer(this.moveNextMethodContext, this.stateField);
+            StateMachineFinallyCheckRemoverBase finallyCheckRemover;
+            if (analyzer.StateMachineVersion == AsyncStateMachineVersion.V1)
             {
-                return false;
+                finallyCheckRemover = new StateMachineDoFinallyCheckRemover(this.moveNextMethodContext);
+                finallyCheckRemover.MarkFinallyConditionsForRemoval(analyzer.DoFinallyVariable);
             }
-            toBeRemoved.UnionWith(doFinallyCheckRemover.BlocksMarkedForRemoval);
+            else
+            {
+                finallyCheckRemover = new StateMachineFinallyStateCheckRemover(this.moveNextMethodContext);
+                finallyCheckRemover.MarkFinallyConditionsForRemoval(analyzer.StateVariable);
+            }
+
+            toBeRemoved.UnionWith(finallyCheckRemover.BlocksMarkedForRemoval);
 
             AsyncStateControllerRemover asyncControllerRemover =
-                new AsyncStateControllerRemover(this.moveNextMethodContext, this.stateField, doFinallyCheckRemover.DoFinallyVariable);
+                new AsyncStateControllerRemover(this.moveNextMethodContext, this.stateField, analyzer.DoFinallyVariable, analyzer.StateMachineVersion);
             if (!asyncControllerRemover.RemoveStateMachineController() && asyncControllerRemover.FoundControllerBlocks)
             {
                 return false;

@@ -16,7 +16,7 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
 
         private SwitchData switchData;
         private InstructionBlock defaultStateEntry;
-        private VariableReference stateVariable;
+        protected VariableReference stateVariable;
 
         protected int firstControllerBlock = 0;
 

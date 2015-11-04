@@ -249,6 +249,10 @@
     <Compile Include="Decompiler\MemberRenamingServices\WinRTRenamingService.cs" />
     <Compile Include="Decompiler\ModuleSpecificContext.cs" />
     <Compile Include="Decompiler\BlockDecompilationPipeline.cs" />
+    <Compile Include="Decompiler\StateMachines\AsyncMoveNextMethodAnalyzer.cs" />
+    <Compile Include="Decompiler\StateMachines\AsyncStateMachineVersion.cs" />
+    <Compile Include="Decompiler\StateMachines\StateMachineFinallyCheckRemoverBase.cs" />
+    <Compile Include="Decompiler\StateMachines\StateMachineFinallyStateCheckRemover.cs" />
     <Compile Include="Decompiler\UsageBasedExpressionFixer.cs" />
     <Compile Include="Decompiler\Caching\DecompilationCache.cs" />
     <Compile Include="Decompiler\Caching\DefaultDecompilationCacheService.cs" />

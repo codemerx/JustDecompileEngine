@@ -219,6 +219,13 @@ namespace Telerik.JustDecompiler.Steps
             return false;
         }
 
+        /// <summary>
+        /// Determines if the current type has builder field or not.
+        /// </summary>
+        /// <remarks>
+        /// Since the new C# 6.0 compiler doesn't generate body of the SetStateMachine method, the field is now
+        /// taken by name from type's fields.
+        /// </remarks>
         private bool GetBuilderField()
         {
             MethodDefinition setStateMachineMethod = GetStateMachineMethod("SetStateMachine") ??
@@ -229,12 +236,28 @@ namespace Telerik.JustDecompiler.Steps
                 return false;
             }
 
-            foreach (Instruction instruction in setStateMachineMethod.Body.Instructions)
+            if (setStateMachineMethod.Body.Instructions.Count > 1)
             {
-                if (instruction.OpCode.Code == Code.Ldflda)
+                foreach (Instruction instruction in setStateMachineMethod.Body.Instructions)
                 {
-                    builderField = ((FieldReference)instruction.Operand).Resolve();
-                    return true;
+                    if (instruction.OpCode.Code == Code.Ldflda)
+                    {
+                        builderField = ((FieldReference)instruction.Operand).Resolve();
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                foreach (FieldDefinition field in stateMachineTypeDef.Fields)
+                {
+                    if (field.FieldType.Name == "AsyncVoidMethodBuilder" ||
+                        field.FieldType.Name == "AsyncTaskMethodBuilder" ||
+                        field.FieldType.Name == "AsyncTaskMethodBuilder`1")
+                    {
+                        builderField = field;
+                        return true;
+                    }
                 }
             }
 

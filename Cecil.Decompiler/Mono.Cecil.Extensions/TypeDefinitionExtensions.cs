@@ -513,13 +513,17 @@ namespace Mono.Cecil.Extensions
             return member;
         }
 
+        /// <summary>
+        /// Determines if the type is async state machine.
+        /// </summary>
+        /// <remarks>
+        /// Since C# 6.0 the async state machine type is not nessesary to be struct (value type). In some cases the C# 6.0 compiler
+        /// generates struct, in others - class.
+        /// </remarks>
+        /// <param name="self"></param>
+        /// <returns></returns>
 		public static bool IsAsyncStateMachine(this TypeDefinition self)
 		{
-			if (!self.IsValueType)
-			{
-				return false;
-			}
-
 			foreach (TypeReference @interface in self.Interfaces)
 			{
 				if (@interface.FullName == "System.Runtime.CompilerServices.IAsyncStateMachine")

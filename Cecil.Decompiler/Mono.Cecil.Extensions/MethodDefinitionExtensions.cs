@@ -99,30 +99,24 @@ namespace Mono.Cecil.Extensions
 			return false;
 		}
 
+        /// <summary>
+        /// Determines if the MethodDefinition is async method.
+        /// </summary>
+        /// <remarks>
+        /// Since C# 6.0 the DebuggerStepThrough attribute is no longer nessesary to exists, if method is async.
+        /// </remarks>
 		public static bool IsAsync(this MethodDefinition self, out TypeDefinition asyncStateMachineType)
 		{
 			asyncStateMachineType = null;
-			bool hasAsyncAttribute = false;
-			bool hasDebuggerStepThroughAttribute = false;
 			foreach (CustomAttribute attribute in self.CustomAttributes)
 			{
-				if (hasAsyncAttribute && hasDebuggerStepThroughAttribute)
+				if (IsAsyncAttribute(attribute, self, self.DeclaringType, out asyncStateMachineType))
 				{
-					return true;
-				}
-
-				if (!hasAsyncAttribute && IsAsyncAttribute(attribute, self, self.DeclaringType, out asyncStateMachineType))
-				{
-					hasAsyncAttribute = true;
-				}
-
-				if (!hasDebuggerStepThroughAttribute && IsDebuggerStepThroughAttribute(attribute))
-				{
-					hasDebuggerStepThroughAttribute = true;
+                    return true;
 				}
 			}
 
-			return hasAsyncAttribute && hasDebuggerStepThroughAttribute;
+            return false;
 		}
 
 		public static bool IsFunction(this MethodDefinition self)
