@@ -818,13 +818,19 @@ namespace Telerik.JustDecompiler.Steps
                     return;
                 }
 
-                LiteralExpression literal = binaryExpression.Right as LiteralExpression;
-                if (literal == null)
+                if (variableRef.Variable != this.enumeratorVariable)
                 {
                     return;
                 }
 
-                if (variableRef.Variable == this.enumeratorVariable && literal.Value == null)
+                LiteralExpression literal = binaryExpression.Right as LiteralExpression;
+                if (literal != null && literal.Value == null)
+                {
+                    RemoveStatement(block.Statements, expressionStatement);
+                }
+
+                ObjectCreationExpression objectCreation = binaryExpression.Right as ObjectCreationExpression;
+                if (objectCreation != null)
                 {
                     RemoveStatement(block.Statements, expressionStatement);
                 }
