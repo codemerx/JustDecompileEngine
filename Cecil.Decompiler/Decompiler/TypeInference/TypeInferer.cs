@@ -224,14 +224,14 @@ namespace Telerik.JustDecompiler.Decompiler.TypeInference
             }
             while (supposedSubTypeDef != null)
             {
-                if (type.GetFriendlyFullName(null) == supposedSubTypeDef.GetFriendlyFullName(null))
+                if (TypeNamesComparer.AreEqual(type, supposedSubTypeDef))
                 {
                     ///Must be here, since mono fails on resolving types sometimes.
                     return true;
                 }
                 foreach (TypeReference @interface in supposedSubTypeDef.Interfaces)
                 {
-                    if (@interface.Name == type.Name)
+                    if (TypeNamesComparer.AreEqual(type, @interface))
                     {
                         return true;
                     }

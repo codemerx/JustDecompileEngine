@@ -238,6 +238,7 @@
     <Compile Include="Common\VariableFinder.cs" />
     <Compile Include="Decompiler\AssignmentAnalysis\OutParameterUsageFinder.cs" />
     <Compile Include="Decompiler\AttributesUtilities.cs" />
+    <Compile Include="Decompiler\TypeNamesComparer.cs" />
     <Compile Include="Decompiler\PropertyDecompiler.cs" />
     <Compile Include="Decompiler\ExplicitlyImplementedMembersCollection.cs" />
     <Compile Include="Decompiler\FilterMethodToBeDecompiled.cs" />

@@ -142,7 +142,6 @@ namespace Mono.Cecil.Extensions
             StringBuilder name = new StringBuilder();
             name.Append(self.GetFriendlyFullTypeSpecificationName(language));
             int indexOfBracket = name.ToString().LastIndexOf('<');
-            indexOfBracket = self.FullName.LastIndexOf('<');
             if (indexOfBracket >= 0 && indexOfBracket < name.Length)
             {
                 name.Remove(indexOfBracket, name.Length - indexOfBracket);
