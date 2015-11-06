@@ -34,7 +34,17 @@ namespace Telerik.JustDecompiler.Ast.Expressions
 {
     public class MethodInvocationExpression : Expression
     {
-		public bool VirtualCall { get; set; }
+        public bool VirtualCall { get; set; }
+
+        public TypeReference ConstraintType { get; set; }
+
+        public bool IsConstrained
+        {
+            get
+            {
+                return this.ConstraintType != null;
+            }
+        }
 
         public ExpressionCollection Arguments { get; set; }
 
@@ -81,7 +91,8 @@ namespace Telerik.JustDecompiler.Ast.Expressions
                 return false;
             }
 
-            return this.VirtualCall == methodInvocation.VirtualCall && this.Arguments.Equals(methodInvocation.Arguments);
+            return this.VirtualCall == methodInvocation.VirtualCall && this.Arguments.Equals(methodInvocation.Arguments) &&
+                this.ConstraintType == methodInvocation.ConstraintType;
         }
 
         public override Expression Clone()
@@ -89,13 +100,14 @@ namespace Telerik.JustDecompiler.Ast.Expressions
             MethodInvocationExpression result = new MethodInvocationExpression(MethodExpression.Clone() as MethodReferenceExpression, this.instructions);
             result.Arguments = Arguments.Clone();
             result.VirtualCall = this.VirtualCall;
+            result.ConstraintType = this.ConstraintType;
 			return result;
         }
 
         public override Expression CloneExpressionOnly()
         {
             MethodInvocationExpression result = new MethodInvocationExpression(MethodExpression.CloneExpressionOnly() as MethodReferenceExpression, null)
-                { Arguments = this.Arguments.CloneExpressionsOnly(), VirtualCall = this.VirtualCall };
+                { Arguments = this.Arguments.CloneExpressionsOnly(), VirtualCall = this.VirtualCall, ConstraintType = this.ConstraintType };
             return result;
         }
 

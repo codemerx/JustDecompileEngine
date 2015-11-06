@@ -69,6 +69,18 @@ namespace Telerik.JustDecompiler.Steps
 
             VisitInvocationArguments(node.Arguments, node.MethodExpression.Method);
 
+            if (node.IsConstrained)
+            {
+                if (node.MethodExpression.Target.CodeNodeType == CodeNodeType.LiteralExpression)
+                {
+                    TypeDefinition constraintTypeDef = node.ConstraintType.Resolve();
+                    if (constraintTypeDef.IsEnum)
+                    {
+                        node.MethodExpression.Target = EnumHelper.GetEnumExpression(constraintTypeDef, node.MethodExpression.Target as LiteralExpression, typeSystem);
+                    }
+                }
+            }
+
             return node;
         }
 

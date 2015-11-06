@@ -395,7 +395,12 @@ namespace Telerik.JustDecompiler.Decompiler
             if (ex != null && ex.CodeNodeType == CodeNodeType.MethodInvocationExpression)
             {
                 ///Add the flag, that marks this is virtual vall.
-                (ex as MethodInvocationExpression).VirtualCall = true;
+                MethodInvocationExpression methodInvocation = ex as MethodInvocationExpression;
+                methodInvocation.VirtualCall = true;
+                if (instruction.Previous != null && instruction.Previous.OpCode.Code == Code.Constrained && instruction.Previous.Operand != null)
+                {
+                    methodInvocation.ConstraintType = instruction.Previous.Operand as TypeReference;
+                }
             }
         }
 
