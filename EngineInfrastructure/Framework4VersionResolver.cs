@@ -77,7 +77,11 @@ namespace JustDecompile.EngineInfrastructure
 
                             // The following values are taken from here: https://msdn.microsoft.com/en-us/library/hh925568%28v=vs.110%29.aspx
                             int releaseKey = Convert.ToInt32(releaseKeyAsObject);
-                            if (releaseKey >= 381029)
+                            if (releaseKey >= 394254)
+                            {
+                                installedFramework4Version = FrameworkVersion.v4_6_1;
+                            }
+                            else if (releaseKey >= 393295)
                             {
                                 installedFramework4Version = FrameworkVersion.v4_6;
                             }

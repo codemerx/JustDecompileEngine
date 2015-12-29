@@ -2,7 +2,6 @@
 using Mono.Cecil;
 using Mono.Cecil.AssemblyResolver;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.Versioning;
 using Telerik.JustDecompiler.External;
@@ -113,6 +112,9 @@ namespace JustDecompile.EngineInfrastructure
                             break;
                         case "4.6":
                             frameworkVersion = FrameworkVersion.v4_6;
+                            break;
+                        case "4.6.1":
+                            frameworkVersion = FrameworkVersion.v4_6_1;
                             break;
                         default:
                             throw new FormatException();
