@@ -81,7 +81,7 @@ namespace JustDecompile.EngineInfrastructure
                             {
                                 installedFramework4Version = FrameworkVersion.v4_6_1;
                             }
-                            else if (releaseKey >= 393295)
+                            else if (releaseKey >= 381029)
                             {
                                 installedFramework4Version = FrameworkVersion.v4_6;
                             }
