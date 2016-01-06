@@ -22,7 +22,14 @@ namespace JustDecompile.EngineInfrastructure
             {
                 if (versionInfo.FileMinorPart == 6)
                 {
-                    return FrameworkVersion.v4_6;
+                    if (versionInfo.FileBuildPart >= 1055)
+                    {
+                        return FrameworkVersion.v4_6_1;
+                    }
+                    else
+                    {
+                        return FrameworkVersion.v4_6;
+                    }
                 }
                 else if (versionInfo.FileMinorPart == 0 && versionInfo.FileBuildPart == 30319)
                 {
