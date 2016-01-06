@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Telerik.JustDecompiler.External;
 using Telerik.JustDecompiler.Languages;
 using Telerik.JustDecompiler.Languages.CSharp;
@@ -38,7 +37,8 @@ namespace JustDecompileCmdShell
                 { "/net4.5", FrameworkVersion.v4_5 },
                 { "/net4.5.1", FrameworkVersion.v4_5_1 },
                 { "/net4.5.2", FrameworkVersion.v4_5_2 },
-                { "/net4.6", FrameworkVersion.v4_6 }
+                { "/net4.6", FrameworkVersion.v4_6 },
+                { "/net4.6.1", FrameworkVersion.v4_6_1 }
             };
         }
 
@@ -376,8 +376,8 @@ namespace JustDecompileCmdShell
         {
             WriteLine();
             SetForegroundColor(ConsoleColor.White);
-            WriteLine("JustDecompile /target: /out: [/lang:] [/vs:] [/net4.0] [/net4.5]");
-            WriteLine("[/net4.5.1] [/net4.5.2] [/net4.6] [/nodoc] [/norename] [/nohex] [/?]");
+            WriteLine("JustDecompile /target: /out: [/lang:] [/vs:] [/net4.0] [/net4.5] [/net4.5.1]");
+            WriteLine("[/net4.5.2] [/net4.6] [/net4.6.1] [/nodoc] [/norename] [/nohex] [/?]");
             WriteLine();
 
             WriteLine("[/?]        Display command line help.");
@@ -394,11 +394,13 @@ namespace JustDecompileCmdShell
             Console.CursorLeft = 12;
             WriteLine("Supported Visual Studio(r) versions: 2010 and later.");
 
-            WriteLine("[/net4.0 /net4.5 /net4.5.1 /net4.5.2 /net4.6] Fallback .NET Framework version");
+            WriteLine("[/net4.0 /net4.5 /net4.5.1 /net4.5.2 /net4.6 /net4.6.1]");
             Console.CursorLeft = 12;
-            WriteLine("of the generated project. This option is ignored if JustDecompile");
+            WriteLine("Fallback .NET Framework version of the generated project. This");
             Console.CursorLeft = 12;
-            WriteLine("manages to determine the target assembly framework version itself.");
+            WriteLine("option is ignored if JustDecompile manages to determine");
+            Console.CursorLeft = 12;
+            WriteLine("the target assembly framework version itself.");
 
             WriteLine("[/nodoc]    Documentation comments will not be added in the resulting project.");
 
