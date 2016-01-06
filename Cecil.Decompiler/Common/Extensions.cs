@@ -169,6 +169,9 @@ namespace Telerik.JustDecompiler.Common
                 case FrameworkVersion.v4_6:
                     result = "4.6";
                     break;
+                case FrameworkVersion.v4_6_1:
+                    result = "4.6.1";
+                    break;
                 case FrameworkVersion.WinRT:
                 case FrameworkVersion.Silverlight:
                 case FrameworkVersion.WindowsCE:
