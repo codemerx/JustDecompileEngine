@@ -594,8 +594,17 @@ namespace Telerik.JustDecompiler.Ast.Expressions
             }
             else
             {
+                if (leftSideIndex == rightSideIndex && //pointer type and uint32 
+                    (IsPointerType(leftType) && !IsPointerType(rightType) || !IsPointerType(leftType) && IsPointerType(rightType)))
+                    throw new Exception("Operation on pointer type and uint32 encountered. Type of result is platform dependent and cannot be determined at compile time.");
+
                 return rightType;
             }
+        }
+
+        private static bool IsPointerType(TypeDefinition type)
+        {
+            return type.FullName == "System.UIntPtr" || type.FullName == "System.IntPtr";
         }
 
         /// <summary>
@@ -633,9 +642,10 @@ namespace Telerik.JustDecompiler.Ast.Expressions
                     return 4;
                 case "System.Int32":
                     return 5;
+                case "System.IntPtr":
+                case "System.UIntPtr":
                 case "System.UInt32":
                     return 6;
-                case "System.IntPtr":
                 case "System.Int64":
                     return 7;
                 case "System.UInt64":
