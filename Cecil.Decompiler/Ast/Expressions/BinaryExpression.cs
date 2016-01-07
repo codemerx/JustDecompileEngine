@@ -586,18 +586,26 @@ namespace Telerik.JustDecompiler.Ast.Expressions
                 return leftType;
             }
 
-            int leftSideIndex = GetTypeIndex(leftType);
-            int rightSideIndex = GetTypeIndex(rightType);
+            int? leftSideIndex = GetTypeIndex(leftType);
+            int? rightSideIndex = GetTypeIndex(rightType);
+
+            if(leftSideIndex == null || rightSideIndex == null)
+            {
+                if(leftSideIndex == rightSideIndex && leftType.FullName == rightType.FullName)
+                     return leftType;
+
+                string leftTypeName = leftSideIndex != null ? "" : leftType.FullName;
+                string rightTypeName = rightSideIndex != null ? "" : rightType.FullName; ;
+
+                throw new Exception("Operation on type(s) of unknown size: " + leftTypeName + " " + rightTypeName + ". Result size is platform dependent and cannot be determined at decompile time.");
+            }
+
             if (leftSideIndex > rightSideIndex)
             {
                 return leftType;
             }
             else
             {
-                if (leftSideIndex == rightSideIndex && //pointer type and uint32 
-                    (IsPointerType(leftType) && !IsPointerType(rightType) || !IsPointerType(leftType) && IsPointerType(rightType)))
-                    throw new Exception("Operation on pointer type and uint32 encountered. Type of result is platform dependent and cannot be determined at compile time.");
-
                 return rightType;
             }
         }
@@ -612,8 +620,18 @@ namespace Telerik.JustDecompiler.Ast.Expressions
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns>Returns integer representation of the type. The bigger the integer, the bigger the type.</returns>
-        private int GetTypeIndex(TypeDefinition type)
+        private int? GetTypeIndex(TypeDefinition type)
         {
+            if(type.FullName == "System.UIntPtr" || type.FullName == "System.IntPtr")
+            {
+                if (type.Module.Architecture == TargetArchitecture.I386 || type.Module.Architecture == TargetArchitecture.ARMv7)
+                    return 5;
+                else if (type.Module.Architecture == TargetArchitecture.IA64 || type.Module.Architecture == TargetArchitecture.AMD64)
+                    return 7;
+                else if (type.Module.Architecture == TargetArchitecture.AnyCPU)
+                    return null;
+            }
+
             if (type.IsEnum)
             {
                 FieldDefinition valueField = null;
@@ -641,9 +659,7 @@ namespace Telerik.JustDecompiler.Ast.Expressions
                 case "System.UInt16":
                     return 4;
                 case "System.Int32":
-                    return 5;
-                case "System.IntPtr":
-                case "System.UIntPtr":
+                    return 5;           
                 case "System.UInt32":
                     return 6;
                 case "System.Int64":
