@@ -382,6 +382,7 @@
     <Compile Include="Steps\VariableAssignmentAnalysisStep.cs" />
     <Compile Include="Steps\RenameSplitPropertiesMethodsAndBackingFields.cs" />
     <Compile Include="Steps\ArrayVariablesStep.cs" />
+    <Compile Include="ThreadSafeWeakAssemblyResolver.cs" />
     <Compile Include="TwoDimensionalString.cs" />
     <Compile Include="WeakAssemblyResolver.cs" />
     <Compile Include="XmlDocumentationReaders\DocumentationCache.cs" />

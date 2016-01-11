@@ -162,7 +162,7 @@ namespace Mono.Cecil
         }
 
         /*Telerik Authorship*/
-        public void AddSearchDirectory(string directory)
+        public virtual void AddSearchDirectory(string directory)
         {
             if (!directories.Contains(directory.ToLowerInvariant()) && (Directory.Exists(directory)))
             {
@@ -172,12 +172,14 @@ namespace Mono.Cecil
             }
         }
 
-        public void RemoveSearchDirectory(string directory)
+        /*Telerik Authorship*/
+        public virtual void RemoveSearchDirectory(string directory)
         {
             directories.Remove(directory);
         }
 
-        public string[] GetSearchDirectories()
+        /*Telerik Authorship*/
+        public virtual string[] GetSearchDirectories()
         {
             /*Telerik Authorship*/
             var directories = new string[this.directories.Count];
@@ -202,8 +204,9 @@ namespace Mono.Cecil
         }
 
         /*Telerik Authorship*/
-        private IEnumerable<DirectoryAssemblyInfo> GetDirectoryAssemblies()
+        protected virtual IEnumerable<DirectoryAssemblyInfo> GetDirectoryAssemblies()
         {
+            List<DirectoryAssemblyInfo> result = new List<DirectoryAssemblyInfo>();
             foreach (string directory in directories)
             {
                 if (!Directory.Exists(directory))
@@ -217,11 +220,13 @@ namespace Mono.Cecil
                         if (resolvableExtensionsSet.Contains(Path.GetExtension(file)) && file.Length < 260)
                         //Check is added because of the behaviour of Directory.GetFiles
                         {
-                            yield return CreateDirectoryAssemblyInfo(file);
+                            result.Add(CreateDirectoryAssemblyInfo(file));
                         }
                     }
                 }
             }
+
+            return result;
         }
 
         /*Telerik Authorship*/
@@ -771,9 +776,10 @@ namespace Mono.Cecil
             return assemblyPathResolver.ArePublicKeyEquals(publicKeyToken1, publicKeyToken2);
         }
 
+        /*Telerik Authorship*/
         public virtual void ClearCache()
         {
-            this.directories.Clear();
+            ClearDirectoriesCache();
 
             this.directoryAssemblies = null;
 
@@ -782,6 +788,12 @@ namespace Mono.Cecil
             this.filePathToAssemblyDefinitionCache.Clear();
 
             this.assemblyPathResolver.ClearCache();
+        }
+
+        /*Telerik Authorship*/
+        protected virtual void ClearDirectoriesCache()
+        {
+            this.directories.Clear();
         }
 
         public void RemoveFromAssemblyCache(string fileName)
