@@ -17,7 +17,7 @@ namespace JustDecompileCmdShell
 {
     public class CmdShell
     {
-        private static readonly string description = "[--- Copyright (c) 2011-2015 Telerik AD. All rights reserved ---]";
+        private static readonly string description = "[--- Copyright (c) 2011-2016 Telerik AD. All rights reserved ---]";
         private static uint count = 0;
 
         public virtual void Run(GeneratorProjectInfo projectInfo)
