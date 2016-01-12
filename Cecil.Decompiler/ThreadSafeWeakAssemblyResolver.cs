@@ -7,6 +7,7 @@ namespace Telerik.JustDecompiler
     public class ThreadSafeWeakAssemblyResolver : WeakAssemblyResolver
     {
         private object directoriesAccessLock = new object();
+        private object resolvedAssembliesAccessLock = new object();
 
         public ThreadSafeWeakAssemblyResolver(AssemblyPathResolverCache cache)
             : base(cache)
@@ -50,6 +51,38 @@ namespace Telerik.JustDecompiler
             lock (this.directoriesAccessLock)
             {
                 base.RemoveSearchDirectory(directory);
+            }
+        }
+
+        protected override bool TryGetResolvedAssembly(string key, out List<AssemblyDefinition> assemblyList)
+        {
+            lock (this.resolvedAssembliesAccessLock)
+            {
+                return base.TryGetResolvedAssembly(key, out assemblyList);
+            }
+        }
+
+        protected override void ClearResolvedAssembliesCache()
+        {
+            lock (this.resolvedAssembliesAccessLock)
+            {
+                base.ClearResolvedAssembliesCache();
+            }
+        }
+
+        protected override void RemoveFromResolvedAssemblies(string assemblyKey)
+        {
+            lock (this.resolvedAssembliesAccessLock)
+            {
+                base.RemoveFromResolvedAssemblies(assemblyKey);
+            }
+        }
+
+        protected override void AddToResolvedAssembliesInternal(string assemblyKey, List<AssemblyDefinition> assemblyList)
+        {
+            lock (this.resolvedAssembliesAccessLock)
+            {
+                base.AddToResolvedAssembliesInternal(assemblyKey, assemblyList);
             }
         }
     }

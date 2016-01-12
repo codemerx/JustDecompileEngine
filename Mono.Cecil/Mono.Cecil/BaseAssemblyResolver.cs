@@ -334,13 +334,19 @@ namespace Mono.Cecil
             foreach (string architectureString in GetReferencableArchitectures(assemblyName))
             {
                 List<AssemblyDefinition> assemblyList;
-                if (resolvedAssemblies.TryGetValue(extendedKey + architectureString, out assemblyList))
+                if (TryGetResolvedAssembly(extendedKey + architectureString, out assemblyList))
                 {
                     return assemblyList[0];
                 }
             }
 
             return null;
+        }
+        
+        /*Telerik Authorship*/
+        protected virtual bool TryGetResolvedAssembly(string key, out List<AssemblyDefinition> assemblyList)
+        {
+            return resolvedAssemblies.TryGetValue(key, out assemblyList);
         }
 
         private string[] GetReferencableArchitectures(AssemblyName assemblyName)
@@ -783,7 +789,7 @@ namespace Mono.Cecil
 
             this.directoryAssemblies = null;
 
-            this.resolvedAssemblies.Clear();
+            ClearResolvedAssembliesCache();
 
             this.filePathToAssemblyDefinitionCache.Clear();
 
@@ -796,6 +802,12 @@ namespace Mono.Cecil
             this.directories.Clear();
         }
 
+        /*Telerik Authorship*/
+        protected virtual void ClearResolvedAssembliesCache()
+        {
+            this.resolvedAssemblies.Clear();
+        }
+
         public void RemoveFromAssemblyCache(string fileName)
         {
             assemblyPathResolver.RemoveFromAssemblyCache(fileName);
@@ -806,17 +818,23 @@ namespace Mono.Cecil
 
                 string assemblyKey = GetAssemblyKey(assemblyDef);
                 List<AssemblyDefinition> assemblyDefinitions;
-                if (resolvedAssemblies.TryGetValue(assemblyKey, out assemblyDefinitions))
+                if (TryGetResolvedAssembly(assemblyKey, out assemblyDefinitions))
                 {
                     assemblyDefinitions.Remove(assemblyDef);
                     if (assemblyDefinitions.Count == 0)
                     {
-                        resolvedAssemblies.Remove(assemblyKey);
+                        RemoveFromResolvedAssemblies(assemblyKey);
                     }
                 }
 
                 filePathToAssemblyDefinitionCache.Remove(fileName);
             }
+        }
+
+        /*Telerik Authorship*/
+        protected virtual void RemoveFromResolvedAssemblies(string assemblyKey)
+        {
+            resolvedAssemblies.Remove(assemblyKey);
         }
 
         public void RemoveFromFailedAssemblies(string assemblyName)
@@ -864,13 +882,19 @@ namespace Mono.Cecil
 
             string assemblyKey = GetAssemblyKey(assemblyDef);
             List<AssemblyDefinition> assemblyList;
-            if (!resolvedAssemblies.TryGetValue(assemblyKey, out assemblyList))
+            if (!TryGetResolvedAssembly(assemblyKey, out assemblyList))
             {
                 assemblyList = new List<AssemblyDefinition>();
-                resolvedAssemblies.Add(assemblyKey, assemblyList);
+                AddToResolvedAssembliesInternal(assemblyKey, assemblyList);
             }
 
             assemblyList.Add(assemblyDef);
+        }
+
+        /*Telerik Authorship*/
+        protected virtual void AddToResolvedAssembliesInternal(string assemblyKey, List<AssemblyDefinition> assemblyList)
+        {
+            resolvedAssemblies.Add(assemblyKey, assemblyList);
         }
 
         public AssemblyDefinition LoadAssemblyDefinition(string filePath, ReaderParameters parameters, bool loadPdb)
