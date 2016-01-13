@@ -93,33 +93,9 @@ namespace JustDecompile.EngineInfrastructure
             if (module.IsMain)
             {
                 FrameworkName frameworkName;
-                if (TryGetFramework4Name(module.Assembly, out frameworkName))
+                if (TryGetFramework4Name(module.Assembly, out frameworkName) &&
+                    TryParseFramework4Name(frameworkName.Version.ToString(), out frameworkVersion))
                 {
-                    string frameworkVersionAsString = frameworkName.Version.ToString();
-                    switch (frameworkVersionAsString)
-                    {
-                        case "4.0":
-                            frameworkVersion = FrameworkVersion.v4_0;
-                            break;
-                        case "4.5":
-                            frameworkVersion = FrameworkVersion.v4_5;
-                            break;
-                        case "4.5.1":
-                            frameworkVersion = FrameworkVersion.v4_5_1;
-                            break;
-                        case "4.5.2":
-                            frameworkVersion = FrameworkVersion.v4_5_2;
-                            break;
-                        case "4.6":
-                            frameworkVersion = FrameworkVersion.v4_6;
-                            break;
-                        case "4.6.1":
-                            frameworkVersion = FrameworkVersion.v4_6_1;
-                            break;
-                        default:
-                            throw new FormatException();
-                    }
-
                     return true;
                 }
                 else
@@ -145,6 +121,37 @@ namespace JustDecompile.EngineInfrastructure
             }
 
             return false;
+        }
+
+        private bool TryParseFramework4Name(string frameworkVersionAsString, out FrameworkVersion frameworkVersion)
+        {
+            frameworkVersion = FrameworkVersion.Unknown;
+
+            switch (frameworkVersionAsString)
+            {
+                case "4.0":
+                    frameworkVersion = FrameworkVersion.v4_0;
+                    break;
+                case "4.5":
+                    frameworkVersion = FrameworkVersion.v4_5;
+                    break;
+                case "4.5.1":
+                    frameworkVersion = FrameworkVersion.v4_5_1;
+                    break;
+                case "4.5.2":
+                    frameworkVersion = FrameworkVersion.v4_5_2;
+                    break;
+                case "4.6":
+                    frameworkVersion = FrameworkVersion.v4_6;
+                    break;
+                case "4.6.1":
+                    frameworkVersion = FrameworkVersion.v4_6_1;
+                    break;
+                default:
+                    return false;
+            }
+
+            return true;
         }
 
         private bool IsFramework4Assembly(AssemblyDefinition assembly, out bool isInFrameworkDir)
