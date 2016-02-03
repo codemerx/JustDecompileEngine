@@ -2,7 +2,7 @@
 
 This is the engine of the popular .NET decompiler [JustDecompile](http://www.telerik.com/products/decompiler.aspx). C# is the only programming language used.
 
-Copyright (c) 2011 - 2015 Telerik AD
+Copyright (c) 2011 - 2016 Telerik AD
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
