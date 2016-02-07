@@ -507,6 +507,30 @@ namespace Telerik.JustDecompiler.Decompiler
 			return result;
 		}
 
+		public static string EscapeNamespace(string @namespace, ILanguage language)
+		{
+			StringBuilder sb = new StringBuilder();
+			bool changed = false;
+			foreach (string part in @namespace.Split('.'))
+			{
+				string newPart = part;
+				if (!language.IsValidIdentifier(newPart))
+				{
+					newPart = language.ReplaceInvalidCharactersInIdentifier(newPart);
+					changed = true;
+				}
+				if (language.IsGlobalKeyword(newPart))
+				{
+					newPart = EscapeTypeName(newPart, language);
+					changed = true;
+				}
+				if (sb.Length > 0)
+					sb.Append(".");
+				sb.Append(newPart);
+			}
+			return changed ? sb.ToString() : @namespace;
+		}
+
 		public static bool IsInitializerPresent(InitializerExpression initializer)
 		{
 			return initializer != null && initializer.Expression != null && initializer.Expression.Expressions.Count > 0;
