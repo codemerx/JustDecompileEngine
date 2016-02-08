@@ -176,7 +176,7 @@ namespace Telerik.JustDecompiler.Languages
 				{
 					namespaceName = ModuleContext.RenamedNamespacesMap[@namespace];
 				}
-				Write(namespaceName);
+				Write(Utilities.EscapeNamespace(namespaceName, Language));
 				WriteEndOfStatement();
 			}
 
