@@ -507,7 +507,7 @@ namespace Telerik.JustDecompiler.Decompiler
 			return result;
 		}
 
-		public static string EscapeNamespace(string @namespace, ILanguage language)
+		public static string EscapeNamespaceIfNeeded(string @namespace, ILanguage language)
 		{
 			StringBuilder sb = new StringBuilder();
 			bool changed = false;
@@ -521,7 +521,7 @@ namespace Telerik.JustDecompiler.Decompiler
 				}
 				if (language.IsGlobalKeyword(newPart))
 				{
-					newPart = EscapeTypeName(newPart, language);
+					newPart = language.EscapeWord(newPart);
 					changed = true;
 				}
 				if (sb.Length > 0)
