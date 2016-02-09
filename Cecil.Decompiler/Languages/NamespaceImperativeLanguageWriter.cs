@@ -134,7 +134,7 @@ namespace Telerik.JustDecompiler.Languages
 
 			WriteKeyword(KeyWordWriter.Namespace);
 			WriteSpace();
-			Write(@namespace);
+			Write(Utilities.EscapeNamespaceIfNeeded(@namespace, this.Language));
 			this.formatter.WriteNamespaceStartBlock();
 			WriteBeginBlock();
 			WriteLine();
@@ -340,7 +340,7 @@ namespace Telerik.JustDecompiler.Languages
 				@namespace += '.';
 			}
 
-			Write(@namespace);
+			Write(Utilities.EscapeNamespaceIfNeeded(@namespace, this.Language));
 		}
 
 		private bool CheckForSpecialName(TypeReference reference)
