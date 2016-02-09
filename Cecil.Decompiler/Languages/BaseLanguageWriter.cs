@@ -164,7 +164,7 @@ namespace Telerik.JustDecompiler.Languages
 				return GetCurrentModuleTypeName(type);
 			}
 
-			return Utilities.EscapeTypeName(GenericHelper.GetNonGenericName(type.Name), this.Language);
+			return Utilities.EscapeTypeNameIfNeeded(GenericHelper.GetNonGenericName(type.Name), this.Language);
 		}
 		
         protected virtual string GetMethodName(MethodReference method)
@@ -186,7 +186,7 @@ namespace Telerik.JustDecompiler.Languages
 				return this.ModuleContext.RenamedMembersMap[methodDefinition.MetadataToken.ToUInt32()];
 			}
 
-			return Utilities.EscapeName(GenericHelper.GetNonGenericName(method.Name), this.Language);
+			return Utilities.EscapeNameIfNeeded(GenericHelper.GetNonGenericName(method.Name), this.Language);
         }
 
 		protected virtual string GetFieldName(FieldReference field)
@@ -204,7 +204,7 @@ namespace Telerik.JustDecompiler.Languages
 				return this.ModuleContext.RenamedMembersMap[fieldDefinition.MetadataToken.ToUInt32()];
 			}
 
-			return Utilities.EscapeName(GenericHelper.GetNonGenericName(field.Name), this.Language);
+			return Utilities.EscapeNameIfNeeded(GenericHelper.GetNonGenericName(field.Name), this.Language);
 		}
 
 		protected virtual string GetPropertyName(PropertyReference property)
@@ -232,7 +232,7 @@ namespace Telerik.JustDecompiler.Languages
 				}
 			}
 
-			return Utilities.EscapeName(GenericHelper.GetNonGenericName(property.Name), this.Language);
+			return Utilities.EscapeNameIfNeeded(GenericHelper.GetNonGenericName(property.Name), this.Language);
 		}
 
 		protected virtual string GetEventName(EventReference @event)
@@ -245,7 +245,7 @@ namespace Telerik.JustDecompiler.Languages
 				return this.ModuleContext.RenamedMembersMap[eventDefinition.MetadataToken.ToUInt32()];
 			}
 
-			return Utilities.EscapeName(GenericHelper.GetNonGenericName(@event.Name), this.Language);
+			return Utilities.EscapeNameIfNeeded(GenericHelper.GetNonGenericName(@event.Name), this.Language);
 		}
 
 		protected string GetMemberName(MemberReference member)

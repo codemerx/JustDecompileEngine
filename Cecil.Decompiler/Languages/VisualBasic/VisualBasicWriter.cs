@@ -417,7 +417,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 
 			if (Language.IsGlobalKeyword(name))
 			{
-				name = Utilities.EscapeName(name, this.Language);
+				name = Utilities.EscapeNameIfNeeded(name, this.Language);
 			}
 
             Write(name);

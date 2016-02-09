@@ -161,7 +161,7 @@ namespace Telerik.JustDecompiler.Decompiler.MemberRenamingServices
 					memberRenamingData.RenamedMembers.Add(memberToken);
 				}
 
-				memberNewName = Utilities.EscapeName(memberNewName, language);
+				memberNewName = Utilities.EscapeNameIfNeeded(memberNewName, language);
 
 				memberRenamingData.RenamedMembersMap[memberToken] = memberNewName;
 			}

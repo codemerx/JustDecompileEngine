@@ -483,7 +483,7 @@ namespace Telerik.JustDecompiler.Decompiler
 			return result;
 		}
 
-		public static string EscapeName(string name, ILanguage language)
+		public static string EscapeNameIfNeeded(string name, ILanguage language)
 		{
 			string result = name;
 
@@ -495,7 +495,7 @@ namespace Telerik.JustDecompiler.Decompiler
 			return result;
 		}
 
-		public static string EscapeTypeName(string typeName, ILanguage language)
+		public static string EscapeTypeNameIfNeeded(string typeName, ILanguage language)
 		{
 			string result = typeName;
 

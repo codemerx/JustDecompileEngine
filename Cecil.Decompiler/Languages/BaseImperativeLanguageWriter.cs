@@ -522,7 +522,7 @@ namespace Telerik.JustDecompiler.Languages
 
 				if (reference.Scope.Name != "mscorlib" && reference.Scope.Name != "CommonLanguageRuntimeLibrary")
 				{
-					typeString = Utilities.EscapeTypeName(typeString, this.Language);
+					typeString = Utilities.EscapeTypeNameIfNeeded(typeString, this.Language);
 				}
 			}
 
@@ -2156,7 +2156,7 @@ namespace Telerik.JustDecompiler.Languages
 
 			if (Language.IsGlobalKeyword(result))
 			{
-				result = Utilities.EscapeName(result, this.Language);
+				result = Utilities.EscapeNameIfNeeded(result, this.Language);
 			}
 
 			return result;

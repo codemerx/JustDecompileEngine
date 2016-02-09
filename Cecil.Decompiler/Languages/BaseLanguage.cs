@@ -122,56 +122,17 @@ namespace Telerik.JustDecompiler.Languages
 
         public bool IsValidIdentifier(string identifier)
         {
-            /// The pattern is taken from the ECMA-334 standart, 9.4.2 Identifiers (page 92).
-            /// Although the regex covers the C# identifiers, the rules for VB are the same.
-            /// No care is taken for escape sequences in our case.
             return identifier.IsValidIdentifier();
         }
 
         public bool IsValidIdentifierCharacter(char currentChar)
         {
-            /// The pattern is taken from the ECMA-334 standart, 9.4.2 Identifiers (page 92).
-            /// Although the check covers the C# identifiers, the rules for VB are the same.
-            if (IsValidIdentifierFirstCharacter(currentChar))
-            {
-                return true;
-            }
-
-            UnicodeCategory unicodeCategory = char.GetUnicodeCategory(currentChar);
-
-            if (unicodeCategory == UnicodeCategory.NonSpacingMark || // class Mn
-                unicodeCategory == UnicodeCategory.SpacingCombiningMark || // class Mc
-                unicodeCategory == UnicodeCategory.DecimalDigitNumber || // class Nd
-                unicodeCategory == UnicodeCategory.ConnectorPunctuation || // class Pc
-                unicodeCategory == UnicodeCategory.Format)                  // class Cf
-            {
-                return true;
-            }
-            return false;
+            return currentChar.IsValidIdentifierCharacter();
         }
 
         public bool IsValidIdentifierFirstCharacter(char firstCharacter)
         {
-            /// The pattern is taken from the ECMA-334 standart, 9.4.2 Identifiers (page 92).
-            /// Although the check covers the C# identifiers, the rules for VB are the same.
-            if (firstCharacter == '_')
-            {
-                return true;
-            }
-
-            UnicodeCategory unicodeCategory = char.GetUnicodeCategory(firstCharacter);
-
-            if (unicodeCategory == UnicodeCategory.LowercaseLetter || // class Ll
-                unicodeCategory == UnicodeCategory.UppercaseLetter || // class Lu
-                unicodeCategory == UnicodeCategory.TitlecaseLetter || // class Lt
-                unicodeCategory == UnicodeCategory.ModifierLetter || // class Lm
-                unicodeCategory == UnicodeCategory.OtherLetter || // class Lo
-                unicodeCategory == UnicodeCategory.LetterNumber)	  // class Nl
-            {
-                return true;
-            }
-
-            return false;
+            return firstCharacter.IsValidIdentifierFirstCharacter();
         }
 
         public abstract ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments);

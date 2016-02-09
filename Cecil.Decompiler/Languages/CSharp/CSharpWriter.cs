@@ -375,7 +375,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
 
             if (Language.IsGlobalKeyword(name))
             {
-                name = Utilities.EscapeName(name, this.Language);
+                name = Utilities.EscapeNameIfNeeded(name, this.Language);
             }
 
             Write(name);
@@ -1370,11 +1370,11 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             if ((reference.Name == ".ctor" || reference.Name == ".cctor") &&
                 name != "this" && name != "base")
             {
-                name = Utilities.EscapeTypeName(name, this.Language);
+                name = Utilities.EscapeTypeNameIfNeeded(name, this.Language);
             }
             else
             {
-                name = Utilities.EscapeName(name, this.Language);
+                name = Utilities.EscapeNameIfNeeded(name, this.Language);
             }
             base.WriteMethodReference(name, reference);
         }

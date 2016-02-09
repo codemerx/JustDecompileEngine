@@ -11,6 +11,9 @@ namespace Telerik.JustDecompiler.Common
     {
         public static bool IsValidIdentifier(this string self)
         {
+            /// The pattern is taken from the ECMA-334 standart, 9.4.2 Identifiers (page 92).
+            /// Although the regex covers the C# identifiers, the rules for VB are the same.
+            /// No care is taken for escape sequences in our case.
             if (self == null || self == string.Empty)
             {
                 return false;
@@ -27,14 +30,14 @@ namespace Telerik.JustDecompiler.Common
 				return false;
 			}
 
-            if (!IsValidIdentifierStartCharacter(normalizedString[0]))
+            if (!normalizedString[0].IsValidIdentifierFirstCharacter())
             {
                 return false;
             }
 
             for (int i = 1; i < normalizedString.Length; i++)
             {
-                if (!IsValidIdentifierCharacter(normalizedString[i]))
+                if (!normalizedString[i].IsValidIdentifierCharacter())
                 {
                     return false;
                 }
@@ -43,44 +46,49 @@ namespace Telerik.JustDecompiler.Common
             return true;
         }
 
-        private static bool IsValidIdentifierStartCharacter(char c)
+        public static bool IsValidIdentifierFirstCharacter(this char firstCharacter)
         {
-            if (c == '_')
+            /// The pattern is taken from the ECMA-334 standart, 9.4.2 Identifiers (page 92).
+            /// Although the check covers the C# identifiers, the rules for VB are the same.
+            if (firstCharacter == '_')
             {
                 return true;
             }
 
-            switch (char.GetUnicodeCategory(c))
+            UnicodeCategory unicodeCategory = char.GetUnicodeCategory(firstCharacter);
+
+            if (unicodeCategory == UnicodeCategory.LowercaseLetter || // class Ll
+                unicodeCategory == UnicodeCategory.UppercaseLetter || // class Lu
+                unicodeCategory == UnicodeCategory.TitlecaseLetter || // class Lt
+                unicodeCategory == UnicodeCategory.ModifierLetter || // class Lm
+                unicodeCategory == UnicodeCategory.OtherLetter || // class Lo
+                unicodeCategory == UnicodeCategory.LetterNumber)	  // class Nl
             {
-                case UnicodeCategory.UppercaseLetter:
-                case UnicodeCategory.LowercaseLetter:
-                case UnicodeCategory.TitlecaseLetter:
-                case UnicodeCategory.ModifierLetter:
-                case UnicodeCategory.OtherLetter:
-                case UnicodeCategory.LetterNumber:
-                    return true;
+                return true;
             }
 
             return false;
         }
 
-        private static bool IsValidIdentifierCharacter(char c)
+        public static bool IsValidIdentifierCharacter(this char currentChar)
         {
-            if (IsValidIdentifierStartCharacter(c))
+            /// The pattern is taken from the ECMA-334 standart, 9.4.2 Identifiers (page 92).
+            /// Although the check covers the C# identifiers, the rules for VB are the same.
+            if (currentChar.IsValidIdentifierFirstCharacter())
             {
                 return true;
             }
 
-            switch (char.GetUnicodeCategory(c))
-            {
-                case UnicodeCategory.NonSpacingMark:
-                case UnicodeCategory.SpacingCombiningMark:
-                case UnicodeCategory.DecimalDigitNumber:
-                case UnicodeCategory.ConnectorPunctuation:
-                case UnicodeCategory.Format:
-                    return true;
-            }
+            UnicodeCategory unicodeCategory = char.GetUnicodeCategory(currentChar);
 
+            if (unicodeCategory == UnicodeCategory.NonSpacingMark || // class Mn
+                unicodeCategory == UnicodeCategory.SpacingCombiningMark || // class Mc
+                unicodeCategory == UnicodeCategory.DecimalDigitNumber || // class Nd
+                unicodeCategory == UnicodeCategory.ConnectorPunctuation || // class Pc
+                unicodeCategory == UnicodeCategory.Format)                  // class Cf
+            {
+                return true;
+            }
             return false;
         }
 
