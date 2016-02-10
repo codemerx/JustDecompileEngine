@@ -670,7 +670,7 @@ namespace Telerik.JustDecompiler.Languages
                 var commentedExceptionLines = exceptionLines.Select(exceptionLine => Language.CommentLineSymbol + " " + exceptionLine).ToArray();
                 formatter.WriteException(commentedExceptionLines);
                 var commentedMailToMessage = Language.CommentLineSymbol + " " +
-#if !ENGINEONLYBUILD
+#if !ENGINEONLYBUILD && !JUSTASSEMBLY
  JustDecompile.Settings.Utilities.MailToMessage;
 #else
                     "mailto: JustDecompilePublicFeedback@telerik.com";
@@ -680,10 +680,10 @@ namespace Telerik.JustDecompiler.Languages
             else
             {
                 formatter.WriteException(exceptionLines);
-#if !ENGINEONLYBUILD
+#if !ENGINEONLYBUILD && !JUSTASSEMBLY
                 formatter.WriteExceptionMailToLink(JustDecompile.Settings.Utilities.MailToMessage, exceptionLines);
 #else
-                formatter.WriteExceptionMailToLink("mailto: JustDecompilePublicFeedback@telerik.com", exceptionLines);
+				formatter.WriteExceptionMailToLink("mailto: JustDecompilePublicFeedback@telerik.com", exceptionLines);
 #endif
             }
         }

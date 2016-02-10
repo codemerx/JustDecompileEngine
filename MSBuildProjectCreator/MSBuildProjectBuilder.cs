@@ -17,7 +17,7 @@ using JustDecompile.Tools.MSBuildProjectBuilder.ProjectItemFileWriters;
 using Mono.Cecil;
 using Mono.Cecil.AssemblyResolver;
 using Mono.Cecil.Extensions;
-#if !ENGINEONLYBUILD
+#if !ENGINEONLYBUILD && !JUSTASSEMBLY
 using Telerik.Baml;
 #endif
 using Telerik.JustDecompiler.Common;
@@ -1503,7 +1503,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
             Stream sourceStream;
             string fullClassName = null;
-#if ENGINEONLYBUILD
+#if ENGINEONLYBUILD || JUSTASSEMBLY
             sourceStream = unmanagedStream;
 #else
             XDocument xamlDoc = null;

@@ -68,7 +68,7 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' ">
+  <PropertyGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' And '$(Configuration)' != 'Debug JustAssembly' And '$(Configuration)' != 'Release JustAssembly' ">
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../JDKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -92,6 +92,24 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug JustAssembly|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug JustAssembly\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;JUSTASSEMBLY</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release JustAssembly|AnyCPU'">
+    <OutputPath>bin\Release JustAssembly\</OutputPath>
+    <DefineConstants>TRACE;JUSTASSEMBLY</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -100,6 +118,11 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' And '$(Configuration)' != 'Debug JustAssembly' And '$(Configuration)' != 'Release JustAssembly' ">
+    <Reference Include="Telerik.Windows.Documents.Code">
+      <HintPath>..\..\Binaries\Telerik.Windows.Documents.Code.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -118,9 +141,22 @@
     <Compile Include="AssemblyLocators\Silverlight\SilverlightAssembliesLocatorBase.cs" />
     <Compile Include="AssemblyLocators\Silverlight\SilverlightX64AssembliesLocator.cs" />
     <Compile Include="CLRHelper.cs" />
+    <Compile Include="CodeViewer\CodeClassificationSpan.cs" />
+    <Compile Include="CodeViewer\CodeFormatterBase.cs" />
+    <Compile Include="CodeViewer\DecompiledSourceCode.cs" />
+    <Compile Include="CodeViewer\ICodeFormatter.cs" />
+    <Compile Include="CodeViewer\JDClassificationTypes.cs" />
     <Compile Include="IAssemblyInfoService.cs" />
     <Compile Include="ILanguageSelector.cs" />
     <Compile Include="ILanguageSelectorService.cs" />
+    <Compile Include="Infrastructure\AccessTypes.cs" />
+    <Compile Include="Infrastructure\ICodeClassificationSpan.cs" />
+    <Compile Include="Infrastructure\ICodeViewerResults.cs" />
+    <Compile Include="Infrastructure\ITabCodeSettings.cs" />
+    <Compile Include="Infrastructure\MessageToken.cs" />
+    <Compile Include="Infrastructure\PositionToken.cs" />
+    <Compile Include="Infrastructure\Token.cs" />
+    <Compile Include="Infrastructure\TokenKind.cs" />
     <Compile Include="LanguageSelectorServiceDefault.cs" />
     <Compile Include="AssemblyLocators\NumberedFrameworkAssemblyLocator.cs" />
     <Compile Include="NoCacheAssemblyInfoService.cs" />
@@ -129,8 +165,9 @@
     <Compile Include="AssemblyLocators\WinRTMetadataAssembliesLocator.cs" />
     <Compile Include="Framework4VersionResolver.cs" />
     <Compile Include="ResourceStrings.cs" />
+    <Compile Include="Xaml\ITextFormatter.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' ">
+  <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' And '$(Configuration)' != 'Debug JustAssembly' And '$(Configuration)' != 'Release JustAssembly' ">
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>

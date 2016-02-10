@@ -18,7 +18,7 @@
     <SccProvider>SAK</SccProvider>
     <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' ">
+  <PropertyGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' And '$(Configuration)' != 'Debug JustAssembly' And '$(Configuration)' != 'Release JustAssembly' ">
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../../../JDKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -101,6 +101,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release EngineOnly|AnyCPU'">
     <OutputPath>..\..\..\ConsoleRunner\bin\Release\</OutputPath>
     <DefineConstants>TRACE;NET_3_5;NET_4_0;ENGINEONLYBUILD</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>0649</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug JustAssembly|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug JustAssembly\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET_3_5;NET_4_0;JUSTASSEMBLY</DefineConstants>
+    <NoWarn>0649</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release JustAssembly|AnyCPU'">
+    <OutputPath>bin\Release JustAssembly\</OutputPath>
+    <DefineConstants>TRACE;NET_3_5;NET_4_0;JUSTASSEMBLY</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>0649</NoWarn>
     <DebugType>pdbonly</DebugType>

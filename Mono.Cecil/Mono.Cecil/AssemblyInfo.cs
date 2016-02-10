@@ -43,7 +43,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion ("0.9.5.0")]
 #endif
 
-#if ENGINEONLYBUILD
+#if ENGINEONLYBUILD || JUSTASSEMBLY
 [assembly: InternalsVisibleTo("Telerik.JustDecompile.Mono.Cecil.Pdb")]
 [assembly: InternalsVisibleTo("Telerik.JustDecompile.Mono.Cecil.Mdb")]
 #else

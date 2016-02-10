@@ -116,11 +116,6 @@ namespace Telerik.JustDecompiler.Languages
             write_indent = false;
         }
 
-        protected virtual void WriteSpecial(string str)
-        {
-            writer.Write(str);
-        }
-
         public virtual void WriteLine()
         {
             writer.WriteLine();

@@ -8,7 +8,7 @@ using System.Globalization;
 using System.Text;
 using System.Resources;
 using System.Xml.Linq;
-#if !ENGINEONLYBUILD
+#if !ENGINEONLYBUILD && !JUSTASSEMBLY
 using Telerik.Baml;
 #endif
 using Telerik.JustDecompiler.Common.NamespaceHierarchy;
@@ -569,7 +569,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 				{
 					xamlResourceRelativePath = GetBetterXamlPath(xamlResourceRelativePath, typeFullName);
 				}
-#if !ENGINEONLYBUILD
+#if !ENGINEONLYBUILD && !JUSTASSEMBLY
 				else
 				{
 					if (xamlResourceRelativePath.EndsWith(".xaml") || xamlResourceRelativePath.EndsWith(".baml"))
@@ -696,7 +696,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 				return null;
             }
 
-#if ENGINEONLYBUILD
+#if ENGINEONLYBUILD || JUSTASSEMBLY
             return null;
 #else
             bool isBaml = resourcePath.EndsWith(".baml", StringComparison.OrdinalIgnoreCase);

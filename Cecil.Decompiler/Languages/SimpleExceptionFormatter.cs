@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-#if !ENGINEONLYBUILD
+#if !ENGINEONLYBUILD && !JUSTASSEMBLY
 using JustDecompile.Settings;
 #endif
 
@@ -45,7 +45,7 @@ namespace Telerik.JustDecompiler.Languages
 
 			exceptionLines.Append(Environment.NewLine)
 					  .Append("Product version: " +
-#if !ENGINEONLYBUILD
+#if !ENGINEONLYBUILD && !JUSTASSEMBLY
                       VersionChecker.CurrentVersion)
 #else
                       System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString())
