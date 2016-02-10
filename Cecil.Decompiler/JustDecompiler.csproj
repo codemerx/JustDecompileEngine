@@ -733,7 +733,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' ">
+  <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' And '$(Configuration)' != 'Debug JustAssembly' And '$(Configuration)' != 'Release JustAssembly' ">
     <ProjectReference Include="..\..\Tools\JustDecompile.Settings\JustDecompile.Settings.csproj">
       <Project>{52E3BBFD-EF5C-4520-8EDF-0BD827A08D83}</Project>
       <Name>JustDecompile.Settings</Name>
@@ -756,8 +756,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>if not "$(ConfigurationName)" == "Debug EngineOnly" if not "$(ConfigurationName)" == "Release EngineOnly" call "$(SolutionDir)COMInterface\BuildNETWrapper.bat" "$(SolutionDir)"
-</PreBuildEvent>
-    <PostBuildEvent>if not "$(ConfigurationName)" == "Debug EngineOnly" if not "$(ConfigurationName)" == "Release EngineOnly" echo F|xcopy /Y "$(SolutionDir)COMInterface\TelerikJustDecompileCOM.tlb" "$(SolutionDir)\UI\ReleaseBuild"</PostBuildEvent>
+    <PreBuildEvent>
+      if not "$(ConfigurationName)" == "Debug EngineOnly" if not "$(ConfigurationName)" == "Release EngineOnly" if not "$(ConfigurationName)" == "Debug JustAssembly" if not "$(ConfigurationName)" == "Release JustAssembly" call "$(SolutionDir)COMInterface\BuildNETWrapper.bat" "$(SolutionDir)"
+    </PreBuildEvent>
+    <PostBuildEvent>if not "$(ConfigurationName)" == "Debug EngineOnly" if not "$(ConfigurationName)" == "Release EngineOnly" if not "$(ConfigurationName)" == "Debug JustAssembly" if not "$(ConfigurationName)" == "Release JustAssembly" echo F|xcopy /Y "$(SolutionDir)COMInterface\TelerikJustDecompileCOM.tlb" "$(SolutionDir)\UI\ReleaseBuild"</PostBuildEvent>
   </PropertyGroup>
 </Project>
