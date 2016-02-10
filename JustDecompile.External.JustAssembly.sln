@@ -23,10 +23,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B97B9235-C5A9-4F00-AA22-D7E88FBBB4F0}.Debug|Any CPU.ActiveCfg = Debug JustAssembly|Any CPU
-		{B97B9235-C5A9-4F00-AA22-D7E88FBBB4F0}.Debug|Any CPU.Build.0 = Debug JustAssembly|Any CPU
-		{B97B9235-C5A9-4F00-AA22-D7E88FBBB4F0}.Release|Any CPU.ActiveCfg = Release JustAssembly|Any CPU
-		{B97B9235-C5A9-4F00-AA22-D7E88FBBB4F0}.Release|Any CPU.Build.0 = Release JustAssembly|Any CPU
+		{B97B9235-C5A9-4F00-AA22-D7E88FBBB4F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B97B9235-C5A9-4F00-AA22-D7E88FBBB4F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B97B9235-C5A9-4F00-AA22-D7E88FBBB4F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B97B9235-C5A9-4F00-AA22-D7E88FBBB4F0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ED1BE103-1699-4116-A732-616BEB142EB2}.Debug|Any CPU.ActiveCfg = Debug JustAssembly|Any CPU
 		{ED1BE103-1699-4116-A732-616BEB142EB2}.Debug|Any CPU.Build.0 = Debug JustAssembly|Any CPU
 		{ED1BE103-1699-4116-A732-616BEB142EB2}.Release|Any CPU.ActiveCfg = Release JustAssembly|Any CPU

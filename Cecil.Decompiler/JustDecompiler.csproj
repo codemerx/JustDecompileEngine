@@ -227,6 +227,20 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release Server JustAssembly|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Release Server JustAssembly\</OutputPath>
+    <DefineConstants>TRACE;MonoDecompilerVersion;JUSTASSEMBLY</DefineConstants>
+    <BaseAddress>285212672</BaseAddress>
+    <Optimize>true</Optimize>
+    <FileAlignment>4096</FileAlignment>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../BuildUtilities/JDKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' And '$(Configuration)' != 'Debug JustAssembly' And '$(Configuration)' != 'Release JustAssembly' ">
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
@@ -757,8 +771,8 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
-      if not "$(ConfigurationName)" == "Debug EngineOnly" if not "$(ConfigurationName)" == "Release EngineOnly" if not "$(ConfigurationName)" == "Debug JustAssembly" if not "$(ConfigurationName)" == "Release JustAssembly" call "$(SolutionDir)COMInterface\BuildNETWrapper.bat" "$(SolutionDir)"
+      if not "$(ConfigurationName)" == "Debug EngineOnly" if not "$(ConfigurationName)" == "Release EngineOnly" if not "$(ConfigurationName)" == "Debug JustAssembly" if not "$(ConfigurationName)" == "Release JustAssembly" if not "$(ConfigurationName)" == "Release Server JustAssembly" call "$(SolutionDir)COMInterface\BuildNETWrapper.bat" "$(SolutionDir)"
     </PreBuildEvent>
-    <PostBuildEvent>if not "$(ConfigurationName)" == "Debug EngineOnly" if not "$(ConfigurationName)" == "Release EngineOnly" if not "$(ConfigurationName)" == "Debug JustAssembly" if not "$(ConfigurationName)" == "Release JustAssembly" echo F|xcopy /Y "$(SolutionDir)COMInterface\TelerikJustDecompileCOM.tlb" "$(SolutionDir)\UI\ReleaseBuild"</PostBuildEvent>
+    <PostBuildEvent>if not "$(ConfigurationName)" == "Debug EngineOnly" if not "$(ConfigurationName)" == "Release EngineOnly" if not "$(ConfigurationName)" == "Debug JustAssembly" if not "$(ConfigurationName)" == "Release JustAssembly" if not "$(ConfigurationName)" == "Release Server JustAssembly" echo F|xcopy /Y "$(SolutionDir)COMInterface\TelerikJustDecompileCOM.tlb" "$(SolutionDir)\UI\ReleaseBuild"</PostBuildEvent>
   </PropertyGroup>
 </Project>

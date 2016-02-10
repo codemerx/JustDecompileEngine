@@ -110,7 +110,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug JustAssembly|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug JustAssembly\</OutputPath>
+    <OutputPath>..\..\..\..\UI\DebugBuild\</OutputPath>
     <DefineConstants>TRACE;DEBUG;NET_3_5;NET_4_0;JUSTASSEMBLY</DefineConstants>
     <NoWarn>0649</NoWarn>
     <DebugType>full</DebugType>
@@ -119,7 +119,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release JustAssembly|AnyCPU'">
-    <OutputPath>bin\Release JustAssembly\</OutputPath>
+    <OutputPath>..\..\..\..\UI\ReleaseBuild\</OutputPath>
     <DefineConstants>TRACE;NET_3_5;NET_4_0;JUSTASSEMBLY</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>0649</NoWarn>
@@ -127,6 +127,18 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release Server JustAssembly|AnyCPU'">
+    <OutputPath>..\..\..\..\UI\ReleaseBuild\</OutputPath>
+    <DefineConstants>TRACE;NET_3_5;NET_4_0;JUSTASSEMBLY</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>0649</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../../../BuildUtilities/JDKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFrameworkVersion)' != 'v2.0' ">
     <Reference Include="System.Core" />
