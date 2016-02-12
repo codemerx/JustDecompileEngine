@@ -239,7 +239,11 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../BuildUtilities/JDKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' And '$(Configuration)' != 'Debug JustAssembly' And '$(Configuration)' != 'Release JustAssembly' ">
+  <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And
+                         '$(Configuration)' != 'Release EngineOnly' And
+                         '$(Configuration)' != 'Debug JustAssembly' And
+                         '$(Configuration)' != 'Release JustAssembly' And
+                         '$(Configuration)' != 'Release Server JustAssembly' ">
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
