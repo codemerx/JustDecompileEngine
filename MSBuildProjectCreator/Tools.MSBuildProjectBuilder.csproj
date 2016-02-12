@@ -132,6 +132,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CommonVersionAssemblyInfo.cs">
+      <Link>Properties\CommonVersionAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="IProjectGenerationNotifier.cs" />
     <Compile Include="ProjectGenerationSettings.cs" />
     <Compile Include="FileGenerationContext.cs" />

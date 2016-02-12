@@ -245,6 +245,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CommonVersionAssemblyInfo.cs">
+      <Link>Properties\CommonVersionAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Ast\BaseCodeNode.cs" />
     <Compile Include="Ast\Expressions\AnonymousObjectCreationExpression.cs" />
     <Compile Include="Ast\Expressions\ArrayAssignmentFieldReferenceExpression.cs" />

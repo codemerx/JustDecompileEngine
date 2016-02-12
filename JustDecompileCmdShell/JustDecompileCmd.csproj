@@ -189,6 +189,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CommonVersionAssemblyInfo.cs">
+      <Link>Properties\CommonVersionAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="CommandLineError.cs" />
     <Compile Include="CommandLineHelpError.cs" />
     <Compile Include="CommandLineManager.cs" />

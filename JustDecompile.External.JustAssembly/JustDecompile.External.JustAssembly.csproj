@@ -62,6 +62,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CommonVersionAssemblyInfo.cs">
+      <Link>Properties\CommonVersionAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="AccessModifier.cs" />
     <Compile Include="AssemblyDecompilationResults.cs" />
     <Compile Include="AvalonEditCodeFormatter.cs" />

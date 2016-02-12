@@ -134,6 +134,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CommonVersionAssemblyInfo.cs">
+      <Link>Properties\CommonVersionAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="AssemblyLocators\BaseFrameworkAssemblyLocator.cs" />
     <Compile Include="AssemblyLocators\DotNet2\FrameworkAssemblyLocator2Base.cs" />
