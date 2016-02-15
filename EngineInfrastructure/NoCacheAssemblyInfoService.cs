@@ -35,6 +35,7 @@ namespace JustDecompile.EngineInfrastructure
             AssemblyInfo assemblyInfo = new AssemblyInfo();
 
             AddModulesFrameworkVersions(assemblyInfo, assembly, frameworkResolver);
+            AddAssemblyTypes(assemblyInfo, assembly);
 
             return assemblyInfo;
         }
@@ -246,6 +247,33 @@ namespace JustDecompile.EngineInfrastructure
             }
 
             return false;
+        }
+
+        private void AddAssemblyTypes(AssemblyInfo assemblyInfo, AssemblyDefinition assembly)
+        {
+            foreach (AssemblyNameReference reference in assembly.MainModule.AssemblyReferences)
+            {
+                if (reference.Name == "PresentationFramework")
+                {
+                    assemblyInfo.AssemblyTypes |= AssemblyTypes.WPF;
+                }
+                else if (reference.Name == "System.Windows.Forms")
+                {
+                    assemblyInfo.AssemblyTypes |= AssemblyTypes.WinForms;
+                }
+                else if (reference.Name == "System.Web.Mvc")
+                {
+                    assemblyInfo.AssemblyTypes |= AssemblyTypes.MVC;
+                }
+                else if (reference.Name == "Windows")
+                {
+                    assemblyInfo.AssemblyTypes |= AssemblyTypes.Windows8Application;
+                }
+                else if (reference.Name == "Windows.Foundation.UniversalApiContract")
+                {
+                    assemblyInfo.AssemblyTypes |= AssemblyTypes.UniversalWindows;
+                }
+            }
         }
     }
 }

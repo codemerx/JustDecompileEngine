@@ -11,8 +11,11 @@ namespace JustDecompile.EngineInfrastructure
         public AssemblyInfo()
         {
             this.ModulesFrameworkVersions = new Dictionary<ModuleDefinition, FrameworkVersion>();
+            this.AssemblyTypes = AssemblyTypes.Unknown;
         }
 
         public IDictionary<ModuleDefinition, FrameworkVersion> ModulesFrameworkVersions { get; private set; }
+
+        public AssemblyTypes AssemblyTypes { get; internal set; }
     }
 }

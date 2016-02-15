@@ -152,12 +152,14 @@
     <Compile Include="AssemblyLocators\IFrameworkAssemblyLocator.cs" />
     <Compile Include="AssemblyLocators\Silverlight\SilverlightAssembliesLocatorBase.cs" />
     <Compile Include="AssemblyLocators\Silverlight\SilverlightX64AssembliesLocator.cs" />
+    <Compile Include="AssemblyTypes.cs" />
     <Compile Include="CLRHelper.cs" />
     <Compile Include="CodeViewer\CodeClassificationSpan.cs" />
     <Compile Include="CodeViewer\CodeFormatterBase.cs" />
     <Compile Include="CodeViewer\DecompiledSourceCode.cs" />
     <Compile Include="CodeViewer\ICodeFormatter.cs" />
     <Compile Include="CodeViewer\JDClassificationTypes.cs" />
+    <Compile Include="EmptyResolver.cs" />
     <Compile Include="IAssemblyInfoService.cs" />
     <Compile Include="ILanguageSelector.cs" />
     <Compile Include="ILanguageSelectorService.cs" />
@@ -179,11 +181,7 @@
     <Compile Include="ResourceStrings.cs" />
     <Compile Include="Xaml\ITextFormatter.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And
-                         '$(Configuration)' != 'Release EngineOnly' And
-                         '$(Configuration)' != 'Debug JustAssembly' And
-                         '$(Configuration)' != 'Release JustAssembly' And
-                         '$(Configuration)' != 'Release Server JustAssembly' ">
+  <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' And '$(Configuration)' != 'Debug JustAssembly' And '$(Configuration)' != 'Release JustAssembly' And '$(Configuration)' != 'Release Server JustAssembly' ">
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
