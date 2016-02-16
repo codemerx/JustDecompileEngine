@@ -238,6 +238,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../BuildUtilities/JDKey.snk</AssemblyOriginatorKeyFile>
+    <AddOnlyCompanyAssemblyInfo>true</AddOnlyCompanyAssemblyInfo>
   </PropertyGroup>
   <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And
                          '$(Configuration)' != 'Release EngineOnly' And
@@ -780,4 +781,5 @@
     </PreBuildEvent>
     <PostBuildEvent>if not "$(ConfigurationName)" == "Debug EngineOnly" if not "$(ConfigurationName)" == "Release EngineOnly" if not "$(ConfigurationName)" == "Debug JustAssembly" if not "$(ConfigurationName)" == "Release JustAssembly" if not "$(ConfigurationName)" == "Release Server JustAssembly" echo F|xcopy /Y "$(SolutionDir)COMInterface\TelerikJustDecompileCOM.tlb" "$(SolutionDir)\UI\ReleaseBuild"</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="$(MsBuildProjectDirectory)\..\..\BuildUtilities\BuildTypes\Imports\TelerikAssemblyVersion.targets" Condition=" '$(Configuration)' == 'Release Server JustAssembly' " />
 </Project>

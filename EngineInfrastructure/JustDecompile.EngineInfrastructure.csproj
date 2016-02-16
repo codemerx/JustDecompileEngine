@@ -118,6 +118,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../BuildUtilities/JDKey.snk</AssemblyOriginatorKeyFile>
+    <AddOnlyCompanyAssemblyInfo>true</AddOnlyCompanyAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -205,4 +206,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="$(MsBuildProjectDirectory)\..\..\BuildUtilities\BuildTypes\Imports\TelerikAssemblyVersion.targets" Condition=" '$(Configuration)' == 'Release Server JustAssembly' " />
 </Project>
