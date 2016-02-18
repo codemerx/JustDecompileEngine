@@ -46,7 +46,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../BuildUtilities/JDKey.snk</AssemblyOriginatorKeyFile>
-    <AddOnlyCompanyAssemblyInfo>true</AddOnlyCompanyAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -58,6 +57,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Condition=" '$(Configuration)' == 'Release Server' " Include="..\..\BuildUtilities\CompanyAssemblyInfo.cs">
+      <Link>CompanyAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="..\CommonVersionAssemblyInfo.cs">
       <Link>Properties\CommonVersionAssemblyInfo.cs</Link>
     </Compile>
@@ -131,5 +133,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Import Project="$(MsBuildProjectDirectory)\..\..\BuildUtilities\BuildTypes\Imports\TelerikAssemblyVersion.targets" Condition=" '$(Configuration)' == 'Release Server' " />
 </Project>

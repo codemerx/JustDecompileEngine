@@ -118,7 +118,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../BuildUtilities/JDKey.snk</AssemblyOriginatorKeyFile>
-    <AddOnlyCompanyAssemblyInfo>true</AddOnlyCompanyAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -129,12 +128,15 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' And '$(Configuration)' != 'Debug JustAssembly' And '$(Configuration)' != 'Release JustAssembly' ">
+  <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' And '$(Configuration)' != 'Debug JustAssembly' And '$(Configuration)' != 'Release JustAssembly' And '$(Configuration)' != 'Release Server JustAssembly' ">
     <Reference Include="Telerik.Windows.Documents.Code">
       <HintPath>..\..\Binaries\Telerik.Windows.Documents.Code.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Condition=" '$(Configuration)' == 'Release Server JustAssembly' " Include="..\..\BuildUtilities\CompanyAssemblyInfo.cs">
+      <Link>Properties\CompanyAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="..\CommonVersionAssemblyInfo.cs">
       <Link>Properties\CommonVersionAssemblyInfo.cs</Link>
     </Compile>
@@ -206,5 +208,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Import Project="$(MsBuildProjectDirectory)\..\..\BuildUtilities\BuildTypes\Imports\TelerikAssemblyVersion.targets" Condition=" '$(Configuration)' == 'Release Server JustAssembly' " />
 </Project>
