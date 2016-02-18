@@ -57,7 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Condition=" '$(Configuration)' == 'Release Server' " Include="..\..\BuildUtilities\CompanyAssemblyInfo.cs">
+    <Compile Condition=" '$(Configuration)' == 'Release Server' " Include="..\..\CompanyAssemblyInfo.cs">
       <Link>CompanyAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="..\CommonVersionAssemblyInfo.cs">

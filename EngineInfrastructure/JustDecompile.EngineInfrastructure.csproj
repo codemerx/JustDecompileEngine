@@ -134,7 +134,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Condition=" '$(Configuration)' == 'Release Server JustAssembly' " Include="..\..\BuildUtilities\CompanyAssemblyInfo.cs">
+    <Compile Condition=" '$(Configuration)' == 'Release Server JustAssembly' " Include="..\..\CompanyAssemblyInfo.cs">
       <Link>Properties\CompanyAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="..\CommonVersionAssemblyInfo.cs">
