@@ -1045,13 +1045,13 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
                 string currentReferenceInitialLocation = this.currentAssemblyResolver.FindAssemblyPath(assemblyName, null);
                 AssemblyDefinition referencedAssembly = this.currentAssemblyResolver.Resolve(reference, "", assembly.MainModule.GetModuleArchitecture());
+                result.Reference[assemblyReferenceIndex] = new ProjectItemGroupReference();
 #if NET35
 				if (!currentReferenceInitialLocation.IsNullOrWhiteSpace())
 #else
                 if (!string.IsNullOrWhiteSpace(currentReferenceInitialLocation))
 #endif
                 {
-                    result.Reference[assemblyReferenceIndex] = new ProjectItemGroupReference();
                     if (IsInReferenceAssemblies(referencedAssembly))
                     {
                         //TODO: Consider doing additional check, to see if the assembly is resolved because it was pointed by the used/already in the tree
@@ -1078,6 +1078,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                         result.Reference[assemblyReferenceIndex].Include = Path.GetFileNameWithoutExtension(currentReferenceFinalLocation);
                         result.Reference[assemblyReferenceIndex].Item = relativePath;
                     }
+                }
+                else
+                {
+                    result.Reference[assemblyReferenceIndex].Include = reference.FullName;
                 }
 
                 assemblyReferenceIndex++;
