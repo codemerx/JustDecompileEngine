@@ -94,6 +94,7 @@
                 <xs:element minOccurs="0" name="VisualStudioVersion" type="xs:string" />
                 <xs:element minOccurs="0" name="MinimumVisualStudioVersion" type="xs:string" />
                 <xs:element minOccurs="0" name="TargetPlatformVersion" type="xs:string" />
+                <xs:element minOccurs="0" name="TargetPlatformMinVersion" type="xs:string" />
                 <xs:element minOccurs="0" name="TargetFrameworkProfile" type="xs:string" />
                 <xs:element minOccurs="0" name="TargetPlatformIdentifier" type="xs:string" />
                 <xs:element minOccurs="0" name="UseVSHostingProcess" type="xs:boolean" />
@@ -102,6 +103,9 @@
                 <xs:element minOccurs="0" name="OptionCompare" type="xs:string" />
                 <xs:element minOccurs="0" name="OptionStrict" type="xs:string" />
                 <xs:element minOccurs="0" name="OptionInfer" type="xs:string" />
+                <xs:element minOccurs="0" name="AutoGenerateBindingRedirects" type="xs:boolean" />
+                <xs:element minOccurs="0" name="AllowCrossPlatformRetargeting" type="xs:boolean" />
+                <xs:element minOccurs="0" name="UseDotNetNativeToolchain" type="xs:boolean" />
 							</xs:sequence>
 							<xs:attribute name="Condition" type="xs:string" use="optional" />
 						</xs:complexType>

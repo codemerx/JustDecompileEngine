@@ -15,6 +15,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             {
                 case ".winmd":
                     return DetectComponentType(assembly);
+                case ".dll":
+                    return IsUniversalWindowsPlatformAssembly(assembly) ? WinRTProjectType.UWPLibrary : WinRTProjectType.Unknown;
+                case ".exe":
+                    return IsUniversalWindowsPlatformAssembly(assembly) ? WinRTProjectType.UWPApplication : WinRTProjectType.Unknown;
                 default:
                     return WinRTProjectType.Unknown;
             }
@@ -22,12 +26,21 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
         public static bool IsWinRTAssemblyGeneratedWithVS2013(AssemblyDefinition assembly)
         {
-            return assembly.MainModule.AssemblyReferences.Any(r => r.Name == "System.Runtime" && r.Version == new Version(4, 0, 10, 0));
+            return DoesAssemblyContainReferenceToSystemRuntimeWithVersion(assembly, new Version(4, 0, 10, 0));
+        }
+
+        public static bool IsUniversalWindowsPlatformAssembly(AssemblyDefinition assembly)
+        {
+            return DoesAssemblyContainReferenceToSystemRuntimeWithVersion(assembly, new Version(4, 0, 20, 0));
         }
 
         private static WinRTProjectType DetectComponentType(AssemblyDefinition assembly)
         {
-            if (!IsWinRTAssemblyGeneratedWithVS2013(assembly))
+            if (IsUniversalWindowsPlatformAssembly(assembly))
+            {
+                return WinRTProjectType.UWPComponent;
+            }
+            else if (!IsWinRTAssemblyGeneratedWithVS2013(assembly))
             {
                 return WinRTProjectType.Component;
             }
@@ -47,6 +60,11 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             {
                 return WinRTProjectType.Unknown;
             }
+        }
+
+        private static bool DoesAssemblyContainReferenceToSystemRuntimeWithVersion(AssemblyDefinition assembly, Version version)
+        {
+            return assembly.MainModule.AssemblyReferences.Any(r => r.Name == "System.Runtime" && r.Version == version);
         }
     }
 }

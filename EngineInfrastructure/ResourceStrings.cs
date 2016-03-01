@@ -10,6 +10,8 @@
 
         public const string CannotCreate2013Project = "Visual Studio\u00AE 2013 doesn't support Windows\u00AE Universal projects in Visual Basic.";
 
+        public const string CannotCreateProjectDueToUWP = "Visual Studio\u00AE {0} doesn't support Universal Windows Platform projects.";
+
         public const string GenerateOnlySourceFilesDueToNotSupportedProjectType = "Project type not supported. No project or solution files will be generated.";
 
         public const string GenerateOnlySourceFilesDueToUnknownFrameworkVersion = "Unknown .NET Framework version. No project or solution files will be generated.";

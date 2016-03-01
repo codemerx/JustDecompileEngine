@@ -12,9 +12,13 @@ using System.IO;
 using Telerik.JustDecompiler.Languages.CSharp;
 using Telerik.JustDecompiler.Languages.VisualBasic;
 using Telerik.JustDecompiler.External;
+using Mono.Cecil.Extensions;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder
 {
+    // Consider changing the way of how the different projects are build when thos class needs to be extended further. At the moment, it is
+    // done by only one class WinRTProjectBuilder, which chooses what to put in the resulting project file based on the type of the WinRT
+    // assembly. Better and more maintainable solution would be class hierarchy, containing class for every project type, where that's needed. 
     public class WinRTProjectBuilder : MSBuildProjectBuilder
     {
         public const string CSharpGUID = "FAE04EC0-301F-11D3-BF4B-00C04F79EFBC";
@@ -24,8 +28,111 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
         private const string PortableClassLibraryGUID = "{786C830F-07A1-408B-BD7F-6EE04809D6DB}";
         private const string WindowsPhoneAppGUID = "{76F1466A-8B6D-4E39-A767-685A06062A39}";
 
+        private const string UWPProjectGUID = "{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A}";
+
+        private const string UAPPlatformIdentifier = "UAP";
+        private readonly Version DefaultUAPVersion = new Version(10, 0, 10240, 0);
+
+        #region NetCoreFrameworkAssemblies
+        private readonly HashSet<string> NetCoreFrameworkAssemblies = new HashSet<string>()
+        {
+            "Microsoft.CSharp",
+            "Microsoft.VisualBasic",
+            "Microsoft.Win32.Primitives",
+            "System.AppContext",
+            "System.Collections.Concurrent",
+            "System.Collections",
+            "System.Collections.Immutable",
+            "System.Collections.NonGeneric",
+            "System.Collections.Specialized",
+            "System.ComponentModel.Annotations",
+            "System.ComponentModel",
+            "System.ComponentModel.EventBasedAsync",
+            "System.Data.Common",
+            "System.Diagnostics.Contracts",
+            "System.Diagnostics.Debug",
+            "System.Diagnostics.StackTrace",
+            "System.Diagnostics.Tools",
+            "System.Diagnostics.Tracing",
+            "System.Dynamic.Runtime",
+            "System.Globalization.Calendars",
+            "System.Globalization",
+            "System.Globalization.Extensions",
+            "System.IO.Compression",
+            "System.IO.Compression.ZipFile",
+            "System.IO",
+            "System.IO.FileSystem",
+            "System.IO.FileSystem.Primitives",
+            "System.IO.IsolatedStorage",
+            "System.IO.UnmanagedMemoryStream",
+            "System.Linq",
+            "System.Linq.Expressions",
+            "System.Linq.Parallel",
+            "System.Linq.Queryable",
+            "System.Net.Http",
+            "System.Net.Http.Rtc",
+            "System.Net.NetworkInformation",
+            "System.Net.Primitives",
+            "System.Net.Requests",
+            "System.Net.Sockets",
+            "System.Net.WebHeaderCollection",
+            "System.Numerics.Vectors",
+            "System.Numerics.Vectors.WindowsRuntime",
+            "System.ObjectModel",
+            "System.Private.DataContractSerialization",
+            "System.Private.Networking",
+            "System.Private.ServiceModel",
+            "System.Private.Uri",
+            "System.Reflection.Context",
+            "System.Reflection.DispatchProxy",
+            "System.Reflection",
+            "System.Reflection.Extensions",
+            "System.Reflection.Metadata",
+            "System.Reflection.Primitives",
+            "System.Reflection.TypeExtensions",
+            "System.Resources.ResourceManager",
+            "System.Runtime",
+            "System.Runtime.Extensions",
+            "System.Runtime.Handles",
+            "System.Runtime.InteropServices",
+            "System.Runtime.InteropServices.WindowsRuntime",
+            "System.Runtime.Numerics",
+            "System.Runtime.Serialization.Json",
+            "System.Runtime.Serialization.Primitives",
+            "System.Runtime.Serialization.Xml",
+            "System.Runtime.WindowsRuntime",
+            "System.Runtime.WindowsRuntime.UI.Xaml",
+            "System.Security.Claims",
+            "System.Security.Principal",
+            "System.ServiceModel.Duplex",
+            "System.ServiceModel.Http",
+            "System.ServiceModel.NetTcp",
+            "System.ServiceModel.Primitives",
+            "System.ServiceModel.Security",
+            "System.Text.Encoding.CodePages",
+            "System.Text.Encoding",
+            "System.Text.Encoding.Extensions",
+            "System.Text.RegularExpressions",
+            "System.Threading",
+            "System.Threading.Overlapped",
+            "System.Threading.Tasks.Dataflow",
+            "System.Threading.Tasks",
+            "System.Threading.Tasks.Parallel",
+            "System.Threading.Timer",
+            "System.Xml.ReaderWriter",
+            "System.Xml.XDocument",
+            "System.Xml.XmlDocument",
+            "System.Xml.XmlSerializer"
+        };
+        #endregion
+
         private WinRTProjectType projectType;
         private ICollection<string> platforms;
+        private Dictionary<string, string> dependencies;
+        private List<string> runtimes;
+        private Version minInstalledUAPVersion;
+        private Version maxInstalledUAPVersion;
+        private bool? isUWPProject;
 
         public WinRTProjectBuilder(string assemblyPath, AssemblyDefinition assembly,
             Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes,
@@ -43,6 +150,21 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             : base(assemblyPath, targetPath, language, null, preferences, notifier, assemblyInfoService, visualStudioVersion, projectGenerationSettings)
         {
             Initialize();
+        }
+
+        public bool IsUWPProject
+        {
+            get
+            {
+                if (!this.isUWPProject.HasValue)
+                {
+                    this.isUWPProject = this.projectType == WinRTProjectType.UWPComponent ||
+                                        this.projectType == WinRTProjectType.UWPLibrary ||
+                                        this.projectType == WinRTProjectType.UWPApplication;
+                }
+
+                return this.isUWPProject.Value;
+            }
         }
 
         protected override TypeCollisionWriterContextService GetWriterContextService()
@@ -82,6 +204,15 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
         {
             if (module.IsMain)
             {
+                if (this.projectType == WinRTProjectType.UWPLibrary)
+                {
+                    return "Library";
+                }
+                else if (this.projectType == WinRTProjectType.UWPApplication)
+                {
+                    return "AppContainerExe";
+                }
+
                 return "winmdobj";
             }
             else
@@ -141,6 +272,11 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 {
                     result.Add("WINDOWS_PHONE_APP");
                 }
+            }
+
+            if (IsUWPProject)
+            {
+                result.Add("WINDOWS_UWP");
             }
 
             return result;
@@ -229,8 +365,74 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
                 items[i++] = this.GenerateLanguageTargetsProjectImportProperty();
             }
+            else if (this.IsUWPProject)
+            {
+                items = isVisualBasic ? new object[9] : new object[8];
+
+                int i = 0;
+                items[i++] = this.GenerateCommonPropsProjectImportProperty();
+                items[i++] = basicProjectProperties;
+                object[] configurations = this.GetConfigurations(basicProjectProperties);
+                for (int j = 0; j < configurations.Length; j++)
+                {
+                    items[i++] = configurations[j];
+                }
+
+                items[i++] = this.CreatePojectReferences(module, basicProjectProperties);
+                items[i++] = this.fileGenContext.GetProjectItemGroup();
+                items[i++] = this.GetVisualStudioVersionPropertyGroup();
+                if (isVisualBasic)
+                {
+                    items[i++] = this.GetCompileOptions();
+                }
+
+                items[i++] = this.GenerateLanguageTargetsProjectImportProperty();
+            }
 
             return items;
+        }
+
+        protected override ProjectItemGroup CreatePojectReferences(ModuleDefinition module, ProjectPropertyGroup basicProjectProperties)
+        {
+            ProjectItemGroup result = base.CreatePojectReferences(module, basicProjectProperties);
+            if (IsUWPProject)
+            {
+                result.None = new ProjectItemGroupNone() { Include = ProjectJsonWriter.ProjectJsonFileName };
+            }
+
+            return result;
+        }
+
+        protected override ICollection<AssemblyNameReference> FilterDependingOnAssemblies(ICollection<AssemblyNameReference> dependingOnAssemblies)
+        {
+            ICollection<AssemblyNameReference> result = new List<AssemblyNameReference>();
+            foreach (AssemblyNameReference reference in base.FilterDependingOnAssemblies(dependingOnAssemblies))
+            {
+                if (IsUWPProject && NetCoreFrameworkAssemblies.Contains(reference.Name))
+                {
+                    this.dependencies.Add(reference.Name, reference.Version.ToString(3));
+                    continue;
+                }
+                else if (reference.Name == "System.Runtime")
+                {
+                    continue;
+                }
+
+                result.Add(reference);
+            }
+
+            return result;
+        }
+
+        protected override void WriteModuleAdditionalFiles(ModuleDefinition module)
+        {
+            if (module.IsMain && IsUWPProject)
+            {
+                ProjectJsonWriter writer = new ProjectJsonWriter(targetDir, this.dependencies, UAPPlatformIdentifier + this.minInstalledUAPVersion.ToString(3), this.runtimes);
+                bool isSuccessfull = writer.WriteProjectJsonFile();
+
+                this.OnProjectFileCreated(new FileGeneratedInfo(writer.ProjectJsonFilePath, !isSuccessfull));
+            }
         }
 
         protected override bool WriteSolutionFile()
@@ -250,6 +452,14 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             project.MinimumVisualStudioVersion = this.GetMinimumVisualStudioVersion();
             project.TargetPlatformVersion = this.GetTargetPlatformVersion();
             project.TargetFrameworkProfile = this.GetTargetFrameworkProfile();
+            if (IsUWPProject)
+            {
+                project.TargetPlatformMinVersion = this.minInstalledUAPVersion.ToString();
+                project.TargetPlatformIdentifier = UAPPlatformIdentifier;
+            }
+
+            project.AllowCrossPlatformRetargeting = false;
+            project.AllowCrossPlatformRetargetingSpecified = this.projectType == WinRTProjectType.UWPComponent;
         }
 
         private ProjectPropertyGroup[] GetConfigurations(ProjectPropertyGroup basicProjectProperties)
@@ -299,13 +509,22 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
             config.UseVSHostingProcess = false;
             config.UseVSHostingProcessSpecified = true;
-            config.Prefer32Bit = true;
-            config.Prefer32BitSpecified = true;
+            if (this.projectType != WinRTProjectType.UWPComponent && this.projectType != WinRTProjectType.UWPLibrary)
+            {
+                config.Prefer32Bit = true;
+                config.Prefer32BitSpecified = true;
+            }
             
             if (this.language is CSharp)
             {
                 config.NoWarn = ";2008";
                 config.WarningLevelSpecified = false;
+            }
+
+            if (this.projectType == WinRTProjectType.UWPApplication)
+            {
+                config.UseDotNetNativeToolchain = !debugConfiguration;
+                config.UseDotNetNativeToolchainSpecified = true;
             }
 
             return config;
@@ -339,6 +558,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             {
                 visualStudioProductVersion = "12.0";
             }
+            else if (this.visualStudioVersion == VisualStudioVersion.VS2015)
+            {
+                visualStudioProductVersion = "14.0";
+            }
             else
             {
                 throw new NotSupportedException();
@@ -367,6 +590,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             {
                 result += WindowsPhoneAppGUID;
             }
+            else if (IsUWPProject)
+            {
+                result += UWPProjectGUID;
+            }
 
             result += ";";
             if (this.language is CSharp)
@@ -389,6 +616,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             {
                 return "12.0";
             }
+            else if (IsUWPProject)
+            {
+                return "14";
+            }
 
             return null;
         }
@@ -398,6 +629,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             if (this.projectType == WinRTProjectType.ComponentForWindows || this.projectType == WinRTProjectType.ComponentForWindowsPhone)
             {
                 return "8.1";
+            }
+            else if (IsUWPProject)
+            {
+                return this.maxInstalledUAPVersion.ToString();
             }
 
             return null;
@@ -418,23 +653,89 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
         private void Initialize()
         {
+            this.platforms = new List<string>();
+            this.dependencies = new Dictionary<string, string>();
+            this.runtimes = new List<string>();
+
             this.projectType = WinRTProjectTypeDetector.GetProjectType(this.assembly);
             if (this.projectType == WinRTProjectType.Component || this.projectType == WinRTProjectType.ComponentForWindows)
             {
-                this.platforms = new List<string>() { "Any CPU", "ARM", "x64", "x86" };
+                this.platforms.Add("Any CPU");
+                this.platforms.Add("ARM");
+                this.platforms.Add("x64");
+                this.platforms.Add("x86");
             }
             else if (this.projectType == WinRTProjectType.ComponentForUniversal)
             {
-                this.platforms = new List<string>() { "Any CPU" };
+                this.platforms.Add("Any CPU");
             }
             else if (this.projectType == WinRTProjectType.ComponentForWindowsPhone)
             {
-                this.platforms = new List<string>() { "Any CPU", "ARM", "x86" };
+                this.platforms.Add("Any CPU");
+                this.platforms.Add("ARM");
+                this.platforms.Add("x86");
             }
-            else
+            else if (this.IsUWPProject)
             {
-                this.platforms = new List<string>();
+                TargetArchitecture architecture = this.assembly.MainModule.GetModuleArchitecture();
+                if (architecture == TargetArchitecture.I386)
+                {
+                    this.platforms.Add("x86");
+                    this.runtimes.Add("win10-x86");
+                    this.runtimes.Add("win10-x86-aot");
+                }
+                else if (architecture == TargetArchitecture.AMD64)
+                {
+                    this.platforms.Add("x64");
+                    this.runtimes.Add("win10-x64");
+                    this.runtimes.Add("win10-x64-aot");
+                }
+                else if (architecture == TargetArchitecture.ARMv7)
+                {
+                    this.platforms.Add("ARM");
+                    this.runtimes.Add("win10-arm");
+                    this.runtimes.Add("win10-arm-aot");
+                }
+                else if (architecture == TargetArchitecture.AnyCPU)
+                {
+                    this.platforms.Add("Any CPU");
+                }
             }
+
+            InitializeInstalledUAPVersions();
+        }
+
+        private void InitializeInstalledUAPVersions()
+        {
+            Version minPossibleVersion = new Version(0, 0, 0, 0);
+            Version maxPossibleVersion = new Version(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue);
+
+            string programFilesx86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+            string installedUAPVersionsDirectory = Path.Combine(programFilesx86, @"Windows Kits\10\Platforms\UAP");
+            Version minVersion = maxPossibleVersion;
+            Version maxVersion = minPossibleVersion;
+            if (Directory.Exists(installedUAPVersionsDirectory))
+            {
+                foreach (string item in Directory.EnumerateDirectories(installedUAPVersionsDirectory))
+                {
+                    Version currentVersion;
+                    if (Version.TryParse((new DirectoryInfo(item)).Name, out currentVersion))
+                    {
+                        if (currentVersion < minVersion)
+                        {
+                            minVersion = currentVersion;
+                        }
+
+                        if (currentVersion > maxVersion)
+                        {
+                            maxVersion = currentVersion;
+                        }
+                    }
+                }
+            }
+
+            this.minInstalledUAPVersion = minVersion != maxPossibleVersion ? minVersion : DefaultUAPVersion;
+            this.maxInstalledUAPVersion = maxVersion != minPossibleVersion ? maxVersion : DefaultUAPVersion;
         }
     }
 }

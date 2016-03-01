@@ -98,6 +98,11 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 errorMessage = ResourceStrings.CannotCreate2012Project;
                 return false;
             }
+            else if (WinRTProjectTypeDetector.IsUniversalWindowsPlatformAssembly(assembly))
+            {
+                errorMessage = string.Format(ResourceStrings.CannotCreateProjectDueToUWP, 2012);
+                return false;
+            }
 
             errorMessage = null;
             return true;
@@ -110,6 +115,11 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                     WinRTProjectTypeDetector.GetProjectType(assembly) == WinRTProjectType.ComponentForUniversal)
             {
                 errorMessage = ResourceStrings.CannotCreate2013Project;
+                return false;
+            }
+            else if (WinRTProjectTypeDetector.IsUniversalWindowsPlatformAssembly(assembly))
+            {
+                errorMessage = string.Format(ResourceStrings.CannotCreateProjectDueToUWP, 2013);
                 return false;
             }
             

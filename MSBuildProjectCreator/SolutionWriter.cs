@@ -58,7 +58,9 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 {
                     formatVersion = "11.00";
                 }
-                else if (this.visualStudioVersion == VisualStudioVersion.VS2012 || this.visualStudioVersion == VisualStudioVersion.VS2013)
+                else if (this.visualStudioVersion == VisualStudioVersion.VS2012 ||
+                         this.visualStudioVersion == VisualStudioVersion.VS2013 ||
+                         this.visualStudioVersion == VisualStudioVersion.VS2015)
                 {
                     formatVersion = "12.00";
                 }
@@ -69,10 +71,32 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
                 writer.WriteLine("Microsoft Visual Studio Solution File, Format Version {0}", formatVersion);
 
-                writer.WriteLine("# Visual Studio " + this.visualStudioVersion.ToString().Substring(2));
-                if (this.visualStudioVersion == VisualStudioVersion.VS2013)
+                string visualStudioVersionString;
+                if (this.visualStudioVersion == VisualStudioVersion.VS2015)
                 {
-                    writer.WriteLine("VisualStudioVersion = 12.0.21005.1");
+                    visualStudioVersionString = "14";
+                }
+                else
+                {
+                    visualStudioVersionString = this.visualStudioVersion.ToString().Substring(2);
+                }
+
+                writer.WriteLine("# Visual Studio " + visualStudioVersionString);
+
+                if (this.visualStudioVersion == VisualStudioVersion.VS2013 ||
+                    this.visualStudioVersion == VisualStudioVersion.VS2015)
+                {
+                    string visualStudioLongVersionString = string.Empty;
+                    if (this.visualStudioVersion == VisualStudioVersion.VS2013)
+                    {
+                        visualStudioLongVersionString = "12.0.21005.1";
+                    }
+                    else
+                    {
+                        visualStudioLongVersionString = "14.0.24720.0";
+                    }
+                    
+                    writer.WriteLine("VisualStudioVersion = " + visualStudioLongVersionString);
                     writer.WriteLine("MinimumVisualStudioVersion = 10.0.40219.1");
                 }
 

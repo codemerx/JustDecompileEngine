@@ -247,6 +247,9 @@ namespace JustDecompileCmdShell
                     case "2013":
                         visualStudioVersion = VisualStudioVersion.VS2013;
                         return true;
+                    case "2015":
+                        visualStudioVersion = VisualStudioVersion.VS2015;
+                        return true;
                     default:
                         isInvalidVisualStudioVersion = true;
                         break;
@@ -390,7 +393,7 @@ namespace JustDecompileCmdShell
             Console.CursorLeft = 12;
             WriteLine(SupportedLanguagesMessage);
 
-            WriteLine("[/vs:]      [/vs:2013]. The target Visual Studio(r) project version.");
+            WriteLine("[/vs:]      [/vs:2015]. The target Visual Studio(r) project version.");
             Console.CursorLeft = 12;
             WriteLine("Supported Visual Studio(r) versions: 2010 and later.");
 

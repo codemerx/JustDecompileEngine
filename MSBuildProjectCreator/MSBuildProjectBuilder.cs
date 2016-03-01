@@ -182,6 +182,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             {
                 project.ToolsVersion = 12.0M;
             }
+            else if (this.visualStudioVersion == VisualStudioVersion.VS2015)
+            {
+                project.ToolsVersion = 14.0M;
+            }
             else
             {
                 throw new NotImplementedException();
@@ -577,6 +581,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 							InformProjectFileCreated(module, this.language.VSProjectFileExtension, exceptionsWhenCreatingProjectFile);
 						}
                     }
+
+                    WriteModuleAdditionalFiles(module);
 				}
 
                 if (this.projectGenerationSettings == null || this.projectGenerationSettings.JustDecompileSupportedProjectType)
@@ -626,6 +632,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			ClearCaches();
 
             return false;
+        }
+
+        protected virtual void WriteModuleAdditionalFiles(ModuleDefinition module)
+        {
         }
 
         private void InformProjectFileCreated(ModuleDefinition module, string extension, bool hasErrors)
@@ -916,7 +926,9 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             bool isVisualBasic = this.language is VisualBasic;
             object[] items = isVisualBasic ? new object[7] : new object[6];
             int i = 0;
-            if (this.visualStudioVersion == VisualStudioVersion.VS2012 || this.visualStudioVersion == VisualStudioVersion.VS2013)
+            if (this.visualStudioVersion == VisualStudioVersion.VS2012 ||
+                this.visualStudioVersion == VisualStudioVersion.VS2013 ||
+                this.visualStudioVersion == VisualStudioVersion.VS2015)
             {
                 items = new object[items.Length + 1];
                 items[i++] = GenerateCommonPropsProjectImportProperty();
@@ -1012,7 +1024,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             };
         }
 
-        protected ProjectItemGroup CreatePojectReferences(ModuleDefinition module, ProjectPropertyGroup basicProjectProperties)
+        protected virtual ProjectItemGroup CreatePojectReferences(ModuleDefinition module, ProjectPropertyGroup basicProjectProperties)
         {
             ProjectItemGroup result = new ProjectItemGroup();
 
@@ -1022,16 +1034,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             string copiedReferencesSubfolder = basicProjectProperties.AssemblyName + "References";
             string referencesPath = TargetPath.Remove(TargetPath.LastIndexOf(Path.DirectorySeparatorChar)) + Path.DirectorySeparatorChar + copiedReferencesSubfolder;
 
+            ICollection<AssemblyNameReference> filteredDependingOnAssemblies = FilterDependingOnAssemblies(dependingOnAssemblies);
             int assemblyReferenceIndex = 0;
-            foreach (AssemblyNameReference reference in dependingOnAssemblies)
+            foreach (AssemblyNameReference reference in filteredDependingOnAssemblies)
             {
-                if (reference.Name == "mscorlib" ||
-                    reference.Name == "Windows" && reference.Version.Equals(new Version(255, 255, 255, 255)) ||
-                    reference.Name == "System.Runtime")
-                {
-                    continue;
-                }
-
                 AssemblyName assemblyName = new AssemblyName(reference.Name,
                                                                 reference.FullName,
                                                                 reference.Version,
@@ -1092,6 +1098,23 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 				result.AddModules[moduleReferenceIndex].Condition = " '$(Configuration)' == 'Release' ";
 				moduleReferenceIndex++; 
 			}
+
+            return result;
+        }
+
+        protected virtual ICollection<AssemblyNameReference> FilterDependingOnAssemblies(ICollection<AssemblyNameReference> dependingOnAssemblies)
+        {
+            ICollection<AssemblyNameReference> result = new List<AssemblyNameReference>();
+            foreach (AssemblyNameReference reference in dependingOnAssemblies)
+            {
+                if (reference.Name == "mscorlib" ||
+                    reference.Name == "Windows" && reference.Version.Equals(new Version(255, 255, 255, 255)))
+                {
+                    continue;
+                }
+
+                result.Add(reference);
+            }
 
             return result;
         }
@@ -1288,7 +1311,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 				basicProjectProperties.RootNamespace = fileGenContext.NamespacesTree.RootNamespace;
 			}
 
-			return basicProjectProperties;
+            basicProjectProperties.AutoGenerateBindingRedirects = IsAutoGenerateBindingRedirectsSupported(module);
+            basicProjectProperties.AutoGenerateBindingRedirectsSpecified = basicProjectProperties.AutoGenerateBindingRedirects;
+
+            return basicProjectProperties;
 		}
 
 		protected virtual ProjectPropertyGroup GetMainModuleBasicProjectProperties()
@@ -1327,8 +1353,36 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			{
 				basicProjectProperties.RootNamespace = fileGenContext.NamespacesTree.RootNamespace;
 			}
+            
+            basicProjectProperties.AutoGenerateBindingRedirects = IsAutoGenerateBindingRedirectsSupported(this.assembly.MainModule);
+            basicProjectProperties.AutoGenerateBindingRedirectsSpecified = basicProjectProperties.AutoGenerateBindingRedirects;
 
 			return basicProjectProperties;
+        }
+
+        private bool IsAutoGenerateBindingRedirectsSupported(ModuleDefinition module)
+        {
+            if (module.Kind != ModuleKind.Console && module.Kind != ModuleKind.Windows)
+            {
+                return false;
+            }
+
+            Version targetFrameworkVersion;
+            try
+            {
+                targetFrameworkVersion = Version.Parse(this.assemblyInfo.ModulesFrameworkVersions[module].ToString(includeVersionSign: false));
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            if (targetFrameworkVersion >= new Version(4, 5, 1))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         protected virtual string GetTargetFrameworkVersion(ModuleDefinition module)
@@ -1562,7 +1616,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             return type.AssemblyQualifiedName;
         }
 
-		private void OnProjectFileCreated(IFileGeneratedInfo projectFileGeneratedCallbackArgs)
+		protected void OnProjectFileCreated(IFileGeneratedInfo projectFileGeneratedCallbackArgs)
         {
             if (ProjectFileCreated != null)
             {
