@@ -285,6 +285,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 					return "x86";
 				case TargetArchitecture.IA64:
 					return "Itanium";
+                case TargetArchitecture.ARMv7:
+                    return "ARM";
 				default:
                     if (separateAnyCPU)
                     {

@@ -171,7 +171,6 @@
     <Compile Include="WinRTProjectBuilder.cs" />
     <Compile Include="WinRTProjectType.cs" />
     <Compile Include="WinRTProjectTypeDetector.cs" />
-    <Compile Include="WinRTSolutionWriter.cs" />
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' And '$(Configuration)' != 'Debug JustAssembly' And '$(Configuration)' != 'Release JustAssembly' And '$(Configuration)' != 'Release Server JustAssembly' ">
     <Compile Include="..\..\CommonAssemblyInfo.cs">

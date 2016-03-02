@@ -127,7 +127,6 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
         #endregion
 
         private WinRTProjectType projectType;
-        private ICollection<string> platforms;
         private Dictionary<string, string> dependencies;
         private List<string> runtimes;
         private Version minInstalledUAPVersion;
@@ -292,45 +291,26 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
         protected override object[] GetProjectItems(ModuleDefinition module, ProjectPropertyGroup basicProjectProperties)
         {
-            object[] items = null;
-            bool isVisualBasic = this.language is VisualBasic;
-            if (this.projectType == WinRTProjectType.Component || this.projectType == WinRTProjectType.ComponentForWindows)
+            bool shouldAddVisualBasicItems = this.language is VisualBasic && this.projectType != WinRTProjectType.ComponentForUniversal;
+            object[] items = new object[GetNumberOfProjectItems(shouldAddVisualBasicItems)];
+
+            int currentItem = 0;
+
+            items[currentItem++] = this.GenerateCommonPropsProjectImportProperty();
+
+            items[currentItem++] = basicProjectProperties;
+
+            object[] configurations = this.GetConfigurations(basicProjectProperties);
+            for (int j = 0; j < configurations.Length; j++)
             {
-                items = isVisualBasic ? new object[15] : new object[14];
-
-                int i = 0;
-                items[i++] = this.GenerateCommonPropsProjectImportProperty();
-                items[i++] = basicProjectProperties;
-                object[] configurations = this.GetConfigurations(basicProjectProperties);
-                for (int j = 0; j < configurations.Length; j++, i++)
-                {
-                    items[j + 2] = configurations[j];
-                }
-
-                items[i++] = this.CreatePojectReferences(module, basicProjectProperties);
-                items[i++] = this.fileGenContext.GetProjectItemGroup();
-                items[i++] = this.GetVisualStudioVersionPropertyGroup();
-                if (isVisualBasic)
-                {
-                    items[i++] = this.GetCompileOptions();
-                }
-
-                items[i++] = this.GenerateLanguageTargetsProjectImportProperty();
+                items[currentItem++] = configurations[j];
             }
-            else if (this.projectType == WinRTProjectType.ComponentForUniversal)
+
+            items[currentItem++] = this.CreatePojectReferences(module, basicProjectProperties);
+
+            if (this.projectType == WinRTProjectType.ComponentForUniversal)
             {
-                items = new object[8];
-
-                items[0] = this.GenerateCommonPropsProjectImportProperty();
-                items[1] = basicProjectProperties;
-                object[] configurations = this.GetConfigurations(basicProjectProperties);
-                for (int i = 0; i < configurations.Length; i++)
-                {
-                    items[i + 2] = configurations[i];
-                }
-
-                items[4] = this.CreatePojectReferences(module, basicProjectProperties);
-                items[5] = new ProjectItemGroup()
+                items[currentItem++] = new ProjectItemGroup()
                 {
                     TargetPlatform = new ProjectItemGroupTargetPlatform[]
                     {
@@ -338,58 +318,44 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                         new ProjectItemGroupTargetPlatform() { Include = "Windows, Version=8.1" }
                     }
                 };
-                items[6] = this.fileGenContext.GetProjectItemGroup();
-                items[7] = this.GenerateLanguageTargetsProjectImportProperty();
             }
-            else if (this.projectType == WinRTProjectType.ComponentForWindowsPhone)
+
+            items[currentItem++] = this.fileGenContext.GetProjectItemGroup();
+
+            if (this.projectType != WinRTProjectType.ComponentForUniversal)
             {
-                items = isVisualBasic ? new object[14] : new object[13];
-
-                int i = 0;
-                items[i++] = this.GenerateCommonPropsProjectImportProperty();
-                items[i++] = basicProjectProperties;
-                object[] configurations = this.GetConfigurations(basicProjectProperties);
-                for (int j = 0; j < configurations.Length; j++, i++)
-                {
-                    items[j + 2] = configurations[j];
-                }
-
-                items[i++] = this.CreatePojectReferences(module, basicProjectProperties);
-                items[i++] = this.fileGenContext.GetProjectItemGroup();
-                items[i++] = this.GetVisualStudioVersionPropertyGroup();
-                items[i++] = new ProjectPropertyGroup() { Condition = " '$(TargetPlatformIdentifier)' == '' ", TargetPlatformIdentifier = "WindowsPhoneApp" };
-                if (isVisualBasic)
-                {
-                    items[i++] = this.GetCompileOptions();
-                }
-
-                items[i++] = this.GenerateLanguageTargetsProjectImportProperty();
+                items[currentItem++] = this.GetVisualStudioVersionPropertyGroup();
             }
-            else if (this.IsUWPProject)
+
+            if (this.projectType == WinRTProjectType.ComponentForWindowsPhone)
             {
-                items = isVisualBasic ? new object[9] : new object[8];
-
-                int i = 0;
-                items[i++] = this.GenerateCommonPropsProjectImportProperty();
-                items[i++] = basicProjectProperties;
-                object[] configurations = this.GetConfigurations(basicProjectProperties);
-                for (int j = 0; j < configurations.Length; j++)
-                {
-                    items[i++] = configurations[j];
-                }
-
-                items[i++] = this.CreatePojectReferences(module, basicProjectProperties);
-                items[i++] = this.fileGenContext.GetProjectItemGroup();
-                items[i++] = this.GetVisualStudioVersionPropertyGroup();
-                if (isVisualBasic)
-                {
-                    items[i++] = this.GetCompileOptions();
-                }
-
-                items[i++] = this.GenerateLanguageTargetsProjectImportProperty();
+                items[currentItem++] = new ProjectPropertyGroup() { Condition = " '$(TargetPlatformIdentifier)' == '' ", TargetPlatformIdentifier = "WindowsPhoneApp" };
             }
 
+            if (shouldAddVisualBasicItems)
+            {
+                items[currentItem++] = this.GetCompileOptions();
+            }
+
+            items[currentItem++] = this.GenerateLanguageTargetsProjectImportProperty();
+            
             return items;
+        }
+
+        private int GetNumberOfProjectItems(bool shouldAddVisualBasicItems)
+        {
+            int numberOfItems = 8;
+            if (this.projectType == WinRTProjectType.ComponentForWindowsPhone)
+            {
+                numberOfItems++;
+            }
+
+            if (shouldAddVisualBasicItems)
+            {
+                numberOfItems++;
+            }
+
+            return numberOfItems;
         }
 
         protected override ProjectItemGroup CreatePojectReferences(ModuleDefinition module, ProjectPropertyGroup basicProjectProperties)
@@ -437,10 +403,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
         protected override bool WriteSolutionFile()
         {
-            WinRTSolutionWriter solutionWriter =
-                new WinRTSolutionWriter(this.assembly, this.platform, this.targetDir, this.filePathsService.GetSolutionRelativePath(),
-                                        this.modulesToProjectsFilePathsMap, this.modulesProjectsGuids, this.visualStudioVersion,
-                                        this.language, this.platforms);
+            SolutionWriter solutionWriter =
+                new SolutionWriter(this.assembly, this.platform, this.targetDir, this.filePathsService.GetSolutionRelativePath(),
+                                   this.modulesToProjectsFilePathsMap, this.modulesProjectsGuids, this.visualStudioVersion,
+                                   this.language);
             solutionWriter.WriteSolutionFile();
 
 			return true;
@@ -464,41 +430,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
         private ProjectPropertyGroup[] GetConfigurations(ProjectPropertyGroup basicProjectProperties)
         {
-            int i = 0;
-            ProjectPropertyGroup[] configurations = new ProjectPropertyGroup[this.platforms.Count * 2];
-            foreach (string platform in this.platforms)
-            {
-                if (platform == "Any CPU")
-                {
-                    ProjectPropertyGroup configuration;
-                    bool isVisualBasic = this.language is VisualBasic;
+            ProjectPropertyGroup[] configurations = new ProjectPropertyGroup[2]; // Debug + Release
 
-                    configuration = base.CreateConfiguration("AnyCPU", true); //Debug
-                    if (isVisualBasic)
-                    {
-                        configuration.NoConfig = true;
-                        configuration.NoConfigSpecified = true;
-                    }
-
-                    configurations[i++] = configuration;
-
-                    configuration = base.CreateConfiguration("AnyCPU", false); //Release
-                    if (isVisualBasic)
-                    {
-                        configuration.NoStdLib = true;
-                        configuration.NoStdLibSpecified = true;
-                        configuration.NoConfig = true;
-                        configuration.NoConfigSpecified = true;
-                    }
-
-                    configurations[i++] = configuration;
-                }
-                else
-                {
-                    configurations[i++] = this.CreateConfiguration(platform, true);
-                    configurations[i++] = this.CreateConfiguration(platform, false);
-                }
-            }
+            configurations[0] = this.CreateConfiguration(basicProjectProperties.Platform.Value, true);
+            configurations[1] = this.CreateConfiguration(basicProjectProperties.Platform.Value, false);
 
             return configurations;
         }
@@ -509,7 +444,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
             config.UseVSHostingProcess = false;
             config.UseVSHostingProcessSpecified = true;
-            if (this.projectType != WinRTProjectType.UWPComponent && this.projectType != WinRTProjectType.UWPLibrary)
+            if (this.IsApplicationProject() && platform == "AnyCPU")
             {
                 config.Prefer32Bit = true;
                 config.Prefer32BitSpecified = true;
@@ -520,6 +455,21 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 config.NoWarn = ";2008";
                 config.WarningLevelSpecified = false;
             }
+            else if (this.language is VisualBasic)
+            {
+                if (debugConfiguration)
+                {
+                    config.NoConfig = true;
+                    config.NoConfigSpecified = true;
+                }
+                else
+                {
+                    config.NoStdLib = true;
+                    config.NoStdLibSpecified = true;
+                    config.NoConfig = true;
+                    config.NoConfigSpecified = true;
+                }
+            }
 
             if (this.projectType == WinRTProjectType.UWPApplication)
             {
@@ -528,6 +478,11 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             }
 
             return config;
+        }
+
+        private bool IsApplicationProject()
+        {
+            return this.projectType == WinRTProjectType.UWPApplication;
         }
 
         protected override string GetOutputPath(string platform, bool debugConfiguration)
@@ -653,52 +608,27 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
         private void Initialize()
         {
-            this.platforms = new List<string>();
+            this.projectType = WinRTProjectTypeDetector.GetProjectType(this.assembly);
             this.dependencies = new Dictionary<string, string>();
             this.runtimes = new List<string>();
 
-            this.projectType = WinRTProjectTypeDetector.GetProjectType(this.assembly);
-            if (this.projectType == WinRTProjectType.Component || this.projectType == WinRTProjectType.ComponentForWindows)
-            {
-                this.platforms.Add("Any CPU");
-                this.platforms.Add("ARM");
-                this.platforms.Add("x64");
-                this.platforms.Add("x86");
-            }
-            else if (this.projectType == WinRTProjectType.ComponentForUniversal)
-            {
-                this.platforms.Add("Any CPU");
-            }
-            else if (this.projectType == WinRTProjectType.ComponentForWindowsPhone)
-            {
-                this.platforms.Add("Any CPU");
-                this.platforms.Add("ARM");
-                this.platforms.Add("x86");
-            }
-            else if (this.IsUWPProject)
+            if (this.IsUWPProject)
             {
                 TargetArchitecture architecture = this.assembly.MainModule.GetModuleArchitecture();
                 if (architecture == TargetArchitecture.I386)
                 {
-                    this.platforms.Add("x86");
                     this.runtimes.Add("win10-x86");
                     this.runtimes.Add("win10-x86-aot");
                 }
                 else if (architecture == TargetArchitecture.AMD64)
                 {
-                    this.platforms.Add("x64");
                     this.runtimes.Add("win10-x64");
                     this.runtimes.Add("win10-x64-aot");
                 }
                 else if (architecture == TargetArchitecture.ARMv7)
                 {
-                    this.platforms.Add("ARM");
                     this.runtimes.Add("win10-arm");
                     this.runtimes.Add("win10-arm-aot");
-                }
-                else if (architecture == TargetArchitecture.AnyCPU)
-                {
-                    this.platforms.Add("Any CPU");
                 }
             }
 
