@@ -21,6 +21,10 @@ namespace Telerik.JustDecompiler.External
         WinRT,
         Silverlight,
         WindowsPhone,
-        WindowsCE
+        WindowsCE,
+        NetPortableV4_6,
+        NetCoreV4_5,
+        NetCoreV4_5_1,
+        NetCoreV5_0
     }
 }

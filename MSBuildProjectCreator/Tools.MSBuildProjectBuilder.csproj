@@ -139,6 +139,7 @@
     <Compile Include="..\CommonVersionAssemblyInfo.cs">
       <Link>Properties\CommonVersionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Extensions.cs" />
     <Compile Include="IProjectGenerationNotifier.cs" />
     <Compile Include="ProjectGenerationSettings.cs" />
     <Compile Include="FileGenerationContext.cs" />

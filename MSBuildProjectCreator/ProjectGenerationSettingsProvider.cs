@@ -18,6 +18,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
         {
             AssemblyDefinition assembly = Telerik.JustDecompiler.Decompiler.Utilities.GetAssembly(assemblyFilePath);
             AssemblyInfo assemblyInfo = assemblyInfoService.GetAssemblyInfo(assembly, frameworkResolver);
+            TargetPlatform targetPlatform = GlobalAssemblyResolver.Instance.GetTargetPlatform(assemblyFilePath);
             foreach (KeyValuePair<ModuleDefinition, FrameworkVersion> pair in assemblyInfo.ModulesFrameworkVersions)
             {
                 if (pair.Value == FrameworkVersion.Unknown)
@@ -25,7 +26,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                     return new ProjectGenerationSettings(true, ResourceStrings.GenerateOnlySourceFilesDueToUnknownFrameworkVersion, false);
                 }
                 else if (pair.Value == FrameworkVersion.WindowsCE || pair.Value == FrameworkVersion.WindowsPhone ||
-                    (pair.Value == FrameworkVersion.WinRT && WinRTProjectTypeDetector.GetProjectType(assembly) == WinRTProjectType.Unknown))
+                    (targetPlatform == TargetPlatform.WinRT && WinRTProjectTypeDetector.GetProjectType(assembly) == WinRTProjectType.Unknown))
                 {
                     return new ProjectGenerationSettings(true, ResourceStrings.GenerateOnlySourceFilesDueToNotSupportedProjectType, false);
                 }
@@ -34,7 +35,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             string resultErrorMessage;
             if (visualStudioVersion == VisualStudioVersion.VS2010)
             {
-                if (!CanBe2010ProjectCreated(assemblyInfo, out resultErrorMessage))
+                if (!CanBe2010ProjectCreated(assemblyInfo, targetPlatform, out resultErrorMessage))
                 {
                     return new ProjectGenerationSettings(false, resultErrorMessage);
                 }
@@ -46,36 +47,45 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                     return new ProjectGenerationSettings(false, resultErrorMessage);
                 }
             }
-            else if (visualStudioVersion == VisualStudioVersion.VS2013)
+            else
             {
-                if (!CanBe2013ProjectCreated(assembly, language, out resultErrorMessage))
+                if (targetPlatform == TargetPlatform.WinRT && language is VisualBasic &&
+                    WinRTProjectTypeDetector.GetProjectType(assembly) == WinRTProjectType.ComponentForUniversal)
                 {
+                    resultErrorMessage = string.Format(ResourceStrings.CannotCreateProjectForComponentForUniversalInVB, visualStudioVersion.ToFriendlyString());
                     return new ProjectGenerationSettings(false, resultErrorMessage);
                 }
-            }
 
+                if (visualStudioVersion == VisualStudioVersion.VS2013)
+                {
+                    if (!CanBe2013ProjectCreated(assembly, language, out resultErrorMessage))
+                    {
+                        return new ProjectGenerationSettings(false, resultErrorMessage);
+                    }
+                }
+            }
+            
             return new ProjectGenerationSettings(true);
         }
 
-        private static bool CanBe2010ProjectCreated(AssemblyInfo assemblyInfo, out string errorMessage)
+        private static bool CanBe2010ProjectCreated(AssemblyInfo assemblyInfo, TargetPlatform targetPlatform, out string errorMessage)
         {
+            if (targetPlatform == TargetPlatform.WinRT)
+            {
+                errorMessage = ResourceStrings.CannotCreate2010ProjectDueToWinRT;
+                return false;
+            }
+
             Version max = new Version(0, 0);
             foreach (KeyValuePair<ModuleDefinition, FrameworkVersion> pair in assemblyInfo.ModulesFrameworkVersions)
             {
-                if (pair.Value == FrameworkVersion.WinRT)
+                Version current;
+                if (Version.TryParse(pair.Value.ToString(false), out current))
                 {
-                    errorMessage = ResourceStrings.CannotCreate2010ProjectDueToWinRT;
-                    return false;
-                }
-                else if (pair.Value == FrameworkVersion.Silverlight)
-                {
-                    continue;
-                }
-
-                Version current = new Version(pair.Value.ToString(false));
-                if (current > max)
-                {
-                    max = current;
+                    if (current > max)
+                    {
+                        max = current;
+                    }
                 }
             }
 
@@ -110,14 +120,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
         private static bool CanBe2013ProjectCreated(AssemblyDefinition assembly, ILanguage language, out string errorMessage)
         {
-            TargetPlatform targetPlatform = assembly.MainModule.AssemblyResolver.GetTargetPlatform(assembly.MainModule.FilePath);
-            if (targetPlatform == TargetPlatform.WinRT && language is VisualBasic &&
-                    WinRTProjectTypeDetector.GetProjectType(assembly) == WinRTProjectType.ComponentForUniversal)
-            {
-                errorMessage = ResourceStrings.CannotCreate2013Project;
-                return false;
-            }
-            else if (WinRTProjectTypeDetector.IsUniversalWindowsPlatformAssembly(assembly))
+            if (WinRTProjectTypeDetector.IsUniversalWindowsPlatformAssembly(assembly))
             {
                 errorMessage = string.Format(ResourceStrings.CannotCreateProjectDueToUWP, 2013);
                 return false;

@@ -78,7 +78,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 }
                 else
                 {
-                    visualStudioVersionString = this.visualStudioVersion.ToString().Substring(2);
+                    visualStudioVersionString = this.visualStudioVersion.ToFriendlyString();
                 }
 
                 writer.WriteLine("# Visual Studio " + visualStudioVersionString);

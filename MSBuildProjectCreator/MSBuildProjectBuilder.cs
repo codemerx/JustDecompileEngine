@@ -1372,18 +1372,12 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             }
 
             Version targetFrameworkVersion;
-            try
+            if (Version.TryParse(this.assemblyInfo.ModulesFrameworkVersions[module].ToString(includeVersionSign: false), out targetFrameworkVersion))
             {
-                targetFrameworkVersion = Version.Parse(this.assemblyInfo.ModulesFrameworkVersions[module].ToString(includeVersionSign: false));
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            if (targetFrameworkVersion >= new Version(4, 5, 1))
-            {
-                return true;
+                if (targetFrameworkVersion >= new Version(4, 5, 1))
+                {
+                    return true;
+                }
             }
 
             return false;

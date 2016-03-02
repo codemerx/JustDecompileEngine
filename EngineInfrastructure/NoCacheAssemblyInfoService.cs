@@ -65,7 +65,7 @@ namespace JustDecompile.EngineInfrastructure
                 case TargetPlatform.CLR_4:
                     return GetFramework4Version(module, frameworkResolver);
                 case TargetPlatform.WinRT:
-                    return FrameworkVersion.WinRT;
+                    return GetWinRTFrameworkVersion(module);
                 case TargetPlatform.Silverlight:
                     return FrameworkVersion.Silverlight;
                 case TargetPlatform.WindowsCE:
@@ -94,7 +94,7 @@ namespace JustDecompile.EngineInfrastructure
             if (module.IsMain)
             {
                 FrameworkName frameworkName;
-                if (TryGetFramework4Name(module.Assembly, out frameworkName) &&
+                if (TryGetTargetFrameworkName(module.Assembly, out frameworkName) &&
                     TryParseFramework4Name(frameworkName.Version.ToString(), out frameworkVersion))
                 {
                     return true;
@@ -228,7 +228,7 @@ namespace JustDecompile.EngineInfrastructure
             return true;
         }
 
-        private bool TryGetFramework4Name(AssemblyDefinition assembly, out FrameworkName frameworkName)
+        private bool TryGetTargetFrameworkName(AssemblyDefinition assembly, out FrameworkName frameworkName)
         {
             frameworkName = null;
             if (assembly.TargetFrameworkAttributeValue != null)
@@ -274,6 +274,35 @@ namespace JustDecompile.EngineInfrastructure
                     assemblyInfo.AssemblyTypes |= AssemblyTypes.UniversalWindows;
                 }
             }
+        }
+
+        private FrameworkVersion GetWinRTFrameworkVersion(ModuleDefinition module)
+        {
+            FrameworkName frameworkName;
+            if (this.TryGetTargetFrameworkName(module.Assembly, out frameworkName))
+            {
+                if (frameworkName.Identifier == ".NETPortable" && frameworkName.Version == new Version(4, 6))
+                {
+                    return FrameworkVersion.NetPortableV4_6;
+                }
+                else if (frameworkName.Identifier == ".NETCore")
+                {
+                    if (frameworkName.Version == new Version(4, 5))
+                    {
+                        return FrameworkVersion.NetCoreV4_5;
+                    }
+                    else if (frameworkName.Version == new Version(4, 5, 1))
+                    {
+                        return FrameworkVersion.NetCoreV4_5_1;
+                    }
+                    else if (frameworkName.Version == new Version(5, 0))
+                    {
+                        return FrameworkVersion.NetCoreV5_0;
+                    }
+                }
+            }
+
+            return FrameworkVersion.WinRT;
         }
     }
 }

@@ -8,7 +8,7 @@
 
         public const string CannotCreate2012Project = "Visual Studio\u00AE 2012 doesn't support Windows\u00AE Universal/Windows\u00AE 8.1/Windows\u00AE Phone 8.1 projects.";
 
-        public const string CannotCreate2013Project = "Visual Studio\u00AE 2013 doesn't support Windows\u00AE Universal projects in Visual Basic.";
+        public const string CannotCreateProjectForComponentForUniversalInVB = "Visual Studio\u00AE {0} doesn't support Windows\u00AE Universal projects in Visual Basic.";
 
         public const string CannotCreateProjectDueToUWP = "Visual Studio\u00AE {0} doesn't support Universal Windows Platform projects.";
 

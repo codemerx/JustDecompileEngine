@@ -180,6 +180,18 @@ namespace Telerik.JustDecompiler.Common
                 case FrameworkVersion.v4_6_1:
                     result = "4.6.1";
                     break;
+                case FrameworkVersion.NetPortableV4_6:
+                    result = ".NETPortable v4.6";
+                    break;
+                case FrameworkVersion.NetCoreV4_5:
+                    result = ".NETCore v4.5";
+                    break;
+                case FrameworkVersion.NetCoreV4_5_1:
+                    result = ".NETCore v4.5.1";
+                    break;
+                case FrameworkVersion.NetCoreV5_0:
+                    result = ".NETCore v5.0";
+                    break;
                 case FrameworkVersion.WinRT:
                 case FrameworkVersion.Silverlight:
                 case FrameworkVersion.WindowsCE:
