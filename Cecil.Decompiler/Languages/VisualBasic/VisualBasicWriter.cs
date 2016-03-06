@@ -325,7 +325,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
         public override string ToTypeString(TypeReference type)
         {
             /// There might be user generated classes with this name. Only the ones declared in mscorlib should be replaced by the language keyword.
-            if (type.Scope.Name == "mscorlib" || type.Scope.Name == "CommonLanguageRuntimeLibrary")
+            if (type.Scope.Name == "mscorlib" || type.Scope.Name == "CommonLanguageRuntimeLibrary" || type.Scope.Name == "System.Runtime")
             {
                 switch (type.Name)
                 {

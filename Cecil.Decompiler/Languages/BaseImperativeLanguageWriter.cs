@@ -520,7 +520,7 @@ namespace Telerik.JustDecompiler.Languages
 			{
 				typeString = ToTypeString(reference);
 
-				if (reference.Scope.Name != "mscorlib" && reference.Scope.Name != "CommonLanguageRuntimeLibrary")
+				if (reference.Scope.Name != "mscorlib" && reference.Scope.Name != "CommonLanguageRuntimeLibrary" && reference.Scope.Name != "System.Runtime")
 				{
 					typeString = Utilities.EscapeTypeNameIfNeeded(typeString, this.Language);
 				}

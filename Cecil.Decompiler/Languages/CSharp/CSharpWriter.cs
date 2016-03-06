@@ -236,7 +236,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
         public override string ToTypeString(TypeReference type)
         {
             /// There might be user generated classes with this name. Only the ones declared in mscorlib should be replaced by the language keyword.
-            if (type.Scope.Name == "mscorlib" || type.Scope.Name == "CommonLanguageRuntimeLibrary")
+            if (type.Scope.Name == "mscorlib" || type.Scope.Name == "CommonLanguageRuntimeLibrary" || type.Scope.Name == "System.Runtime")
             {
                 switch (type.Name)
                 {
@@ -1337,25 +1337,6 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             }
 
             base.WriteReference(name, reference);
-        }
-
-        protected override void WriteTypeReference(string name, TypeReference reference)
-        {
-
-            //  Escape all type references, excluding those to System.Boolean, System.Void, System.Byte, System.Char, System.Int16
-            //	System.Int32, System.Int64, System.Single, System.Double and their signed/unsigned counterparts. The check by full name will not be enough - 
-            //	check on the declaring assembly is needed as well. Only the forementioned types declared in mscorlib should not be escaped.
-
-            // references to int,char,bool and other primitive types should not be escaped.
-            if (reference.Scope.Name == "mscorlib" || reference.Scope.Name == "CommonLanguageRuntimeLibrary")
-            {
-                base.WriteTypeReference(name, reference);
-                return;
-            }
-
-
-
-            base.WriteTypeReference(name, reference);
         }
 
         protected override void WriteMethodReference(string name, MethodReference reference)
