@@ -422,27 +422,37 @@ namespace Telerik.JustDecompiler.Decompiler
 
 		public static ICollection<AssemblyNameReference> GetAssembliesDependingOn(ModuleDefinition module, ICollection<TypeReference> typesDependingOn)
 		{
-			HashSet<AssemblyNameReference> result = new HashSet<AssemblyNameReference>(new AssemblyNameReferenceEqualityComparer());
-			foreach (TypeReference type in typesDependingOn)
-			{
-				AssemblyNameReference assemblyToAdd = null;
-
-				ModuleDefinition typeModule = type.Scope as ModuleDefinition;
-				if (typeModule != null && typeModule.Kind != ModuleKind.NetModule)
-				{
-					assemblyToAdd = typeModule.Assembly.Name;
-				}
-				else if (type.Scope is AssemblyNameReference)
-				{
-					assemblyToAdd = type.Scope as AssemblyNameReference;
-				}
-				if (assemblyToAdd != null && !result.Contains(assemblyToAdd) && (module == module.Assembly.MainModule && assemblyToAdd != module.Assembly.Name))
-				{
-					result.Add(assemblyToAdd);
-				}
-			}
-			return result;
+            return new HashSet<AssemblyNameReference>(GetAssembliesDependingOnToUsedTypesMap(module, typesDependingOn).Keys);
 		}
+
+        public static Dictionary<AssemblyNameReference, List<TypeReference>> GetAssembliesDependingOnToUsedTypesMap(ModuleDefinition module, ICollection<TypeReference> typesDependingOn)
+        {
+            Dictionary<AssemblyNameReference, List<TypeReference>> result = new Dictionary<AssemblyNameReference, List<TypeReference>>(new AssemblyNameReferenceEqualityComparer());
+            foreach (TypeReference type in typesDependingOn)
+            {
+                AssemblyNameReference assemblyToAdd = null;
+
+                ModuleDefinition typeModule = type.Scope as ModuleDefinition;
+                if (typeModule != null && typeModule.Kind != ModuleKind.NetModule)
+                {
+                    assemblyToAdd = typeModule.Assembly.Name;
+                }
+                else if (type.Scope is AssemblyNameReference)
+                {
+                    assemblyToAdd = type.Scope as AssemblyNameReference;
+                }
+                if (assemblyToAdd != null && (module == module.Assembly.MainModule && assemblyToAdd != module.Assembly.Name))
+                {
+                    if (!result.ContainsKey(assemblyToAdd))
+                    {
+                        result.Add(assemblyToAdd, new List<TypeReference>());
+                    }
+
+                    result[assemblyToAdd].Add(type);
+                }
+            }
+            return result;
+        }
 
 		public static ICollection<ModuleReference> GetModulesDependingOn(ICollection<TypeReference> typesDependingOn)
 		{

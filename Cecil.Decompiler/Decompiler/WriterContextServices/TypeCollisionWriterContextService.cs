@@ -169,7 +169,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 			return sb.ToString();
 		}
 
-		private ICollection<AssemblyNameReference> GetModuleDependsOnAnalysis(ModuleDefinition module)
+		private Dictionary<AssemblyNameReference, List<TypeReference>> GetModuleDependsOnAnalysis(ModuleDefinition module)
 		{
 			Mono.Collections.Generic.Collection<TypeDefinition> assemblyModuleTypes = module.Types;
 
@@ -191,57 +191,57 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 			}
 
 			ICollection<TypeReference> expadendTypeDependanceList = Utilities.GetExpandedTypeDependanceList(firstLevelDependanceTypes);
-			ICollection<AssemblyNameReference> dependingOnAssemblies = Utilities.GetAssembliesDependingOn(module, expadendTypeDependanceList);
+			Dictionary<AssemblyNameReference, List<TypeReference>> dependingOnAssembliesToUsedTypesMap = Utilities.GetAssembliesDependingOnToUsedTypesMap(module, expadendTypeDependanceList);
 
 			foreach (AssemblyNameReference assemblyReference in module.AssemblyReferences)
 			{
-				if (!dependingOnAssemblies.Contains(assemblyReference))
+				if (!dependingOnAssembliesToUsedTypesMap.ContainsKey(assemblyReference))
 				{
-					dependingOnAssemblies.Add(assemblyReference);
+					dependingOnAssembliesToUsedTypesMap.Add(assemblyReference, new List<TypeReference>());
 				}
 			}
 
-			return dependingOnAssemblies;
+			return dependingOnAssembliesToUsedTypesMap;
 		}
 
-		private void UpdateNamespaceHiearchyDataWithTypes(Dictionary<string, HashSet<string>> namespaceHierarchy, ICollection<TypeDefinition> types)
+		private void UpdateNamespaceHiearchyDataWithTypes(Dictionary<string, HashSet<string>> namespaceHierarchy, IEnumerable<TypeReference> types)
 		{
-			foreach (TypeDefinition typeDefinition in types)
+			foreach (TypeReference typeReference in types)
 			{
-				string @namespace = typeDefinition.Namespace;
+                string @namespace = typeReference.Namespace;
 
-				if (Utilities.HasNamespaceParentNamespace(@namespace))
-				{
-					string parentNamespace = Utilities.GetNamesapceParentNamesapce(@namespace);
-					string childNamespace = Utilities.GetNamespaceChildNamesapce(@namespace);
+                if (Utilities.HasNamespaceParentNamespace(@namespace))
+                {
+                    string parentNamespace = Utilities.GetNamesapceParentNamesapce(@namespace);
+                    string childNamespace = Utilities.GetNamespaceChildNamesapce(@namespace);
 
-					HashSet<string> namespaceChildren;
+                    HashSet<string> namespaceChildren;
 
-					if (namespaceHierarchy.TryGetValue(parentNamespace, out namespaceChildren))
-					{
-						if (!namespaceChildren.Contains(childNamespace))
-						{
-							namespaceChildren.Add(childNamespace);
-						}
-					}
-					else
-					{
-						namespaceChildren = new HashSet<string>();
-						namespaceChildren.Add(childNamespace);
-						namespaceHierarchy.Add(parentNamespace, namespaceChildren);
-					}
-				}
-			}
+                    if (namespaceHierarchy.TryGetValue(parentNamespace, out namespaceChildren))
+                    {
+                        if (!namespaceChildren.Contains(childNamespace))
+                        {
+                            namespaceChildren.Add(childNamespace);
+                        }
+                    }
+                    else
+                    {
+                        namespaceChildren = new HashSet<string>();
+                        namespaceChildren.Add(childNamespace);
+                        namespaceHierarchy.Add(parentNamespace, namespaceChildren);
+                    }
+                }
+            }
 		}
-
-		private Dictionary<string, HashSet<string>> GetModuleNamespaceHierarchy(ModuleDefinition module, ILanguage language)
+        
+        private Dictionary<string, HashSet<string>> GetModuleNamespaceHierarchy(ModuleDefinition module, ILanguage language)
 		{
 			Dictionary<string, HashSet<string>> namespaceHierarchy = new Dictionary<string, HashSet<string>>(language.IdentifierComparer);
 
 			UpdateNamespaceHiearchyDataWithTypes(namespaceHierarchy, module.Types);
 
-			ICollection<AssemblyNameReference> dependingOnAssemblies = GetModuleDependsOnAnalysis(module);
-			foreach (AssemblyNameReference assemblyNameReference in dependingOnAssemblies)
+            Dictionary<AssemblyNameReference, List<TypeReference>> dependingOnAssembliesToUsedTypesMap = GetModuleDependsOnAnalysis(module);
+			foreach (AssemblyNameReference assemblyNameReference in dependingOnAssembliesToUsedTypesMap.Keys)
 			{
 				AssemblyDefinition referencedAssembly = module.AssemblyResolver.Resolve(assemblyNameReference, "", module.GetModuleArchitecture());
 
@@ -249,17 +249,21 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 				{
 					UpdateNamespaceHiearchyDataWithTypes(namespaceHierarchy, referencedAssembly.MainModule.Types);
 				}
+                else
+                {
+                    UpdateNamespaceHiearchyDataWithTypes(namespaceHierarchy, dependingOnAssembliesToUsedTypesMap[assemblyNameReference]);
+                }
 			}
 
 			return namespaceHierarchy;
 		}
 
 		private void UpdateCollisionTypesDataWithTypes(Dictionary<string, List<string>> collisionTypesData, 
-			Dictionary<string, string> typeNamesFirstOccurrence, ICollection<TypeDefinition> types)
+			Dictionary<string, string> typeNamesFirstOccurrence, IEnumerable<TypeReference> types)
 		{
-			foreach (TypeDefinition typeDefinition in types)
+			foreach (TypeReference typeReference in types)
 			{
-				string typeName = typeDefinition.Name;
+				string typeName = typeReference.Name;
 				if (typeNamesFirstOccurrence.ContainsKey(typeName))
 				{
 					if (!collisionTypesData.ContainsKey(typeName))
@@ -272,7 +276,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 
 						List<string> typeNamespaces = new List<string>();
 						typeNamespaces.Add(typeFirstNamespaceOccurence);
-						typeNamespaces.Add(typeDefinition.Namespace);
+						typeNamespaces.Add(typeReference.Namespace);
 						collisionTypesData.Add(typeName, typeNamespaces);
 					}
 					else
@@ -283,12 +287,12 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 							throw new Exception("Collision type namespaces collection not found in collision types cache.");
 						}
 
-						collisionTypeNamespaces.Add(typeDefinition.Namespace);
+						collisionTypeNamespaces.Add(typeReference.Namespace);
 					}
 				}
 				else
 				{
-					typeNamesFirstOccurrence.Add(typeName, typeDefinition.Namespace);
+					typeNamesFirstOccurrence.Add(typeName, typeReference.Namespace);
 				}
 			}
 		}
@@ -300,8 +304,8 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 
 			UpdateCollisionTypesDataWithTypes(collisionTypesData, typeNamesFirstOccurrence, module.Types);
 
-			ICollection<AssemblyNameReference> dependingOnAssemblies = GetModuleDependsOnAnalysis(module);
-			foreach (AssemblyNameReference assemblyNameReference in dependingOnAssemblies)
+            Dictionary<AssemblyNameReference, List<TypeReference>> dependingOnAssembliesToUsedTypesMap = GetModuleDependsOnAnalysis(module);
+			foreach (AssemblyNameReference assemblyNameReference in dependingOnAssembliesToUsedTypesMap.Keys)
 			{
 				AssemblyDefinition referencedAssembly = module.AssemblyResolver.Resolve(assemblyNameReference, "", module.GetModuleArchitecture());
 
@@ -312,6 +316,10 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 						UpdateCollisionTypesDataWithTypes(collisionTypesData, typeNamesFirstOccurrence, referencedModule.Types);
 					}
 				}
+                else
+                {
+                    UpdateCollisionTypesDataWithTypes(collisionTypesData, typeNamesFirstOccurrence, dependingOnAssembliesToUsedTypesMap[assemblyNameReference]);
+                }
 			}
 
 			return collisionTypesData;
