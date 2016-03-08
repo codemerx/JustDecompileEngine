@@ -33,6 +33,12 @@ namespace Mono.Cecil.AssemblyResolver
 
         public static string WINRT_METADATA = Path.Combine(WindowsPath, @"System32\WinMetadata");
 
+        private static string WIN_10_KITS = Path.Combine(ProgramFilesX86, @"Windows Kits\10");
+
+        public static string UWP_REFERENCES = Path.Combine(WIN_10_KITS, "References");
+
+        public static string UAP_PLATFORM = Path.Combine(WIN_10_KITS, @"Platforms\UAP");
+
         public static string WINDOWS_WINMD_LOCATION = Path.Combine(ProgramFilesX86, @"Windows Kits\8.0");
 
         public static string[] CLR_GAC_VERSIONS = new string[] { "GAC_64", "GAC_32", "GAC_MSIL", "GAC" };

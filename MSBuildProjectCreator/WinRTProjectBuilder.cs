@@ -13,6 +13,8 @@ using Telerik.JustDecompiler.Languages.CSharp;
 using Telerik.JustDecompiler.Languages.VisualBasic;
 using Telerik.JustDecompiler.External;
 using Mono.Cecil.Extensions;
+using Mono.Cecil.AssemblyResolver;
+using System.Xml;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder
 {
@@ -126,12 +128,23 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
         };
         #endregion
 
+        #region DefaultUAPReferences
+        // The default UAP references for 10.0.10240.0
+        private readonly HashSet<string> DefaultUAPReferences = new HashSet<string>()
+        {
+            "Windows.Foundation.FoundationContract",
+            "Windows.Foundation.UniversalApiContract",
+            "Windows.Networking.Connectivity.WwanContract"
+        };
+        #endregion
+
         private WinRTProjectType projectType;
         private Dictionary<string, string> dependencies;
         private List<string> runtimes;
         private Version minInstalledUAPVersion;
         private Version maxInstalledUAPVersion;
         private bool? isUWPProject;
+        private HashSet<string> uwpReferenceAssemblies;
 
         public WinRTProjectBuilder(string assemblyPath, AssemblyDefinition assembly,
             Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes,
@@ -151,7 +164,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             Initialize();
         }
 
-        public bool IsUWPProject
+        private bool IsUWPProject
         {
             get
             {
@@ -163,6 +176,34 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 }
 
                 return this.isUWPProject.Value;
+            }
+        }
+
+        private HashSet<string> UWPReferenceAssemblies
+        {
+            get
+            {
+                if (this.uwpReferenceAssemblies == null)
+                {
+                    string maxInstalledUAPDirectory = Path.Combine(SystemInformation.UAP_PLATFORM, this.maxInstalledUAPVersion.ToString());
+                    string maxInstalledUAPPlatformXmlFilePath = Path.Combine(maxInstalledUAPDirectory, "Platform.xml");
+                    if (Directory.Exists(maxInstalledUAPDirectory) && File.Exists(maxInstalledUAPPlatformXmlFilePath))
+                    {
+                        this.uwpReferenceAssemblies = new HashSet<string>();
+                        XmlDocument doc = new XmlDocument();
+                        doc.Load(maxInstalledUAPPlatformXmlFilePath);
+                        foreach (XmlNode node in doc.SelectNodes("//ApiContract"))
+                        {
+                            this.uwpReferenceAssemblies.Add(node.Attributes["name"].Value);
+                        }
+                    }
+                    else
+                    {
+                        this.uwpReferenceAssemblies = DefaultUAPReferences;
+                    }
+                }
+
+                return this.uwpReferenceAssemblies;
             }
         }
 
@@ -374,10 +415,17 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             ICollection<AssemblyNameReference> result = new List<AssemblyNameReference>();
             foreach (AssemblyNameReference reference in base.FilterDependingOnAssemblies(dependingOnAssemblies))
             {
-                if (IsUWPProject && NetCoreFrameworkAssemblies.Contains(reference.Name))
+                if (IsUWPProject)
                 {
-                    this.dependencies.Add(reference.Name, reference.Version.ToString(3));
-                    continue;
+                    if (NetCoreFrameworkAssemblies.Contains(reference.Name))
+                    {
+                        this.dependencies.Add(reference.Name, reference.Version.ToString(3));
+                        continue;
+                    }
+                    else if (this.UWPReferenceAssemblies.Contains(reference.Name))
+                    {
+                        continue;
+                    }
                 }
                 else if (reference.Name == "System.Runtime")
                 {
@@ -639,14 +687,12 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
         {
             Version minPossibleVersion = new Version(0, 0, 0, 0);
             Version maxPossibleVersion = new Version(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue);
-
-            string programFilesx86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
-            string installedUAPVersionsDirectory = Path.Combine(programFilesx86, @"Windows Kits\10\Platforms\UAP");
+            
             Version minVersion = maxPossibleVersion;
             Version maxVersion = minPossibleVersion;
-            if (Directory.Exists(installedUAPVersionsDirectory))
+            if (Directory.Exists(SystemInformation.UAP_PLATFORM))
             {
-                foreach (string item in Directory.EnumerateDirectories(installedUAPVersionsDirectory))
+                foreach (string item in Directory.EnumerateDirectories(SystemInformation.UAP_PLATFORM))
                 {
                     Version currentVersion;
                     if (Version.TryParse((new DirectoryInfo(item)).Name, out currentVersion))

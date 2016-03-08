@@ -291,6 +291,7 @@ namespace Mono.Cecil.AssemblyResolver
 
                 case TargetPlatform.WinRT:
                     result.AddRange(ResolveWinRTMetadata(assemblyName));
+                    result.AddRange(ResolveUWPReferences(assemblyName));
                     break;
             }
             AddPartCacheResult(result, runtime);
@@ -479,6 +480,16 @@ namespace Mono.Cecil.AssemblyResolver
                 {
                     yield return foundFile;
                 }
+            }
+        }
+
+        private IEnumerable<string> ResolveUWPReferences(AssemblyName assemblyName)
+        {
+            string fileName = string.Format("{0}.winmd", assemblyName.Name);
+            string filePath = Path.Combine(SystemInformation.UWP_REFERENCES, assemblyName.Name, assemblyName.Version.ToString(), fileName);
+            if (CheckFileExistence(assemblyName, filePath, true, false))
+            {
+                yield return filePath;
             }
         }
 
