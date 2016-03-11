@@ -200,7 +200,7 @@ namespace Mono.Cecil
 
 			throw new NotSupportedException();
 		}
-
+        
         static TypeDefinition GetType(ModuleDefinition module, TypeReference reference, ICollection<string> visitedDlls)
         {
             var type = GetTypeDefinition(module, reference);
@@ -221,7 +221,13 @@ namespace Mono.Cecil
                 if (exported_type.Namespace != reference.Namespace)
                     continue;
 
-                return exported_type.Resolve(visitedDlls);
+                /*Telerik Authorship*/
+                TypeDefinition resolved = exported_type.Resolve(visitedDlls);
+                if (resolved == null)
+                {
+                    reference.Scope = exported_type.Scope;
+                }
+                return resolved;
             }
 
             return null;
