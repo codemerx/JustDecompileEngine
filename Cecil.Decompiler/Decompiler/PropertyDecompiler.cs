@@ -9,10 +9,12 @@ using Telerik.JustDecompiler.Languages;
 using Telerik.JustDecompiler.Cil;
 using System.Collections.Generic;
 using Telerik.JustDecompiler.Decompiler.Caching;
+using Telerik.JustDecompiler.External;
+using Telerik.JustDecompiler.External.Interfaces;
 
 namespace Telerik.JustDecompiler.Decompiler
 {
-    class PropertyDecompiler
+    class PropertyDecompiler : ExceptionThrownNotifier, IExceptionThrownNotifier
     {
         private readonly PropertyDefinition propertyDef;
         private FieldDefinition propertyFieldDef;
@@ -354,6 +356,8 @@ namespace Telerik.JustDecompiler.Decompiler
 
                 block = new BlockStatement();
                 block.AddStatement(new ExceptionStatement(ex, body.Method));
+
+                OnExceptionThrown(ex);
             }
 
             return block;
@@ -399,6 +403,8 @@ namespace Telerik.JustDecompiler.Decompiler
 
                 block = new BlockStatement();
                 block.AddStatement(new ExceptionStatement(ex, body.Method));
+
+                OnExceptionThrown(ex);
             }
 
             return block;
@@ -425,6 +431,8 @@ namespace Telerik.JustDecompiler.Decompiler
 
                 fullyDecompiledBlock = new BlockStatement();
                 fullyDecompiledBlock.AddStatement(new ExceptionStatement(ex, context.MethodContext.Method));
+
+                OnExceptionThrown(ex);
             }
 
             return fullyDecompiledBlock;

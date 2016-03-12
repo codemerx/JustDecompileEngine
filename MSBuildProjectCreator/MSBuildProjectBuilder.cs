@@ -39,7 +39,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 {
 	[DoNotPrune]
     [DoNotObfuscateType]
-    public class MSBuildProjectBuilder
+    public class MSBuildProjectBuilder : ExceptionThrownNotifier, IExceptionThrownNotifier
 	{
         public const string ErrorFileExtension = ".error";
 
@@ -118,7 +118,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                     namespaceHierarchyTree,
                     this.language,
                     Utilities.GetMaxRelativePathLength(targetPath));
-
+            filePathsService.ExceptionThrown += OnExceptionThrown;
+            
 			this.modulesToProjectsFilePathsMap = this.filePathsService.GetModulesToProjectsFilePathsMap();
 			this.resourcesToPathsMap = this.filePathsService.GetResourcesToFilePathsMap();
 			this.xamlResourcesToPathsMap = this.filePathsService.GetXamlResourcesToFilePathsMap();
@@ -161,8 +162,9 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                     namespaceHierarchyTree,
                     this.language,
                     Utilities.GetMaxRelativePathLength(targetPath));
+            filePathsService.ExceptionThrown += OnExceptionThrown;
 
-			this.modulesToProjectsFilePathsMap = this.filePathsService.GetModulesToProjectsFilePathsMap();
+            this.modulesToProjectsFilePathsMap = this.filePathsService.GetModulesToProjectsFilePathsMap();
 			this.resourcesToPathsMap = this.filePathsService.GetResourcesToFilePathsMap();
 			this.xamlResourcesToPathsMap = this.filePathsService.GetXamlResourcesToFilePathsMap();
             this.fileGeneratedNotifier = notifier;
@@ -571,9 +573,11 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 								projectFileCreated = WriteNetModuleProjectFile(module);
                             }
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
                             exceptionsWhenCreatingProjectFile = true;
+
+                            OnExceptionThrown(ex);
                         }
 
 						if (projectFileCreated)
@@ -597,6 +601,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                     catch (Exception ex)
                     {
                         exceptionWhileWritingSolutionFile = true;
+
+                        OnExceptionThrown(ex);
                     }
 
 					if (solutionFileCreated)
@@ -670,9 +676,11 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                     {
                         File.Copy(originalAppConfigFilePath, targetAppConfigFilePath, true);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
                         hasErrors = true;
+
+                        OnExceptionThrown(ex);
                     }
 
                     if (!hasErrors)
@@ -724,6 +732,9 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
             IWriterContextService writerContextService = this.GetWriterContextService();
 
+            writer.ExceptionThrown += OnExceptionThrown;
+            writerContextService.ExceptionThrown += OnExceptionThrown;
+
             bool exceptionOccurred = false;
 
             try
@@ -764,9 +775,15 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 string exceptionMessage = string.Join(Environment.NewLine, exceptionMessageLines);
                 string commentedExceptionMessage = language.CommentLines(exceptionMessage);
                 itemWriter.CreateProjectSourceFile(new MemoryStream(Encoding.UTF8.GetBytes(commentedExceptionMessage)));
+
+                OnExceptionThrown(this, e);
             }
 
 			theCodeString = theWriter.ToString();
+
+            writer.ExceptionThrown -= OnExceptionThrown;
+            writerContextService.ExceptionThrown -= OnExceptionThrown;
+
             return exceptionOccurred || writerContextService.ExceptionsWhileDecompiling.Any();
         }
 
@@ -783,12 +800,17 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             {
                 writer = language.GetAssemblyAttributeWriter(new PlainTextFormatter(stringWriter), this.exceptionFormater, true);
                 IWriterContextService writerContextService = this.GetWriterContextService();
+                writer.ExceptionThrown += OnExceptionThrown;
+                writerContextService.ExceptionThrown += OnExceptionThrown;
 
                 // "Duplicate 'TargetFramework' attribute" when having it written in AssemblyInfo
                 writer.WriteAssemblyInfo(assembly, writerContextService, true,
                     new string[1] { "System.Runtime.Versioning.TargetFrameworkAttribute" }, new string[1] { "System.Security.UnverifiableCodeAttribute" });
 
                 fileContent = stringWriter.ToString();
+
+                writer.ExceptionThrown -= OnExceptionThrown;
+                writerContextService.ExceptionThrown -= OnExceptionThrown;
             }
 
             string parentDirectory = Path.GetDirectoryName(this.TargetPath);
@@ -909,7 +931,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 				string exceptionWithStackTrance = string.Format("{0}{1}{2}", e.Message, Environment.NewLine, e.StackTrace);
 
 				fileWriter.Write(exceptionWithStackTrance);
-				throw e;
+                throw;
 			}
 			finally
 			{
@@ -990,7 +1012,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 string exceptionWithStackTrance = string.Format("{0}{1}{2}", e.Message, Environment.NewLine, e.StackTrace);
 
                 fileWriter.Write(exceptionWithStackTrance);
-                throw e;
+                throw;
             }
             finally
             {
@@ -1575,11 +1597,13 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                     xamlDoc.Save(new StreamWriter(sourceStream));
 #endif
                 }
-                catch
+                catch (Exception ex)
                 {
                     exceptionOccurred = true;
                     unmanagedStream.Seek(0, SeekOrigin.Begin);
                     sourceStream = unmanagedStream;
+
+                    OnExceptionThrown(ex);
                 }
             }
             else

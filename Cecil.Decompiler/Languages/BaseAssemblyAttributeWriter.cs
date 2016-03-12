@@ -4,10 +4,11 @@ using System.Linq;
 using Mono.Cecil;
 using Telerik.JustDecompiler.Decompiler;
 using Telerik.JustDecompiler.Decompiler.WriterContextServices;
+using Telerik.JustDecompiler.External;
 
 namespace Telerik.JustDecompiler.Languages
 {
-	public abstract class BaseAssemblyAttributeWriter : IAssemblyAttributeWriter
+	public abstract class BaseAssemblyAttributeWriter : ExceptionThrownNotifier, IAssemblyAttributeWriter
 	{
 		protected bool WriteExceptionsAsComments { get; private set; }
 		protected IExceptionFormatter exceptionFormatter;

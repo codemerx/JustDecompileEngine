@@ -12,6 +12,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
 			: base(language, exceptionFormatter, writeExceptionsAsComments)
         {
 			this.writer = new CSharpAssemblyAttributeInternalWriter(language, formatter, exceptionFormatter, writeExceptionsAsComments);
+            this.writer.ExceptionThrown += OnExceptionThrown;
         }
 
 		protected override void SetAssemblyContext(AssemblySpecificContext assemblyContext)

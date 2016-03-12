@@ -224,8 +224,10 @@ namespace Telerik.JustDecompiler.Languages
 			if (this.CurrentType != type)
 			{
 				ILanguageWriter writer = Language.GetWriter(this.formatter, this.exceptionFormatter, this.WriteExceptionsAsComments);
+                writer.ExceptionThrown += OnExceptionThrown;
 				List<WritingInfo> nestedWritingInfos = (writer as NamespaceImperativeLanguageWriter).WriteType(type, writerContextService, writeDocumentation, showCompilerGeneratedMembers, writeFullyQualifiedNames);
-				this.writingInfos.AddRange(nestedWritingInfos);
+                writer.ExceptionThrown -= OnExceptionThrown;
+                this.writingInfos.AddRange(nestedWritingInfos);
 			}
 			else
 			{

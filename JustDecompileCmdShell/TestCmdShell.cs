@@ -19,7 +19,11 @@ namespace JustDecompileCmdShell
             base.RunInternal(assembly, projectInfo, settings);
         }
 
-        protected override void ConfigurateProjectBuilder(MSBuildProjectBuilder projectBuilder)
+        protected override void AttachProjectBuilderEventHandlers(MSBuildProjectBuilder projectBuilder)
+        {
+        }
+
+        protected override void DetachProjectBuilderEventHandlers(MSBuildProjectBuilder projectBuilder)
         {
         }
     }

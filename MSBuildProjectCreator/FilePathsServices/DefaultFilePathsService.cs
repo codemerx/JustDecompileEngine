@@ -13,11 +13,11 @@ using Telerik.Baml;
 #endif
 using Telerik.JustDecompiler.Common.NamespaceHierarchy;
 using Telerik.JustDecompiler;
-
+using Telerik.JustDecompiler.External;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 {
-	class DefaultFilePathsService : IFilePathsService
+	class DefaultFilePathsService : ExceptionThrownNotifier, IFilePathsService
 	{
 		private readonly string assemblyPath;
 		private readonly AssemblyDefinition assembly;
@@ -349,10 +349,11 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 			var formatter = new PlainTextFormatter(new StringWriter());
 
 			ILanguageWriter writer = language.GetWriter(formatter, SimpleExceptionFormatter.Instance, true);
-
+            writer.ExceptionThrown += OnExceptionThrown;
 			writer.WriteMemberNavigationName(type, true);
+            writer.ExceptionThrown -= OnExceptionThrown;
 
-			return formatter.ToString();
+            return formatter.ToString();
 		}
 
 		private string GetNamespacePerLanguage(ILanguage language, string @namespace)
@@ -360,10 +361,11 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 			var formatter = new PlainTextFormatter(new StringWriter());
 
 			ILanguageWriter writer = language.GetWriter(formatter, SimpleExceptionFormatter.Instance, true);
+            writer.ExceptionThrown += OnExceptionThrown;
+            writer.WriteNamespaceNavigationName(@namespace, true);
+            writer.ExceptionThrown -= OnExceptionThrown;
 
-			writer.WriteNamespaceNavigationName(@namespace, true);
-
-			return formatter.ToString();
+            return formatter.ToString();
 		}
 
 		public Dictionary<Resource, string> GetResourcesToFilePathsMap()

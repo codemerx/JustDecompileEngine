@@ -106,7 +106,7 @@ namespace JustDecompile.EngineInfrastructure
                             }
                             else
                             {
-                                throw new NotSupportedException();
+                                throw new Exception("Invalid value of Release key.");
                             }
                         }
                     }

@@ -202,9 +202,11 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
                     bool isAutoImplemented;
 
                     PropertyDecompiler propertyDecompiler = new PropertyDecompiler(propertyDefinition, language, this.renameInvalidMembers, this.cacheService, decompiledType.TypeContext);
+                    propertyDecompiler.ExceptionThrown += OnExceptionThrown;
                     propertyDecompiler.Decompile(out getMethod, out setMethod, out isAutoImplemented);
+                    propertyDecompiler.ExceptionThrown -= OnExceptionThrown;
 
-					if (isAutoImplemented)
+                    if (isAutoImplemented)
 					{
 						decompiledType.TypeContext.AutoImplementedProperties.Add(propertyDefinition);
 					}

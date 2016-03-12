@@ -15,7 +15,7 @@ using Telerik.JustDecompiler.Languages.VisualBasic;
 
 namespace JustDecompileCmdShell
 {
-    public class CmdShell
+    public class CmdShell : ExceptionThrownNotifier, IExceptionThrownNotifier
     {
         private static readonly string description = "[--- Copyright (c) 2011-2016 Telerik AD. All rights reserved ---]";
         private static uint count = 0;
@@ -122,6 +122,8 @@ namespace JustDecompileCmdShell
             {
                 CommandLineManager.WriteLine();
                 CommandLineManager.WriteLineColor(ConsoleColor.Red, ex.Message);
+
+                OnExceptionThrown(ex);
             }
             finally
             {
@@ -147,12 +149,15 @@ namespace JustDecompileCmdShell
 
             IFrameworkResolver frameworkResolver = new ConsoleFrameworkResolver(projectInfo.FrameworkVersion);
             MSBuildProjectBuilder projectBuilder = GetProjectBuilder(assembly, projectInfo, settings, projectInfo.Language, projFilePath, preferences, frameworkResolver);
-            ConfigurateProjectBuilder(projectBuilder);
+            AttachProjectBuilderEventHandlers(projectBuilder);
 
             //As per https://github.com/telerik/JustDecompileEngine/pull/2
             DateTime startTime = DateTime.UtcNow;
             projectBuilder.BuildProject();
             TimeSpan projectGenerationTime = DateTime.UtcNow - startTime;
+
+            DetachProjectBuilderEventHandlers(projectBuilder);
+
             return projectGenerationTime;
         }
 
@@ -174,11 +179,20 @@ namespace JustDecompileCmdShell
             }
         }
 
-        protected virtual void ConfigurateProjectBuilder(MSBuildProjectBuilder projectBuilder)
+        protected virtual void AttachProjectBuilderEventHandlers(MSBuildProjectBuilder projectBuilder)
         {
             projectBuilder.ProjectFileCreated += OnProjectFileCreated;
             projectBuilder.ProjectGenerationFailure += OnProjectGenerationFailure;
             projectBuilder.ResourceWritingFailure += OnResourceWritingFailure;
+            projectBuilder.ExceptionThrown += OnExceptionThrown;
+        }
+        
+        protected virtual void DetachProjectBuilderEventHandlers(MSBuildProjectBuilder projectBuilder)
+        {
+            projectBuilder.ProjectFileCreated -= OnProjectFileCreated;
+            projectBuilder.ProjectGenerationFailure -= OnProjectGenerationFailure;
+            projectBuilder.ResourceWritingFailure -= OnResourceWritingFailure;
+            projectBuilder.ExceptionThrown -= OnExceptionThrown;
         }
 
         private void OnResourceWritingFailure(object sender, string resourceName, Exception ex)

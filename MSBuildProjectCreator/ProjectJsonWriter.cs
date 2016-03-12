@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Web.Script.Serialization;
+using Telerik.JustDecompiler.External;
+using Telerik.JustDecompiler.External.Interfaces;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder
 {
-    internal class ProjectJsonWriter
+    internal class ProjectJsonWriter : ExceptionThrownNotifier, IExceptionThrownNotifier
     {
         public static readonly string ProjectJsonFileName = "project.json";
 
@@ -44,8 +46,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
                 File.WriteAllText(ProjectJsonFilePath, jsonContent);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                OnExceptionThrown(ex);
+
                 return false;
             }
 

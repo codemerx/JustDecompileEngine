@@ -53,6 +53,8 @@ namespace Telerik.JustDecompiler.Languages
         protected WritingInfo currentWritingInfo;
         protected List<WritingInfo> writingInfos;
 
+        public event EventHandler<Exception> ExceptionThrown;
+
         new public ILanguage Language { get; private set; }
 
         public BaseLanguageWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
@@ -507,6 +509,8 @@ namespace Telerik.JustDecompiler.Languages
                         this.currentWritingInfo.ExceptionsWhileWriting.Add(@event.InvokeMethod);
                     }
                 }
+
+                OnExceptionThrown(ex);
             }
 
             if (!(member is TypeDefinition) || (member == CurrentType))
@@ -756,7 +760,9 @@ namespace Telerik.JustDecompiler.Languages
             if (this.CurrentType != type)
             {
                 ILanguageWriter writer = Language.GetWriter(this.formatter, this.exceptionFormatter, this.WriteExceptionsAsComments);
+                writer.ExceptionThrown += OnExceptionThrown;
                 List<WritingInfo> nestedWritingInfos = writer.Write(type, writerContextService, writeDocumentation, showCompilerGeneratedMembers);
+                writer.ExceptionThrown -= OnExceptionThrown;
                 this.writingInfos.AddRange(nestedWritingInfos);
             }
             else
@@ -1332,6 +1338,20 @@ namespace Telerik.JustDecompiler.Languages
         public override void VisitMemberHandleExpression(MemberHandleExpression node)
         {
             throw new NotSupportedException();
+        }
+
+        protected void OnExceptionThrown(Exception ex)
+        {
+            this.OnExceptionThrown(this, ex);
+        }
+
+        protected void OnExceptionThrown(object sender, Exception ex)
+        {
+            EventHandler<Exception> exceptionThrown = this.ExceptionThrown;
+            if (exceptionThrown != null)
+            {
+                exceptionThrown(sender, ex);
+            }
         }
     }
 }

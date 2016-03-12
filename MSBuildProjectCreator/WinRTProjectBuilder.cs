@@ -443,7 +443,9 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             if (module.IsMain && IsUWPProject)
             {
                 ProjectJsonWriter writer = new ProjectJsonWriter(targetDir, this.dependencies, UAPPlatformIdentifier + this.minInstalledUAPVersion.ToString(3), this.runtimes);
+                writer.ExceptionThrown += OnExceptionThrown;
                 bool isSuccessfull = writer.WriteProjectJsonFile();
+                writer.ExceptionThrown -= OnExceptionThrown;
 
                 this.OnProjectFileCreated(new FileGeneratedInfo(writer.ProjectJsonFilePath, !isSuccessfull));
             }

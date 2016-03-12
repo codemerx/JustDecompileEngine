@@ -338,9 +338,11 @@
     <Compile Include="External\Architecture.cs" />
     <Compile Include="External\AssemblyIdentifier.cs" />
     <Compile Include="External\DecompilationPreferences.cs" />
+    <Compile Include="External\ExceptionThrownNotifier.cs" />
     <Compile Include="External\ExternallyVisibleDecompilationUtilities.cs" />
     <Compile Include="External\FrameworkVersion.cs" />
     <Compile Include="External\Interfaces\IDecompilationPreferences.cs" />
+    <Compile Include="External\Interfaces\IExceptionThrownNotifier.cs" />
     <Compile Include="External\Interfaces\IFileGeneratedInfo.cs" />
     <Compile Include="External\Interfaces\IDecompiler.cs" />
     <Compile Include="External\Interfaces\IFrameworkResolver.cs" />

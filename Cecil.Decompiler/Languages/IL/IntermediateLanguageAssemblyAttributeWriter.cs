@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Telerik.JustDecompiler.Decompiler.WriterContextServices;
+using Telerik.JustDecompiler.External;
 
 namespace Telerik.JustDecompiler.Languages.IL
 {
-	public class IntermediateLanguageAssemblyAttributeWriter : IAssemblyAttributeWriter
+	public class IntermediateLanguageAssemblyAttributeWriter : ExceptionThrownNotifier, IAssemblyAttributeWriter
 	{
 		protected IFormatter formatter;
 		protected bool WriteExceptionsAsComments { get; private set; }
@@ -27,7 +28,9 @@ namespace Telerik.JustDecompiler.Languages.IL
         public void WriteAssemblyAttributes(AssemblyDefinition assembly, IWriterContextService writerContextService, bool writeUsings = false, ICollection<string> attributesToIgnore = null)
         {
 			IntermediateLanguageAttributeWriter attributeWriter = new IntermediateLanguageAttributeWriter(this.Language, this.formatter, this.exceptionFormatter, this.WriteExceptionsAsComments, this.shouldGenerateBlocks);
+            attributeWriter.ExceptionThrown += OnExceptionThrown;
 			attributeWriter.WriteAssemblyAttributes(assembly, attributesToIgnore);
+            attributeWriter.ExceptionThrown -= OnExceptionThrown;
 		}
 
 		public void WriteModuleAttributes(ModuleDefinition module, IWriterContextService writerContextService, bool writeUsings = false, ICollection<string> attributesToIgnore = null)

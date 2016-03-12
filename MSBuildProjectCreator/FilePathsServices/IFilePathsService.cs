@@ -2,10 +2,11 @@
 using System.Linq;
 using Mono.Cecil;
 using System.Collections.Generic;
+using Telerik.JustDecompiler.External.Interfaces;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 {
-	public interface IFilePathsService
+	public interface IFilePathsService : IExceptionThrownNotifier
 	{
 		Dictionary<ModuleDefinition, string> GetModulesToProjectsFilePathsMap();
 		Dictionary<TypeDefinition, string> GetTypesToFilePathsMap();

@@ -12,6 +12,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 			: base(language, exceptionFormatter, writeExceptionsAsComments)
         {
 			this.writer = new VisualBasicAssemblyAttributeInternalWriter(language, formatter, exceptionFormatter, writeExceptionsAsComments);
+            this.writer.ExceptionThrown += OnExceptionThrown;
         }
 
 		protected override void SetAssemblyContext(AssemblySpecificContext assemblyContext)

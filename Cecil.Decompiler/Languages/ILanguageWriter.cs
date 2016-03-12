@@ -26,11 +26,12 @@
 using Mono.Cecil;
 using Telerik.JustDecompiler.Decompiler.WriterContextServices;
 using System.Collections.Generic;
+using Telerik.JustDecompiler.External.Interfaces;
 
 namespace Telerik.JustDecompiler.Languages
 {
-	public interface ILanguageWriter
-	{
+	public interface ILanguageWriter : IExceptionThrownNotifier
+    {
 		List<WritingInfo> Write(IMemberDefinition member, IWriterContextService writerContextService, bool writeDocumentation, bool showCompilerGeneratedMembers = false);
         void WriteTypeDeclarationsOnly(TypeDefinition member, IWriterContextService writerContextService, bool writeDocumentation, bool showCompilerGeneratedMembers = false);
 		void WriteTypeDeclaration(TypeDefinition type, IWriterContextService writerContextService, bool showCompilerGeneratedMembers = false);

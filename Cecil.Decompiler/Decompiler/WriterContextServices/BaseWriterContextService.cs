@@ -13,10 +13,11 @@ using Mono.Cecil.Cil;
 using Telerik.JustDecompiler.Common;
 using Telerik.JustDecompiler.Languages.IL;
 using Telerik.JustDecompiler.Decompiler.MemberRenamingServices;
+using Telerik.JustDecompiler.External;
 
 namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 {
-	public abstract class BaseWriterContextService : IWriterContextService
+	public abstract class BaseWriterContextService : ExceptionThrownNotifier, IWriterContextService
 	{
 		protected readonly IDecompilationCacheService cacheService;
 		protected readonly bool renameInvalidMembers;
@@ -126,7 +127,9 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 				blockStatement.AddStatement(statement);
 
 				decompiledMember = new CachedDecompiledMember(new DecompiledMember(Utilities.GetMemberUniqueName(method), blockStatement, new MethodSpecificContext(method.Body)));
-			}
+
+                OnExceptionThrown(ex);
+            }
 			return decompiledMember;
 		}
 
@@ -386,9 +389,11 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
                         bool isAutoImplemented;
 
                         PropertyDecompiler propertyDecompiler = new PropertyDecompiler(propertyDefinition, language, renameInvalidMembers, this.cacheService, decompiledType.TypeContext);
+                        propertyDecompiler.ExceptionThrown += OnExceptionThrown;
                         propertyDecompiler.Decompile(out getMethod, out setMethod, out isAutoImplemented);
+                        propertyDecompiler.ExceptionThrown -= OnExceptionThrown;
 
-						if (isAutoImplemented)
+                        if (isAutoImplemented)
 						{
 							decompiledType.TypeContext.AutoImplementedProperties.Add(propertyDefinition);
 						}
