@@ -325,11 +325,12 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             }
         }
 
+        // Exception filters are supported since the first version of VB.NET
         public override bool SupportsExceptionFilters
         {
             get
             {
-                return false;
+                return true;
             }
         }
     }

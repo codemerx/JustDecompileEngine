@@ -1001,6 +1001,11 @@ namespace Telerik.JustDecompiler.Languages.CSharp
         {
             WriteKeyword(KeyWordWriter.Catch);
 
+            if (node.Type == null && !this.Language.SupportsExceptionFilters)
+            {
+                throw new Exception(string.Format("Exception filters are not supported in {0}.", this.Language.Name));
+            }
+
             if (node.Type.FullName != Constants.Object)
             {
                 WriteSpace();
