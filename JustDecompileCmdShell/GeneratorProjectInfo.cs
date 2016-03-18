@@ -25,7 +25,7 @@ namespace JustDecompileCmdShell
             this.Target = target;
             this.Out = @out;
 
-            this.Language = CSharp.GetLanguage(CSharpVersion.V4);
+            this.Language = CSharp.GetLanguage(CSharpVersion.V6);
             this.VisualStudioVersion = VisualStudioVersion.VS2015;
             this.frameworkVersion = FrameworkVersion.v4_6_1;
             this.IsDefaultFrameworkVersion = true;

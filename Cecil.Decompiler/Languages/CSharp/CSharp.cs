@@ -23,14 +23,12 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 #endregion
-using System;
-using System.Linq;
-using Telerik.JustDecompiler.Steps;
+
 using Mono.Cecil;
-using Telerik.JustDecompiler.Decompiler;
+using System;
 using System.Collections.Generic;
-using Telerik.JustDecompiler.Decompiler.GotoElimination;
-using Telerik.JustDecompiler.Steps.SwitchByString;
+using Telerik.JustDecompiler.Decompiler;
+using Telerik.JustDecompiler.Steps;
 
 namespace Telerik.JustDecompiler.Languages.CSharp
 {
@@ -157,14 +155,12 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                 case CSharpVersion.None:
                     return new CSharp();
                 case CSharpVersion.V1:
-                    return new CSharpV1();
                 case CSharpVersion.V2:
-                    return new CSharpV2();
                 case CSharpVersion.V3:
-                    return new CSharpV3();
                 case CSharpVersion.V4:
+                case CSharpVersion.V5:
                 case CSharpVersion.V6:
-                    return new CSharpV4();
+                    return new CSharpV6();
                 default:
                     throw new ArgumentException();
             }
@@ -198,65 +194,6 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                 return false;
             }
         }
-    }
-
-    public class CSharpV1 : CSharp
-    {
-        new protected static HashSet<string> languageSpecificGlobalKeywords;
-        new protected static HashSet<string> languageSpecificContextualKeywords;
-
-        static CSharpV1()
-        {
-            CSharpV1.languageSpecificGlobalKeywords = new HashSet<string>(CSharp.languageSpecificGlobalKeywords);
-
-            //list taken from http://msdn.microsoft.com/en-us/library/x53a06bb.aspx -> MSDN list of C# keywords
-
-            string[] GlobalKeywords =
-            {
-                "abstract","as","base","bool","break","byte","case","catch","char","checked","class","const","continue","decimal",
-                "default","delegate","do","double","else","enum","event","explicit","extern","false","finally","fixed","float",
-                "for","foreach","goto","if","implicit","in","int","interface","internal","is","lock","long","namespace","new",
-                "null","object","operator","out","override","params","private","protected","public","readonly","ref","return",
-                "sbyte","sealed","short","sizeof","stackalloc","static","string","struct","switch","this","throw","true","try",
-                "typeof","uint","ulong","unchecked","unsafe","ushort","using","virtual","void","volatile","while"
-            };
-            foreach (string word in GlobalKeywords)
-            {
-                CSharpV1.languageSpecificGlobalKeywords.Add(word);
-            }
-
-            CSharpV1.languageSpecificContextualKeywords = new HashSet<string>(CSharp.languageSpecificContextualKeywords);
-
-            //list taken from http://msdn.microsoft.com/en-us/library/x53a06bb.aspx -> MSDN list of C# contextual keywords
-
-            string[] contextualKeywords =
-            {
-                "add","alias","ascending","descending","dynamic","from","get","global","group","into","join","let","orderby",
-                "partial","remove","select","set","value","var","where","yield"
-            };
-            foreach (string word in contextualKeywords)
-            {
-                CSharpV1.languageSpecificContextualKeywords.Add(word);
-            }
-        }
-
-        public override string Name
-        {
-            get
-            {
-                return "C#1";
-            }
-        }
-
-        public override bool IsLanguageKeyword(string word)
-        {
-            return base.IsLanguageKeyword(word, CSharpV1.languageSpecificGlobalKeywords, CSharpV1.languageSpecificContextualKeywords);
-        }
-
-        public override bool IsGlobalKeyword(string word)
-        {
-            return IsGlobalKeyword(word, CSharpV1.languageSpecificGlobalKeywords);
-        }
 
         public override DecompilationPipeline CreatePipeline(MethodDefinition method)
         {
@@ -275,11 +212,6 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             return CreatePipelineInternal(method, context, true);
         }
 
-        public override BlockDecompilationPipeline CreateFilterMethodPipeline(MethodDefinition method, DecompilationContext context)
-        {
-            return new BlockDecompilationPipeline(CSharpFilterMethodDecompilationSteps(method, false), context);
-        }
-
         // This pipeline is used by the PropertyDecompiler to finish the decompilation of properties, which are partially decompiled
         // using the steps from the IntermediateRepresenationPipeline.
         public override BlockDecompilationPipeline CreatePropertyPipeline(MethodDefinition method, DecompilationContext context)
@@ -294,192 +226,9 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             return result;
         }
 
-        internal IDecompilationStep[] CSharpDecompilationSteps(MethodDefinition method, bool inlineAggressively)
+        internal virtual IDecompilationStep[] CSharpDecompilationSteps(MethodDefinition method, bool inlineAggressively)
         {
-            return new IDecompilationStep[]
-            {
-                new OutParameterAssignmentAnalysisStep(),
-                new RebuildAsyncStatementsStep(),
-                new RebuildYieldStatementsStep() { Language = this },
-                new RemoveDelegateCaching(),
-                // RebuildAnonymousDelegatesStep needs to be executed before the RebuildLambdaExpressions step
-                new RebuildAnonymousDelegatesStep() { Language = this },
-                new RebuildLambdaExpressions() { Language = this, Method = method },
-                new ResolveDynamicVariablesStep(),
-                new GotoCancelation(),
-                new CombinedTransformerStep() { Language = this, Method = method },
-                new MergeUnaryAndBinaryExpression(),
-                new RemoveLastReturn(),
-				new RebuildSwitchByString(),
-				new RebuildForeachStatements(),
-                new RebuildForeachArrayStatements(),
-                new RebuildForStatements(),
-                new RebuildLockStatements(),
-                new RebuildFixedStatements(),
-                new RebuildUsingStatements(),
-                new RenameEnumValues(),
-				new FixMethodOverloadsStep(),
-                new RebuildExpressionTreesStep(),
-                new TransformMemberHandlersStep(),
-				new CodePatternsStep(inlineAggressively),
-                // TransformCatchClausesFilterExpressionStep needs to be after CodePatternsStep,
-                // because it works only if the TernaryConditionPattern has been applied.
-                new TransformCatchClausesFilterExpressionStep(),
-                new DetermineCtorInvocationStep(),
-                new DeduceImplicitDelegates(),
-                new RebuildLinqQueriesStep(),
-				new CreateIfElseIfStatementsStep(),
-				new ParenthesizeExpressionsStep(),
-                new RemoveUnusedVariablesStep(),
-                // RebuildCatchClausesFilterStep needs to be before DeclareVariablesOnFirstAssignment and after RemoveUnusedVariablesStep.
-                // RebuildCatchClausesFilterStep contains pattern matching and need to be after TransformCatchClausesFilterExpressionStep.
-                new RebuildCatchClausesFilterStep() { Language = this },
-                new DeclareVariablesOnFirstAssignment(),
-                new DeclareTopLevelVariables(),
-                new AssignOutParametersStep(),
-                // There were a lot of issues when trying to merge the SelfAssignment step with the CombinedTransformerStep.
-                new SelfAssignement(),
-				new RenameSplitPropertiesMethodsAndBackingFields(),
-                new RenameVariables() { Language = this },
-				new CastEnumsToIntegersStep(),
-				new CastIntegersStep(),
-				new ArrayVariablesStep(),
-				new CaseGotoTransformerStep(),
-				new UnsafeMethodBodyStep(),
-				new DetermineDestructorStep(),
-                // DependsOnAnalysisStep must be always last step, because it make analysis on the final decompilation result.
-				new DependsOnAnalysisStep(),
-            };
+            return new IDecompilationStep[0];
         }
-
-        private IDecompilationStep[] CSharpFilterMethodDecompilationSteps(MethodDefinition method, bool inlineAggressively)
-        {
-            return new IDecompilationStep[]
-            {
-                new DeclareVariablesOnFirstAssignment(),
-                new DeclareTopLevelVariables(),
-                new AssignOutParametersStep(),
-                // There were a lot of issues when trying to merge the SelfAssignment step with the CombinedTransformerStep.
-                new SelfAssignement(),
-				new RenameSplitPropertiesMethodsAndBackingFields(),
-                new RenameVariables() { Language = this },
-				new CastEnumsToIntegersStep(),
-				new CastIntegersStep(),
-				new ArrayVariablesStep(),
-				new CaseGotoTransformerStep(),
-				new UnsafeMethodBodyStep(),
-				new DetermineDestructorStep(),
-                // DependsOnAnalysisStep must be always last step, because it make analysis on the final decompilation result.
-				new DependsOnAnalysisStep(),
-            };
-        }
-    }
-
-    public class CSharpV2 : CSharpV1
-    {
-        new protected static HashSet<string> languageSpecificGlobalKeywords;
-        new protected static HashSet<string> languageSpecificContextualKeywords;
-
-        static CSharpV2()
-        {
-            CSharpV2.languageSpecificGlobalKeywords = new HashSet<string>(CSharpV1.languageSpecificGlobalKeywords);
-            CSharpV2.languageSpecificContextualKeywords = new HashSet<string>(CSharpV1.languageSpecificContextualKeywords);
-        }
-
-        public override string Name
-        {
-            get
-            {
-                return "C#2";
-            }
-        }
-
-        public override bool IsLanguageKeyword(string word)
-        {
-            return base.IsLanguageKeyword(word, CSharpV2.languageSpecificGlobalKeywords, CSharpV2.languageSpecificContextualKeywords);
-        }
-
-        public override bool IsGlobalKeyword(string word)
-        {
-            return IsGlobalKeyword(word, CSharpV2.languageSpecificGlobalKeywords);
-        }
-    }
-
-    public class CSharpV3 : CSharpV2
-    {
-        new protected static HashSet<string> languageSpecificGlobalKeywords;
-        new protected static HashSet<string> languageSpecificContextualKeywords;
-
-        static CSharpV3()
-        {
-            CSharpV3.languageSpecificGlobalKeywords = new HashSet<string>(CSharpV2.languageSpecificGlobalKeywords);
-            CSharpV3.languageSpecificContextualKeywords = new HashSet<string>(CSharpV2.languageSpecificContextualKeywords);
-        }
-
-        public override string Name
-        {
-            get
-            {
-                return "C#3";
-            }
-        }
-
-        public override bool IsLanguageKeyword(string word)
-        {
-            return base.IsLanguageKeyword(word, CSharpV3.languageSpecificGlobalKeywords, CSharpV3.languageSpecificContextualKeywords);
-        }
-
-        public override bool IsGlobalKeyword(string word)
-        {
-            return IsGlobalKeyword(word, CSharpV3.languageSpecificGlobalKeywords);
-        }
-    }
-
-    public class CSharpV4 : CSharpV3
-    {
-        new protected static HashSet<string> languageSpecificGlobalKeywords;
-        new protected static HashSet<string> languageSpecificContextualKeywords;
-
-        static CSharpV4()
-        {
-            CSharpV4.languageSpecificGlobalKeywords = new HashSet<string>(CSharpV3.languageSpecificGlobalKeywords);
-            CSharpV4.languageSpecificContextualKeywords = new HashSet<string>(CSharpV3.languageSpecificContextualKeywords);
-        }
-        public override string Name
-        {
-            get
-            {
-                return "C#4";
-            }
-        }
-
-        public override bool IsLanguageKeyword(string word)
-        {
-            return base.IsLanguageKeyword(word, CSharpV4.languageSpecificGlobalKeywords, CSharpV4.languageSpecificContextualKeywords);
-        }
-
-        public override bool IsGlobalKeyword(string word)
-        {
-            return IsGlobalKeyword(word, CSharpV4.languageSpecificGlobalKeywords);
-        }
-
-        public override bool SupportsGetterOnlyAutoProperties
-        {
-            get
-            {
-                // TODO: Fix when csharp languages are fixed and CSharpV6 is introduced.
-                return true;
-            }
-        }
-    }
-
-    public enum CSharpVersion
-    {
-        None,
-        V1,
-        V2,
-        V3,
-        V4,
-        V6
     }
 }

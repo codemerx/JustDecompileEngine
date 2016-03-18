@@ -17,7 +17,7 @@ namespace JustDecompile.EngineInfrastructure
             ILanguageSelector languageSelector = GetLanguageSelector();
             if (languageSelector == null)
             {
-                return new CSharpV4();
+                return CSharp.GetLanguage(CSharpVersion.V6);
             }
             else
             {

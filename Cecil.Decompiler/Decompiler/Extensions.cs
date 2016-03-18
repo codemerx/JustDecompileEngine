@@ -105,7 +105,7 @@ namespace Telerik.JustDecompiler.Decompiler
             Func<DecompilationContext, IStateMachineData> stateMachineDataSelector,
             out DecompilationContext decompilationContext)
         {
-            ILanguage language = CSharp.GetLanguage(CSharpVersion.V4);
+            ILanguage language = CSharp.GetLanguage(CSharpVersion.V6);
             removeStateMachineStep.Language = language;
 
             DecompilationPipeline thePipeline = GetStateMachineRemovalPipeline(removeStateMachineStep, stateMachineDataSelector);
