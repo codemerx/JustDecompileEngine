@@ -127,5 +127,21 @@ namespace Telerik.JustDecompiler.Languages.IL
                 return false;
             }
         }
+
+        public override bool SupportsInlineInitializationOfAutoProperties
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override bool SupportsExceptionFilters
+        {
+            get
+            {
+                return false;
+            }
+        }
     }
 }

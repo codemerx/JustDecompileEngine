@@ -44,6 +44,22 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             }
         }
 
+        public override bool SupportsInlineInitializationOfAutoProperties
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public override bool SupportsExceptionFilters
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         public override BlockDecompilationPipeline CreateFilterMethodPipeline(MethodDefinition method, DecompilationContext context)
         {
             return new BlockDecompilationPipeline(CSharpFilterMethodDecompilationSteps(method, false), context);
@@ -76,7 +92,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                 new FixMethodOverloadsStep(),
                 new RebuildExpressionTreesStep(),
                 new TransformMemberHandlersStep(),
-                new CodePatternsStep(inlineAggressively),
+                new CodePatternsStep(inlineAggressively) { Language = this },
                 // TransformCatchClausesFilterExpressionStep needs to be after CodePatternsStep,
                 // because it works only if the TernaryConditionPattern has been applied.
                 new TransformCatchClausesFilterExpressionStep(),

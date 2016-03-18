@@ -1186,12 +1186,15 @@ namespace Telerik.JustDecompiler.Languages
 				return;
 			}
 
-            if (this.TypeContext.AutoImplementedProperties.Contains(property) &&
-                TypeContext.AssignmentData.ContainsKey(property.FullName) &&
-                TypeContext.AssignmentData[property.FullName] != null)
+            if (this.Language.SupportsInlineInitializationOfAutoProperties)
             {
-                WriteInitializedAutoProperty(property, TypeContext.AssignmentData[property.FullName].AssignmentExpression);
-                return;
+                if (this.TypeContext.AutoImplementedProperties.Contains(property) &&
+                    TypeContext.AssignmentData.ContainsKey(property.FullName) &&
+                    TypeContext.AssignmentData[property.FullName] != null)
+                {
+                    WriteInitializedAutoProperty(property, TypeContext.AssignmentData[property.FullName].AssignmentExpression);
+                    return;
+                }
             }
 
 			WritePropertyDeclaration(property);

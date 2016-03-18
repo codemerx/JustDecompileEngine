@@ -159,6 +159,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                 case CSharpVersion.V3:
                 case CSharpVersion.V4:
                 case CSharpVersion.V5:
+                    return new CSharpV5();
                 case CSharpVersion.V6:
                     return new CSharpV6();
                 default:
@@ -188,6 +189,22 @@ namespace Telerik.JustDecompiler.Languages.CSharp
         }
 
         public override bool SupportsGetterOnlyAutoProperties
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override bool SupportsInlineInitializationOfAutoProperties
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override bool SupportsExceptionFilters
         {
             get
             {

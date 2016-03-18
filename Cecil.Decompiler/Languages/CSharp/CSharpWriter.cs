@@ -1013,7 +1013,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                                                });
             }
 
-            if (node.Filter != null)
+            if (node.Filter != null && this.Language.SupportsExceptionFilters)
             {
                 WriteSpace();
                 WriteKeyword(KeyWordWriter.When);

@@ -265,5 +265,9 @@ namespace Telerik.JustDecompiler.Languages
 		}
 
         public abstract bool SupportsGetterOnlyAutoProperties { get; }
+
+        public abstract bool SupportsInlineInitializationOfAutoProperties { get; }
+
+        public abstract bool SupportsExceptionFilters { get; }
     }
 }

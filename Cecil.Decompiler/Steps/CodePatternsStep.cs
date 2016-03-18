@@ -82,7 +82,7 @@ namespace Telerik.JustDecompiler.Steps
         public override ICodeNode VisitCatchClause(CatchClause node)
         {
             // If we have a catch clause with filter, we need aggressive inlining (only for TernaryConditionPattern) of the filter block, because our pattern matching relies on this.
-            if (node.Filter != null)
+            if (node.Filter != null && this.Language.SupportsExceptionFilters)
             {
                 this.isInFilter = true;
                 node.Filter = (Statement)Visit(node.Filter);

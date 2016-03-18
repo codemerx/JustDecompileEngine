@@ -316,6 +316,22 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
                 return false;
             }
         }
+
+        public override bool SupportsInlineInitializationOfAutoProperties
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public override bool SupportsExceptionFilters
+        {
+            get
+            {
+                return false;
+            }
+        }
     }
 
     public class VisualBasicV1 : VisualBasic
@@ -424,7 +440,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 				new DetermineCtorInvocationStep(),
                 new RebuildExpressionTreesStep(),
                 new TransformMemberHandlersStep(),
-				new CodePatternsStep(inlineAggressively),
+				new CodePatternsStep(inlineAggressively) { Language = this },
                 // TransformCatchClausesFilterExpressionStep needs to be after CodePatternsStep,
                 // because it works only if the TernaryConditionPattern has been applied.
                 new TransformCatchClausesFilterExpressionStep(),

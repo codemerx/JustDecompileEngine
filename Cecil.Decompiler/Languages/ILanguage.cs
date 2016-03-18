@@ -101,5 +101,9 @@ namespace Telerik.JustDecompiler.Languages
 		bool HasOutKeyword { get; }
 
         bool SupportsGetterOnlyAutoProperties { get; }
+
+        bool SupportsInlineInitializationOfAutoProperties { get; }
+
+        bool SupportsExceptionFilters { get; }
     }
 }
