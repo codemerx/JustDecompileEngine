@@ -92,7 +92,15 @@ namespace Telerik.JustDecompiler.Languages.CSharp
         {
             get
             {
-                return "C# no transformation";
+                return "C#" + this.Version;
+            }
+        }
+
+        public override int Version
+        {
+            get
+            {
+                return 0;
             }
         }
 

@@ -139,7 +139,15 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
         {
             get
             {
-                return "VB.NET no transformation";
+                return "VB.NET" + this.Version;
+            }
+        }
+
+        public override int Version
+        {
+            get
+            {
+                return 0;
             }
         }
 
@@ -361,16 +369,16 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
                 languageSpecificGlobalKeywords.Add(word);
             }
         }
-
-        public override string Name
+        
+        public override int Version
         {
             get
             {
-                return "VB.NET7";
+                return 7;
             }
         }
 
-		public override bool IsLanguageKeyword(string word)
+        public override bool IsLanguageKeyword(string word)
 		{
 			return IsLanguageKeyword(word, VisualBasicV1.languageSpecificGlobalKeywords, VisualBasicV1.languageSpecificContextualKeywords);
 		}
@@ -504,12 +512,12 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             VisualBasicV2.languageSpecificGlobalKeywords = new HashSet<string>(VisualBasicV1.languageSpecificGlobalKeywords);
             VisualBasicV2.languageSpecificContextualKeywords = new HashSet<string>(VisualBasicV1.languageSpecificContextualKeywords);
         }
-
-        public override string Name
+        
+        public override int Version
         {
             get
             {
-                return "VB.NET8";
+                return 8;
             }
         }
 
@@ -530,11 +538,11 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             VisualBasicV3.languageSpecificContextualKeywords = new HashSet<string>(VisualBasicV2.languageSpecificContextualKeywords);
         }
 
-        public override string Name
+        public override int Version
         {
             get
             {
-                return "VB.NET9";
+                return 9;
             }
         }
 
@@ -555,11 +563,11 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             VisualBasicV4.languageSpecificContextualKeywords = new HashSet<string>(VisualBasicV3.languageSpecificContextualKeywords);
         }
 
-        public override string Name
+        public override int Version
         {
             get
             {
-                return "VB.NET10";
+                return 10;
             }
         }
 

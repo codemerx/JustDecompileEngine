@@ -47,11 +47,11 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             }
         }
 
-        public override string Name
+        public override int Version
         {
             get
             {
-                return "C#1";
+                return 1;
             }
         }
 

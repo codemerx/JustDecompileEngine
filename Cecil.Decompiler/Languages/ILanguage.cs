@@ -38,6 +38,8 @@ namespace Telerik.JustDecompiler.Languages
 
 		string Name { get; }
 
+        int Version { get; }
+
         string EscapeSymbolBeforeKeyword { get; }
 
 		string EscapeSymbolAfterKeyword { get; }

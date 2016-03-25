@@ -17,11 +17,11 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             CSharpV5.languageSpecificContextualKeywords = new HashSet<string>(CSharpV4.languageSpecificContextualKeywords);
         }
 
-        public override string Name
+        public override int Version
         {
             get
             {
-                return "C#5";
+                return 5;
             }
         }
 

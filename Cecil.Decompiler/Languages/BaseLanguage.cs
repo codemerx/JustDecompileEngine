@@ -66,7 +66,9 @@ namespace Telerik.JustDecompiler.Languages
 
         public abstract string Name { get; }
 
-		public abstract string EscapeSymbolBeforeKeyword { get; }
+        public abstract int Version { get; }
+
+        public abstract string EscapeSymbolBeforeKeyword { get; }
 
 		public abstract string EscapeSymbolAfterKeyword { get; }
 

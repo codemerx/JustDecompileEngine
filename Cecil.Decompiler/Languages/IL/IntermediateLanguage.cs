@@ -143,5 +143,13 @@ namespace Telerik.JustDecompiler.Languages.IL
                 return false;
             }
         }
+
+        public override int Version
+        {
+            get
+            {
+                return 0;
+            }
+        }
     }
 }

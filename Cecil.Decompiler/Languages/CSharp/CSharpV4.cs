@@ -12,11 +12,12 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             CSharpV4.languageSpecificGlobalKeywords = new HashSet<string>(CSharpV3.languageSpecificGlobalKeywords);
             CSharpV4.languageSpecificContextualKeywords = new HashSet<string>(CSharpV3.languageSpecificContextualKeywords);
         }
-        public override string Name
+
+        public override int Version
         {
             get
             {
-                return "C#4";
+                return 4;
             }
         }
 
