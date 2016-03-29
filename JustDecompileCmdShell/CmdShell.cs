@@ -20,6 +20,8 @@ namespace JustDecompileCmdShell
         private static readonly string description = "[--- Copyright (c) 2011-2016 Telerik AD. All rights reserved ---]";
         private static uint count = 0;
 
+        public event EventHandler<AssemblyDefinition> ProjectGenerationStarted;
+
         public virtual void Run(GeneratorProjectInfo projectInfo)
         {
             //"lang:scharp", 
@@ -140,6 +142,8 @@ namespace JustDecompileCmdShell
 
         protected TimeSpan RunInternal(AssemblyDefinition assembly, GeneratorProjectInfo projectInfo, ProjectGenerationSettings settings)
         {
+            OnProjectGenerationStarted(assembly);
+
             string projFilePath = Path.Combine(projectInfo.Out, Path.GetFileNameWithoutExtension(projectInfo.Target) + projectInfo.Language.VSProjectFileExtension + (settings.JustDecompileSupportedProjectType ? string.Empty : MSBuildProjectBuilder.ErrorFileExtension));
 
             DecompilationPreferences preferences = new DecompilationPreferences();
@@ -232,6 +236,15 @@ namespace JustDecompileCmdShell
         private string ReplaceRegisteredTrademarkSymbol(string str)
         {
             return str.Replace("\u00AE", "(r)");
+        }
+
+        private void OnProjectGenerationStarted(AssemblyDefinition assembly)
+        {
+            EventHandler<AssemblyDefinition> handler = this.ProjectGenerationStarted;
+            if (handler != null)
+            {
+                handler(this, assembly);
+            }
         }
     }
 }
