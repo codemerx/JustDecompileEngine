@@ -273,6 +273,14 @@ namespace JustDecompile.EngineInfrastructure
                 {
                     assemblyInfo.AssemblyTypes |= AssemblyTypes.UniversalWindows;
                 }
+                else if (reference.Name == "Mono.Android")
+                {
+                    assemblyInfo.AssemblyTypes |= AssemblyTypes.XamarinAndroid;
+                }
+                else if (reference.Name == "Xamarin.iOS" || reference.Name == "monotouch")
+                {
+                    assemblyInfo.AssemblyTypes |= AssemblyTypes.XamarinIOS;
+                }
             }
         }
 

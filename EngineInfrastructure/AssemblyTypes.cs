@@ -10,6 +10,8 @@ namespace JustDecompile.EngineInfrastructure
         WinForms = 2,
         MVC = 4,
         Windows8Application = 8,
-        UniversalWindows = 16
+        UniversalWindows = 16,
+        XamarinAndroid = 32,
+        XamarinIOS = 64
     }
 }
