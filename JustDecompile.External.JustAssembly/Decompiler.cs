@@ -11,7 +11,6 @@ using System.Threading;
 using Telerik.JustDecompiler.Decompiler.WriterContextServices;
 using Telerik.JustDecompiler.Decompiler.Caching;
 using Mono.Cecil.Extensions;
-using Telerik.JustDecompiler.Languages;
 using System.IO;
 using JustDecompile.Tools.MSBuildProjectBuilder;
 using Telerik.JustDecompiler;
@@ -433,7 +432,7 @@ namespace JustDecompile.External.JustAssembly
 			switch (language)
 			{
 				case SupportedLanguage.CSharp:
-					return new CSharpV4();
+                    return CSharp.GetLanguage(CSharpVersion.V6);
 				case SupportedLanguage.VB:
 					return new VisualBasicV4();
 				case SupportedLanguage.MSIL:
