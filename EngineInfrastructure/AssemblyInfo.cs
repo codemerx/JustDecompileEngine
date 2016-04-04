@@ -16,6 +16,6 @@ namespace JustDecompile.EngineInfrastructure
 
         public IDictionary<ModuleDefinition, FrameworkVersion> ModulesFrameworkVersions { get; private set; }
 
-        public AssemblyTypes AssemblyTypes { get; internal set; }
+        public AssemblyTypes AssemblyTypes { get; set; }
     }
 }

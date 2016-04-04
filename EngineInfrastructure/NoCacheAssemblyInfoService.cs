@@ -249,39 +249,47 @@ namespace JustDecompile.EngineInfrastructure
             return false;
         }
 
-        private void AddAssemblyTypes(AssemblyInfo assemblyInfo, AssemblyDefinition assembly)
+        protected virtual void AddAssemblyTypes(AssemblyInfo assemblyInfo, AssemblyDefinition assembly)
         {
+            assemblyInfo.AssemblyTypes = GetAssemblyTypes(assembly);
+        }
+
+        protected AssemblyTypes GetAssemblyTypes(AssemblyDefinition assembly)
+        {
+            AssemblyTypes assemblyTypes = AssemblyTypes.Unknown;
             foreach (AssemblyNameReference reference in assembly.MainModule.AssemblyReferences)
             {
                 if (reference.Name == "PresentationFramework")
                 {
-                    assemblyInfo.AssemblyTypes |= AssemblyTypes.WPF;
+                    assemblyTypes |= AssemblyTypes.WPF;
                 }
                 else if (reference.Name == "System.Windows.Forms")
                 {
-                    assemblyInfo.AssemblyTypes |= AssemblyTypes.WinForms;
+                    assemblyTypes |= AssemblyTypes.WinForms;
                 }
                 else if (reference.Name == "System.Web.Mvc")
                 {
-                    assemblyInfo.AssemblyTypes |= AssemblyTypes.MVC;
+                    assemblyTypes |= AssemblyTypes.MVC;
                 }
                 else if (reference.Name == "Windows")
                 {
-                    assemblyInfo.AssemblyTypes |= AssemblyTypes.Windows8Application;
+                    assemblyTypes |= AssemblyTypes.Windows8Application;
                 }
                 else if (reference.Name == "Windows.Foundation.UniversalApiContract")
                 {
-                    assemblyInfo.AssemblyTypes |= AssemblyTypes.UniversalWindows;
+                    assemblyTypes |= AssemblyTypes.UniversalWindows;
                 }
                 else if (reference.Name == "Mono.Android")
                 {
-                    assemblyInfo.AssemblyTypes |= AssemblyTypes.XamarinAndroid;
+                    assemblyTypes |= AssemblyTypes.XamarinAndroid;
                 }
                 else if (reference.Name == "Xamarin.iOS" || reference.Name == "monotouch")
                 {
-                    assemblyInfo.AssemblyTypes |= AssemblyTypes.XamarinIOS;
+                    assemblyTypes |= AssemblyTypes.XamarinIOS;
                 }
             }
+
+            return assemblyTypes;
         }
 
         private FrameworkVersion GetWinRTFrameworkVersion(ModuleDefinition module)
