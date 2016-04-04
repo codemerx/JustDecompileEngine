@@ -287,6 +287,12 @@ namespace JustDecompile.EngineInfrastructure
                 {
                     assemblyTypes |= AssemblyTypes.XamarinIOS;
                 }
+                else if (reference.PublicKeyTokenAsString == "b77a5c561934e089" ||
+                         reference.PublicKeyTokenAsString == "b03f5f7f11d50a3a" ||
+                         reference.PublicKeyTokenAsString == "31bf3856ad364e35")
+                {
+                    assemblyTypes |= AssemblyTypes.FrameworkAssembly;
+                }
             }
 
             return assemblyTypes;

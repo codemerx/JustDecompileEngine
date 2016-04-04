@@ -172,6 +172,27 @@ namespace Mono.Cecil {
 				return algorithm.ComputeHash (public_key);
 		}
 
+        /*Telerik Authorship*/
+        public string PublicKeyTokenAsString
+        {
+            get
+            {
+                StringBuilder builder = new StringBuilder();
+                var pk_token = PublicKeyToken;
+                if (!pk_token.IsNullOrEmpty() && pk_token.Length > 0)
+                {
+                    for (int i = 0; i < pk_token.Length; i++)
+                    {
+                        builder.Append(pk_token[i].ToString("x2"));
+                    }
+                }
+                else
+                    builder.Append("null");
+
+                return builder.ToString();
+            }
+        }
+
 		public virtual MetadataScopeType MetadataScopeType {
 			get { return MetadataScopeType.AssemblyNameReference; }
 		}
@@ -195,14 +216,8 @@ namespace Mono.Cecil {
 				builder.Append (string.IsNullOrEmpty (culture) ? "neutral" : culture);
 				builder.Append (sep);
 				builder.Append ("PublicKeyToken=");
-
-				var pk_token = PublicKeyToken;
-				if (!pk_token.IsNullOrEmpty () && pk_token.Length > 0) {
-					for (int i = 0 ; i < pk_token.Length ; i++) {
-						builder.Append (pk_token [i].ToString ("x2"));
-					}
-				} else
-					builder.Append ("null");
+                /*Telerik Authorship*/
+                builder.Append(PublicKeyTokenAsString);
 
 				return full_name = builder.ToString ();
 			}
