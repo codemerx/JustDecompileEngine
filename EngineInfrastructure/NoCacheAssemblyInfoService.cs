@@ -257,6 +257,14 @@ namespace JustDecompile.EngineInfrastructure
         protected AssemblyTypes GetAssemblyTypes(AssemblyDefinition assembly)
         {
             AssemblyTypes assemblyTypes = AssemblyTypes.Unknown;
+
+            if (assembly.Name.PublicKeyTokenAsString == "b77a5c561934e089" ||
+                assembly.Name.PublicKeyTokenAsString == "b03f5f7f11d50a3a" ||
+                assembly.Name.PublicKeyTokenAsString == "31bf3856ad364e35")
+            {
+                assemblyTypes |= AssemblyTypes.FrameworkAssembly;
+            }
+
             foreach (AssemblyNameReference reference in assembly.MainModule.AssemblyReferences)
             {
                 if (reference.Name == "PresentationFramework")
@@ -286,12 +294,6 @@ namespace JustDecompile.EngineInfrastructure
                 else if (reference.Name == "Xamarin.iOS" || reference.Name == "monotouch")
                 {
                     assemblyTypes |= AssemblyTypes.XamarinIOS;
-                }
-                else if (reference.PublicKeyTokenAsString == "b77a5c561934e089" ||
-                         reference.PublicKeyTokenAsString == "b03f5f7f11d50a3a" ||
-                         reference.PublicKeyTokenAsString == "31bf3856ad364e35")
-                {
-                    assemblyTypes |= AssemblyTypes.FrameworkAssembly;
                 }
             }
 
