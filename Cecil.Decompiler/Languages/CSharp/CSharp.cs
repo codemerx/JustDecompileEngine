@@ -34,24 +34,15 @@ namespace Telerik.JustDecompiler.Languages.CSharp
 {
     public class CSharp : BaseLanguage
     {
-        new protected static HashSet<string> languageSpecificGlobalKeywords;
-        new protected static HashSet<string> languageSpecificContextualKeywords;
-        private static Dictionary<string, string> operators;
+        private Dictionary<string, string> operators;
 
-        public override bool IsGlobalKeyword(string word)
+        public CSharp()
         {
-            return IsGlobalKeyword(word, CSharp.languageSpecificGlobalKeywords);
-        }
-
-        static CSharp()
-        {
-            CSharp.languageSpecificGlobalKeywords = new HashSet<string>();
-            CSharp.languageSpecificContextualKeywords = new HashSet<string>();
-            CSharp.operators = new Dictionary<string, string>();
+            this.operators = new Dictionary<string, string>();
             InitializeOperators();
         }
 
-        private static void InitializeOperators()
+        private void InitializeOperators()
         {
             //taken from ECMA-355 documentation
             //TODO: test all of them
@@ -76,7 +67,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                                       };
             for (int row = 0; row < operatorPairs.GetLength(0); row++)
             {
-                operators.Add(operatorPairs[row, 0], operatorPairs[row, 1]);
+                this.operators.Add(operatorPairs[row, 0], operatorPairs[row, 1]);
             }
         }
 
@@ -162,10 +153,6 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             {
                 case CSharpVersion.None:
                     return new CSharp();
-                case CSharpVersion.V1:
-                case CSharpVersion.V2:
-                case CSharpVersion.V3:
-                case CSharpVersion.V4:
                 case CSharpVersion.V5:
                     return new CSharpV5();
                 case CSharpVersion.V6:
@@ -174,13 +161,19 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                     throw new ArgumentException();
             }
         }
-
-        public override bool IsLanguageKeyword(string word)
+        
+        protected override bool IsLanguageKeyword(string word, HashSet<string> globalKeywords, HashSet<string> contextKeywords)
         {
-            return base.IsLanguageKeyword(word, CSharp.languageSpecificGlobalKeywords, CSharp.languageSpecificContextualKeywords);
+            bool result = globalKeywords.Contains(word) || contextKeywords.Contains(word);
+            return result;
         }
 
-		public override bool IsOperatorKeyword(string @operator)
+        protected override bool IsGlobalKeyword(string word, HashSet<string> globalKeywords)
+        {
+            return globalKeywords.Contains(word);
+        }
+
+        public override bool IsOperatorKeyword(string @operator)
 		{
 			return false;
 		}
@@ -192,7 +185,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
 
         public override bool TryGetOperatorName(string operatorName, out string languageOperator)
         {
-            bool result = operators.TryGetValue(operatorName, out languageOperator);
+            bool result = this.operators.TryGetValue(operatorName, out languageOperator);
             return result;
         }
 

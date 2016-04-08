@@ -16,9 +16,15 @@ namespace Telerik.JustDecompiler.Languages
 {
     public abstract class BaseLanguage : ILanguage
     {
-        protected static HashSet<string> languageSpecificGlobalKeywords;
+        protected HashSet<string> languageSpecificGlobalKeywords;
 
-        protected static HashSet<string> languageSpecificContextualKeywords;
+        protected HashSet<string> languageSpecificContextualKeywords;
+
+        public BaseLanguage()
+        {
+            this.languageSpecificGlobalKeywords = new HashSet<string>();
+            this.languageSpecificContextualKeywords = new HashSet<string>();
+        }
 
         public virtual string FloatingLiteralsConstant
         {
@@ -177,22 +183,21 @@ namespace Telerik.JustDecompiler.Languages
             IsStopped = true;
         }
 
-        public abstract bool IsLanguageKeyword(string word);
-
-        public abstract bool IsGlobalKeyword(string word);
-
-		public abstract bool IsOperatorKeyword(string @operator);
-
-        protected virtual bool IsLanguageKeyword(string word, HashSet<string> globalKeywords, HashSet<string> contextKeywords)
+        public virtual bool IsLanguageKeyword(string word)
         {
-            bool result = globalKeywords.Contains(word) || contextKeywords.Contains(word);
-            return result;
+            return IsLanguageKeyword(word, this.languageSpecificGlobalKeywords, this.languageSpecificContextualKeywords);
         }
 
-        protected virtual bool IsGlobalKeyword(string word, HashSet<string> globalKeywords)
+        public virtual bool IsGlobalKeyword(string word)
         {
-            return globalKeywords.Contains(word);
+            return IsGlobalKeyword(word, this.languageSpecificGlobalKeywords);
         }
+
+        public abstract bool IsOperatorKeyword(string @operator);
+
+        protected abstract bool IsLanguageKeyword(string word, HashSet<string> globalKeywords, HashSet<string> contextKeywords);
+
+        protected abstract bool IsGlobalKeyword(string word, HashSet<string> globalKeywords);
 
         public virtual string EscapeWord(string word)
         {

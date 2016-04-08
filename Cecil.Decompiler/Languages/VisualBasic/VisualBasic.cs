@@ -36,16 +36,9 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 {
     public class VisualBasic : BaseLanguage
     {
-        new protected static HashSet<string> languageSpecificGlobalKeywords;
-        new protected static HashSet<string> languageSpecificContextualKeywords;
-        private static Dictionary<string, string> operators;
-		private static HashSet<string> operatorKeywords;
-
-        public override bool IsGlobalKeyword(string word)
-        {
-            return IsGlobalKeyword(word, VisualBasic.languageSpecificGlobalKeywords);
-        }
-
+        private Dictionary<string, string> operators;
+		private HashSet<string> operatorKeywords;
+        
 		protected override bool IsLanguageKeyword(string word, HashSet<string> globalKeywords, HashSet<string> contextKeywords)
 		{
 			foreach (string globalKeyword in globalKeywords)
@@ -82,19 +75,17 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 
 		public override bool IsOperatorKeyword(string @operator)
 		{
-			return operatorKeywords.Contains(@operator);
+			return this.operatorKeywords.Contains(@operator);
 		}
 
-        static VisualBasic()
+        public VisualBasic()
         {
-            VisualBasic.languageSpecificGlobalKeywords = new HashSet<string>();
-            VisualBasic.languageSpecificContextualKeywords = new HashSet<string>();
-            VisualBasic.operators = new Dictionary<string, string>();
-			VisualBasic.operatorKeywords = new HashSet<string>();
+            this.operators = new Dictionary<string, string>();
+			this.operatorKeywords = new HashSet<string>();
             InitializeOperators();
         }
 
-        private static void InitializeOperators()
+        private void InitializeOperators()
         {
             //find reliable source for this operators
             //TODO: test all of them
@@ -117,13 +108,13 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
                                       };
             for (int row = 0; row < operatorPairs.GetLength(0); row++)
             {
-                operators.Add(operatorPairs[row, 0], operatorPairs[row, 1]);
+                this.operators.Add(operatorPairs[row, 0], operatorPairs[row, 1]);
             }
 
 			string[] operatorKeywordsArray = { "And", "Or", "Xor", "AndAlso", "OrElse", "Mod", "Is", "IsNot", "Not" };
 			for (int operatorKeywordIndex = 0; operatorKeywordIndex < operatorKeywordsArray.Length; operatorKeywordIndex++)
 			{
-				operatorKeywords.Add(operatorKeywordsArray[operatorKeywordIndex]);
+				this.operatorKeywords.Add(operatorKeywordsArray[operatorKeywordIndex]);
 			}
         }
 
@@ -293,11 +284,6 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 			}
 		}
 
-        public override bool IsLanguageKeyword(string word)
-        {
-            return false;
-        }
-
         protected override string GetCommentLine()
         {
             return @"'";
@@ -305,7 +291,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 
         public override bool TryGetOperatorName(string operatorName, out string languageOperator)
         {
-            bool result = operators.TryGetValue(operatorName, out languageOperator);
+            bool result = this.operators.TryGetValue(operatorName, out languageOperator);
             return result;
         }
 
@@ -345,14 +331,8 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 
     public class VisualBasicV1 : VisualBasic
     {
-        new protected static HashSet<string> languageSpecificGlobalKeywords;
-        new protected static HashSet<string> languageSpecificContextualKeywords;
-
-        static VisualBasicV1()
+        public VisualBasicV1()
         {
-            VisualBasicV1.languageSpecificGlobalKeywords = new HashSet<string>(VisualBasic.languageSpecificGlobalKeywords);
-            VisualBasicV1.languageSpecificContextualKeywords = new HashSet<string>(VisualBasic.languageSpecificContextualKeywords);
-
             string[] GlobalKeywords ={"AddHandler","AddressOf","Alias","And","AndAlso","Ansi","As","Assembly","Auto","Boolean","ByRef","Byte","ByVal","Call","Case","Catch",
                                          "CBool","CByte","CChar","CDate","CDec","CDbl","Char","CInt","Class","CLng","CObj","Const","CShort","CSng","CStr","CType","Date",
                                          "Decimal","Declare","Default","Delegate","Dim","DirectCast","Do","Double","Each","Else","ElseIf","End","Enum","Erase","Error","Event",
@@ -366,7 +346,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 
             foreach (string word in GlobalKeywords)
             {
-                languageSpecificGlobalKeywords.Add(word);
+                this.languageSpecificGlobalKeywords.Add(word);
             }
         }
         
@@ -377,11 +357,6 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
                 return 7;
             }
         }
-
-        public override bool IsLanguageKeyword(string word)
-		{
-			return IsLanguageKeyword(word, VisualBasicV1.languageSpecificGlobalKeywords, VisualBasicV1.languageSpecificContextualKeywords);
-		}
 
         public override DecompilationPipeline CreatePipeline(MethodDefinition method)
         {
@@ -495,24 +470,10 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 				new DetermineNotSupportedVBCodeStep(),
             };
         }
-
-        public override bool IsGlobalKeyword(string word)
-        {
-            return IsGlobalKeyword(word, VisualBasicV1.languageSpecificGlobalKeywords);
-        }
     }
 
     public class VisualBasicV2 : VisualBasicV1
     {
-        new protected static HashSet<string> languageSpecificGlobalKeywords;
-        new protected static HashSet<string> languageSpecificContextualKeywords;
-
-        static VisualBasicV2()
-        {
-            VisualBasicV2.languageSpecificGlobalKeywords = new HashSet<string>(VisualBasicV1.languageSpecificGlobalKeywords);
-            VisualBasicV2.languageSpecificContextualKeywords = new HashSet<string>(VisualBasicV1.languageSpecificContextualKeywords);
-        }
-        
         public override int Version
         {
             get
@@ -520,24 +481,10 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
                 return 8;
             }
         }
-
-        public override bool IsGlobalKeyword(string word)
-        {
-            return IsGlobalKeyword(word, VisualBasicV2.languageSpecificGlobalKeywords);
-        }
     }
 
     public class VisualBasicV3 : VisualBasicV2
     {
-        new protected static HashSet<string> languageSpecificGlobalKeywords;
-        new protected static HashSet<string> languageSpecificContextualKeywords;
-
-        static VisualBasicV3()
-        {
-            VisualBasicV3.languageSpecificGlobalKeywords = new HashSet<string>(VisualBasicV2.languageSpecificGlobalKeywords);
-            VisualBasicV3.languageSpecificContextualKeywords = new HashSet<string>(VisualBasicV2.languageSpecificContextualKeywords);
-        }
-
         public override int Version
         {
             get
@@ -545,35 +492,16 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
                 return 9;
             }
         }
-
-        public override bool IsGlobalKeyword(string word)
-        {
-            return IsGlobalKeyword(word, VisualBasicV3.languageSpecificGlobalKeywords);
-        }
     }
 
     public class VisualBasicV4 : VisualBasicV3
     {
-        new protected static HashSet<string> languageSpecificGlobalKeywords;
-        new protected static HashSet<string> languageSpecificContextualKeywords;
-
-        static VisualBasicV4()
-        {
-            VisualBasicV4.languageSpecificGlobalKeywords = new HashSet<string>(VisualBasicV3.languageSpecificGlobalKeywords);
-            VisualBasicV4.languageSpecificContextualKeywords = new HashSet<string>(VisualBasicV3.languageSpecificContextualKeywords);
-        }
-
         public override int Version
         {
             get
             {
                 return 10;
             }
-        }
-
-        public override bool IsGlobalKeyword(string word)
-        {
-            return IsGlobalKeyword(word, VisualBasicV4.languageSpecificGlobalKeywords);
         }
 
         public override bool SupportsGetterOnlyAutoProperties

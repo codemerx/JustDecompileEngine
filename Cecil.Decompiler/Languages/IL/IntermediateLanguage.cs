@@ -32,9 +32,6 @@ namespace Telerik.JustDecompiler.Languages.IL
 {
     public class IntermediateLanguage : BaseLanguage
     {
-        new protected static HashSet<string> languageSpecificGlobalKeywords;
-        new protected static HashSet<string> languageSpecificContextualKeywords;
-
         public override bool IsGlobalKeyword(string word)
         {
             return false;
@@ -44,12 +41,6 @@ namespace Telerik.JustDecompiler.Languages.IL
 		{
 			return false;
 		}
-
-        static IntermediateLanguage()
-        {
-            IntermediateLanguage.languageSpecificGlobalKeywords = new HashSet<string>();
-            IntermediateLanguage.languageSpecificContextualKeywords = new HashSet<string>();
-        }
 
         public override string VSCodeFileExtension
         {
@@ -112,12 +103,22 @@ namespace Telerik.JustDecompiler.Languages.IL
 
         public override bool IsLanguageKeyword(string word)
         {
-            return base.IsLanguageKeyword(word, IntermediateLanguage.languageSpecificGlobalKeywords, IntermediateLanguage.languageSpecificContextualKeywords);
+            return false;
         }
         
         protected override string GetCommentLine()
         {
             return "";
+        }
+
+        protected override bool IsLanguageKeyword(string word, HashSet<string> globalKeywords, HashSet<string> contextKeywords)
+        {
+            return false;
+        }
+
+        protected override bool IsGlobalKeyword(string word, HashSet<string> globalKeywords)
+        {
+            return false;
         }
 
         public override bool SupportsGetterOnlyAutoProperties

@@ -1,20 +1,41 @@
-﻿using System.Collections.Generic;
-using Mono.Cecil;
+﻿using Mono.Cecil;
 using Telerik.JustDecompiler.Steps;
 using Telerik.JustDecompiler.Decompiler.GotoElimination;
 using Telerik.JustDecompiler.Steps.SwitchByString;
 
 namespace Telerik.JustDecompiler.Languages.CSharp
 {
-    public class CSharpV5 : CSharpV4
+    public class CSharpV5 : CSharp
     {
-        new protected static HashSet<string> languageSpecificGlobalKeywords;
-        new protected static HashSet<string> languageSpecificContextualKeywords;
-
-        static CSharpV5()
+        public CSharpV5()
         {
-            CSharpV5.languageSpecificGlobalKeywords = new HashSet<string>(CSharpV4.languageSpecificGlobalKeywords);
-            CSharpV5.languageSpecificContextualKeywords = new HashSet<string>(CSharpV4.languageSpecificContextualKeywords);
+            //list taken from http://msdn.microsoft.com/en-us/library/x53a06bb.aspx -> MSDN list of C# keywords
+
+            string[] GlobalKeywords =
+            {
+                "abstract","as","base","bool","break","byte","case","catch","char","checked","class","const","continue","decimal",
+                "default","delegate","do","double","else","enum","event","explicit","extern","false","finally","fixed","float",
+                "for","foreach","goto","if","implicit","in","int","interface","internal","is","lock","long","namespace","new",
+                "null","object","operator","out","override","params","private","protected","public","readonly","ref","return",
+                "sbyte","sealed","short","sizeof","stackalloc","static","string","struct","switch","this","throw","true","try",
+                "typeof","uint","ulong","unchecked","unsafe","ushort","using","virtual","void","volatile","while"
+            };
+            foreach (string word in GlobalKeywords)
+            {
+                this.languageSpecificGlobalKeywords.Add(word);
+            }
+
+            //list taken from http://msdn.microsoft.com/en-us/library/x53a06bb.aspx -> MSDN list of C# contextual keywords
+
+            string[] contextualKeywords =
+            {
+                "add","alias","ascending","async","await","descending","dynamic","from","get","global","group","into","join",
+                "let","orderby","partial","remove","select","set","value","var","where","yield"
+            };
+            foreach (string word in contextualKeywords)
+            {
+                this.languageSpecificContextualKeywords.Add(word);
+            }
         }
 
         public override int Version
@@ -23,16 +44,6 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             {
                 return 5;
             }
-        }
-
-        public override bool IsLanguageKeyword(string word)
-        {
-            return base.IsLanguageKeyword(word, CSharpV5.languageSpecificGlobalKeywords, CSharpV5.languageSpecificContextualKeywords);
-        }
-
-        public override bool IsGlobalKeyword(string word)
-        {
-            return IsGlobalKeyword(word, CSharpV5.languageSpecificGlobalKeywords);
         }
 
         internal override IDecompilationStep[] CSharpDecompilationSteps(MethodDefinition method, bool inlineAggressively)

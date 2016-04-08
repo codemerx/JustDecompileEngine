@@ -9,15 +9,6 @@ namespace Telerik.JustDecompiler.Languages.CSharp
 {
     public class CSharpV6 : CSharpV5
     {
-        new protected static HashSet<string> languageSpecificGlobalKeywords;
-        new protected static HashSet<string> languageSpecificContextualKeywords;
-
-        static CSharpV6()
-        {
-            CSharpV6.languageSpecificGlobalKeywords = new HashSet<string>(CSharpV5.languageSpecificGlobalKeywords);
-            CSharpV6.languageSpecificContextualKeywords = new HashSet<string>(CSharpV5.languageSpecificContextualKeywords);
-        }
-
         public override int Version
         {
             get
@@ -25,17 +16,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                 return 6;
             }
         }
-
-        public override bool IsLanguageKeyword(string word)
-        {
-            return base.IsLanguageKeyword(word, CSharpV6.languageSpecificGlobalKeywords, CSharpV6.languageSpecificContextualKeywords);
-        }
-
-        public override bool IsGlobalKeyword(string word)
-        {
-            return IsGlobalKeyword(word, CSharpV6.languageSpecificGlobalKeywords);
-        }
-
+        
         public override bool SupportsGetterOnlyAutoProperties
         {
             get
