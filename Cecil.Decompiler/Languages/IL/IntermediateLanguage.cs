@@ -91,7 +91,27 @@ namespace Telerik.JustDecompiler.Languages.IL
             return new DecompilationPipeline();
         }
 
-		public override string EscapeSymbolBeforeKeyword
+        public override DecompilationPipeline CreatePipeline(MethodDefinition method, DecompilationContext context)
+        {
+            return new DecompilationPipeline();
+        }
+
+        public override DecompilationPipeline CreateLambdaPipeline(MethodDefinition method, DecompilationContext context)
+        {
+            return new DecompilationPipeline();
+        }
+
+        public override BlockDecompilationPipeline CreateFilterMethodPipeline(MethodDefinition method, DecompilationContext context)
+        {
+            return new BlockDecompilationPipeline();
+        }
+        
+        public override BlockDecompilationPipeline CreatePropertyPipeline(MethodDefinition method, DecompilationContext context)
+        {
+            return new BlockDecompilationPipeline();
+        }
+
+        public override string EscapeSymbolBeforeKeyword
 		{
 			get { throw new System.NotImplementedException(); }
 		}

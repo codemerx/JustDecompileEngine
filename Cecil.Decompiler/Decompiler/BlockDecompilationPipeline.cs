@@ -9,6 +9,11 @@ namespace Telerik.JustDecompiler.Decompiler
 {
     public class BlockDecompilationPipeline : DecompilationPipeline
     {
+        public BlockDecompilationPipeline(params IDecompilationStep[] steps)
+            : base(steps)
+        {
+        }
+
         public BlockDecompilationPipeline(IEnumerable<IDecompilationStep> steps, DecompilationContext context)
             : base(steps)
         {
