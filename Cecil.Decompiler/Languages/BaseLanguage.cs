@@ -174,8 +174,13 @@ namespace Telerik.JustDecompiler.Languages
         // using the steps from the IntermediateRepresenationPipeline.
         public virtual BlockDecompilationPipeline CreatePropertyPipeline(MethodDefinition method, DecompilationContext context)
         {
-            BlockDecompilationPipeline result = new BlockDecompilationPipeline(new IDecompilationStep[0], context);
+            BlockDecompilationPipeline result = new BlockDecompilationPipeline(LanguageDecompilationSteps(method, false), context);
             return result;
+        }
+        
+        internal virtual IDecompilationStep[] LanguageDecompilationSteps(MethodDefinition method, bool inlineAggressively)
+        {
+            return new IDecompilationStep[0];
         }
 
         public void StopPipeline()

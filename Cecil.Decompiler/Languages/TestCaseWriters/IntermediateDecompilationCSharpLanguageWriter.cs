@@ -12,7 +12,7 @@ namespace Telerik.JustDecompiler.Languages.TestCaseWriters
     {
 		private readonly bool renameInvalidMembers = true;
 		public IntermediateDecompilationCSharpLanguageWriter(IFormatter formatter, bool writeExceptionsAsComments)
-			: base(CSharp.CSharp.GetLanguage(CSharpVersion.None), formatter, writeExceptionsAsComments) 
+			: base(LanguageFactory.GetLanguage(CSharpVersion.None), formatter, writeExceptionsAsComments) 
 		{
 			SimpleWriterContextService swcs = new SimpleWriterContextService(new DefaultDecompilationCacheService(), renameInvalidMembers);
 			this.writerContextService = swcs;

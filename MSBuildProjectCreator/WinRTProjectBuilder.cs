@@ -216,7 +216,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
         {
             if (this.projectType == WinRTProjectType.ComponentForUniversal)
             {
-                if (this.language is CSharp)
+                if (this.language is ICSharp)
                 {
                     return new ProjectImport() { Project = @"$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" };
                 }
@@ -227,7 +227,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             }
             else
             {
-                if (this.language is CSharp)
+                if (this.language is ICSharp)
                 {
                     return new ProjectImport() { Project = @"$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" };
                 }
@@ -302,7 +302,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 result.Add("NETFX_CORE");
             }
 
-            if (this.language is CSharp)
+            if (this.language is ICSharp)
             {
                 if (this.projectType == WinRTProjectType.ComponentForWindows)
                 {
@@ -500,7 +500,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 config.Prefer32BitSpecified = true;
             }
             
-            if (this.language is CSharp)
+            if (this.language is ICSharp)
             {
                 config.NoWarn = ";2008";
                 config.WarningLevelSpecified = false;
@@ -601,7 +601,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             }
 
             result += ";";
-            if (this.language is CSharp)
+            if (this.language is ICSharp)
             {
                 result += ("{" + CSharpGUID + "}");
             }

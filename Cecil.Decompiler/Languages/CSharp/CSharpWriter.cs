@@ -937,7 +937,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
 
         public override void VisitVariableDeclarationExpression(VariableDeclarationExpression node)
         {
-            if (this.Language.GetType() != typeof(CSharp))
+            if (this.Language.Version != 0)
             {
                 string variableName = GetVariableName(node.Variable);
                 if (node.Variable.VariableType.ContainsAnonymousType())
@@ -965,7 +965,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
 
         public override void VisitVariableReferenceExpression(VariableReferenceExpression node)
         {
-            if (this.Language.GetType() == typeof(CSharp))
+            if (this.Language.Version == 0)
             {
                 Write(node.Variable.Name);
             }

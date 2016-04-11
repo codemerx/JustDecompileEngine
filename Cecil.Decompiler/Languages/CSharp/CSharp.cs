@@ -28,225 +28,202 @@ using Mono.Cecil;
 using System;
 using System.Collections.Generic;
 using Telerik.JustDecompiler.Decompiler;
+using Telerik.JustDecompiler.Languages.CSharp;
 using Telerik.JustDecompiler.Steps;
 
-namespace Telerik.JustDecompiler.Languages.CSharp
+namespace Telerik.JustDecompiler.Languages
 {
-    public class CSharp : BaseLanguage
+    public static partial class LanguageFactory
     {
-        private Dictionary<string, string> operators;
-
-        public CSharp()
+        private class CSharp : BaseLanguage, ICSharp
         {
-            this.operators = new Dictionary<string, string>();
-            InitializeOperators();
-        }
+            private Dictionary<string, string> operators;
 
-        private void InitializeOperators()
-        {
-            //taken from ECMA-355 documentation
-            //TODO: test all of them
-            string[,] operatorPairs = { 
-                                          //unary operators
-                                          { "Decrement", "--" }, { "Increment", "++" }, { "UnaryNegation", "-" }, { "UnaryPlus", "+" }, { "LogicalNot", "!" },
-                                          {"OnesComplement","~"}, {"True", "true"}, {"False", "false"},
-                                          //{ "AddressOf", "&" },{"PointerDereference","*"}, to test those we will need to run unsafe code
-                                          //binary operators
-                                          {"Addition","+"},{"Subtraction","-"},{"Multiply","*"},{"Division","/"},{"Modulus","%"},{"ExclusiveOr","^"},
-                                          {"BitwiseAnd","&"},{"BitwiseOr","|"},
-                                          //{"LogicalAnd","&&"},{"LogicalOr","||"},
-                                          {"LeftShift","<<"},{"RightShift",">>"},
-                                          {"Equality","=="},{"GreaterThan",">"},{"LessThan","<"},{"Inequality","!="},{"GreaterThanOrEqual",">="},{"LessThanOrEqual","<="},
-                                          {"MemberSelection","->"},{"PointerToMemberSelection","->*"},{"Comma",","},
-                                          //those can't be redefined, so no point looking for them
-                                          //{"RightShiftAssignment",">>="},{"MultiplicationAssignment","*="},
-                                          //{"SubtractionAssignment","-="},{"ExclusiveOrAssignment","^="},{"LeftShiftAssignment","<<="},{"ModulusAssignment","%="},
-                                          //{"AdditionAssignment","+="},{"BitwiseAndAssignment","&="},{"BitwiseOrAssignment","|="},{"DivisionAssignment","/="},
-                                          //other
-                                          {"Implicit",""},{"Explicit",""}, //those are for imlicit/explicit type casts
-                                      };
-            for (int row = 0; row < operatorPairs.GetLength(0); row++)
+            public CSharp()
             {
-                this.operators.Add(operatorPairs[row, 0], operatorPairs[row, 1]);
+                this.operators = new Dictionary<string, string>();
+                InitializeOperators();
             }
-        }
 
-        public override string FloatingLiteralsConstant
-        {
-            get
+            private void InitializeOperators()
             {
-                return "f";
+                //taken from ECMA-355 documentation
+                //TODO: test all of them
+                string[,] operatorPairs = { 
+                                              //unary operators
+                                              { "Decrement", "--" }, { "Increment", "++" }, { "UnaryNegation", "-" }, { "UnaryPlus", "+" }, { "LogicalNot", "!" },
+                                              {"OnesComplement","~"}, {"True", "true"}, {"False", "false"},
+                                              //{ "AddressOf", "&" },{"PointerDereference","*"}, to test those we will need to run unsafe code
+                                              //binary operators
+                                              {"Addition","+"},{"Subtraction","-"},{"Multiply","*"},{"Division","/"},{"Modulus","%"},{"ExclusiveOr","^"},
+                                              {"BitwiseAnd","&"},{"BitwiseOr","|"},
+                                              //{"LogicalAnd","&&"},{"LogicalOr","||"},
+                                              {"LeftShift","<<"},{"RightShift",">>"},
+                                              {"Equality","=="},{"GreaterThan",">"},{"LessThan","<"},{"Inequality","!="},{"GreaterThanOrEqual",">="},{"LessThanOrEqual","<="},
+                                              {"MemberSelection","->"},{"PointerToMemberSelection","->*"},{"Comma",","},
+                                              //those can't be redefined, so no point looking for them
+                                              //{"RightShiftAssignment",">>="},{"MultiplicationAssignment","*="},
+                                              //{"SubtractionAssignment","-="},{"ExclusiveOrAssignment","^="},{"LeftShiftAssignment","<<="},{"ModulusAssignment","%="},
+                                              //{"AdditionAssignment","+="},{"BitwiseAndAssignment","&="},{"BitwiseOrAssignment","|="},{"DivisionAssignment","/="},
+                                              //other
+                                              {"Implicit",""},{"Explicit",""}, //those are for imlicit/explicit type casts
+                                          };
+                for (int row = 0; row < operatorPairs.GetLength(0); row++)
+                {
+                    this.operators.Add(operatorPairs[row, 0], operatorPairs[row, 1]);
+                }
             }
-        }
 
-        public override string Name
-        {
-            get
+            public override string FloatingLiteralsConstant
             {
-                return "C#" + this.Version;
+                get
+                {
+                    return "f";
+                }
             }
-        }
 
-        public override int Version
-        {
-            get
+            public override string Name
             {
-                return 0;
+                get
+                {
+                    return "C#" + this.Version;
+                }
             }
-        }
 
-        public override string VSCodeFileExtension
-        {
-            get
+            public override int Version
             {
-                return ".cs";
+                get
+                {
+                    return 0;
+                }
             }
-        }
 
-        public override string VSProjectFileExtension
-        {
-            get
+            public override string VSCodeFileExtension
             {
-                return ".csproj";
+                get
+                {
+                    return ".cs";
+                }
             }
-        }
 
-		public override string EscapeSymbolBeforeKeyword
-		{
-			get
-			{
-				return "@";
-			}
-		}
-
-		public override string EscapeSymbolAfterKeyword
-		{
-			get
-			{
-				return "";
-			}
-		}
-
-        public override string CommentLineSymbol
-        {
-            get { return "//"; }
-        }
-
-        public override string DocumentationLineStarter
-        {
-            get { return "///"; }
-        }
-
-        public override ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
-        {
-            return new CSharpWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments);
-        }
-
-        public override IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
-        {
-            return new CSharpAssemblyAttributeWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments);
-        }
-
-        public static ILanguage GetLanguage(CSharpVersion version)
-        {
-            switch (version)
+            public override string VSProjectFileExtension
             {
-                case CSharpVersion.None:
-                    return new CSharp();
-                case CSharpVersion.V5:
-                    return new CSharpV5();
-                case CSharpVersion.V6:
-                    return new CSharpV6();
-                default:
-                    throw new ArgumentException();
+                get
+                {
+                    return ".csproj";
+                }
             }
-        }
-        
-        protected override bool IsLanguageKeyword(string word, HashSet<string> globalKeywords, HashSet<string> contextKeywords)
-        {
-            bool result = globalKeywords.Contains(word) || contextKeywords.Contains(word);
-            return result;
-        }
 
-        protected override bool IsGlobalKeyword(string word, HashSet<string> globalKeywords)
-        {
-            return globalKeywords.Contains(word);
-        }
+		    public override string EscapeSymbolBeforeKeyword
+		    {
+			    get
+			    {
+				    return "@";
+			    }
+		    }
 
-        public override bool IsOperatorKeyword(string @operator)
-		{
-			return false;
-		}
+		    public override string EscapeSymbolAfterKeyword
+		    {
+			    get
+			    {
+				    return "";
+			    }
+		    }
 
-        protected override string GetCommentLine()
-        {
-            return @"//";
-        }
-
-        public override bool TryGetOperatorName(string operatorName, out string languageOperator)
-        {
-            bool result = this.operators.TryGetValue(operatorName, out languageOperator);
-            return result;
-        }
-
-        public override bool SupportsGetterOnlyAutoProperties
-        {
-            get
+            public override string CommentLineSymbol
             {
-                return false;
+                get { return "//"; }
             }
-        }
 
-        public override bool SupportsInlineInitializationOfAutoProperties
-        {
-            get
+            public override string DocumentationLineStarter
             {
-                return false;
+                get { return "///"; }
             }
-        }
 
-        public override bool SupportsExceptionFilters
-        {
-            get
+            public override ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
             {
-                return false;
+                return new CSharpWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments);
             }
-        }
 
-        public override DecompilationPipeline CreatePipeline(MethodDefinition method)
-        {
-            DecompilationPipeline result = base.CreatePipeline(method);
-            result.AddSteps(CSharpDecompilationSteps(method, false));
-            return result;
-        }
+            public override IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
+            {
+                return new CSharpAssemblyAttributeWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments);
+            }
 
-        public override DecompilationPipeline CreatePipeline(MethodDefinition method, DecompilationContext context)
-        {
-            return CreatePipelineInternal(method, context, false);
-        }
+                protected override bool IsLanguageKeyword(string word, HashSet<string> globalKeywords, HashSet<string> contextKeywords)
+            {
+                    bool result = globalKeywords.Contains(word) || contextKeywords.Contains(word);
+                    return result;
+            }
 
-        public override DecompilationPipeline CreateLambdaPipeline(MethodDefinition method, DecompilationContext context)
-        {
-            return CreatePipelineInternal(method, context, true);
-        }
+            protected override bool IsGlobalKeyword(string word, HashSet<string> globalKeywords)
+            {
+                return globalKeywords.Contains(word);
+            }
 
-        // This pipeline is used by the PropertyDecompiler to finish the decompilation of properties, which are partially decompiled
-        // using the steps from the IntermediateRepresenationPipeline.
-        public override BlockDecompilationPipeline CreatePropertyPipeline(MethodDefinition method, DecompilationContext context)
-        {
-            return new BlockDecompilationPipeline(CSharpDecompilationSteps(method, false), context);
-        }
+		    public override bool IsOperatorKeyword(string @operator)
+		    {
+			    return false;
+		    }
 
-        private DecompilationPipeline CreatePipelineInternal(MethodDefinition method, DecompilationContext context, bool inlineAggressively)
-        {
-            DecompilationPipeline result = base.CreatePipeline(method, context);
-            result.AddSteps(CSharpDecompilationSteps(method, inlineAggressively));
-            return result;
-        }
+            protected override string GetCommentLine()
+            {
+                return @"//";
+            }
 
-        internal virtual IDecompilationStep[] CSharpDecompilationSteps(MethodDefinition method, bool inlineAggressively)
-        {
-            return new IDecompilationStep[0];
+            public override bool TryGetOperatorName(string operatorName, out string languageOperator)
+            {
+                bool result = this.operators.TryGetValue(operatorName, out languageOperator);
+                return result;
+            }
+
+            public override bool SupportsGetterOnlyAutoProperties
+            {
+                get
+                {
+                    return false;
+                }
+            }
+
+            public override bool SupportsInlineInitializationOfAutoProperties
+            {
+                get
+                {
+                    return false;
+                }
+            }
+
+            public override bool SupportsExceptionFilters
+            {
+                get
+                {
+                    return false;
+                }
+            }
+
+            public override DecompilationPipeline CreatePipeline(MethodDefinition method)
+            {
+                DecompilationPipeline result = base.CreatePipeline(method);
+                    result.AddSteps(LanguageDecompilationSteps(method, false));
+                return result;
+            }
+
+            public override DecompilationPipeline CreatePipeline(MethodDefinition method, DecompilationContext context)
+            {
+                return CreatePipelineInternal(method, context, false);
+            }
+
+            public override DecompilationPipeline CreateLambdaPipeline(MethodDefinition method, DecompilationContext context)
+            {
+                return CreatePipelineInternal(method, context, true);
+            }
+
+            private DecompilationPipeline CreatePipelineInternal(MethodDefinition method, DecompilationContext context, bool inlineAggressively)
+            {
+                DecompilationPipeline result = base.CreatePipeline(method, context);
+                    result.AddSteps(LanguageDecompilationSteps(method, inlineAggressively));
+                return result;
+            }
         }
     }
 }

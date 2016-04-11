@@ -359,8 +359,10 @@
     <Compile Include="Languages\CSharp\CSharpV5.cs" />
     <Compile Include="Languages\CSharp\CSharpV6.cs" />
     <Compile Include="Languages\CSharp\CSharpVersion.cs" />
+    <Compile Include="Languages\CSharp\ICSharp.cs" />
     <Compile Include="Languages\ILanguageTestCaseWriter.cs" />
     <Compile Include="Languages\IPositionMaintainingFormatter.cs" />
+    <Compile Include="Languages\LanguageFactory.cs" />
     <Compile Include="Languages\MemberNamingUtils.cs" />
     <Compile Include="Languages\OffsetSpan.cs" />
     <Compile Include="Languages\TestCaseWriters\TestCaseCSharpWriter.cs" />

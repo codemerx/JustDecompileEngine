@@ -7,6 +7,7 @@ using JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices;
 using System.IO;
 using Mono.Cecil.AssemblyResolver;
 using Telerik.JustDecompiler.Languages;
+using Telerik.JustDecompiler.Languages.CSharp;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder
 {
@@ -31,7 +32,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			this.solutionFileName = solutionFileName;
 			this.modulesProjectsRelativePaths = modulesProjectsRelativePaths;
 			this.modulesProjectsGuids = modulesProjectsGuids;
-            if (language is Telerik.JustDecompiler.Languages.CSharp.CSharp)
+            if (language is ICSharp)
             {
                 this.languageGuid = new Guid(WinRTProjectBuilder.CSharpGUID);
             }

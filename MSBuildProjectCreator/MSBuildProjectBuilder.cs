@@ -848,7 +848,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
         protected virtual List<string> GetConfigurationConstants(bool debugConfiguration)
         {
             List<string> result = new List<string>();
-            if (this.language is CSharp)
+            if (this.language is ICSharp)
             {
                 if (debugConfiguration)
                 {
@@ -1026,7 +1026,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
   
 		protected virtual ProjectImport GenerateLanguageTargetsProjectImportProperty()
 		{
-			if (this.language is Telerik.JustDecompiler.Languages.CSharp.CSharp)
+			if (this.language is ICSharp)
 			{
 				return new ProjectImport() { Project = @"$(MSBuildToolsPath)\Microsoft.CSharp.targets" };
 			}
@@ -1252,7 +1252,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 result.DefineConstants = defineConstants;
             }
 
-            if (this.language is CSharp)
+            if (this.language is ICSharp)
             {
                 result.ErrorReport = "prompt";
                 result.WarningLevel = 4;
