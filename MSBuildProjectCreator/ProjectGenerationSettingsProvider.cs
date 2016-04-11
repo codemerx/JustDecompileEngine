@@ -49,7 +49,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             }
             else
             {
-                if (targetPlatform == TargetPlatform.WinRT && language is VisualBasic &&
+                if (targetPlatform == TargetPlatform.WinRT && language is IVisualBasic &&
                     WinRTProjectTypeDetector.GetProjectType(assembly) == WinRTProjectType.ComponentForUniversal)
                 {
                     resultErrorMessage = string.Format(ResourceStrings.CannotCreateProjectForComponentForUniversalInVB, visualStudioVersion.ToFriendlyString());

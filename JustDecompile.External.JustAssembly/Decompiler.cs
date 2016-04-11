@@ -434,7 +434,7 @@ namespace JustDecompile.External.JustAssembly
 				case SupportedLanguage.CSharp:
                     return LanguageFactory.GetLanguage(CSharpVersion.V6);
 				case SupportedLanguage.VB:
-					return new VisualBasicV4();
+                    return LanguageFactory.GetLanguage(VisualBasicVersion.V10);
 				case SupportedLanguage.MSIL:
 					return new IntermediateLanguage();
 				default:

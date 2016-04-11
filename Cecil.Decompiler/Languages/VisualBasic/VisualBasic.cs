@@ -31,495 +31,287 @@ using Telerik.JustDecompiler.Decompiler;
 using System.Collections.Generic;
 using Telerik.JustDecompiler.Decompiler.GotoElimination;
 using Telerik.JustDecompiler.Steps.SwitchByString;
+using Telerik.JustDecompiler.Languages.VisualBasic;
 
-namespace Telerik.JustDecompiler.Languages.VisualBasic
+namespace Telerik.JustDecompiler.Languages
 {
-    public class VisualBasic : BaseLanguage
+    public static partial class LanguageFactory
     {
-        private Dictionary<string, string> operators;
-		private HashSet<string> operatorKeywords;
+        private class VisualBasic : BaseLanguage, IVisualBasic
+        {
+            private Dictionary<string, string> operators;
+		    private HashSet<string> operatorKeywords;
         
-		protected override bool IsLanguageKeyword(string word, HashSet<string> globalKeywords, HashSet<string> contextKeywords)
-		{
-			foreach (string globalKeyword in globalKeywords)
-			{
-				if (globalKeyword.Equals(word, StringComparison.OrdinalIgnoreCase))
-				{
-					return true;
-				}
-			}
+		    protected override bool IsLanguageKeyword(string word, HashSet<string> globalKeywords, HashSet<string> contextKeywords)
+		    {
+			    foreach (string globalKeyword in globalKeywords)
+			    {
+				    if (globalKeyword.Equals(word, StringComparison.OrdinalIgnoreCase))
+				    {
+					    return true;
+				    }
+			    }
 
-			foreach (string contextKeyword in contextKeywords)
-			{
-				if (contextKeyword.Equals(word, StringComparison.OrdinalIgnoreCase))
-				{
-					return true;
-				}
-			}
+			    foreach (string contextKeyword in contextKeywords)
+			    {
+				    if (contextKeyword.Equals(word, StringComparison.OrdinalIgnoreCase))
+				    {
+					    return true;
+				    }
+			    }
 
-			return false;
-		}
+			    return false;
+		    }
 
-		protected override bool IsGlobalKeyword(string word, HashSet<string> globalKeywords)
-		{
-			foreach (string globalKeyword in globalKeywords)
-			{
-				if (globalKeyword.Equals(word, StringComparison.OrdinalIgnoreCase))
-				{
-					return true;
-				}
-			}
+		    protected override bool IsGlobalKeyword(string word, HashSet<string> globalKeywords)
+		    {
+			    foreach (string globalKeyword in globalKeywords)
+			    {
+				    if (globalKeyword.Equals(word, StringComparison.OrdinalIgnoreCase))
+				    {
+					    return true;
+				    }
+			    }
 
-			return false;
-		}
+			    return false;
+		    }
 
-		public override bool IsOperatorKeyword(string @operator)
-		{
-			return this.operatorKeywords.Contains(@operator);
-		}
+		    public override bool IsOperatorKeyword(string @operator)
+		    {
+			    return this.operatorKeywords.Contains(@operator);
+		    }
 
-        public VisualBasic()
-        {
-            this.operators = new Dictionary<string, string>();
-			this.operatorKeywords = new HashSet<string>();
-            InitializeOperators();
-        }
-
-        private void InitializeOperators()
-        {
-            //find reliable source for this operators
-            //TODO: test all of them
-            string[,] operatorPairs = { 
-                                          //unary operators
-                                          //{ "Decrement", "--" }, { "Increment", "++" }, unavailable
-                                          { "UnaryNegation", "-" }, { "UnaryPlus", "+" }, { "LogicalNot", "Not" }, {"True", "IsTrue"}, {"False", "IsFalse"},
-                                          { "AddressOf", "&" },{"OnesComplement","Not"},{"PointerDereference","*"},
-                                          //binary operators
-                                          {"Addition","+"},{"Subtraction","-"},{"Multiply","*"},{"Division","/"},{"Modulus","Mod"},{"ExclusiveOr","Xor"},
-                                          {"BitwiseAnd","And"},{"BitwiseOr","Or"},{"LogicalAnd","AndAlso"},{"LogicalOr","OrElse"},{"LeftShift","<<"},{"RightShift",">>"},
-                                          {"Equality","="},{"GreaterThan",">"},{"LessThan","<"},{"Inequality","<>"},{"GreaterThanOrEqual",">="},{"LessThanOrEqual","<="},
-                                          {"MemberSelection","->"},{"PointerToMemberSelection","->*"},{"Comma",","},//not sure if all these exist in VB
-                                          //those can't be redefined, so no point looking for them
-                                          //{"RightShiftAssignment",">>="},{"MultiplicationAssignment","*="},
-                                          //{"SubtractionAssignment","-="},{"ExclusiveOrAssignment","^="},{"LeftShiftAssignment","<<="},{"ModulusAssignment","%="},
-                                          //{"AdditionAssignment","+="},{"BitwiseAndAssignment","&="},{"BitwiseOrAssignment","|="},{"DivisionAssignment","/="},
-                                          //other
-                                          {"Implicit","CType"},{"Explicit","CType"}, //those are for imlicit/explicit type casts
-                                      };
-            for (int row = 0; row < operatorPairs.GetLength(0); row++)
+            public VisualBasic()
             {
-                this.operators.Add(operatorPairs[row, 0], operatorPairs[row, 1]);
+                this.operators = new Dictionary<string, string>();
+			    this.operatorKeywords = new HashSet<string>();
+                InitializeOperators();
             }
 
-			string[] operatorKeywordsArray = { "And", "Or", "Xor", "AndAlso", "OrElse", "Mod", "Is", "IsNot", "Not" };
-			for (int operatorKeywordIndex = 0; operatorKeywordIndex < operatorKeywordsArray.Length; operatorKeywordIndex++)
-			{
-				this.operatorKeywords.Add(operatorKeywordsArray[operatorKeywordIndex]);
-			}
-        }
-
-        public override string FloatingLiteralsConstant 
-        { 
-            get 
+            private void InitializeOperators()
             {
-                return "!";
-            }
-        }
+                //find reliable source for this operators
+                //TODO: test all of them
+                string[,] operatorPairs = { 
+                                              //unary operators
+                                              //{ "Decrement", "--" }, { "Increment", "++" }, unavailable
+                                              { "UnaryNegation", "-" }, { "UnaryPlus", "+" }, { "LogicalNot", "Not" }, {"True", "IsTrue"}, {"False", "IsFalse"},
+                                              { "AddressOf", "&" },{"OnesComplement","Not"},{"PointerDereference","*"},
+                                              //binary operators
+                                              {"Addition","+"},{"Subtraction","-"},{"Multiply","*"},{"Division","/"},{"Modulus","Mod"},{"ExclusiveOr","Xor"},
+                                              {"BitwiseAnd","And"},{"BitwiseOr","Or"},{"LogicalAnd","AndAlso"},{"LogicalOr","OrElse"},{"LeftShift","<<"},{"RightShift",">>"},
+                                              {"Equality","="},{"GreaterThan",">"},{"LessThan","<"},{"Inequality","<>"},{"GreaterThanOrEqual",">="},{"LessThanOrEqual","<="},
+                                              {"MemberSelection","->"},{"PointerToMemberSelection","->*"},{"Comma",","},//not sure if all these exist in VB
+                                              //those can't be redefined, so no point looking for them
+                                              //{"RightShiftAssignment",">>="},{"MultiplicationAssignment","*="},
+                                              //{"SubtractionAssignment","-="},{"ExclusiveOrAssignment","^="},{"LeftShiftAssignment","<<="},{"ModulusAssignment","%="},
+                                              //{"AdditionAssignment","+="},{"BitwiseAndAssignment","&="},{"BitwiseOrAssignment","|="},{"DivisionAssignment","/="},
+                                              //other
+                                              {"Implicit","CType"},{"Explicit","CType"}, //those are for imlicit/explicit type casts
+                                          };
+                for (int row = 0; row < operatorPairs.GetLength(0); row++)
+                {
+                    this.operators.Add(operatorPairs[row, 0], operatorPairs[row, 1]);
+                }
 
-        public override string Name
-        {
-            get
+			    string[] operatorKeywordsArray = { "And", "Or", "Xor", "AndAlso", "OrElse", "Mod", "Is", "IsNot", "Not" };
+			    for (int operatorKeywordIndex = 0; operatorKeywordIndex < operatorKeywordsArray.Length; operatorKeywordIndex++)
+			    {
+				    this.operatorKeywords.Add(operatorKeywordsArray[operatorKeywordIndex]);
+			    }
+            }
+
+            public override string FloatingLiteralsConstant 
+            { 
+                get 
+                {
+                    return "!";
+                }
+            }
+
+            public override string Name
             {
-                return "VB.NET" + this.Version;
+                get
+                {
+                    return "VB.NET" + this.Version;
+                }
             }
-        }
 
-        public override int Version
-        {
-            get
+            public override int Version
             {
-                return 0;
+                get
+                {
+                    return 0;
+                }
             }
-        }
 
-        public override string VSCodeFileExtension
-        {
-            get { return ".vb"; }
-        }
-
-        public override string VSProjectFileExtension
-        {
-            get { return ".vbproj"; }
-        }
-
-		public override string CommentLineSymbol
-		{
-			get { return "'"; }
-		}
-
-		public override string DocumentationLineStarter
-		{
-			get { return "'''"; }
-		}
-
-		public override StringComparer IdentifierComparer
-		{
-			get
-			{
-				return StringComparer.OrdinalIgnoreCase;
-			}
-		}
-
-		public override ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
-        {
-			return new VisualBasicWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments);
-        }
-
-		public override IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
-		{
-			return new VisualBasicAssemblyAttributeWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments);
-		}
-
-		//public override DecompilationPipeline CreatePipeline(MethodDefinition method)
-		//{
-		//    return new DecompilationPipeline(
-		//        new StatementDecompiler(BlockOptimization.Basic),
-		//        CombinedTransformerStep.Instance,
-		//        DeclareTopLevelVariables.Instance);
-		//}
-
-		private bool ExistsNonExplicitMember(IMemberDefinition explicitMember, string nonExplicitName)
-		{
-			if (explicitMember is MethodDefinition)
-			{
-				return explicitMember.DeclaringType.Methods.Where(t => GetMemberNonExplicitName(t) == nonExplicitName).Count() > 1;
-			}
-
-			if (explicitMember is PropertyDefinition)
-			{
-				return explicitMember.DeclaringType.Properties.Where(t => GetMemberNonExplicitName(t) == nonExplicitName).Count() > 1;
-			}
-
-			if (explicitMember is EventDefinition)
-			{
-				return explicitMember.DeclaringType.Events.Where(t => GetMemberNonExplicitName(t) == nonExplicitName).Count() > 1;
-			}
-
-			return false;
-		}
-
-		private string GetMemberSpecialExplicitName(IMemberDefinition member)
-		{
-			string nonExplicitName = GetMemberNonExplicitName(member);
-
-			if (ExistsNonExplicitMember(member, nonExplicitName))
-			{
-				return "Explicit" + nonExplicitName;
-			}
-			else
-			{
-				return nonExplicitName;
-			}
-		}
-
-		private string GetMemberNonExplicitName(IMemberDefinition member)
-		{
-			string memberName = member.Name;
-
-			int lastIndex = memberName.LastIndexOf('.');
-			if (lastIndex != -1)
-			{
-				memberName = memberName.Substring(lastIndex + 1);
-			}
-
-			return memberName;
-		}
-
-		public override string GetExplicitName(IMemberDefinition member)
-		{
-			string nonExplicitName = GetMemberNonExplicitName(member);
-
-			if (ExistsNonExplicitMember(member, nonExplicitName))
-			{
-				return GetMemberSpecialExplicitName(member);
-			}
-			else
-			{
-				return nonExplicitName;
-			}
-		}
-
-        public static ILanguage GetLanguage(VisualBasicVersion version)
-        {
-            switch (version)
+            public override string VSCodeFileExtension
             {
-                case VisualBasicVersion.None:
-                    return new VisualBasic();
-                case VisualBasicVersion.V1:
-                    return new VisualBasicV1();
-                case VisualBasicVersion.V2:
-                    return new VisualBasicV2();
-                case VisualBasicVersion.V3:
-                    return new VisualBasicV3();
-                case VisualBasicVersion.V4:
-                    return new VisualBasicV4();
-                default:
-                    throw new ArgumentException();
+                get { return ".vb"; }
             }
-        }
 
-		public override string EscapeSymbolBeforeKeyword
-		{
-			get
-			{
-				return "[";
-			}
-		}
-
-		public override string EscapeSymbolAfterKeyword
-		{
-			get
-			{
-				return "]";
-			}
-		}
-
-        protected override string GetCommentLine()
-        {
-            return @"'";
-        }
-
-        public override bool TryGetOperatorName(string operatorName, out string languageOperator)
-        {
-            bool result = this.operators.TryGetValue(operatorName, out languageOperator);
-            return result;
-        }
-
-		public override bool HasOutKeyword
-		{
-			get
-			{
-				return false;
-			}
-		}
-
-        public override bool SupportsGetterOnlyAutoProperties
-        {
-            get
+            public override string VSProjectFileExtension
             {
-                return false;
+                get { return ".vbproj"; }
             }
-        }
 
-        public override bool SupportsInlineInitializationOfAutoProperties
-        {
-            get
+		    public override string CommentLineSymbol
+		    {
+			    get { return "'"; }
+		    }
+
+		    public override string DocumentationLineStarter
+		    {
+			    get { return "'''"; }
+		    }
+
+		    public override StringComparer IdentifierComparer
+		    {
+			    get
+			    {
+				    return StringComparer.OrdinalIgnoreCase;
+			    }
+		    }
+
+		    public override ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
             {
-                return false;
+			    return new VisualBasicWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments);
             }
-        }
 
-        // Exception filters are supported since the first version of VB.NET
-        public override bool SupportsExceptionFilters
-        {
-            get
-            {
-                return true;
-            }
-        }
-    }
+		    public override IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
+		    {
+			    return new VisualBasicAssemblyAttributeWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments);
+		    }
 
-    public class VisualBasicV1 : VisualBasic
-    {
-        public VisualBasicV1()
-        {
-            string[] GlobalKeywords ={"AddHandler","AddressOf","Alias","And","AndAlso","Ansi","As","Assembly","Auto","Boolean","ByRef","Byte","ByVal","Call","Case","Catch",
-                                         "CBool","CByte","CChar","CDate","CDec","CDbl","Char","CInt","Class","CLng","CObj","Const","CShort","CSng","CStr","CType","Date",
-                                         "Decimal","Declare","Default","Delegate","Dim","DirectCast","Do","Double","Each","Else","ElseIf","End","Enum","Erase","Error","Event",
-                                         "Exit","False","Finally","For","Friend","Function","Get","GetType","GoSub","GoTo","Handles","If","Implements","Imports","In","Inherits",
-                                         "Integer","Interface","Is","Let","Lib","Like","Long","Loop","Me","Mod","Module","MustInherit","MustOverride","MyBase","MyClass",
-                                         "Namespace","New","Next","Not","Nothing","NotInheritable","NotOverridable","Object","On","Option","Optional","Or","OrElse","Overloads",
-                                         "Overridable","Overrides","ParamArray","Preserve","Private","Property","Protected","Public","RaiseEvent","ReadOnly","ReDim","REM",
-                                         "RemoveHandler","Resume","Return","Select","Set","Shadows","Shared","Short","Single","Static","Step","Stop","String","Structure","Sub",
-                                         "SyncLock","Then","Throw","To","True","Try","TypeOf","Unicode","Until","Variant","When","While","With","WithEvents","WriteOnly","Xor",
-                                         "#Const","#ExternalSource","#If","Then","#Else","#Region"};
+		    //public override DecompilationPipeline CreatePipeline(MethodDefinition method)
+		    //{
+		    //    return new DecompilationPipeline(
+		    //        new StatementDecompiler(BlockOptimization.Basic),
+		    //        CombinedTransformerStep.Instance,
+		    //        DeclareTopLevelVariables.Instance);
+		    //}
 
-            foreach (string word in GlobalKeywords)
-            {
-                this.languageSpecificGlobalKeywords.Add(word);
-            }
-        }
+		    private bool ExistsNonExplicitMember(IMemberDefinition explicitMember, string nonExplicitName)
+		    {
+			    if (explicitMember is MethodDefinition)
+			    {
+				    return explicitMember.DeclaringType.Methods.Where(t => GetMemberNonExplicitName(t) == nonExplicitName).Count() > 1;
+			    }
+
+			    if (explicitMember is PropertyDefinition)
+			    {
+				    return explicitMember.DeclaringType.Properties.Where(t => GetMemberNonExplicitName(t) == nonExplicitName).Count() > 1;
+			    }
+
+			    if (explicitMember is EventDefinition)
+			    {
+				    return explicitMember.DeclaringType.Events.Where(t => GetMemberNonExplicitName(t) == nonExplicitName).Count() > 1;
+			    }
+
+			    return false;
+		    }
+
+		    private string GetMemberSpecialExplicitName(IMemberDefinition member)
+		    {
+			    string nonExplicitName = GetMemberNonExplicitName(member);
+
+			    if (ExistsNonExplicitMember(member, nonExplicitName))
+			    {
+				    return "Explicit" + nonExplicitName;
+			    }
+			    else
+			    {
+				    return nonExplicitName;
+			    }
+		    }
+
+		    private string GetMemberNonExplicitName(IMemberDefinition member)
+		    {
+			    string memberName = member.Name;
+
+			    int lastIndex = memberName.LastIndexOf('.');
+			    if (lastIndex != -1)
+			    {
+				    memberName = memberName.Substring(lastIndex + 1);
+			    }
+
+			    return memberName;
+		    }
+
+		    public override string GetExplicitName(IMemberDefinition member)
+		    {
+			    string nonExplicitName = GetMemberNonExplicitName(member);
+
+			    if (ExistsNonExplicitMember(member, nonExplicitName))
+			    {
+				    return GetMemberSpecialExplicitName(member);
+			    }
+			    else
+			    {
+				    return nonExplicitName;
+			    }
+		    }
         
-        public override int Version
-        {
-            get
+
+		    public override string EscapeSymbolBeforeKeyword
+		    {
+			    get
+			    {
+				    return "[";
+			    }
+		    }
+
+		    public override string EscapeSymbolAfterKeyword
+		    {
+			    get
+			    {
+				    return "]";
+			    }
+		    }
+
+            protected override string GetCommentLine()
             {
-                return 7;
+                return @"'";
+            }
+
+            public override bool TryGetOperatorName(string operatorName, out string languageOperator)
+            {
+                bool result = this.operators.TryGetValue(operatorName, out languageOperator);
+                return result;
+            }
+
+		    public override bool HasOutKeyword
+		    {
+			    get
+			    {
+				    return false;
+			    }
+		    }
+
+            public override bool SupportsGetterOnlyAutoProperties
+            {
+                get
+                {
+                    return false;
+                }
+            }
+
+            public override bool SupportsInlineInitializationOfAutoProperties
+            {
+                get
+                {
+                    return false;
+                }
+            }
+
+            // Exception filters are supported since the first version of VB.NET
+            public override bool SupportsExceptionFilters
+            {
+                get
+                {
+                    return true;
+                }
             }
         }
-
-        public override DecompilationPipeline CreatePipeline(MethodDefinition method)
-        {
-            DecompilationPipeline result = base.CreatePipeline(method);
-            result.AddSteps(VisualBasicDecompilationSteps(method, false));
-            return result;
-        }
-
-        public override DecompilationPipeline CreatePipeline(MethodDefinition method, DecompilationContext context)
-        {
-            return CreatePipelineInternal(method, context, false);
-        }
-
-        public override DecompilationPipeline CreateLambdaPipeline(MethodDefinition method, DecompilationContext context)
-        {
-            return CreatePipelineInternal(method, context, true);
-        }
-
-        public override BlockDecompilationPipeline CreateFilterMethodPipeline(MethodDefinition method, DecompilationContext context)
-        {
-            return new BlockDecompilationPipeline(VisualBasicFilterMethodDecompilationSteps(method, false), context);
-        }
-
-        // This pipeline is used by the PropertyDecompiler to finish the decompilation of properties, which are partially decompiled
-        // using the steps from the IntermediateRepresenationPipeline.
-        public override BlockDecompilationPipeline CreatePropertyPipeline(MethodDefinition method, DecompilationContext context)
-        {
-            return new BlockDecompilationPipeline(VisualBasicDecompilationSteps(method, false), context);
-        }
-
-        private DecompilationPipeline CreatePipelineInternal(MethodDefinition method, DecompilationContext context, bool inlineAggressively)
-        {
-            DecompilationPipeline result = base.CreatePipeline(method, context);
-            result.AddSteps(VisualBasicDecompilationSteps(method, inlineAggressively));
-            return result;
-        }
-
-        private IDecompilationStep[] VisualBasicDecompilationSteps(MethodDefinition method, bool inlineAggressively)
-        {
-            return new IDecompilationStep[]
-            {
-                new TotalGotoEliminationStep(),
-                new AfterGotoCleanupStep(),
-                new RebuildAsyncStatementsStep(),
-                new RebuildYieldStatementsStep() { Language = this },
-                new RemoveDelegateCaching(),
-                // RebuildAnonymousDelegatesStep needs to be executed before the RebuildLambdaExpressions step
-                new RebuildAnonymousDelegatesStep() { Language = this },
-                new RebuildLambdaExpressions() { Language = this, Method = method },
-				
-                new CombinedTransformerStep() { Language = this, Method = method },
-                // new RemoveConditionOnlyVariables(),
-                new MergeUnaryAndBinaryExpression(),
-                new RemoveLastReturn(),
-                new RebuildSwitchByString(),
-                new RebuildForeachStatements(),
-                new RebuildForeachArrayStatements(),
-                new RebuildVBForStatements(),
-				new RebuildDoWhileStatements(),
-                new RebuildLockStatements(),
-                new RebuildFixedStatements(),
-                new RebuildUsingStatements(),
-                new RenameEnumValues(),
-				new FixMethodOverloadsStep(),
-				new DetermineCtorInvocationStep(),
-                new RebuildExpressionTreesStep(),
-                new TransformMemberHandlersStep(),
-				new CodePatternsStep(inlineAggressively) { Language = this },
-                // TransformCatchClausesFilterExpressionStep needs to be after CodePatternsStep,
-                // because it works only if the TernaryConditionPattern has been applied.
-                new TransformCatchClausesFilterExpressionStep(),
-                new DeduceImplicitDelegates(),
-				new CreateIfElseIfStatementsStep(),
-				new ParenthesizeExpressionsStep(),
-                new RemoveUnusedVariablesStep(),
-                // RebuildCatchClausesFilterStep needs to be before DeclareVariablesOnFirstAssignment and after RemoveUnusedVariablesStep.
-                // RebuildCatchClausesFilterStep contains pattern matching and need to be after TransformCatchClausesFilterExpressionStep.
-                new RebuildCatchClausesFilterStep() { Language = this },
-                new DeclareVariablesOnFirstAssignment(),
-                new DeclareTopLevelVariables(),
-                // There were a lot of issues when trying to merge the SelfAssignment step with the CombinedTransformerStep.
-                new SelfAssignement(),
-				new RenameSplitPropertiesMethodsAndBackingFields(),
-                new RenameVBVariables() { Language = this },
-				new CastEnumsToIntegersStep(),
-				new CastIntegersStep(),
-				new ArrayVariablesStep(),
-				new UnsafeMethodBodyStep(),
-				new DetermineDestructorStep(),
-				new DependsOnAnalysisStep(),
-				new DetermineNotSupportedVBCodeStep(),
-            };
-        }
-
-        private IDecompilationStep[] VisualBasicFilterMethodDecompilationSteps(MethodDefinition method, bool inlineAggressively)
-        {
-            return new IDecompilationStep[]
-            {
-                new DeclareVariablesOnFirstAssignment(),
-                new DeclareTopLevelVariables(),
-                // There were a lot of issues when trying to merge the SelfAssignment step with the CombinedTransformerStep.
-                new SelfAssignement(),
-				new RenameSplitPropertiesMethodsAndBackingFields(),
-                new RenameVBVariables() { Language = this },
-				new CastEnumsToIntegersStep(),
-				new CastIntegersStep(),
-				new ArrayVariablesStep(),
-				new UnsafeMethodBodyStep(),
-				new DetermineDestructorStep(),
-				new DependsOnAnalysisStep(),
-				new DetermineNotSupportedVBCodeStep(),
-            };
-        }
-    }
-
-    public class VisualBasicV2 : VisualBasicV1
-    {
-        public override int Version
-        {
-            get
-            {
-                return 8;
-            }
-        }
-    }
-
-    public class VisualBasicV3 : VisualBasicV2
-    {
-        public override int Version
-        {
-            get
-            {
-                return 9;
-            }
-        }
-    }
-
-    public class VisualBasicV4 : VisualBasicV3
-    {
-        public override int Version
-        {
-            get
-            {
-                return 10;
-            }
-        }
-
-        public override bool SupportsGetterOnlyAutoProperties
-        {
-            get
-            {
-                // TODO: Fix when VB14 is added
-                return true;
-            }
-        }
-    }
-
-    public enum VisualBasicVersion
-    {
-        None,
-        V1,
-        V2,
-        V3,
-        V4,
     }
 }

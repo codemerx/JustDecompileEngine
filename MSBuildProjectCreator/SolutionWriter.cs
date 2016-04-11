@@ -8,6 +8,7 @@ using System.IO;
 using Mono.Cecil.AssemblyResolver;
 using Telerik.JustDecompiler.Languages;
 using Telerik.JustDecompiler.Languages.CSharp;
+using Telerik.JustDecompiler.Languages.VisualBasic;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder
 {
@@ -36,7 +37,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             {
                 this.languageGuid = new Guid(WinRTProjectBuilder.CSharpGUID);
             }
-            else if (language is Telerik.JustDecompiler.Languages.VisualBasic.VisualBasic)
+            else if (language is IVisualBasic)
             {
                 this.languageGuid = new Guid(WinRTProjectBuilder.VisualBasicGUID);
             }

@@ -945,7 +945,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
         protected virtual object[] GetProjectItems(ModuleDefinition module, ProjectPropertyGroup basicProjectProperties)
         {
-            bool isVisualBasic = this.language is VisualBasic;
+            bool isVisualBasic = this.language is IVisualBasic;
             object[] items = isVisualBasic ? new object[7] : new object[6];
             int i = 0;
             if (this.visualStudioVersion == VisualStudioVersion.VS2012 ||
@@ -1030,7 +1030,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			{
 				return new ProjectImport() { Project = @"$(MSBuildToolsPath)\Microsoft.CSharp.targets" };
 			}
-			else if (this.language is Telerik.JustDecompiler.Languages.VisualBasic.VisualBasic)
+			else if (this.language is IVisualBasic)
 			{
 				return new ProjectImport() { Project = @"$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" };
 			}
@@ -1245,7 +1245,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 result.OutputPath = GetOutputPath(platform, debugConfiguration);
             }
 
-            string separator = this.language is VisualBasic ? "," : ";";
+            string separator = this.language is IVisualBasic ? "," : ";";
             string defineConstants = string.Join(separator, GetConfigurationConstants(debugConfiguration));
             if (defineConstants != string.Empty)
             {
@@ -1258,7 +1258,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 result.WarningLevel = 4;
                 result.WarningLevelSpecified = true;
             }
-            else if (this.language is VisualBasic)
+            else if (this.language is IVisualBasic)
             {
                 result.DefineDebug = debugConfiguration;
                 result.DefineDebugSpecified = true;
@@ -1332,7 +1332,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 //basicProjectProperties.ProductVersion - the version of the project template VS used to create the project file
             }
 
-			if (!(this.language is Telerik.JustDecompiler.Languages.VisualBasic.VisualBasic))
+			if (!(this.language is IVisualBasic))
 			{
 				basicProjectProperties.RootNamespace = fileGenContext.NamespacesTree.RootNamespace;
 			}
@@ -1375,7 +1375,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
 			// VB compiler injects RootNamespace in all types
 			// so we let it stay in the source code and remove it from the project settings
-			if (!(this.language is Telerik.JustDecompiler.Languages.VisualBasic.VisualBasic))
+			if (!(this.language is IVisualBasic))
 			{
 				basicProjectProperties.RootNamespace = fileGenContext.NamespacesTree.RootNamespace;
 			}

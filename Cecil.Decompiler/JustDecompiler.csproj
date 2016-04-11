@@ -382,6 +382,9 @@
     <Compile Include="Languages\IL\IntermediateLanguageAssemblyAttributeWriter.cs" />
     <Compile Include="Languages\SimpleExceptionFormatter.cs" />
     <Compile Include="Languages\TestCaseExceptionFormatter.cs" />
+    <Compile Include="Languages\VisualBasic\IVisualBasic.cs" />
+    <Compile Include="Languages\VisualBasic\VisualBasicV10.cs" />
+    <Compile Include="Languages\VisualBasic\VisualBasicVersion.cs" />
     <Compile Include="Languages\WritingInfo.cs" />
     <Compile Include="Languages\VisualBasic\VisualBasicAssemblyAttributeWriter.cs" />
     <Compile Include="Mono.Cecil.Extensions\GenericHelper.cs" />

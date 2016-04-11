@@ -220,7 +220,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 {
                     return new ProjectImport() { Project = @"$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" };
                 }
-                else if (this.language is VisualBasic)
+                else if (this.language is IVisualBasic)
                 {
                     return new ProjectImport() { Project = @"$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.VisualBasic.targets" };
                 }
@@ -231,7 +231,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 {
                     return new ProjectImport() { Project = @"$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" };
                 }
-                else if (this.language is VisualBasic)
+                else if (this.language is IVisualBasic)
                 {
                     return new ProjectImport() { Project = @"$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.VisualBasic.targets" };
                 }
@@ -332,7 +332,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
         protected override object[] GetProjectItems(ModuleDefinition module, ProjectPropertyGroup basicProjectProperties)
         {
-            bool shouldAddVisualBasicItems = this.language is VisualBasic && this.projectType != WinRTProjectType.ComponentForUniversal;
+            bool shouldAddVisualBasicItems = this.language is IVisualBasic && this.projectType != WinRTProjectType.ComponentForUniversal;
             object[] items = new object[GetNumberOfProjectItems(shouldAddVisualBasicItems)];
 
             int currentItem = 0;
@@ -505,7 +505,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 config.NoWarn = ";2008";
                 config.WarningLevelSpecified = false;
             }
-            else if (this.language is VisualBasic)
+            else if (this.language is IVisualBasic)
             {
                 if (debugConfiguration)
                 {
@@ -605,7 +605,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             {
                 result += ("{" + CSharpGUID + "}");
             }
-            else if (this.language is VisualBasic)
+            else if (this.language is IVisualBasic)
             {
                 result += ("{" + VisualBasicGUID + "}");
             }

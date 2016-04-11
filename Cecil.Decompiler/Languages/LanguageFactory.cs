@@ -21,5 +21,18 @@ namespace Telerik.JustDecompiler.Languages
                     throw new ArgumentException();
             }
         }
+
+        public static ILanguage GetLanguage(VisualBasicVersion version)
+        {
+            switch (version)
+            {
+                case VisualBasicVersion.None:
+                    return new VisualBasic();
+                case VisualBasicVersion.V10:
+                    return new VisualBasicV10();
+                default:
+                    throw new ArgumentException();
+            }
+        }
     }
 }

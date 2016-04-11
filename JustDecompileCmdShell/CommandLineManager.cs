@@ -321,7 +321,7 @@ namespace JustDecompileCmdShell
                 }
                 else if (languageAsString == CommandLineManager.VisualBasicLanguage)
                 {
-                    result = VisualBasic.GetLanguage(VisualBasicVersion.V4);
+                    result = LanguageFactory.GetLanguage(VisualBasicVersion.V10);
                     return true;
                 }
                 else
