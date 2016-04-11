@@ -200,30 +200,6 @@ namespace Telerik.JustDecompiler.Languages
                     return false;
                 }
             }
-
-            public override DecompilationPipeline CreatePipeline(MethodDefinition method)
-            {
-                DecompilationPipeline result = base.CreatePipeline(method);
-                    result.AddSteps(LanguageDecompilationSteps(method, false));
-                return result;
-            }
-
-            public override DecompilationPipeline CreatePipeline(MethodDefinition method, DecompilationContext context)
-            {
-                return CreatePipelineInternal(method, context, false);
-            }
-
-            public override DecompilationPipeline CreateLambdaPipeline(MethodDefinition method, DecompilationContext context)
-            {
-                return CreatePipelineInternal(method, context, true);
-            }
-
-            private DecompilationPipeline CreatePipelineInternal(MethodDefinition method, DecompilationContext context, bool inlineAggressively)
-            {
-                DecompilationPipeline result = base.CreatePipeline(method, context);
-                    result.AddSteps(LanguageDecompilationSteps(method, inlineAggressively));
-                return result;
-            }
         }
     }
 }

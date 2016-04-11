@@ -151,23 +151,23 @@ namespace Telerik.JustDecompiler.Languages
         {
             DecompilationPipeline result = new DecompilationPipeline();
             result.AddSteps(IntermediateRepresenationPipeline.Steps);
+            result.AddSteps(LanguageDecompilationSteps(method, false));
             return result;
         }
 
         public virtual DecompilationPipeline CreatePipeline(MethodDefinition method, DecompilationContext context)
         {
-            DecompilationPipeline result = new DecompilationPipeline(IntermediateRepresenationPipeline.Steps, context);
-            return result;
+            return CreatePipelineInternal(method, context, false);
         }
 
         public virtual DecompilationPipeline CreateLambdaPipeline(MethodDefinition method, DecompilationContext context)
         {
-            throw new NotSupportedException();
+            return CreatePipelineInternal(method, context, true);
         }
 
         public virtual BlockDecompilationPipeline CreateFilterMethodPipeline(MethodDefinition method, DecompilationContext context)
         {
-            throw new NotSupportedException();
+            return new BlockDecompilationPipeline(LanguageFilterMethodDecompilationSteps(method, false), context);
         }
 
         // This pipeline is used by the PropertyDecompiler to finish the decompilation of properties, which are partially decompiled
@@ -177,8 +177,20 @@ namespace Telerik.JustDecompiler.Languages
             BlockDecompilationPipeline result = new BlockDecompilationPipeline(LanguageDecompilationSteps(method, false), context);
             return result;
         }
-        
+
+        private DecompilationPipeline CreatePipelineInternal(MethodDefinition method, DecompilationContext context, bool inlineAggressively)
+        {
+            DecompilationPipeline result = new DecompilationPipeline(IntermediateRepresenationPipeline.Steps, context);
+            result.AddSteps(LanguageDecompilationSteps(method, inlineAggressively));
+            return result;
+        }
+
         internal virtual IDecompilationStep[] LanguageDecompilationSteps(MethodDefinition method, bool inlineAggressively)
+        {
+            return new IDecompilationStep[0];
+        }
+
+        protected virtual IDecompilationStep[] LanguageFilterMethodDecompilationSteps(MethodDefinition method, bool inlineAggressively)
         {
             return new IDecompilationStep[0];
         }

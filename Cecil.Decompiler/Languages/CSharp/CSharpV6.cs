@@ -43,12 +43,7 @@ namespace Telerik.JustDecompiler.Languages
                     return true;
                 }
             }
-
-            public override BlockDecompilationPipeline CreateFilterMethodPipeline(MethodDefinition method, DecompilationContext context)
-            {
-                return new BlockDecompilationPipeline(CSharpFilterMethodDecompilationSteps(method, false), context);
-            }
-
+            
             internal override IDecompilationStep[] LanguageDecompilationSteps(MethodDefinition method, bool inlineAggressively)
             {
                 return new IDecompilationStep[]
@@ -107,7 +102,7 @@ namespace Telerik.JustDecompiler.Languages
                 };
             }
 
-            private IDecompilationStep[] CSharpFilterMethodDecompilationSteps(MethodDefinition method, bool inlineAggressively)
+            protected override IDecompilationStep[] LanguageFilterMethodDecompilationSteps(MethodDefinition method, bool inlineAggressively)
             {
                 return new IDecompilationStep[]
                 {

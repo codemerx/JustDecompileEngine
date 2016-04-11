@@ -49,36 +49,7 @@ namespace Telerik.JustDecompiler.Languages
                     return true;
                 }
             }
-
-            public override DecompilationPipeline CreatePipeline(MethodDefinition method)
-            {
-                DecompilationPipeline result = base.CreatePipeline(method);
-                result.AddSteps(LanguageDecompilationSteps(method, false));
-                return result;
-            }
-
-            public override DecompilationPipeline CreatePipeline(MethodDefinition method, DecompilationContext context)
-            {
-                return CreatePipelineInternal(method, context, false);
-            }
-
-            public override DecompilationPipeline CreateLambdaPipeline(MethodDefinition method, DecompilationContext context)
-            {
-                return CreatePipelineInternal(method, context, true);
-            }
-
-            public override BlockDecompilationPipeline CreateFilterMethodPipeline(MethodDefinition method, DecompilationContext context)
-            {
-                return new BlockDecompilationPipeline(VisualBasicFilterMethodDecompilationSteps(method, false), context);
-            }
-
-            private DecompilationPipeline CreatePipelineInternal(MethodDefinition method, DecompilationContext context, bool inlineAggressively)
-            {
-                DecompilationPipeline result = base.CreatePipeline(method, context);
-                result.AddSteps(LanguageDecompilationSteps(method, inlineAggressively));
-                return result;
-            }
-
+            
             internal override IDecompilationStep[] LanguageDecompilationSteps(MethodDefinition method, bool inlineAggressively)
             {
                 return new IDecompilationStep[]
@@ -136,7 +107,7 @@ namespace Telerik.JustDecompiler.Languages
                 };
             }
 
-            private IDecompilationStep[] VisualBasicFilterMethodDecompilationSteps(MethodDefinition method, bool inlineAggressively)
+            protected override IDecompilationStep[] LanguageFilterMethodDecompilationSteps(MethodDefinition method, bool inlineAggressively)
             {
                 return new IDecompilationStep[]
                 {
