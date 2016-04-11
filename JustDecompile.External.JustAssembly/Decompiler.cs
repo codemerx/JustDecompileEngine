@@ -432,7 +432,7 @@ namespace JustDecompile.External.JustAssembly
 			switch (language)
 			{
 				case SupportedLanguage.CSharp:
-                    return CSharp.GetLanguage(CSharpVersion.V6);
+                    return LanguageFactory.GetLanguage(CSharpVersion.V6);
 				case SupportedLanguage.VB:
 					return new VisualBasicV4();
 				case SupportedLanguage.MSIL:
