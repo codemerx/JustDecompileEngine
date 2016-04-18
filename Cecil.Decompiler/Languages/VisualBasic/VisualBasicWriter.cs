@@ -2082,6 +2082,18 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
                 }
             }
         }
+
+        public override void VisitRaiseEventExpression(RaiseEventExpression node)
+        {
+            WriteKeyword(this.KeyWordWriter.Fire);
+            WriteSpace();
+            WriteReference(node.Event.Name, node.Event);
+            EnterMethodInvocation(node.InvokeMethodReference);
+            Write("(");
+            VisitMethodParameters(node.Arguments);
+            Write(")");
+            LeaveMethodInvocation();
+        }
     }
 
     public enum StatementState

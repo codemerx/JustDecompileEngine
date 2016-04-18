@@ -21,6 +21,8 @@ namespace Telerik.JustDecompiler.Steps
 			{
 				throw new ArgumentException(string.Format("The unary opperator {0} is not supported in VisualBasic", notSupportedUnaryOperatorFinder.FoundUnaryOperator));
 			}
+            
+            (new NotSupportedEventUsageFinder()).Visit(body);
 
 			return body;
 		}
@@ -77,5 +79,27 @@ namespace Telerik.JustDecompiler.Steps
 				base.VisitUnaryExpression(node);
 			}
 		}
-	}
+
+        private class NotSupportedEventUsageFinder : BaseCodeVisitor
+        {
+            public override void VisitBinaryExpression(BinaryExpression node)
+            {
+                // We skip the left part of binary expressions which add or remove event handlers to event, because this is valid syntax.
+                if (node.Left.CodeNodeType == CodeNodeType.EventReferenceExpression &&
+                    (node.Operator == BinaryOperator.AddAssign || node.Operator == BinaryOperator.SubtractAssign))
+                {
+                    Visit(node.Right);
+
+                    return;
+                }
+
+                base.VisitBinaryExpression(node);
+            }
+
+            public override void VisitEventReferenceExpression(EventReferenceExpression node)
+            {
+                throw new Exception("Visual Basic does not support this type of event usage. Please, try using other language.");
+            }
+        }
+    }
 }

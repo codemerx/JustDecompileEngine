@@ -237,6 +237,8 @@ namespace Telerik.JustDecompiler.Ast
 					return VisitMemberHandleExpression((MemberHandleExpression)node);
                 case CodeNodeType.AutoPropertyConstructorInitializerExpression:
                     return VisitAutoPropertyConstructorInitializerExpression((AutoPropertyConstructorInitializerExpression)node);
+                case CodeNodeType.RaiseEventExpression:
+                    return VisitRaiseEventExpression((RaiseEventExpression)node);
 				default:
 					throw new ArgumentException();
 			}
@@ -901,5 +903,11 @@ namespace Telerik.JustDecompiler.Ast
         {
             return node;
         }
-	}
+
+        public virtual ICodeNode VisitRaiseEventExpression(RaiseEventExpression node)
+        {
+            Visit(node.Arguments);
+            return node;
+        }
+    }
 }

@@ -80,8 +80,8 @@ namespace Telerik.JustDecompiler.Languages
                     new DetermineCtorInvocationStep(),
                     new RebuildExpressionTreesStep(),
                     new TransformMemberHandlersStep(),
-                    new CodePatternsStep(inlineAggressively) { Language = this },
-                    // TransformCatchClausesFilterExpressionStep needs to be after CodePatternsStep,
+                    new VBCodePatternsStep(inlineAggressively) { Language = this },
+                    // TransformCatchClausesFilterExpressionStep needs to be after VBCodePatternsStep,
                     // because it works only if the TernaryConditionPattern has been applied.
                     new TransformCatchClausesFilterExpressionStep(),
                     new DeduceImplicitDelegates(),

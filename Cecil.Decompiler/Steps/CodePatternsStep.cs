@@ -42,15 +42,7 @@ namespace Telerik.JustDecompiler.Steps
 				return node;
 			}
 
-            ICodePattern[] patternArray = new ICodePattern[]
-												{
-                                                    new NullCoalescingPattern(patternsContext, context.MethodContext),
-                                                    GetTernaryPattern(patternsContext),
-                                                    new ArrayInitialisationPattern(patternsContext, typeSystem),
-                                                    new ObjectInitialisationPattern(patternsContext, typeSystem),
-                                                    new CollectionInitializationPattern(patternsContext, typeSystem),
-                                                    GetVariableInliningPattern(patternsContext),
-                                                };
+            IEnumerable<ICodePattern> codePatterns = GetCodePatterns();
 
 			bool matched = false;
 			do
@@ -59,7 +51,7 @@ namespace Telerik.JustDecompiler.Steps
 				Statement resultedStatement;
 				int replacedStatementsCount;
 				int startIndex;
-				foreach (ICodePattern pattern in patternArray)
+				foreach (ICodePattern pattern in codePatterns)
 				{
 					if(pattern.TryMatch(node.Statements, out startIndex, out resultedStatement, out replacedStatementsCount))
 					{
@@ -78,6 +70,19 @@ namespace Telerik.JustDecompiler.Steps
 			}while(matched);
 			return node;
 		}
+
+        protected virtual IEnumerable<ICodePattern> GetCodePatterns()
+        {
+            return new ICodePattern[]
+            {
+                new NullCoalescingPattern(patternsContext, context.MethodContext),
+                GetTernaryPattern(patternsContext),
+                new ArrayInitialisationPattern(patternsContext, typeSystem),
+                new ObjectInitialisationPattern(patternsContext, typeSystem),
+                new CollectionInitializationPattern(patternsContext, typeSystem),
+                GetVariableInliningPattern(patternsContext),
+            };
+        }
 
         public override ICodeNode VisitCatchClause(CatchClause node)
         {

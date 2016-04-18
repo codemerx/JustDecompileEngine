@@ -270,6 +270,7 @@
     <Compile Include="Ast\Expressions\OrderByClause.cs" />
     <Compile Include="Ast\Expressions\QueryClause.cs" />
     <Compile Include="Ast\Expressions\AutoPropertyConstructorInitializerExpression.cs" />
+    <Compile Include="Ast\Expressions\RaiseEventExpression.cs" />
     <Compile Include="Ast\Expressions\SelectClause.cs" />
     <Compile Include="Ast\Expressions\ShortFormReturnExpression.cs" />
     <Compile Include="Ast\Expressions\ArrayVariableDeclarationExpression.cs" />
@@ -406,6 +407,7 @@
     <Compile Include="Steps\CodePatterns\NullCoalescingPattern.cs" />
     <Compile Include="Steps\CodePatterns\MultiAssignPattern.cs" />
     <Compile Include="Steps\CodePatterns\ObjectInitialisationPattern.cs" />
+    <Compile Include="Steps\CodePatterns\RaiseEventPattern.cs" />
     <Compile Include="Steps\CodePatterns\TernaryConditionPattern.cs" />
     <Compile Include="Steps\CodePatterns\TernaryConditionPatternAgressive.cs" />
     <Compile Include="Steps\CodePatterns\VariableInliningPattern.cs" />
@@ -439,6 +441,7 @@
     <Compile Include="Steps\VariableAssignmentAnalysisStep.cs" />
     <Compile Include="Steps\RenameSplitPropertiesMethodsAndBackingFields.cs" />
     <Compile Include="Steps\ArrayVariablesStep.cs" />
+    <Compile Include="Steps\VBCodePatternsStep.cs" />
     <Compile Include="ThreadSafeWeakAssemblyResolver.cs" />
     <Compile Include="TwoDimensionalString.cs" />
     <Compile Include="WeakAssemblyResolver.cs" />
