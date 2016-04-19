@@ -69,7 +69,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 }
                 else
                 {
-                    projectItemGroup.ApplicationDefinition = (ProjectItemGroupApplicationDefinition)XamlFileEntries[i++];
+                    projectItemGroup.ApplicationDefinition = (ProjectItemGroupApplicationDefinition)XamlFileEntries[i];
                 }
             }
             projectItemGroup.Page = xamlPageList.ToArray();
