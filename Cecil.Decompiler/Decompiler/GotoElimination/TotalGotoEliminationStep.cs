@@ -6,6 +6,7 @@ using Mono.Cecil.Cil;
 using Mono.Cecil;
 using Telerik.JustDecompiler.Ast.Expressions;
 using Telerik.JustDecompiler.Ast.Statements;
+using System.Linq;
 
 namespace Telerik.JustDecompiler.Decompiler.GotoElimination
 {
@@ -156,8 +157,8 @@ namespace Telerik.JustDecompiler.Decompiler.GotoElimination
             AddLabelVariables();
 
             /// Generates a list of goto-label pairs and sorts it by label index.
-            List<KeyValuePair<IfStatement, Statement>> gotoPairs = GetGotoPairs();
-            gotoPairs.Sort((x,y) => x.Value.Label.CompareTo(y.Value.Label));
+            IEnumerable<KeyValuePair<IfStatement, Statement>> gotoPairs = GetGotoPairs();
+            gotoPairs = gotoPairs.OrderBy(x => x.Value.Label);
 
             /// Hopefully those names arent taken.
             this.breakVariable = new VariableDefinition("breakCondition", methodContext.Method.Module.TypeSystem.Boolean);
