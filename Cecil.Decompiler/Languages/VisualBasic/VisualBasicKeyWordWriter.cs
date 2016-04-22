@@ -353,9 +353,14 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 		public string Class
 		{
 			get { return "Class"; }
-		}
+        }
 
-		public string Interface
+        public string StaticClass
+        {
+            get { return "Module"; }
+        }
+
+        public string Interface
 		{
 			get { return "Interface"; }
 		}

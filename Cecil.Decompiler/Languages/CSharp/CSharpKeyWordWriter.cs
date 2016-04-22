@@ -350,9 +350,14 @@ namespace Telerik.JustDecompiler.Languages.CSharp
 		public string Class
 		{
 			get { return "class"; }
-		}
+        }
 
-		public string Interface
+        public string StaticClass
+        {
+            get { return "class"; }
+        }
+
+        public string Interface
 		{
 			get { return "interface"; }
 		}

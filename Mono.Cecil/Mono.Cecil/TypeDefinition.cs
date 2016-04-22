@@ -27,6 +27,8 @@
 //
 
 using System;
+/*Telerik Authorship*/
+using System.Linq;
 
 using Mono.Cecil.Metadata;
 using Mono.Collections.Generic;
@@ -476,9 +478,29 @@ namespace Mono.Cecil {
             {
                 if (isStatic == null)
                 {
-                    isStatic = IsClass && IsAbstract && IsSealed;
+                    if (IsClass)
+                    {
+                        if (IsAbstract && IsSealed)
+                        {
+                            // Static class compiled with C# compiler
+                            isStatic = true;
+                        }
+                        else if (this.CustomAttributes.Any(a => a.AttributeType.FullName == "Microsoft.VisualBasic.CompilerServices.StandardModuleAttribute"))
+                        {
+                            // Static class compiled with VB.NET compiler aka Module
+                            isStatic = true;
+                        }
+
+                        // Also, static classes does not have instance constructor (.ctor). This can be added if needed.
+                    }
+
+                    if (isStatic == null)
+                    {
+                        isStatic = false;
+                    }
                 }
-                return isStatic ?? false;
+
+                return isStatic.Value;
             }
         }
 		#endregion

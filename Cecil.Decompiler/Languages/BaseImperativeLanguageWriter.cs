@@ -146,21 +146,22 @@ namespace Telerik.JustDecompiler.Languages
 					if (type.IsStaticClass)
 					{
 						WriteTypeStaticKeywordAndSpace();
+                        typeKeyword = KeyWordWriter.StaticClass;
 					}
                     else
                     {
-                        if (type.IsSealed)
-                        {
-                            WriteKeyword(KeyWordWriter.SealedType);
-                            WriteSpace();
+					    if (type.IsSealed)
+					    {
+						    WriteKeyword(KeyWordWriter.SealedType);
+						    WriteSpace();
+					    }
+					    if (type.IsAbstract)
+					    {
+						    WriteKeyword(KeyWordWriter.AbstractType);
+						    WriteSpace();
                         }
-                        if (type.IsAbstract)
-                        {
-                            WriteKeyword(KeyWordWriter.AbstractType);
-                            WriteSpace();
-                        }
+                        typeKeyword = KeyWordWriter.Class;
                     }
-					typeKeyword = KeyWordWriter.Class;
 				}
 				if (type.IsInterface)
 				{

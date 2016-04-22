@@ -74,6 +74,7 @@
 		string Enum { get; }
 		string Struct { get; }
 		string Class { get; }
+        string StaticClass { get; }
 		string Interface { get; }
 		string SealedType { get; }
         string SealedMethod { get; }
