@@ -183,6 +183,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CommonVersionAssemblyInfo.cs">
+      <Link>Mono.Cecil\CommonVersionAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Mono.Cecil.AssemblyResolver\AssemblyName.cs" />
     <Compile Include="Mono.Cecil.AssemblyResolver\AssemblyPathResolver.cs" />
     <Compile Include="Mono.Cecil.AssemblyResolver\AssemblyPathResolverCache.cs" />

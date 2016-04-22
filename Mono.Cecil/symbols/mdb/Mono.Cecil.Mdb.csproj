@@ -141,6 +141,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\CommonVersionAssemblyInfo.cs">
+      <Link>Mono.Cecil.Mdb\CommonVersionAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Mono.Cecil.Mdb\AssemblyInfo.cs" />
     <Compile Include="Mono.Cecil.Mdb\MdbReader.cs" />
     <Compile Include="Mono.Cecil.Mdb\MdbWriter.cs" />

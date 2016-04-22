@@ -147,6 +147,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\CommonVersionAssemblyInfo.cs">
+      <Link>Mono.Cecil.Pdb\CommonVersionAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Microsoft.Cci.Pdb\BitAccess.cs" />
     <Compile Include="Microsoft.Cci.Pdb\BitSet.cs" />
     <Compile Include="Microsoft.Cci.Pdb\CvInfo.cs" />
