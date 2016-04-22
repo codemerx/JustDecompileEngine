@@ -477,11 +477,6 @@ namespace Mono.Cecil {
                 if (isStatic == null)
                 {
                     isStatic = IsClass && IsAbstract && IsSealed;
-                    if (isStatic == true)
-                    {
-                        IsAbstract = false;
-                        IsSealed = false;
-                    }
                 }
                 return isStatic ?? false;
             }

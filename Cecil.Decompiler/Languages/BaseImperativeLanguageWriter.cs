@@ -147,16 +147,19 @@ namespace Telerik.JustDecompiler.Languages
 					{
 						WriteTypeStaticKeywordAndSpace();
 					}
-					if (type.IsSealed)
-					{
-						WriteKeyword(KeyWordWriter.SealedType);
-						WriteSpace();
-					}
-					if (type.IsAbstract)
-					{
-						WriteKeyword(KeyWordWriter.AbstractType);
-						WriteSpace();
-					}
+                    else
+                    {
+                        if (type.IsSealed)
+                        {
+                            WriteKeyword(KeyWordWriter.SealedType);
+                            WriteSpace();
+                        }
+                        if (type.IsAbstract)
+                        {
+                            WriteKeyword(KeyWordWriter.AbstractType);
+                            WriteSpace();
+                        }
+                    }
 					typeKeyword = KeyWordWriter.Class;
 				}
 				if (type.IsInterface)
