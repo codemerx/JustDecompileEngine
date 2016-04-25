@@ -705,7 +705,7 @@ namespace Telerik.JustDecompiler.Languages
 				WriteKeyword(KeyWordWriter.Const);
 				WriteSpace();
 			}
-			else if (field.IsStatic)
+			else if (TypeSupportsExplicitStaticMembers(field.DeclaringType) && field.IsStatic)
 			{
 				WriteKeyword(KeyWordWriter.Static);
 				WriteSpace();
@@ -857,7 +857,7 @@ namespace Telerik.JustDecompiler.Languages
 			//covers the case of properties with only one of the get/set methods in VB
 			WriteReadOnlyWriteOnlyProperty(property);
 
-			if (property.IsStatic())
+			if (TypeSupportsExplicitStaticMembers(property.DeclaringType) && property.IsStatic())
 			{
 				WriteKeyword(KeyWordWriter.Static);
 				WriteSpace();
@@ -1147,7 +1147,7 @@ namespace Telerik.JustDecompiler.Languages
 			MethodDefinition moreVisibleMethod = @event.AddMethod.GetMoreVisibleMethod(@event.RemoveMethod);
 			WriteMethodVisibilityAndSpace(moreVisibleMethod);
 
-			if (moreVisibleMethod.IsStatic)
+			if (TypeSupportsExplicitStaticMembers(moreVisibleMethod.DeclaringType) && moreVisibleMethod.IsStatic)
 			{
 				WriteKeyword(KeyWordWriter.Static);
 				WriteSpace();
@@ -1502,7 +1502,7 @@ namespace Telerik.JustDecompiler.Languages
 					}
 				}
 
-				if (method.IsStatic)
+				if (TypeSupportsExplicitStaticMembers(method.DeclaringType) && method.IsStatic)
 				{
 					WriteKeyword(KeyWordWriter.Static);
 					WriteSpace();
@@ -1558,7 +1558,9 @@ namespace Telerik.JustDecompiler.Languages
 			}
 		}
 
-		private bool IsMethodHiding(MethodDefinition method)
+        protected abstract bool TypeSupportsExplicitStaticMembers(TypeDefinition type);
+
+        private bool IsMethodHiding(MethodDefinition method)
 		{
 			TypeDefinition baseType = method.DeclaringType.BaseType != null ? method.DeclaringType.BaseType.Resolve() : null;
 

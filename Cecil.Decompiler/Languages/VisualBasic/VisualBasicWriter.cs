@@ -2094,6 +2094,12 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             Write(")");
             LeaveMethodInvocation();
         }
+
+        protected override bool TypeSupportsExplicitStaticMembers(TypeDefinition type)
+        {
+            // Modules in VB.NET don't support explicit static members. All members are static by default.
+            return !type.IsStaticClass;
+        }
     }
 
     public enum StatementState

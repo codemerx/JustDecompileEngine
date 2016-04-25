@@ -1716,5 +1716,11 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             }
             Outdent();
         }
+
+        protected override bool TypeSupportsExplicitStaticMembers(TypeDefinition type)
+        {
+            // All C# classes (static or instance) support explicit static members.
+            return true;
+        }
     }
 }
