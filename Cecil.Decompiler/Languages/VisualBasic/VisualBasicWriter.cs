@@ -2100,6 +2100,16 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             // Modules in VB.NET don't support explicit static members. All members are static by default.
             return !type.IsStaticClass;
         }
+
+        protected override string WriteTypeDeclaration(TypeDefinition type, bool isPartial = false)
+        {
+            if (type.IsNested && type.IsStaticClass)
+            {
+                throw new Exception("VB.NET does not support nested modules. Please, try using other language.");
+            }
+
+            return base.WriteTypeDeclaration(type, isPartial);
+        }
     }
 
     public enum StatementState
