@@ -8,6 +8,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             : base(writer)
         {
             attributesNotToShow.Add("System.Runtime.CompilerServices.DynamicAttribute");
+            attributesNotToShow.Add("System.Runtime.CompilerServices.ExtensionAttribute");
         }
 
         protected override string OpeningBracket

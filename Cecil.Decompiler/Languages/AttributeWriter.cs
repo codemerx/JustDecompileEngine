@@ -13,8 +13,7 @@ namespace Telerik.JustDecompiler.Languages
 {
 	public abstract class AttributeWriter
 	{
-        protected readonly HashSet<string> attributesNotToShow = new HashSet<string>(new string[] { "System.Runtime.CompilerServices.ExtensionAttribute",
-                                                                                                    "System.ParamArrayAttribute",
+        protected readonly HashSet<string> attributesNotToShow = new HashSet<string>(new string[] { "System.ParamArrayAttribute",
                                                                                                     "System.Runtime.CompilerServices.IteratorStateMachineAttribute",
                                                                                                     "Microsoft.VisualBasic.CompilerServices.StandardModuleAttribute" });
         protected NamespaceImperativeLanguageWriter genericWriter;

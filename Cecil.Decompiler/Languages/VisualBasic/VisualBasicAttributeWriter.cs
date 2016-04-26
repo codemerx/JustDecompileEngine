@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Extensions;
 
@@ -39,5 +40,30 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 
 			return base.GetOutAttribute(parameter);
 		}
-	}
+
+        public override void WriteMemberAttributesAndNewLine(IMemberDefinition member, IEnumerable<string> ignored = null, bool isWinRTImplementation = false)
+        {
+            base.WriteMemberAttributesAndNewLine(member,
+                                                 member is TypeDefinition ? AddExtensionAttributeToIgnored(ignored) : ignored,
+                                                 isWinRTImplementation);
+        }
+
+        public override void WriteAssemblyAttributes(AssemblyDefinition assembly, ICollection<string> attributesToIgnore = null)
+        {
+            base.WriteAssemblyAttributes(assembly, AddExtensionAttributeToIgnored(attributesToIgnore));
+        }
+
+        private List<string> AddExtensionAttributeToIgnored(IEnumerable<string> attributesToIgnore)
+        {
+            List<string> ignoredAttributes = new List<string>();
+            if (attributesToIgnore != null)
+            {
+                ignoredAttributes.AddRange(attributesToIgnore);
+            }
+
+            ignoredAttributes.Add("System.Runtime.CompilerServices.ExtensionAttribute");
+
+            return ignoredAttributes;
+        }
+    }
 }
