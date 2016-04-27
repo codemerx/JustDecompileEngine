@@ -2539,7 +2539,7 @@ namespace Telerik.JustDecompiler.Languages
 		{
 		}
 
-		private void WriteMethodTarget(Expression expression)
+		protected void WriteMethodTarget(Expression expression)
 		{
 			bool isComplexTarget = IsComplexTarget(expression);
 
@@ -2641,7 +2641,7 @@ namespace Telerik.JustDecompiler.Languages
 			WriteToken(" }");
 		}
 
-		private void VisitExtensionMethodParameters(IList<Expression> list)
+		protected void VisitExtensionMethodParameters(IList<Expression> list)
 		{
 			VisitMethodParametersInternal(list, true);
 		}
@@ -2767,29 +2767,38 @@ namespace Telerik.JustDecompiler.Languages
 
 		protected virtual void WriteGenericInstanceMethod(GenericInstanceMethod genericMethod)
 		{
-			MethodReference method = genericMethod.ElementMethod;
-			string methodName = GetMethodName(method);
-			WriteReference(methodName, method);
-
-			if (genericMethod.HasAnonymousArgument())
-			{
-				return;
-			}
-
-			WriteToken(GenericLeftBracket);
-			Mono.Collections.Generic.Collection<TypeReference> arguments = genericMethod.GenericArguments;
-			for (int i = 0; i < arguments.Count; i++)
-			{
-				if (i > 0)
-				{
-					WriteToken(",");
-					WriteSpace();
-				}
-				WriteReferenceAndNamespaceIfInCollision(arguments[i]);
-			}
-			WriteToken(GenericRightBracket);
-			return;
+            WriteGenericInstanceMethodWithArguments(genericMethod, genericMethod.GenericArguments);
 		}
+
+        protected void WriteGenericInstanceMethodWithArguments(GenericInstanceMethod genericMethod, Collection<TypeReference> genericArguments)
+        {
+            MethodReference method = genericMethod.ElementMethod;
+            string methodName = GetMethodName(method);
+            WriteReference(methodName, method);
+
+            if (genericMethod.HasAnonymousArgument())
+            {
+                return;
+            }
+
+            if (genericArguments.Count == 0)
+            {
+                return;
+            }
+
+            WriteToken(GenericLeftBracket);
+            for (int i = 0; i < genericArguments.Count; i++)
+            {
+                if (i > 0)
+                {
+                    WriteToken(",");
+                    WriteSpace();
+                }
+                WriteReferenceAndNamespaceIfInCollision(genericArguments[i]);
+            }
+            WriteToken(GenericRightBracket);
+            return;
+        }
 
 		public override void VisitThisReferenceExpression(ThisReferenceExpression node)
 		{

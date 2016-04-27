@@ -36,6 +36,7 @@ using Telerik.JustDecompiler.Ast.Statements;
 using Mono.Cecil.Extensions;
 using Mono.Cecil.Cil;
 using Telerik.JustDecompiler.Decompiler;
+using Mono.Collections.Generic;
 
 namespace Telerik.JustDecompiler.Languages.VisualBasic
 {
@@ -2109,6 +2110,75 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             }
 
             return base.WriteTypeDeclaration(type, isPartial);
+        }
+
+        public override void VisitMethodInvocationExpression(MethodInvocationExpression node)
+        {
+            GenericInstanceMethod genericMethod = node.MethodExpression.Method as GenericInstanceMethod;
+            if (node.MethodExpression.Method.HasThis ||
+                node.Arguments.Count == 0 ||
+                genericMethod == null ||
+                node.MethodExpression.MethodDefinition == null ||
+                !node.MethodExpression.MethodDefinition.IsExtensionMethod)
+            {
+                base.VisitMethodInvocationExpression(node);
+
+                return;
+            }
+
+            WriteMethodTarget(node.Arguments[0]);
+            WriteGenericInstanceMethodWithArguments(genericMethod, GetGenericExtensionMethodArguments(genericMethod));
+            WriteToken("(");
+            VisitExtensionMethodParameters(node.Arguments);
+            WriteToken(")");
+        }
+
+        private Collection<TypeReference> GetGenericExtensionMethodArguments(GenericInstanceMethod genericMethod)
+        {
+            TypeReference extendedType = genericMethod.ElementMethod.Parameters[0].ParameterType;
+            if (!extendedType.IsGenericInstance && !extendedType.IsGenericParameter)
+            {
+                return genericMethod.GenericArguments;
+            }
+
+            HashSet<GenericParameter> extendedTypeGenericParameters = new HashSet<GenericParameter>();
+            if (extendedType.IsGenericInstance)
+            {
+                Queue<GenericInstanceType> queue = new Queue<GenericInstanceType>();
+                queue.Enqueue(extendedType as GenericInstanceType);
+                while (queue.Count > 0)
+                {
+                    GenericInstanceType current = queue.Dequeue();
+                    foreach (TypeReference genericArgument in current.GenericArguments)
+                    {
+                        if (genericArgument.IsGenericInstance)
+                        {
+                            queue.Enqueue(genericArgument as GenericInstanceType);
+                        }
+                        else if (genericArgument.IsGenericParameter)
+                        {
+                            extendedTypeGenericParameters.Add(genericArgument as GenericParameter);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // GenericParameter
+                extendedTypeGenericParameters.Add(extendedType as GenericParameter);
+            }
+
+            Collection<TypeReference> result = new Collection<TypeReference>();
+            for (int i = 0; i < genericMethod.ElementMethod.GenericParameters.Count; i++)
+            {
+                GenericParameter currentGenericParameter = genericMethod.ElementMethod.GenericParameters[i];
+                if (!extendedTypeGenericParameters.Contains(currentGenericParameter))
+                {
+                    result.Add(genericMethod.GenericArguments[i]);
+                }
+            }
+
+            return result;
         }
     }
 
