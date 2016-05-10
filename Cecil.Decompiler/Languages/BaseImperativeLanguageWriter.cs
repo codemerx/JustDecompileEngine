@@ -1094,7 +1094,16 @@ namespace Telerik.JustDecompiler.Languages
 			}
 		}
 
-		protected abstract void WriteLabel(string label);
+		protected void WriteLabel(string label)
+        {
+            if (label != "")
+            {
+                Outdent();
+                Write(label);
+                WriteToken(":");
+                Indent();
+            }
+        }
 
 		protected override void Write(EventDefinition @event)
 		{

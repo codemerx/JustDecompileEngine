@@ -65,19 +65,6 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             WriteSpace();
         }
 
-        protected override void WriteLabel(string label)
-        {
-            if (label != "")
-            {
-                Outdent();
-                WriteToken("'");
-                Write(label);
-                WriteToken(":");
-                // WriteLine();
-                Indent();
-            }
-        }
-
         protected override AttributeWriter CreateAttributeWriter()
         {
             return new VisualBasicAttributeWriter(this);

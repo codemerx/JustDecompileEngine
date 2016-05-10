@@ -108,17 +108,6 @@ namespace Telerik.JustDecompiler.Languages.CSharp
         {
         }
 
-        protected override void WriteLabel(string label)
-        {
-            if (label != "")
-            {
-                Outdent();
-                Write(label);
-                WriteToken(":");
-                Indent();
-            }
-        }
-
         protected override AttributeWriter CreateAttributeWriter()
         {
             return new CSharpAttributeWriter(this);

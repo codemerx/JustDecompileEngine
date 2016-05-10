@@ -54,8 +54,6 @@ namespace Telerik.JustDecompiler.Languages
             {
                 return new IDecompilationStep[]
                 {
-                    new TotalGotoEliminationStep(),
-                    new AfterGotoCleanupStep(),
                     new RebuildAsyncStatementsStep(),
                     new RebuildYieldStatementsStep() { Language = this },
                     new RemoveDelegateCaching(),

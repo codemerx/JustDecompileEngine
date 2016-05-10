@@ -5,9 +5,11 @@ using Mono.Cecil.Cil;
 using System.Collections.Generic;
 using Telerik.JustDecompiler.Ast.Expressions;
 using Mono.Cecil;
+using System;
 
 namespace Telerik.JustDecompiler.Decompiler.GotoElimination
 {
+    [Obsolete]
     class AfterGotoCleanupStep : BaseCodeVisitor, IDecompilationStep
     {
         private readonly List<ExpressionStatement> statementsToRemove;

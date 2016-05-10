@@ -14,6 +14,7 @@ namespace Telerik.JustDecompiler.Decompiler.GotoElimination
     /// Eliminates all goto statements by introducing new statements and moving code. For complete algorithm, see
     /// <see cref="Taming Control Flow A Structured Approach to Eliminating Goto Statements.pdf"/> in DecompilationPapers folder.
     /// </summary>
+    [Obsolete]
     class TotalGotoEliminationStep : IDecompilationStep
     {
         private MethodSpecificContext methodContext;
