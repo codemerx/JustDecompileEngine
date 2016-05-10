@@ -60,7 +60,7 @@ namespace Telerik.JustDecompiler.Languages
                     // RebuildAnonymousDelegatesStep needs to be executed before the RebuildLambdaExpressions step
                     new RebuildAnonymousDelegatesStep() { Language = this },
                     new RebuildLambdaExpressions() { Language = this, Method = method },
-
+                    new GotoCancelation(),
                     new CombinedTransformerStep() { Language = this, Method = method },
                     // new RemoveConditionOnlyVariables(),
                     new MergeUnaryAndBinaryExpression(),
