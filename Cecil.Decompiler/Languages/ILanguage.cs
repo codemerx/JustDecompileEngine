@@ -27,10 +27,11 @@ using System;
 using Mono.Cecil;
 using Telerik.JustDecompiler.Decompiler;
 using System.Collections.Generic;
+using Telerik.JustDecompiler.Steps;
 
 namespace Telerik.JustDecompiler.Languages
 {
-	public interface ILanguage : IEquatable<ILanguage>
+	public interface ILanguage : IEquatable<ILanguage>, ICloneable
 	{
 		bool IsValidIdentifierCharacter(char currentChar);
 
@@ -50,7 +51,7 @@ namespace Telerik.JustDecompiler.Languages
 
 		StringComparer IdentifierComparer { get; }
 
-		ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments);
+        ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments);
 		
 		IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments);
 
@@ -68,7 +69,9 @@ namespace Telerik.JustDecompiler.Languages
 
 		bool IsEscapedWord(string escapedWord, string originalWord);
 
-		DecompilationPipeline CreatePipeline(MethodDefinition method);
+        DecompilationPipeline CreateIntermediateRepresenationPipeline();
+
+        DecompilationPipeline CreatePipeline(MethodDefinition method);
 
         DecompilationPipeline CreatePipeline(MethodDefinition method, DecompilationContext context);
 

@@ -1,11 +1,12 @@
 ﻿using System;
+using Telerik.JustDecompiler.Decompiler.Inlining;
 
 namespace Telerik.JustDecompiler.Steps.CodePatterns
 {
     class VariableInliningPatternAggressive : VariableInliningPattern
     {
-        public VariableInliningPatternAggressive(CodePatternsContext patternsContext, Telerik.JustDecompiler.Decompiler.MethodSpecificContext methodContext)
-            :base(patternsContext, methodContext)
+        public VariableInliningPatternAggressive(CodePatternsContext patternsContext, Telerik.JustDecompiler.Decompiler.MethodSpecificContext methodContext, IVariablesToNotInlineFinder finder)
+            :base(patternsContext, methodContext, finder)
         {
         }
 

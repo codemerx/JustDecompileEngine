@@ -6,6 +6,7 @@ using Telerik.JustDecompiler.Decompiler;
 using Telerik.JustDecompiler.Ast.Statements;
 using Telerik.JustDecompiler.Steps.CodePatterns;
 using Telerik.JustDecompiler.Ast.Expressions;
+using Telerik.JustDecompiler.Decompiler.Inlining;
 
 namespace Telerik.JustDecompiler.Steps
 {
@@ -101,9 +102,17 @@ namespace Telerik.JustDecompiler.Steps
             return base.VisitCatchClause(node);
         }
 
+        protected virtual IVariablesToNotInlineFinder VariablesToNotInlineFinder
+        {
+            get
+            {
+                return new EmptyVariablesToNotInlineFinder();
+            }
+        }
+
         private VariableInliningPattern GetVariableInliningPattern(CodePatternsContext patternsContext)
         {
-            return isAggressive ? new VariableInliningPatternAggressive(patternsContext, context.MethodContext) : new VariableInliningPattern(patternsContext, context.MethodContext);
+            return isAggressive ? new VariableInliningPatternAggressive(patternsContext, context.MethodContext, this.VariablesToNotInlineFinder) : new VariableInliningPattern(patternsContext, context.MethodContext, this.VariablesToNotInlineFinder);
         }
 
         private TernaryConditionPattern GetTernaryPattern(CodePatternsContext patternsContext)

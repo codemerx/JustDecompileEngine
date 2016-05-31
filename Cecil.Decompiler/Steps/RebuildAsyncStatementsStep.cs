@@ -145,7 +145,7 @@ namespace Telerik.JustDecompiler.Steps
                 return null;
             }
 
-            BlockStatement moveNextStatements = moveNextMethod.Body.DecompileAsyncStateMachine(this.methodContext, out this.asyncData);
+            BlockStatement moveNextStatements = moveNextMethod.Body.DecompileAsyncStateMachine(this.methodContext, this.Language, out this.asyncData);
             if (moveNextStatements == null)
             {
                 return null;

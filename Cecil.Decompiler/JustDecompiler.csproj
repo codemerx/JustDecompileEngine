@@ -286,6 +286,9 @@
     <Compile Include="Common\VariableFinder.cs" />
     <Compile Include="Decompiler\AssignmentAnalysis\OutParameterUsageFinder.cs" />
     <Compile Include="Decompiler\AttributesUtilities.cs" />
+    <Compile Include="Decompiler\Inlining\EmptyVariablesToNotInlineFinder.cs" />
+    <Compile Include="Decompiler\Inlining\IVariablesToNotInlineFinder.cs" />
+    <Compile Include="Decompiler\Inlining\VisualBasicVariablesToNotInlineFinder.cs" />
     <Compile Include="Decompiler\TypeNamesComparer.cs" />
     <Compile Include="Decompiler\PropertyDecompiler.cs" />
     <Compile Include="Decompiler\ExplicitlyImplementedMembersCollection.cs" />
@@ -322,13 +325,14 @@
     <Compile Include="Decompiler\Inlining\RestrictedVariableInliner.cs" />
     <Compile Include="Decompiler\Inlining\SideEffectsFinder.cs" />
     <Compile Include="Decompiler\Inlining\SimpleVariableInliner.cs" />
-    <Compile Include="Decompiler\Inlining\StackVariableInliningStep.cs" />
+    <Compile Include="Decompiler\Inlining\StackVariablesInliningStep.cs" />
     <Compile Include="Decompiler\IStateMachineData.cs" />
     <Compile Include="Common\PairList.cs" />
     <Compile Include="Decompiler\LogicFlow\DominatorTreeDependentStep.cs" />
     <Compile Include="Decompiler\LogicFlow\DTree\BaseDominatorTreeBuilder.cs" />
     <Compile Include="Decompiler\LogicFlow\DTree\FastDominatorTreeBuilder.cs" />
-    <Compile Include="Decompiler\Inlining\BaseVariableInliningStep.cs" />
+    <Compile Include="Decompiler\Inlining\BaseVariablesInliningStep.cs" />
+    <Compile Include="Decompiler\VisualBasicExpressionDecompilerStep.cs" />
     <Compile Include="Decompiler\WriterContextServices\BaseWriterContextService.cs" />
     <Compile Include="Decompiler\WriterContextServices\FrameworkFoldersWriterContextService.cs" />
     <Compile Include="Decompiler\WriterContextServices\IWriterContextService.cs" />
@@ -442,6 +446,9 @@
     <Compile Include="Steps\RenameSplitPropertiesMethodsAndBackingFields.cs" />
     <Compile Include="Steps\ArrayVariablesStep.cs" />
     <Compile Include="Steps\VBCodePatternsStep.cs" />
+    <Compile Include="Steps\VisualBasicDetermineCtorInvocationStep.cs" />
+    <Compile Include="Steps\VisualBasicRemoveDelegateCachingStep.cs" />
+    <Compile Include="Steps\VisualBasicRemoveUnusedVariablesStep.cs" />
     <Compile Include="ThreadSafeWeakAssemblyResolver.cs" />
     <Compile Include="TwoDimensionalString.cs" />
     <Compile Include="WeakAssemblyResolver.cs" />
@@ -704,7 +711,7 @@
     <Compile Include="Steps\RebuildLockStatements.cs" />
     <Compile Include="Steps\RebuildYieldStatementsStep.cs" />
     <Compile Include="Steps\RemoveAsyncStateMachineStep.cs" />
-    <Compile Include="Steps\RemoveDelegateCaching.cs" />
+    <Compile Include="Steps\RemoveDelegateCachingStep.cs" />
     <Compile Include="Steps\RemovePrivateImplemetnationDetailsStep.cs" />
     <Compile Include="Steps\RemoveUnreachableBlocksStep.cs" />
     <Compile Include="Steps\RemoveUnusedVariablesStep.cs" />

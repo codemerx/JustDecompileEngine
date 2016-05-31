@@ -138,5 +138,23 @@ namespace Telerik.JustDecompiler.Ast.Expressions
                 return CodeNodeType.MethodInvocationExpression;
             }
         }
+
+        public Expression GetTarget()
+        {
+            if (this.MethodExpression.MethodDefinition != null &&
+                this.MethodExpression.MethodDefinition.IsExtensionMethod)
+            {
+                if (this.Arguments.Count < 1)
+                {
+                    throw new Exception("Extension methods invocations should have at least 1 argument.");
+                }
+
+                return this.Arguments[0];
+            }
+            else
+            {
+                return this.MethodExpression.Target;
+            }
+        }
     }
 }

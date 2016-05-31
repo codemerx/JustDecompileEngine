@@ -6,6 +6,8 @@ using Telerik.JustDecompiler.Ast.Expressions;
 using Telerik.JustDecompiler.Decompiler;
 using Mono.Cecil;
 using Telerik.JustDecompiler.Steps.CodePatterns;
+using Telerik.JustDecompiler.Decompiler.Inlining;
+using Telerik.JustDecompiler.Languages;
 
 namespace Telerik.JustDecompiler.Steps
 {
@@ -34,6 +36,14 @@ namespace Telerik.JustDecompiler.Steps
             return body;
         }
 
+        protected virtual IVariablesToNotInlineFinder VariablesToNotInlineFinder
+        {
+            get
+            {
+                return new EmptyVariablesToNotInlineFinder();
+            }
+        }
+
         private void ProcessCtorInvocation()
         {
             int startIndex, endIndex;
@@ -46,10 +56,10 @@ namespace Telerik.JustDecompiler.Steps
             }
 
             this.patternsContext = new CodePatternsContext(statements);
-
+            
             List<ICodePattern> patternArray = new List<ICodePattern>(new ICodePattern[] 
 												{   new NullCoalescingPattern(patternsContext, methodContext), new TernaryConditionPatternAgressive(patternsContext, typeSystem),
-                                                    new ArrayInitialisationPattern(patternsContext, typeSystem), new VariableInliningPatternAggressive(patternsContext, methodContext),
+                                                    new ArrayInitialisationPattern(patternsContext, typeSystem), new VariableInliningPatternAggressive(patternsContext, methodContext, this.VariablesToNotInlineFinder),
                                                     new MultiAssignPattern(patternsContext, methodContext)});
 
             if (isBaseCtor)

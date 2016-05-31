@@ -12,6 +12,7 @@ using Telerik.JustDecompiler.Decompiler.DefineUseAnalysis;
 using Telerik.JustDecompiler.Ast.Expressions;
 using Telerik.JustDecompiler.Decompiler.Inlining;
 using System.Reflection;
+using Telerik.JustDecompiler.Languages;
 
 namespace Telerik.JustDecompiler.Decompiler
 {
@@ -35,6 +36,7 @@ namespace Telerik.JustDecompiler.Decompiler
         private readonly Dictionary<VariableReference, KeyValuePair<int, bool>> exceptionVariables;
         private int dummyVarCounter = 0;
         private readonly HashSet<VariableDefinition> stackVariableAssignmentsToRemove = new HashSet<VariableDefinition>();
+        private ILanguage language;
 
         private Instruction CurrentInstruction
         {
@@ -44,8 +46,10 @@ namespace Telerik.JustDecompiler.Decompiler
             }
         }
 
-        public ExpressionDecompilerStep()
+        public ExpressionDecompilerStep(ILanguage language)
         {
+            this.language = language;
+
             this.offsetToExpression = new Dictionary<int, Expression>();
             this.results = new ExpressionDecompilerData();
             this.used = new HashSet<Expression>();
@@ -70,8 +74,8 @@ namespace Telerik.JustDecompiler.Decompiler
 
             methodContext.Expressions = results;
 
-            StackVariableInliningStep stackVariableInliner = new StackVariableInliningStep(methodContext, offsetToExpression);
-            stackVariableInliner.InlineVariables();
+            StackVariablesInliningStep stackVariablesInliningStep = new StackVariablesInliningStep(this.methodContext, this.offsetToExpression, this.VariablesToNotInlineFinder);
+            stackVariablesInliningStep.InlineVariables();
 
             AddUninlinedStackVariablesToContext();
             ///After all expressions have been made, a type inference is needed.
@@ -86,8 +90,8 @@ namespace Telerik.JustDecompiler.Decompiler
             BinaryExpressionsFixer bef = new BinaryExpressionsFixer(methodContext.Method.Module.TypeSystem);
             bef.Process(theContext, body);
 
-            MethodVariablesInliningStep methodVariableInliner = new MethodVariablesInliningStep(methodContext);
-            methodVariableInliner.InlineVariables();
+            MethodVariablesInliningStep methodVariablesInliningStep = new MethodVariablesInliningStep(this.methodContext, this.VariablesToNotInlineFinder);
+            methodVariablesInliningStep.InlineVariables();
 
             UsageBasedExpressionFixer literalsFixer = new UsageBasedExpressionFixer(methodContext);
             literalsFixer.FixLiterals();
@@ -98,6 +102,14 @@ namespace Telerik.JustDecompiler.Decompiler
             FindAutoBoxesStep fabs = new FindAutoBoxesStep();
             fabs.Process(theContext, body);
             return body;
+        }
+
+        protected virtual IVariablesToNotInlineFinder VariablesToNotInlineFinder
+        {
+            get
+            {
+                return new EmptyVariablesToNotInlineFinder();
+            }
         }
 
         private void AddUninlinedStackVariablesToContext()
@@ -2366,7 +2378,7 @@ namespace Telerik.JustDecompiler.Decompiler
             EventDefinition eventDef;
             FieldDefinition fieldDef = (instruction.Operand as FieldReference).Resolve();
             if (fieldDef != null && fieldDef.DeclaringType == methodContext.Method.DeclaringType && methodContext.EnableEventAnalysis &&
-                typeContext.FieldToEventMap.TryGetValue(fieldDef, out eventDef))
+                typeContext.GetFieldToEventMap(this.language).TryGetValue(fieldDef, out eventDef))
             {
                 Push(new EventReferenceExpression(target, eventDef, IncludePrefixIfPresent(instruction, Code.Volatile)));
             }

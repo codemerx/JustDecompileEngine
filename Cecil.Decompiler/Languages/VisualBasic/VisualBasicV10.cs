@@ -54,9 +54,9 @@ namespace Telerik.JustDecompiler.Languages
             {
                 return new IDecompilationStep[]
                 {
-                    new RebuildAsyncStatementsStep(),
+                    new RebuildAsyncStatementsStep() { Language = this },
                     new RebuildYieldStatementsStep() { Language = this },
-                    new RemoveDelegateCaching(),
+                    new VisualBasicRemoveDelegateCachingStep(),
                     // RebuildAnonymousDelegatesStep needs to be executed before the RebuildLambdaExpressions step
                     new RebuildAnonymousDelegatesStep() { Language = this },
                     new RebuildLambdaExpressions() { Language = this, Method = method },
@@ -75,7 +75,7 @@ namespace Telerik.JustDecompiler.Languages
                     new RebuildUsingStatements(),
                     new RenameEnumValues(),
                     new FixMethodOverloadsStep(),
-                    new DetermineCtorInvocationStep(),
+                    new VisualBasicDetermineCtorInvocationStep(),
                     new RebuildExpressionTreesStep(),
                     new TransformMemberHandlersStep(),
                     new VBCodePatternsStep(inlineAggressively) { Language = this },
@@ -85,7 +85,7 @@ namespace Telerik.JustDecompiler.Languages
                     new DeduceImplicitDelegates(),
                     new CreateIfElseIfStatementsStep(),
                     new ParenthesizeExpressionsStep(),
-                    new RemoveUnusedVariablesStep(),
+                    new VisualBasicRemoveUnusedVariablesStep(),
                     // RebuildCatchClausesFilterStep needs to be before DeclareVariablesOnFirstAssignment and after RemoveUnusedVariablesStep.
                     // RebuildCatchClausesFilterStep contains pattern matching and need to be after TransformCatchClausesFilterExpressionStep.
                     new RebuildCatchClausesFilterStep() { Language = this },

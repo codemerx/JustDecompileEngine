@@ -10,12 +10,14 @@ namespace Telerik.JustDecompiler.Decompiler
     public class TypeSpecificContext
     {
         private Dictionary<FieldDefinition, EventDefinition> fieldToEventMap;
-        public Dictionary<FieldDefinition, EventDefinition> FieldToEventMap
+        public Dictionary<FieldDefinition, EventDefinition> GetFieldToEventMap(ILanguage language)
         {
-            get
+            if (fieldToEventMap == null)
             {
-                return fieldToEventMap ?? (fieldToEventMap = this.CurrentType.GetFieldToEventMap());
+                fieldToEventMap = this.CurrentType.GetFieldToEventMap(language);
             }
+
+            return fieldToEventMap;
         }
 
 		private Dictionary<MethodDefinition, PropertyDefinition> methodToPropertyMap;
@@ -110,7 +112,7 @@ namespace Telerik.JustDecompiler.Decompiler
             partialClone.BackingFieldToNameMap = this.BackingFieldToNameMap;
             partialClone.UsedNamespaces = this.UsedNamespaces;
             partialClone.VisibleMembersNames = this.VisibleMembersNames;
-            partialClone.fieldToEventMap = this.FieldToEventMap;
+            partialClone.fieldToEventMap = this.fieldToEventMap;
             partialClone.methodToPropertyMap = this.MethodToPropertyMap;
             partialClone.IsWinRTImplementation = this.IsWinRTImplementation;
             partialClone.fieldToPropertyMap = this.fieldToPropertyMap;

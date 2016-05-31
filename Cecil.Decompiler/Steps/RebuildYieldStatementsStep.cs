@@ -146,7 +146,7 @@ namespace Telerik.JustDecompiler.Steps
                 return null;
             }
 
-            BlockStatement moveNextBody = moveNextMethod.Body.DecompileYieldStateMachine(decompilationContext.MethodContext, out yieldData);
+            BlockStatement moveNextBody = moveNextMethod.Body.DecompileYieldStateMachine(decompilationContext.MethodContext, this.Language, out yieldData);
 
             return moveNextBody != null ? GetStatements(moveNextBody) : null;
         }

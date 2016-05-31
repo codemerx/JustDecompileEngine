@@ -13,10 +13,12 @@ namespace Telerik.JustDecompiler.Decompiler
     {
         private readonly EventDefinition eventDef;
         private FieldDefinition eventField;
-        
-        public AutoImplementedEventMatcher(EventDefinition eventDef)
+        private ILanguage language;
+
+        public AutoImplementedEventMatcher(EventDefinition eventDef, ILanguage language)
         {
             this.eventDef = eventDef;
+            this.language = language;
         }
 
         public bool IsAutoImplemented(out FieldDefinition eventField)
@@ -122,7 +124,7 @@ namespace Telerik.JustDecompiler.Decompiler
                 return false;
             }
 
-            DecompilationPipeline pipeline = BaseLanguage.IntermediateRepresenationPipeline;
+            DecompilationPipeline pipeline = this.language.CreateIntermediateRepresenationPipeline();
             pipeline.Run(methodDef.Body);
             methodBody = pipeline.Body;
             return true;

@@ -391,7 +391,7 @@ namespace Telerik.JustDecompiler.Decompiler
                     decompilationContext.MethodContext.EnableEventAnalysis = false;
                 }
 
-                pipeline = new DecompilationPipeline(BaseLanguage.IntermediateRepresenationPipeline.Steps, decompilationContext);
+                pipeline = new DecompilationPipeline(this.language.CreateIntermediateRepresenationPipeline().Steps, decompilationContext);
 
                 context = pipeline.Run(body);
 

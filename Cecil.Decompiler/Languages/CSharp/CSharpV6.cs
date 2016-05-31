@@ -49,9 +49,9 @@ namespace Telerik.JustDecompiler.Languages
                 return new IDecompilationStep[]
                 {
                     new OutParameterAssignmentAnalysisStep(),
-                    new RebuildAsyncStatementsStep(),
+                    new RebuildAsyncStatementsStep() { Language = this },
                     new RebuildYieldStatementsStep() { Language = this },
-                    new RemoveDelegateCaching(),
+                    new RemoveDelegateCachingStep(),
                     // RebuildAnonymousDelegatesStep needs to be executed before the RebuildLambdaExpressions step
                     new RebuildAnonymousDelegatesStep() { Language = this },
                     new RebuildLambdaExpressions() { Language = this, Method = method },

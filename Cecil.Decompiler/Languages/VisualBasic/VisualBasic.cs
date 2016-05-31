@@ -280,7 +280,15 @@ namespace Telerik.JustDecompiler.Languages
                 return result;
             }
 
-		    public override bool HasOutKeyword
+            internal override IDecompilationStep ExpressionDecompilerStep
+            {
+                get
+                {
+                    return new VisualBasicExpressionDecompilerStep(this);
+                }
+            }
+
+            public override bool HasOutKeyword
 		    {
 			    get
 			    {

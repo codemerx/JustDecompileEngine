@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Telerik.JustDecompiler.Decompiler.Inlining;
 using Telerik.JustDecompiler.Steps.CodePatterns;
 
 namespace Telerik.JustDecompiler.Steps
@@ -17,6 +18,14 @@ namespace Telerik.JustDecompiler.Steps
             result.Add(new RaiseEventPattern());
 
             return result;
+        }
+
+        protected override IVariablesToNotInlineFinder VariablesToNotInlineFinder
+        {
+            get
+            {
+                return new VisualBasicVariablesToNotInlineFinder();
+            }
         }
     }
 }

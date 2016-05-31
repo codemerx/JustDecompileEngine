@@ -147,7 +147,7 @@ namespace Telerik.JustDecompiler.Steps
 			}
 		}
 
-		private bool CanExistInStatement(Expression expression)
+		protected virtual bool CanExistInStatement(Expression expression)
 		{
 			if (expression.CodeNodeType == CodeNodeType.MethodInvocationExpression ||
 				expression.CodeNodeType == CodeNodeType.DelegateInvokeExpression ||

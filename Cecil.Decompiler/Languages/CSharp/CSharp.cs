@@ -150,7 +150,7 @@ namespace Telerik.JustDecompiler.Languages
                 return new CSharpAssemblyAttributeWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments);
             }
 
-                protected override bool IsLanguageKeyword(string word, HashSet<string> globalKeywords, HashSet<string> contextKeywords)
+            protected override bool IsLanguageKeyword(string word, HashSet<string> globalKeywords, HashSet<string> contextKeywords)
             {
                     bool result = globalKeywords.Contains(word) || contextKeywords.Contains(word);
                     return result;
@@ -175,6 +175,14 @@ namespace Telerik.JustDecompiler.Languages
             {
                 bool result = this.operators.TryGetValue(operatorName, out languageOperator);
                 return result;
+            }
+
+            internal override IDecompilationStep ExpressionDecompilerStep
+            {
+                get
+                {
+                    return new ExpressionDecompilerStep(this);
+                }
             }
 
             public override bool SupportsGetterOnlyAutoProperties

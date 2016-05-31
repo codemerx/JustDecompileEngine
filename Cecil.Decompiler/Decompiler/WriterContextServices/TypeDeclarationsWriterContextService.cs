@@ -19,7 +19,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
             Dictionary<FieldDefinition, PropertyDefinition> fieldToPropertyMap = type.GetFieldToPropertyMap(language);
             IEnumerable<FieldDefinition> propertyFields = fieldToPropertyMap.Keys;
             HashSet<PropertyDefinition> autoImplementedProperties = new HashSet<PropertyDefinition>(fieldToPropertyMap.Values);
-			HashSet<EventDefinition> autoImplementedEvents = GetAutoImplementedEvents(type);
+			HashSet<EventDefinition> autoImplementedEvents = GetAutoImplementedEvents(type, language);
 
 			TypeSpecificContext typeContext = new TypeSpecificContext(type) { AutoImplementedProperties = autoImplementedProperties, AutoImplementedEvents = autoImplementedEvents };
 
@@ -42,7 +42,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 
 		public TypeDeclarationsWriterContextService(bool renameInvalidMembers) : base(null, renameInvalidMembers) { }
 
-		private HashSet<EventDefinition> GetAutoImplementedEvents(TypeDefinition type)
+		private HashSet<EventDefinition> GetAutoImplementedEvents(TypeDefinition type, ILanguage language)
 		{
 			HashSet<EventDefinition> result = new HashSet<EventDefinition>();
 
@@ -50,7 +50,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 			{
 				foreach (EventDefinition @event in type.Events)
 				{
-					AutoImplementedEventMatcher matcher = new AutoImplementedEventMatcher(@event);
+					AutoImplementedEventMatcher matcher = new AutoImplementedEventMatcher(@event, language);
 					bool isAutoImplemented = matcher.IsAutoImplemented();
 
 					if (isAutoImplemented)

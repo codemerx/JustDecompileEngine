@@ -27,6 +27,7 @@ using System;
 using Mono.Cecil;
 using Telerik.JustDecompiler.Decompiler;
 using System.Collections.Generic;
+using Telerik.JustDecompiler.Steps;
 
 namespace Telerik.JustDecompiler.Languages.IL
 {
@@ -139,6 +140,14 @@ namespace Telerik.JustDecompiler.Languages.IL
         protected override bool IsGlobalKeyword(string word, HashSet<string> globalKeywords)
         {
             return false;
+        }
+
+        internal override IDecompilationStep ExpressionDecompilerStep
+        {
+            get
+            {
+                return null;
+            }
         }
 
         public override bool SupportsGetterOnlyAutoProperties

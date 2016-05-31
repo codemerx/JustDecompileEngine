@@ -116,7 +116,7 @@ namespace Telerik.JustDecompiler.Decompiler
 		{
 
 #if !NET35
-            List<IMemberDefinition> members = type.GetMembersSorted(showCompilerGeneratedMembers, language, attributesToSkip, fieldsToSkip, new HashSet<FieldReference>(type.GetFieldToEventMap().Keys), generatedFilterMethods, propertyFields).ToList();
+            List<IMemberDefinition> members = type.GetMembersSorted(showCompilerGeneratedMembers, language, attributesToSkip, fieldsToSkip, new HashSet<FieldReference>(type.GetFieldToEventMap(language).Keys), generatedFilterMethods, propertyFields).ToList();
 #else
 			IEnumerable<FieldDefinition> fields = type.GetFieldToEventMap().Keys;
 			HashSet<FieldReference> temp = new HashSet<FieldReference>();

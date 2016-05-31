@@ -34,21 +34,20 @@ namespace Telerik.JustDecompiler.Languages
             }
         }
 
-        public static DecompilationPipeline IntermediateRepresenationPipeline
+        public DecompilationPipeline CreateIntermediateRepresenationPipeline()
         {
-            get
-            {
 				return new DecompilationPipeline(new RemoveUnreachableBlocksStep(),
 												 new StackUsageAnalysis(),
-												 new ExpressionDecompilerStep(),
+												 this.ExpressionDecompilerStep,
 												 new ManagedPointersRemovalStep(),
 												 new VariableAssignmentAnalysisStep(),
 												 new LogicalFlowBuilderStep(),
 												 new FollowNodeLoopCleanUpStep(),
 												 new StatementDecompilerStep(),
 												 new MapUnconditionalBranchesStep());
-			}
         }
+
+        internal abstract IDecompilationStep ExpressionDecompilerStep { get; }
 
         private bool writeLargeNumbersInHex = true;
 
@@ -150,7 +149,7 @@ namespace Telerik.JustDecompiler.Languages
         public virtual DecompilationPipeline CreatePipeline(MethodDefinition method)
         {
             DecompilationPipeline result = new DecompilationPipeline();
-            result.AddSteps(IntermediateRepresenationPipeline.Steps);
+            result.AddSteps(CreateIntermediateRepresenationPipeline().Steps);
             result.AddSteps(LanguageDecompilationSteps(method, false));
             return result;
         }
@@ -180,7 +179,7 @@ namespace Telerik.JustDecompiler.Languages
 
         private DecompilationPipeline CreatePipelineInternal(MethodDefinition method, DecompilationContext context, bool inlineAggressively)
         {
-            DecompilationPipeline result = new DecompilationPipeline(IntermediateRepresenationPipeline.Steps, context);
+            DecompilationPipeline result = new DecompilationPipeline(CreateIntermediateRepresenationPipeline().Steps, context);
             result.AddSteps(LanguageDecompilationSteps(method, inlineAggressively));
             return result;
         }
@@ -280,7 +279,12 @@ namespace Telerik.JustDecompiler.Languages
             return string.Equals(this.Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
 
-		public virtual bool HasOutKeyword
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
+        public virtual bool HasOutKeyword
 		{
 			get
 			{

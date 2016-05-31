@@ -354,7 +354,7 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 					{
 						EventDefinition eventDefinition = (currentMember as EventDefinition);
 
-						AutoImplementedEventMatcher matcher = new AutoImplementedEventMatcher(eventDefinition);
+						AutoImplementedEventMatcher matcher = new AutoImplementedEventMatcher(eventDefinition, language);
 						bool isAutoImplemented = matcher.IsAutoImplemented();
 
 						if (isAutoImplemented)
