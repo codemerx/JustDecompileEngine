@@ -1210,7 +1210,12 @@ namespace Telerik.JustDecompiler.Languages.CSharp
 
         protected override bool IsComplexTarget(Expression target)
         {
-            return base.IsComplexTarget(target) || target.CodeNodeType == CodeNodeType.DynamicConstructorInvocationExpression || target.CodeNodeType == CodeNodeType.LinqQueryExpression;
+            return base.IsComplexTarget(target) ||
+                   target.CodeNodeType == CodeNodeType.DynamicConstructorInvocationExpression ||
+                   target.CodeNodeType == CodeNodeType.LinqQueryExpression ||
+                   target.CodeNodeType == CodeNodeType.ConditionExpression ||
+                   target.CodeNodeType == CodeNodeType.CastExpression ||
+                   target.CodeNodeType == CodeNodeType.SafeCastExpression;
         }
 
         public override void VisitDynamicMemberReferenceExpression(DynamicMemberReferenceExpression node)

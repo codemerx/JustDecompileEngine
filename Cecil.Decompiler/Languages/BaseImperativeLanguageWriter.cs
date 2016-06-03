@@ -3622,9 +3622,6 @@ namespace Telerik.JustDecompiler.Languages
 
 			return target.CodeNodeType == CodeNodeType.BinaryExpression ||
 				   target.CodeNodeType == CodeNodeType.UnaryExpression ||
-				   target.CodeNodeType == CodeNodeType.ConditionExpression ||
-				   target.CodeNodeType == CodeNodeType.CastExpression ||
-				   target.CodeNodeType == CodeNodeType.SafeCastExpression ||
 				   target.CodeNodeType == CodeNodeType.ArrayCreationExpression ||
 				   target.CodeNodeType == CodeNodeType.ObjectCreationExpression ||
 				   target.CodeNodeType == CodeNodeType.LambdaExpression;
