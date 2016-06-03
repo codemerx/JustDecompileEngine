@@ -974,7 +974,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             WriteToken("(");
             WriteKeyword(KeyWordWriter.AddressOf);
             WriteSpace();
-            Write(node.Arguments[1]);
+            WriteDelegateArgument(node);
             WriteToken(")");
         }
 
