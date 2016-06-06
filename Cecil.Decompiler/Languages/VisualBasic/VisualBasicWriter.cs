@@ -42,7 +42,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 {
     public class VisualBasicWriter : NamespaceImperativeLanguageWriter
     {
-        readonly Stack<StatementState> loopStates = new Stack<StatementState>();
+        readonly Stack<StatementState> statementStates = new Stack<StatementState>();
 
         public VisualBasicWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
             : base(language, formatter, exceptionFormatter, writeExceptionsAsComments)
@@ -296,9 +296,9 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 
         protected void WriteDim()
         {
-            if (loopStates.Count > 0)
+            if (statementStates.Count > 0)
             {
-                var lastState = loopStates.Peek();
+                var lastState = statementStates.Peek();
                 if ((lastState == StatementState.ForEachInitializer) ||
                     (lastState == StatementState.ForInitializer) ||
                     (lastState == StatementState.Catch) ||
@@ -1017,7 +1017,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 
         public override void VisitSwitchStatement(SwitchStatement node)
         {
-            loopStates.Push(StatementState.Switch);
+            statementStates.Push(StatementState.Switch);
             WriteKeyword(KeyWordWriter.Switch);
             WriteSpace();
             WriteKeyword(KeyWordWriter.Case);
@@ -1029,7 +1029,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             WriteBlock(() => VisitVBSwitchCases(node.Cases), "");
 
             WriteEndBlock(KeyWordWriter.Switch);
-            loopStates.Pop();
+            statementStates.Pop();
         }
 
         public override void VisitConditionCase(ConditionCase node)
@@ -1058,12 +1058,12 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 
         public override void VisitForEachStatement(ForEachStatement node)
         {
-            loopStates.Push(StatementState.ForEach);
+            statementStates.Push(StatementState.ForEach);
             WriteKeyword(KeyWordWriter.ForEach);
             WriteSpace();
-            loopStates.Push(StatementState.ForEachInitializer);
+            statementStates.Push(StatementState.ForEachInitializer);
             Visit(node.Variable);
-            loopStates.Pop();
+            statementStates.Pop();
             WriteSpace();
             WriteKeyword(KeyWordWriter.In);
             WriteSpace();
@@ -1071,19 +1071,19 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             WriteLine();
             Visit(node.Body);
             WriteKeyword(KeyWordWriter.Next);
-            loopStates.Pop();
+            statementStates.Pop();
         }
 
         public override void VisitWhileStatement(WhileStatement node)
         {
-            loopStates.Push(StatementState.While);
+            statementStates.Push(StatementState.While);
             base.VisitWhileStatement(node);
-            loopStates.Pop();
+            statementStates.Pop();
         }
 
         public override void VisitDoWhileStatement(DoWhileStatement node)
         {
-            loopStates.Push(StatementState.DoWhile);
+            statementStates.Push(StatementState.DoWhile);
             WriteKeyword(KeyWordWriter.Do);
             WriteLine();
             Visit(node.Body);
@@ -1091,7 +1091,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             WriteSpace();
             WriteSpecialBetweenParenthesis(node.Condition);
             WriteEndOfStatement();
-            loopStates.Pop();
+            statementStates.Pop();
         }
 
         private string GetCastMethod(TypeReference type)
@@ -1278,13 +1278,13 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             {
                 return;
             }
-            loopStates.Push(StatementState.For);
+            statementStates.Push(StatementState.For);
             var forStep = GetForStep(incrementExpression);
             WriteKeyword("For");
             WriteSpace();
-            loopStates.Push(StatementState.ForEachInitializer);
+            statementStates.Push(StatementState.ForEachInitializer);
             Visit(node.Initializer);
-            loopStates.Pop();
+            statementStates.Pop();
             WriteSpace();
             WriteKeyword("To");
             WriteSpace();
@@ -1300,7 +1300,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             Visit(node.Body);
             WriteKeyword(KeyWordWriter.Next);
             WriteLine();
-            loopStates.Pop();
+            statementStates.Pop();
         }
 
         private Expression GetForStep(Expression incrementExpression)
@@ -1371,41 +1371,50 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
         public override void VisitContinueStatement(ContinueStatement node)
         {
             WriteKeyword("Continue");
-            WriteLoopEnd();
+            WriteSpace();
+            WriteInnermostParentFrom(GetContinuableParents());
             //  WriteLine();
         }
 
-        private void WriteLoopEnd()
+        private Dictionary<StatementState, string> GetContinuableParents()
         {
-            if (loopStates.Count > 0)
+            return new Dictionary<StatementState, string>()
             {
-                WriteSpace();
-                var lastState = loopStates.Peek();
-                switch (lastState)
+                { StatementState.DoWhile, "Do" },
+                { StatementState.For, "For" },
+                { StatementState.ForEach, "For" },
+                { StatementState.While, "While" }
+            };
+        }
+
+        private Dictionary<StatementState, string> GetExitableParents()
+        {
+            return new Dictionary<StatementState, string>(GetContinuableParents())
+            {
+                { StatementState.Switch, "Select" }
+            };
+        }
+
+        private void WriteInnermostParentFrom(Dictionary<StatementState, string> parents)
+        {
+            foreach (StatementState state in this.statementStates)
+            {
+                if (parents.ContainsKey(state))
                 {
-                    case StatementState.For:
-                        WriteKeyword("For");
-                        break;
-                    case StatementState.ForEach:
-                        WriteKeyword("For");
-                        break;
-                    case StatementState.DoWhile:
-                        WriteKeyword("Do");
-                        break;
-                    case StatementState.While:
-                        WriteKeyword("While");
-                        break;
-                    case StatementState.Switch:
-                        WriteKeyword("Select");
-                        break;
+                    WriteKeyword(parents[state]);
+
+                    return;
                 }
             }
+
+            throw new Exception("Suitable parent for Continue/Exit statement not found.");
         }
 
         public override void VisitBreakStatement(BreakStatement node)
         {
             WriteKeyword("Exit");
-            WriteLoopEnd();
+            WriteSpace();
+            WriteInnermostParentFrom(GetExitableParents());
             //  WriteLine();
         }
 
@@ -1580,9 +1589,9 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 
 				if (node.Variable != null)
 				{
-					loopStates.Push(StatementState.Catch);
+					statementStates.Push(StatementState.Catch);
 					Visit(node.Variable);
-					loopStates.Pop();
+					statementStates.Pop();
 				}
 				else
 				{
@@ -1606,9 +1615,9 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
         {
             WriteKeyword(KeyWordWriter.Using);
             WriteSpace();
-            loopStates.Push(StatementState.Using);
+            statementStates.Push(StatementState.Using);
             WriteSpecialBetweenParenthesis(node.Expression);
-            loopStates.Pop();
+            statementStates.Pop();
             WriteLine();
             Visit(node.Body);
             WriteSpecialEndBlock(KeyWordWriter.Using);
