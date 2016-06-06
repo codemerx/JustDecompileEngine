@@ -2176,6 +2176,23 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 
             return result;
         }
+
+        public override void VisitPropertyReferenceExpression(PropertyReferenceExpression node)
+        {
+            if (node.Target != null &&
+                node.Target.CodeNodeType == CodeNodeType.BaseReferenceExpression &&
+                node.IsIndexer)
+            {
+                Visit(node.Target);
+                WriteToken(".");
+                WritePropertyName(node.Property);
+                WriteIndexerArguments(node);
+            }
+            else
+            {
+                base.VisitPropertyReferenceExpression(node);
+            }
+        }
     }
 
     public enum StatementState

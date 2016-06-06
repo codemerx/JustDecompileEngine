@@ -3232,25 +3232,30 @@ namespace Telerik.JustDecompiler.Languages
 				WritePropertyName(node.Property);
 			}
 			else
-			{
-				WriteToken(IndexLeftBracket);
-				for (int i = 0; i < node.Arguments.Count; i++)
-				{
-					Expression parameter = node.Arguments[i];
+            {
+                WriteIndexerArguments(node);
+            }
+        }
 
-					if (i > 0)
-					{
-						WriteToken(",");
-						WriteSpace();
-					}
+        protected void WriteIndexerArguments(PropertyReferenceExpression node)
+        {
+            WriteToken(IndexLeftBracket);
+            for (int i = 0; i < node.Arguments.Count; i++)
+            {
+                Expression parameter = node.Arguments[i];
 
-					Write(parameter);
-				}
-				WriteToken(IndexRightBracket);
-			}
-		}
+                if (i > 0)
+                {
+                    WriteToken(",");
+                    WriteSpace();
+                }
 
-		protected virtual void WritePropertyName(PropertyDefinition property)
+                Write(parameter);
+            }
+            WriteToken(IndexRightBracket);
+        }
+
+        protected virtual void WritePropertyName(PropertyDefinition property)
 		{
 			string propertyName = GetPropertyName(property);
 			WriteReference(propertyName, property);
