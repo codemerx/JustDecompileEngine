@@ -522,9 +522,9 @@ namespace Telerik.JustDecompiler.Languages
 			}
 			else
 			{
-				typeString = ToTypeString(reference);
+                typeString = ToEscapedTypeString(reference);
 
-				if (reference.Scope.Name != "mscorlib" && reference.Scope.Name != "CommonLanguageRuntimeLibrary" && reference.Scope.Name != "System.Runtime")
+				if (!IsReferenceFromMscorlib(reference))
 				{
 					typeString = Utilities.EscapeTypeNameIfNeeded(typeString, this.Language);
 				}
@@ -581,6 +581,19 @@ namespace Telerik.JustDecompiler.Languages
 				WriteReference(typeString, reference);
 			}
 		}
+
+        /// <summary>
+        /// Gets the type string for given type reference. If the type string is a system type and it's in collision with
+        /// some keyword, it's escaped.
+        /// </summary>
+        protected abstract string ToEscapedTypeString(TypeReference reference);
+
+        protected bool IsReferenceFromMscorlib(TypeReference reference)
+        {
+            return reference.Scope.Name == "mscorlib" ||
+                   reference.Scope.Name == "CommonLanguageRuntimeLibrary" ||
+                   reference.Scope.Name == "System.Runtime";
+        }
 
 		protected void LeaveMethodInvocation()
 		{

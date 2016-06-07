@@ -499,7 +499,7 @@ namespace Telerik.JustDecompiler.Decompiler
 
 			if (language.IsLanguageKeyword(result))
 			{
-				result = language.EscapeWord(result);
+                result = Escape(name, language);
 			}
 
 			return result;
@@ -511,11 +511,16 @@ namespace Telerik.JustDecompiler.Decompiler
 
 			if (language.IsGlobalKeyword(result))
 			{
-				result = language.EscapeWord(result);
+                result = Escape(typeName, language);
 			}
 
 			return result;
 		}
+
+        public static string Escape(string name, ILanguage language)
+        {
+            return language.EscapeWord(name);
+        }
 
 		public static string EscapeNamespaceIfNeeded(string @namespace, ILanguage language)
 		{

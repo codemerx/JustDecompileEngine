@@ -313,7 +313,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
         public override string ToTypeString(TypeReference type)
         {
             /// There might be user generated classes with this name. Only the ones declared in mscorlib should be replaced by the language keyword.
-            if (type.Scope.Name == "mscorlib" || type.Scope.Name == "CommonLanguageRuntimeLibrary" || type.Scope.Name == "System.Runtime")
+            if (IsReferenceFromMscorlib(type))
             {
                 switch (type.Name)
                 {
@@ -2191,6 +2191,28 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             else
             {
                 base.VisitPropertyReferenceExpression(node);
+            }
+        }
+
+        /// <summary>
+        /// Gets the type string for given type reference. If the type string is a system type and it's in collision with
+        /// some keyword, it's escaped.
+        /// </summary>
+        protected override string ToEscapedTypeString(TypeReference reference)
+        {
+            if (IsReferenceFromMscorlib(reference))
+            {
+                string typeString = ToTypeString(reference);
+                if (typeString == "Enum" || typeString == "Delegate")
+                {
+                    typeString = Utilities.Escape(typeString, this.Language);
+                }
+
+                return typeString;
+            }
+            else
+            {
+                return ToTypeString(reference);
             }
         }
     }

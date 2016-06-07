@@ -225,7 +225,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
         public override string ToTypeString(TypeReference type)
         {
             /// There might be user generated classes with this name. Only the ones declared in mscorlib should be replaced by the language keyword.
-            if (type.Scope.Name == "mscorlib" || type.Scope.Name == "CommonLanguageRuntimeLibrary" || type.Scope.Name == "System.Runtime")
+            if (IsReferenceFromMscorlib(type))
             {
                 switch (type.Name)
                 {
@@ -1715,6 +1715,17 @@ namespace Telerik.JustDecompiler.Languages.CSharp
         {
             // All C# classes (static or instance) support explicit static members.
             return true;
+        }
+
+        /// <summary>
+        /// Gets the type string for given type reference. If the type string is a system type and it's in collision with
+        /// some keyword, it's escaped.
+        /// </summary>
+        protected override string ToEscapedTypeString(TypeReference reference)
+        {
+            // There is no need to escape the system types in C#, since all type names are starting with capital letter,
+            // and all keywords are starting with non-capital letter.
+            return ToTypeString(reference);
         }
     }
 }
