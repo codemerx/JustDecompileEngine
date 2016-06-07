@@ -143,9 +143,10 @@ namespace Telerik.JustDecompiler.Decompiler.MemberRenamingServices
 
 			IMemberDefinition explicitMemberDefinition = GetExplicitMemberDefinition(member);
 			if (explicitMemberDefinition != null && Utilities.IsExplicitInterfaceImplementataion(explicitMemberDefinition))
-			{
-				memberRenamingData.RenamedMembersMap[memberToken] = this.language.GetExplicitName(explicitMemberDefinition);
-			}
+            {
+                string explicitName = this.language.GetExplicitName(explicitMemberDefinition);
+                memberRenamingData.RenamedMembersMap[memberToken] = Utilities.EscapeNameIfNeeded(explicitName, this.language);
+            }
 			else
 			{
 				string memberName = GenericHelper.GetNonGenericName(member.Name);
