@@ -765,7 +765,7 @@ namespace Telerik.JustDecompiler.Languages
 
         private string GetElementTypeName(CustomAttributeArgument argument)
         {
-            return genericWriter.ToTypeString((argument.Type as ArrayType).ElementType);
+            return genericWriter.ToEscapedTypeString((argument.Type as ArrayType).ElementType);
         }
 
         protected abstract string OpeningBracket { get; }

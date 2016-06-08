@@ -351,7 +351,7 @@ namespace Telerik.JustDecompiler.Languages
 
 		private string GetCollidingTypeName(TypeReference typeReference)
 		{
-			return typeReference.Namespace == "System" ? ToTypeString(typeReference) : typeReference.Name;
+			return typeReference.Namespace == "System" ? ToEscapedTypeString(typeReference) : typeReference.Name;
 		}
 
 		private TypeReference GetCollidingType(TypeReference typeReference)
@@ -586,7 +586,7 @@ namespace Telerik.JustDecompiler.Languages
         /// Gets the type string for given type reference. If the type string is a system type and it's in collision with
         /// some keyword, it's escaped.
         /// </summary>
-        protected abstract string ToEscapedTypeString(TypeReference reference);
+        public abstract string ToEscapedTypeString(TypeReference reference);
 
         protected bool IsReferenceFromMscorlib(TypeReference reference)
         {
@@ -3125,7 +3125,7 @@ namespace Telerik.JustDecompiler.Languages
 
 			if (type.IsGenericParameter)
 			{
-				string typeString = ToTypeString(type);
+				string typeString = ToEscapedTypeString(type);
 				WriteReference(typeString, null);
 				return;
 			}
@@ -3147,7 +3147,7 @@ namespace Telerik.JustDecompiler.Languages
 			}
 			else
 			{
-				WriteReference(ToTypeString(type), type);
+				WriteReference(ToEscapedTypeString(type), type);
 			}
 		}
 
