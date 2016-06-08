@@ -13,18 +13,23 @@ namespace Telerik.JustDecompiler.Languages
         {
             public VisualBasicV10()
             {
+                // Keywords are taken from https://msdn.microsoft.com/en-us/library/dd409611(v=vs.140).aspx
+                // The Out keyword is not added on purpose. That's because, we succeded to use it as identifier and the compiler
+                // doesn't display error. If you add it, there will be many changes linked to the use of the OutAttribute.
                 string[] GlobalKeywords =
                 {
-                    "AddHandler","AddressOf","Alias","And","AndAlso","Ansi","As","Assembly","Auto","Boolean","ByRef","Byte","ByVal","Call","Case","Catch",
-                    "CBool","CByte","CChar","CDate","CDec","CDbl","Char","CInt","Class","CLng","CObj","Const","CShort","CSng","CStr","CType","Date",
-                    "Decimal","Declare","Default","Delegate","Dim","DirectCast","Do","Double","Each","Else","ElseIf","End","Enum","Erase","Error","Event",
-                    "Exit","False","Finally","For","Friend","Function","Get","GetType","GoSub","GoTo","Handles","If","Implements","Imports","In","Inherits",
-                    "Integer","Interface","Is","Let","Lib","Like","Long","Loop","Me","Mod","Module","MustInherit","MustOverride","MyBase","MyClass",
-                    "Namespace","New","Next","Not","Nothing","NotInheritable","NotOverridable","Object","On","Option","Optional","Or","OrElse","Overloads",
-                    "Overridable","Overrides","ParamArray","Preserve","Private","Property","Protected","Public","RaiseEvent","ReadOnly","ReDim","REM",
-                    "RemoveHandler","Resume","Return","Select","Set","Shadows","Shared","Short","Single","Static","Step","Stop","String","Structure","Sub",
-                    "SyncLock","Then","Throw","To","True","Try","TypeOf","Unicode","Until","Variant","When","While","With","WithEvents","WriteOnly","Xor",
-                    "#Const","#ExternalSource","#If","Then","#Else","#Region"
+                    "AddHandler","AddressOf","Alias","And","AndAlso","As","Boolean","ByRef","Byte","ByVal","Call","Case","Catch","CBool",
+                    "CByte","CChar","CDate","CDbl","CDec","Char","CInt","Class","CLng","CObj","Const","Continue","CSByte","CShort","CSng",
+                    "CStr","CType","CUInt","CULng","CUShort","Date","Decimal","Declare","Default","Delegate","Dim","DirectCast","Do",
+                    "Double","Each","Else","ElseIf","End","EndIf","Enum","Erase","Error","Event","Exit","False","Finally","For","Friend",
+                    "Function","Get","GetType","GetXMLNamespace","Global","GoSub","GoTo","Handles","If","Implements","Imports","In",
+                    "Inherits","Integer","Interface","Is","IsNot","Let","Lib","Like","Long","Loop","Me","Mod","Module","MustInherit",
+                    "MustOverride","MyBase","MyClass","Namespace","Narrowing","New","Next","Not","Nothing","NotInheritable",
+                    "NotOverridable","Object","Of","On","Operator","Option","Optional","Or","OrElse","Overloads","Overridable","Overrides",
+                    "ParamArray","Partial","Private","Property","Protected","Public","RaiseEvent","ReadOnly","ReDim","REM","RemoveHandler",
+                    "Resume","Return","SByte","Select","Set","Shadows","Shared","Short","Single","Static","Step","Stop","String",
+                    "Structure","Sub","SyncLock","Then","Throw","To","True","Try","TryCast","TypeOf","UInteger","ULong","UShort","Using",
+                    "Variant","Wend","When","While","Widening","With","WithEvents","WriteOnly","Xor","#Const","#Else","#ElseIf","#End","#If"
                 };
 
                 foreach (string word in GlobalKeywords)
