@@ -8,7 +8,7 @@ using Telerik.JustDecompiler.Ast.Expressions;
 
 namespace Telerik.JustDecompiler.Decompiler.Inlining
 {
-    class MethodVariablesInliningStep : BaseVariablesInliningStep
+    class MethodVariablesInliner : BaseVariablesInliner
     {
         protected override void FindSingleDefineSingleUseVariables()
         {
@@ -21,7 +21,7 @@ namespace Telerik.JustDecompiler.Decompiler.Inlining
             variablesToInline.UnionWith(finder.SingleDefineSingleUsageVariables);
         }
 
-        public MethodVariablesInliningStep(MethodSpecificContext methodContext, IVariablesToNotInlineFinder finder)
+        public MethodVariablesInliner(MethodSpecificContext methodContext, IVariablesToNotInlineFinder finder)
             : base(methodContext, new RestrictedVariableInliner(methodContext.Method.Module.TypeSystem), finder)
         {
         }

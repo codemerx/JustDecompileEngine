@@ -9,12 +9,12 @@ using Mono.Cecil;
 
 namespace Telerik.JustDecompiler.Decompiler.Inlining
 {
-    class StackVariablesInliningStep : BaseVariablesInliningStep
+    class StackVariablesInliner : BaseVariablesInliner
     {
         private readonly Dictionary<int, Expression> offsetToExpression;
         private readonly HashSet<VariableDefinition> inlinedOnSecondPass = new HashSet<VariableDefinition>();
 
-        public StackVariablesInliningStep(MethodSpecificContext methodContext, Dictionary<int, Expression> offsetToExpression, IVariablesToNotInlineFinder finder)
+        public StackVariablesInliner(MethodSpecificContext methodContext, Dictionary<int, Expression> offsetToExpression, IVariablesToNotInlineFinder finder)
             : base(methodContext, new SimpleVariableInliner(methodContext.Method.Module.TypeSystem), finder)
         {
             this.offsetToExpression = offsetToExpression;

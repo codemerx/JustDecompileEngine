@@ -74,7 +74,7 @@ namespace Telerik.JustDecompiler.Decompiler
 
             methodContext.Expressions = results;
 
-            StackVariablesInliningStep stackVariablesInliningStep = new StackVariablesInliningStep(this.methodContext, this.offsetToExpression, this.VariablesToNotInlineFinder);
+            StackVariablesInliner stackVariablesInliningStep = new StackVariablesInliner(this.methodContext, this.offsetToExpression, this.VariablesToNotInlineFinder);
             stackVariablesInliningStep.InlineVariables();
 
             AddUninlinedStackVariablesToContext();
@@ -87,10 +87,10 @@ namespace Telerik.JustDecompiler.Decompiler
 
             ///This step passes through the binary expressions in the code, and does transformations in them, so that they are typewise correct.
             ///this should be done after the type inference, since expressions containing variables with infered type might need to be fixed in this step.
-            BinaryExpressionsFixer bef = new BinaryExpressionsFixer(methodContext.Method.Module.TypeSystem);
+            FixBinaryExpressionsStep bef = new FixBinaryExpressionsStep(methodContext.Method.Module.TypeSystem);
             bef.Process(theContext, body);
 
-            MethodVariablesInliningStep methodVariablesInliningStep = new MethodVariablesInliningStep(this.methodContext, this.VariablesToNotInlineFinder);
+            MethodVariablesInliner methodVariablesInliningStep = new MethodVariablesInliner(this.methodContext, this.VariablesToNotInlineFinder);
             methodVariablesInliningStep.InlineVariables();
 
             UsageBasedExpressionFixer literalsFixer = new UsageBasedExpressionFixer(methodContext);

@@ -6,7 +6,7 @@ using Telerik.JustDecompiler.Ast.Expressions;
 
 namespace Telerik.JustDecompiler.Decompiler.Inlining
 {
-    abstract class BaseVariablesInliningStep
+    abstract class BaseVariablesInliner
     {
         protected readonly HashSet<VariableDefinition> variablesToNotInline = new HashSet<VariableDefinition>();
         protected readonly HashSet<VariableDefinition> variablesToInline = new HashSet<VariableDefinition>();
@@ -15,7 +15,7 @@ namespace Telerik.JustDecompiler.Decompiler.Inlining
 
         private IVariablesToNotInlineFinder finder;
 
-        public BaseVariablesInliningStep(MethodSpecificContext methodContext, IVariableInliner inliner, IVariablesToNotInlineFinder finder)
+        public BaseVariablesInliner(MethodSpecificContext methodContext, IVariableInliner inliner, IVariablesToNotInlineFinder finder)
         {
             this.methodContext = methodContext;
             this.inliner = inliner;
