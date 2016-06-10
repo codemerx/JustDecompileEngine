@@ -517,7 +517,7 @@ namespace Telerik.JustDecompiler.Decompiler
 			return result;
 		}
 
-        public static string Escape(string name, ILanguage language)
+        internal static string Escape(string name, ILanguage language)
         {
             return language.EscapeWord(name);
         }
