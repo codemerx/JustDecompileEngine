@@ -1721,7 +1721,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
         /// Gets the type string for given type reference. If the type string is a system type and it's in collision with
         /// some keyword, it's escaped.
         /// </summary>
-        public override string ToEscapedTypeString(TypeReference reference)
+        internal override string ToEscapedTypeString(TypeReference reference)
         {
             // There is no need to escape the system types in C#, since all type names are starting with capital letter,
             // and all keywords are starting with non-capital letter.

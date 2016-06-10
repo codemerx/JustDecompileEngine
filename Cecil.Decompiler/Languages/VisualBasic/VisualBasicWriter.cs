@@ -2206,7 +2206,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
         /// Gets the type string for given type reference. If the type string is a system type and it's in collision with
         /// some keyword, it's escaped.
         /// </summary>
-        public override string ToEscapedTypeString(TypeReference reference)
+        internal override string ToEscapedTypeString(TypeReference reference)
         {
             if (IsReferenceFromMscorlib(reference))
             {
