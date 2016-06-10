@@ -1104,6 +1104,8 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
                     return "CSng";
                 case "Byte":
                     return "CByte";
+                case "SByte":
+                    return "CSByte";
                 case "Char":
                     return "CChar";
                 case "Double":
@@ -1112,10 +1114,16 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
                     return "CBool";
                 case "Int16":
                     return "CShort";
+                case "UInt16":
+                    return "CUShort";
                 case "Int32":
                     return "CInt";
+                case "UInt32":
+                    return "CUInt";
                 case "Int64":
                     return "CLng";
+                case "UInt64":
+                    return "CULng";
                 case "String":
                     return "CStr";
                 case "Object":
