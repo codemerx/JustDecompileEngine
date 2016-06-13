@@ -39,7 +39,7 @@ namespace Telerik.JustDecompiler.Steps
                 return body;
             }
             clone = (BlockStatement)new ClosureVariablesRemover(context.MethodContext).Visit(clone);
-            clone = new CombinedTransformerStep(){ Method = context.MethodContext.Method }.Process(context, clone);
+            clone = new CombinedTransformerStep().Process(context, clone);
             return clone;
         }
 

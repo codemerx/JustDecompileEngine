@@ -88,27 +88,27 @@ namespace Telerik.JustDecompiler.Languages.IL
 			return new IntermediateLanguageAssemblyAttributeWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments, ShouldGenerateBlocks);
 		}
 
-        public override DecompilationPipeline CreatePipeline(MethodDefinition method)
+        public override DecompilationPipeline CreatePipeline()
         {
             return new DecompilationPipeline();
         }
 
-        public override DecompilationPipeline CreatePipeline(MethodDefinition method, DecompilationContext context)
+        public override DecompilationPipeline CreatePipeline(DecompilationContext context)
         {
             return new DecompilationPipeline();
         }
 
-        public override DecompilationPipeline CreateLambdaPipeline(MethodDefinition method, DecompilationContext context)
+        public override DecompilationPipeline CreateLambdaPipeline(DecompilationContext context)
         {
             return new DecompilationPipeline();
         }
 
-        public override BlockDecompilationPipeline CreateFilterMethodPipeline(MethodDefinition method, DecompilationContext context)
+        public override BlockDecompilationPipeline CreateFilterMethodPipeline(DecompilationContext context)
         {
             return new BlockDecompilationPipeline();
         }
         
-        public override BlockDecompilationPipeline CreatePropertyPipeline(MethodDefinition method, DecompilationContext context)
+        public override BlockDecompilationPipeline CreatePropertyPipeline(DecompilationContext context)
         {
             return new BlockDecompilationPipeline();
         }

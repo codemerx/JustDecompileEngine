@@ -70,17 +70,17 @@ namespace Telerik.JustDecompiler.Languages
 
 		bool IsEscapedWord(string escapedWord, string originalWord);
         
-        DecompilationPipeline CreatePipeline(MethodDefinition method);
+        DecompilationPipeline CreatePipeline();
 
-        DecompilationPipeline CreatePipeline(MethodDefinition method, DecompilationContext context);
+        DecompilationPipeline CreatePipeline(DecompilationContext context);
 
-        DecompilationPipeline CreateLambdaPipeline(MethodDefinition method, DecompilationContext context);
+        DecompilationPipeline CreateLambdaPipeline(DecompilationContext context);
 
-        BlockDecompilationPipeline CreateFilterMethodPipeline(MethodDefinition method, DecompilationContext context);
+        BlockDecompilationPipeline CreateFilterMethodPipeline(DecompilationContext context);
 
         // This pipeline is used by the PropertyDecompiler to finish the decompilation of properties, which are partially decompiled
         // using the step from the IntermediateRepresenationPipeline.
-        BlockDecompilationPipeline CreatePropertyPipeline(MethodDefinition method, DecompilationContext context);
+        BlockDecompilationPipeline CreatePropertyPipeline(DecompilationContext context);
 
 		string GetExplicitName(IMemberDefinition member);
 

@@ -342,7 +342,7 @@ namespace Telerik.JustDecompiler.Decompiler
                 DecompilationContext decompilationContext =
                     new DecompilationContext(new MethodSpecificContext(body), this.typeContext ?? new TypeSpecificContext(body.Method.DeclaringType), this.language);
 
-                DecompilationPipeline pipeline = this.language.CreatePipeline(body.Method, decompilationContext);
+                DecompilationPipeline pipeline = this.language.CreatePipeline(decompilationContext);
 
                 methodContext = pipeline.Run(body, this.language).MethodContext;
 
@@ -417,7 +417,7 @@ namespace Telerik.JustDecompiler.Decompiler
             BlockStatement fullyDecompiledBlock;
             try
             {
-                BlockDecompilationPipeline pipeline = this.language.CreatePropertyPipeline(context.MethodContext.Method, context);
+                BlockDecompilationPipeline pipeline = this.language.CreatePropertyPipeline(context);
 
                 methodContext = pipeline.Run(context.MethodContext.Method.Body, block, this.language).MethodContext;
 

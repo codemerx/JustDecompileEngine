@@ -5,16 +5,17 @@ using System.Linq;
 using Mono.Cecil.Extensions;
 using Telerik.JustDecompiler.Ast;
 using Telerik.JustDecompiler.Ast.Expressions;
+using Telerik.JustDecompiler.Decompiler;
 
 namespace Telerik.JustDecompiler.Steps
 {
     public class HandleVirtualMethodInvocations
     {
-        private readonly BaseCodeTransformer baseCodeTransformer;
+        private MethodDefinition method;
 
-        public HandleVirtualMethodInvocations(BaseCodeTransformer baseCodeTransformer)
+        public HandleVirtualMethodInvocations(MethodDefinition method)
         {
-            this.baseCodeTransformer = baseCodeTransformer;
+            this.method = method;
         }
 
         public void VisitMethodInvocationExpression(MethodInvocationExpression node)
@@ -66,11 +67,11 @@ namespace Telerik.JustDecompiler.Steps
 
             if (methodReferenceExpression.Target is ThisReferenceExpression)
             {
-                TypeDefinition decompiledMethodDeclaringType = baseCodeTransformer.Method.DeclaringType.Resolve();
+                TypeDefinition decompiledMethodDeclaringType = this.method.DeclaringType.Resolve();
                 if (decompiledMethodDeclaringType != null &&
                     decompiledMethodDeclaringType != methodReferenceExpression.Method.DeclaringType.Resolve())
                 {
-                    TypeReference baseType = baseCodeTransformer.Method.DeclaringType.BaseType;
+                    TypeReference baseType = this.method.DeclaringType.BaseType;
 
                     // does not have a base class.
                     if (baseType == null || baseType.FullName == typeof(System.Object).FullName)

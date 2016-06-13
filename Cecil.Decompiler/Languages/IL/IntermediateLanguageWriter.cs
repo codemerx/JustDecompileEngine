@@ -16,6 +16,7 @@ namespace Telerik.JustDecompiler.Languages.IL
         private CodeMappings CodeMappings { get; set; }
         private readonly bool shouldGenerateBlocks;
         private readonly FlagsWriter flagsWriter;
+        private MethodDefinition method;
 
         private void WriteKeyWordPostSpace(string keyWord)
         {
@@ -367,7 +368,7 @@ namespace Telerik.JustDecompiler.Languages.IL
             WriteStartBlock();
 
             //TODO: Consider collecting the analysis data in some way.
-            this.Method = method;
+            this.method = method;
 
             WriteMethodBody(method);
 
@@ -1115,7 +1116,7 @@ namespace Telerik.JustDecompiler.Languages.IL
             ParameterReference paramRef = operand as ParameterReference;
             if (paramRef != null)
             {
-                if (Method != null && Method.Body != null && paramRef == Method.Body.ThisParameter)
+                if (method != null && method.Body != null && paramRef == method.Body.ThisParameter)
                 {
                     // For some reason MONO leaves the index to the default value of -1.
                     // This happens, when instead of using the 'ldarg.0' instruction is used

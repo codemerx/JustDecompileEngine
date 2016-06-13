@@ -49,7 +49,7 @@ namespace Telerik.JustDecompiler.Languages
                 }
             }
             
-            internal override IDecompilationStep[] LanguageDecompilationSteps(MethodDefinition method, bool inlineAggressively)
+            internal override IDecompilationStep[] LanguageDecompilationSteps(bool inlineAggressively)
             {
                 return new IDecompilationStep[]
                 {
@@ -59,10 +59,10 @@ namespace Telerik.JustDecompiler.Languages
                     new RemoveDelegateCachingStep(),
                     // RebuildAnonymousDelegatesStep needs to be executed before the RebuildLambdaExpressions step
                     new RebuildAnonymousDelegatesStep(),
-                    new RebuildLambdaExpressions() { Method = method },
+                    new RebuildLambdaExpressions(),
                     new ResolveDynamicVariablesStep(),
                     new GotoCancelation(),
-                    new CombinedTransformerStep() { Method = method },
+                    new CombinedTransformerStep(),
                     new MergeUnaryAndBinaryExpression(),
                     new RemoveLastReturn(),
                     new RebuildSwitchByString(),

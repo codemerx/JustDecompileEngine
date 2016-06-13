@@ -38,12 +38,6 @@ namespace Telerik.JustDecompiler.Ast
 	{
 		private long visitsOnStack = 0;
 
-		public virtual MethodDefinition Method
-		{
-			get;
-			set;
-		}
-
 		private ICodeNode DoVisit(ICodeNode node)
 		{
 			if (node == null)

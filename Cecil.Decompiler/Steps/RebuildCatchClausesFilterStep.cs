@@ -113,7 +113,7 @@ namespace Telerik.JustDecompiler.Steps
             {
                 AddVariablesToNotDeclare(method.Context, method.CatchClause);
 
-                BlockDecompilationPipeline pipeline = this.context.Language.CreateFilterMethodPipeline(method.Method, method.Context);
+                BlockDecompilationPipeline pipeline = this.context.Language.CreateFilterMethodPipeline(method.Context);
                 DecompilationContext innerContext = pipeline.Run(method.Method.Body, method.Block, this.context.Language);
                 this.context.TypeContext.GeneratedFilterMethods.Add(new GeneratedMethod(method.Method, pipeline.Body, innerContext.MethodContext));
                 this.context.TypeContext.GeneratedMethodDefinitionToNameMap.Add(method.Method, method.Method.Name);

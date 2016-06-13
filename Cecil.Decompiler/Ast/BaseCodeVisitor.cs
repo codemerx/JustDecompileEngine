@@ -41,12 +41,6 @@ namespace Telerik.JustDecompiler.Ast
 	{
 		private long visitsOnStack = 0;
 
-		public virtual MethodDefinition Method
-		{
-			get;
-			set;
-		}
-
 		public virtual void Visit(ICodeNode node)
 		{
 			visitsOnStack++;

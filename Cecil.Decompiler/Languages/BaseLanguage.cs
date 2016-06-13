@@ -148,50 +148,50 @@ namespace Telerik.JustDecompiler.Languages
 
         public abstract IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments);
 
-        public virtual DecompilationPipeline CreatePipeline(MethodDefinition method)
+        public virtual DecompilationPipeline CreatePipeline()
         {
             DecompilationPipeline result = new DecompilationPipeline();
             result.AddSteps(BaseLanguage.IntermediateRepresenationPipeline.Steps);
-            result.AddSteps(LanguageDecompilationSteps(method, false));
+            result.AddSteps(LanguageDecompilationSteps(false));
             return result;
         }
 
-        public virtual DecompilationPipeline CreatePipeline(MethodDefinition method, DecompilationContext context)
+        public virtual DecompilationPipeline CreatePipeline(DecompilationContext context)
         {
-            return CreatePipelineInternal(method, context, false);
+            return CreatePipelineInternal(context, false);
         }
 
-        public virtual DecompilationPipeline CreateLambdaPipeline(MethodDefinition method, DecompilationContext context)
+        public virtual DecompilationPipeline CreateLambdaPipeline(DecompilationContext context)
         {
-            return CreatePipelineInternal(method, context, true);
+            return CreatePipelineInternal(context, true);
         }
 
-        public virtual BlockDecompilationPipeline CreateFilterMethodPipeline(MethodDefinition method, DecompilationContext context)
+        public virtual BlockDecompilationPipeline CreateFilterMethodPipeline(DecompilationContext context)
         {
-            return new BlockDecompilationPipeline(LanguageFilterMethodDecompilationSteps(method, false), context);
+            return new BlockDecompilationPipeline(LanguageFilterMethodDecompilationSteps(false), context);
         }
 
         // This pipeline is used by the PropertyDecompiler to finish the decompilation of properties, which are partially decompiled
         // using the steps from the IntermediateRepresenationPipeline.
-        public virtual BlockDecompilationPipeline CreatePropertyPipeline(MethodDefinition method, DecompilationContext context)
+        public virtual BlockDecompilationPipeline CreatePropertyPipeline(DecompilationContext context)
         {
-            BlockDecompilationPipeline result = new BlockDecompilationPipeline(LanguageDecompilationSteps(method, false), context);
+            BlockDecompilationPipeline result = new BlockDecompilationPipeline(LanguageDecompilationSteps(false), context);
             return result;
         }
 
-        private DecompilationPipeline CreatePipelineInternal(MethodDefinition method, DecompilationContext context, bool inlineAggressively)
+        private DecompilationPipeline CreatePipelineInternal(DecompilationContext context, bool inlineAggressively)
         {
             DecompilationPipeline result = new DecompilationPipeline(BaseLanguage.IntermediateRepresenationPipeline.Steps, context);
-            result.AddSteps(LanguageDecompilationSteps(method, inlineAggressively));
+            result.AddSteps(LanguageDecompilationSteps(inlineAggressively));
             return result;
         }
 
-        internal virtual IDecompilationStep[] LanguageDecompilationSteps(MethodDefinition method, bool inlineAggressively)
+        internal virtual IDecompilationStep[] LanguageDecompilationSteps(bool inlineAggressively)
         {
             return new IDecompilationStep[0];
         }
 
-        protected virtual IDecompilationStep[] LanguageFilterMethodDecompilationSteps(MethodDefinition method, bool inlineAggressively)
+        protected virtual IDecompilationStep[] LanguageFilterMethodDecompilationSteps(bool inlineAggressively)
         {
             return new IDecompilationStep[0];
         }

@@ -48,20 +48,14 @@ namespace Telerik.JustDecompiler.Decompiler
 
         public static BlockStatement Decompile(this MethodBody body, ILanguage language, out DecompilationContext context, TypeSpecificContext typeContext = null)
         {
-            MethodDefinition method = null;
-            if (body != null)
-            {
-                method = body.Method;
-            }
-
             DecompilationPipeline pipeline;
             if (typeContext != null)
             {
-                pipeline = language.CreatePipeline(method, new DecompilationContext(new MethodSpecificContext(body), typeContext, language));
+                pipeline = language.CreatePipeline(new DecompilationContext(new MethodSpecificContext(body), typeContext, language));
             }
             else
             {
-                pipeline = language.CreatePipeline(method);
+                pipeline = language.CreatePipeline();
             }
 
             return RunPipeline(pipeline, language, body, out context);
@@ -74,7 +68,7 @@ namespace Telerik.JustDecompiler.Decompiler
             {
                 method = body.Method;
             }
-            DecompilationPipeline pipeline = language.CreateLambdaPipeline(method, context);
+            DecompilationPipeline pipeline = language.CreateLambdaPipeline(context);
             return RunPipeline(pipeline, language, body, out context);
         }
 
@@ -92,7 +86,7 @@ namespace Telerik.JustDecompiler.Decompiler
             {
                 method = body.Method;
             }
-            DecompilationPipeline pipeline = language.CreatePipeline(method, context);
+            DecompilationPipeline pipeline = language.CreatePipeline(context);
             return RunPipeline(pipeline, language, body, out context);
         }
 

@@ -11,11 +11,12 @@ namespace Telerik.JustDecompiler.Steps
 	{
 		public static readonly IDecompilationStep Instance = new CombinedTransformerStep();
 
+        private DecompilationContext context;
         private readonly TypeOfStep typeOfStep = new TypeOfStep();
         private readonly ReplaceDelegateInvokeStep replaceDelegateInvokeStep;
         private PropertyRecognizer propertyRecognizer;
         private RebuildEventsStep rebuildEventsStep;
-        private readonly HandleVirtualMethodInvocations replaceThisWithBaseStep;
+        private HandleVirtualMethodInvocations replaceThisWithBaseStep;
         private OperatorStep operatorStep;
         private readonly CanCastStep canCastStep;
         private RemovePrivateImplementationDetailsStep removePIDStep;
@@ -26,12 +27,12 @@ namespace Telerik.JustDecompiler.Steps
 		public CombinedTransformerStep()
 		{
 			this.canCastStep = new CanCastStep(this);
-			this.replaceThisWithBaseStep = new HandleVirtualMethodInvocations(this);
             this.replaceDelegateInvokeStep = new ReplaceDelegateInvokeStep(this);
 		}
 
         public BlockStatement Process(DecompilationContext context, BlockStatement body)
         {
+            this.context = context;
             TypeSystem typeSystem = context.MethodContext.Method.Module.TypeSystem;
             this.operatorStep = new OperatorStep(this, typeSystem);
             this.removePIDStep = new RemovePrivateImplementationDetailsStep(typeSystem);
@@ -39,6 +40,7 @@ namespace Telerik.JustDecompiler.Steps
             this.propertyRecognizer = new PropertyRecognizer(typeSystem, context.TypeContext, context.Language);
             this.rebuildAnonymousInitializersStep = new RebuildAnonymousTypesInitializersStep(this, typeSystem);
 			this.fixSwitchConditionStep = new FixSwitchConditionStep(context);
+            this.replaceThisWithBaseStep = new HandleVirtualMethodInvocations(this.context.MethodContext.Method);
             return (BlockStatement)VisitBlockStatement(body);
         }
 
@@ -209,7 +211,7 @@ namespace Telerik.JustDecompiler.Steps
 
         public override ICodeNode VisitFieldReferenceExpression(FieldReferenceExpression node)
         {
-            if (Method.IsConstructor && node.Field.DeclaringType.FullName == Method.DeclaringType.FullName)
+            if (this.context.MethodContext.Method.IsConstructor && node.Field.DeclaringType.FullName == this.context.MethodContext.Method.DeclaringType.FullName)
             {
                 return propertyRecognizer.VisitFieldReferenceExpression(node);
             }
