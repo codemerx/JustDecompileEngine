@@ -340,11 +340,11 @@ namespace Telerik.JustDecompiler.Decompiler
             try
             {
                 DecompilationContext decompilationContext =
-                    new DecompilationContext(new MethodSpecificContext(body), this.typeContext ?? new TypeSpecificContext(body.Method.DeclaringType));
+                    new DecompilationContext(new MethodSpecificContext(body), this.typeContext ?? new TypeSpecificContext(body.Method.DeclaringType), this.language);
 
                 DecompilationPipeline pipeline = this.language.CreatePipeline(body.Method, decompilationContext);
 
-                methodContext = pipeline.Run(body).MethodContext;
+                methodContext = pipeline.Run(body, this.language).MethodContext;
 
                 block = pipeline.Body;
             }
@@ -385,15 +385,15 @@ namespace Telerik.JustDecompiler.Decompiler
             {
                 DecompilationPipeline pipeline;
                 DecompilationContext decompilationContext =
-                    new DecompilationContext(new MethodSpecificContext(body), this.typeContext ?? new TypeSpecificContext(body.Method.DeclaringType));
+                    new DecompilationContext(new MethodSpecificContext(body), this.typeContext ?? new TypeSpecificContext(body.Method.DeclaringType), this.language);
                 if (!needDecompiledMember)
                 {
                     decompilationContext.MethodContext.EnableEventAnalysis = false;
                 }
 
-                pipeline = new DecompilationPipeline(this.language.CreateIntermediateRepresenationPipeline().Steps, decompilationContext);
+                pipeline = new DecompilationPipeline(BaseLanguage.IntermediateRepresenationPipeline.Steps, decompilationContext);
 
-                context = pipeline.Run(body);
+                context = pipeline.Run(body, this.language);
 
                 block = pipeline.Body;
             }

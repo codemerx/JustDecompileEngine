@@ -55,7 +55,7 @@ namespace Telerik.JustDecompiler.Steps
                 if (methodDefinition.Body != null)
                 {
                     DecompilationContext innerContext = CreateDecompilationContext(methodDefinition);
-                    statement = methodDefinition.Body.DecompileLambda(Language, innerContext);
+                    statement = methodDefinition.Body.DecompileLambda(this.context.Language, innerContext);
 
 					if ((statement.Statements.Count == 1) && (statement.Statements[0].CodeNodeType == CodeNodeType.ExpressionStatement) &&
 						((statement.Statements[0] as ExpressionStatement).Expression.CodeNodeType == CodeNodeType.ReturnExpression))
@@ -88,11 +88,11 @@ namespace Telerik.JustDecompiler.Steps
         {
             if (lambdaMethodDefinition.DeclaringType == context.TypeContext.CurrentType)
             {
-                return new DecompilationContext(new MethodSpecificContext(lambdaMethodDefinition.Body), context.TypeContext, context.ModuleContext, context.AssemblyContext);
+                return new DecompilationContext(new MethodSpecificContext(lambdaMethodDefinition.Body), context.TypeContext, context.ModuleContext, context.AssemblyContext, context.Language);
             }
             else
             {
-                return new DecompilationContext(new MethodSpecificContext(lambdaMethodDefinition.Body), new TypeSpecificContext(lambdaMethodDefinition.DeclaringType));
+                return new DecompilationContext(new MethodSpecificContext(lambdaMethodDefinition.Body), new TypeSpecificContext(lambdaMethodDefinition.DeclaringType), context.Language);
             }
         }
 

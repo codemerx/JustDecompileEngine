@@ -60,11 +60,11 @@ namespace Telerik.JustDecompiler.Decompiler
 			this.steps.AddRange(steps);
 		}
 
-        public DecompilationContext Run(MethodBody body, ILanguage language = null)
+        public DecompilationContext Run(MethodBody body, ILanguage language)
         {
             if (Context == null)
             {
-                this.Context = GetNewContext(body);
+                this.Context = GetNewContext(body, language);
             }
 
             Body = RunInternal(body, new BlockStatement(), language);
@@ -100,11 +100,11 @@ namespace Telerik.JustDecompiler.Decompiler
             return block;
         }
 
-        private DecompilationContext GetNewContext(MethodBody body)
+        private DecompilationContext GetNewContext(MethodBody body, ILanguage language)
         {
             MethodSpecificContext methodSpecificContext = new MethodSpecificContext(body);
             TypeSpecificContext typeSpecificContext = new TypeSpecificContext(body.Method.DeclaringType);
-            return new DecompilationContext(methodSpecificContext, typeSpecificContext);
+            return new DecompilationContext(methodSpecificContext, typeSpecificContext, language);
         }
 
 		public IEnumerable<IDecompilationStep> Steps

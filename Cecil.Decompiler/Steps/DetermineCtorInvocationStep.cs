@@ -36,14 +36,6 @@ namespace Telerik.JustDecompiler.Steps
             return body;
         }
 
-        protected virtual IVariablesToNotInlineFinder VariablesToNotInlineFinder
-        {
-            get
-            {
-                return new EmptyVariablesToNotInlineFinder();
-            }
-        }
-
         private void ProcessCtorInvocation()
         {
             int startIndex, endIndex;
@@ -59,7 +51,7 @@ namespace Telerik.JustDecompiler.Steps
             
             List<ICodePattern> patternArray = new List<ICodePattern>(new ICodePattern[] 
 												{   new NullCoalescingPattern(patternsContext, methodContext), new TernaryConditionPatternAgressive(patternsContext, typeSystem),
-                                                    new ArrayInitialisationPattern(patternsContext, typeSystem), new VariableInliningPatternAggressive(patternsContext, methodContext, this.VariablesToNotInlineFinder),
+                                                    new ArrayInitialisationPattern(patternsContext, typeSystem), new VariableInliningPatternAggressive(patternsContext, methodContext, this.context.Language.VariablesToNotInlineFinder),
                                                     new MultiAssignPattern(patternsContext, methodContext)});
 
             if (isBaseCtor)

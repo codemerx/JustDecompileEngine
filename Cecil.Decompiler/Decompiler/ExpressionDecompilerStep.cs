@@ -29,6 +29,7 @@ namespace Telerik.JustDecompiler.Decompiler
         private readonly Dictionary<int, Expression> offsetToExpression;
         private int currentOffset;
         private readonly HashSet<Expression> used;
+        private DecompilationContext context;
         private MethodSpecificContext methodContext;
         private TypeSystem currentTypeSystem;
         private TypeSpecificContext typeContext;
@@ -36,7 +37,6 @@ namespace Telerik.JustDecompiler.Decompiler
         private readonly Dictionary<VariableReference, KeyValuePair<int, bool>> exceptionVariables;
         private int dummyVarCounter = 0;
         private readonly HashSet<VariableDefinition> stackVariableAssignmentsToRemove = new HashSet<VariableDefinition>();
-        private ILanguage language;
 
         private Instruction CurrentInstruction
         {
@@ -46,10 +46,8 @@ namespace Telerik.JustDecompiler.Decompiler
             }
         }
 
-        public ExpressionDecompilerStep(ILanguage language)
+        public ExpressionDecompilerStep()
         {
-            this.language = language;
-
             this.offsetToExpression = new Dictionary<int, Expression>();
             this.results = new ExpressionDecompilerData();
             this.used = new HashSet<Expression>();
@@ -66,6 +64,7 @@ namespace Telerik.JustDecompiler.Decompiler
         /// The body is being unchanged, since statements are not introduced yet at this point.</returns>
         public BlockStatement Process(DecompilationContext theContext, BlockStatement body)
         {
+            context = theContext;
             methodContext = theContext.MethodContext;
             currentTypeSystem = methodContext.Method.Module.TypeSystem;
             typeContext = theContext.TypeContext;
@@ -74,7 +73,7 @@ namespace Telerik.JustDecompiler.Decompiler
 
             methodContext.Expressions = results;
 
-            StackVariablesInliner stackVariablesInliningStep = new StackVariablesInliner(this.methodContext, this.offsetToExpression, this.VariablesToNotInlineFinder);
+            StackVariablesInliner stackVariablesInliningStep = new StackVariablesInliner(this.methodContext, this.offsetToExpression, this.context.Language.VariablesToNotInlineFinder);
             stackVariablesInliningStep.InlineVariables();
 
             AddUninlinedStackVariablesToContext();
@@ -90,7 +89,7 @@ namespace Telerik.JustDecompiler.Decompiler
             FixBinaryExpressionsStep bef = new FixBinaryExpressionsStep(methodContext.Method.Module.TypeSystem);
             bef.Process(theContext, body);
 
-            MethodVariablesInliner methodVariablesInliningStep = new MethodVariablesInliner(this.methodContext, this.VariablesToNotInlineFinder);
+            MethodVariablesInliner methodVariablesInliningStep = new MethodVariablesInliner(this.methodContext, this.context.Language.VariablesToNotInlineFinder);
             methodVariablesInliningStep.InlineVariables();
 
             UsageBasedExpressionFixer literalsFixer = new UsageBasedExpressionFixer(methodContext);
@@ -102,14 +101,6 @@ namespace Telerik.JustDecompiler.Decompiler
             FindAutoBoxesStep fabs = new FindAutoBoxesStep();
             fabs.Process(theContext, body);
             return body;
-        }
-
-        protected virtual IVariablesToNotInlineFinder VariablesToNotInlineFinder
-        {
-            get
-            {
-                return new EmptyVariablesToNotInlineFinder();
-            }
         }
 
         private void AddUninlinedStackVariablesToContext()
@@ -2378,7 +2369,7 @@ namespace Telerik.JustDecompiler.Decompiler
             EventDefinition eventDef;
             FieldDefinition fieldDef = (instruction.Operand as FieldReference).Resolve();
             if (fieldDef != null && fieldDef.DeclaringType == methodContext.Method.DeclaringType && methodContext.EnableEventAnalysis &&
-                typeContext.GetFieldToEventMap(this.language).TryGetValue(fieldDef, out eventDef))
+                typeContext.GetFieldToEventMap(this.context.Language).TryGetValue(fieldDef, out eventDef))
             {
                 Push(new EventReferenceExpression(target, eventDef, IncludePrefixIfPresent(instruction, Code.Volatile)));
             }

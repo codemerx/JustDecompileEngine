@@ -5,7 +5,7 @@ using Telerik.JustDecompiler.Ast.Statements;
 
 namespace Telerik.JustDecompiler.Decompiler.Inlining
 {
-    internal interface IVariablesToNotInlineFinder
+    public interface IVariablesToNotInlineFinder
     {
         HashSet<VariableDefinition> Find(Dictionary<int, IList<Expression>> blockExpressions);
 

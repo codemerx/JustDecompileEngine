@@ -57,7 +57,7 @@ namespace Telerik.JustDecompiler.Decompiler
             DecompilationPipeline pipeline;
             if (typeContext != null)
             {
-                pipeline = language.CreatePipeline(method, new DecompilationContext(new MethodSpecificContext(body), typeContext));
+                pipeline = language.CreatePipeline(method, new DecompilationContext(new MethodSpecificContext(body), typeContext, language));
             }
             else
             {
@@ -102,31 +102,27 @@ namespace Telerik.JustDecompiler.Decompiler
             return pipeline.Body;
         }
 
-        private static BlockStatement DecompileStateMachine(this MethodBody body, MethodSpecificContext enclosingMethodContext,
-            IStateMachineRemoverStep removeStateMachineStep,
-            Func<DecompilationContext, IStateMachineData> stateMachineDataSelector, ILanguage language,
+        private static BlockStatement DecompileStateMachine(this MethodBody body, DecompilationContext enclosingContext,
+            BaseStateMachineRemoverStep removeStateMachineStep, Func<DecompilationContext, IStateMachineData> stateMachineDataSelector,
             out DecompilationContext decompilationContext)
         {
-            ILanguage clonedLanguage = language.Clone() as ILanguage;
-            removeStateMachineStep.Language = clonedLanguage;
+            DecompilationPipeline thePipeline = GetStateMachineRemovalPipeline(removeStateMachineStep, stateMachineDataSelector);
+            decompilationContext = thePipeline.Run(body, enclosingContext.Language.Clone() as ILanguage);
 
-            DecompilationPipeline thePipeline = GetStateMachineRemovalPipeline(removeStateMachineStep, stateMachineDataSelector, clonedLanguage);
-            decompilationContext = thePipeline.Run(body, clonedLanguage);
-
-            enclosingMethodContext.Variables.AddRange(decompilationContext.MethodContext.Variables);
-            enclosingMethodContext.VariableDefinitionToNameMap.AddRange(decompilationContext.MethodContext.VariableDefinitionToNameMap);
-            enclosingMethodContext.AddInnerMethodParametersToContext(decompilationContext.MethodContext);
-            enclosingMethodContext.VariableAssignmentData.AddRange(decompilationContext.MethodContext.VariableAssignmentData);
-            enclosingMethodContext.GotoLabels.AddRange(decompilationContext.MethodContext.GotoLabels);
-            enclosingMethodContext.GotoStatements.AddRange(decompilationContext.MethodContext.GotoStatements);
+            enclosingContext.MethodContext.Variables.AddRange(decompilationContext.MethodContext.Variables);
+            enclosingContext.MethodContext.VariableDefinitionToNameMap.AddRange(decompilationContext.MethodContext.VariableDefinitionToNameMap);
+            enclosingContext.MethodContext.AddInnerMethodParametersToContext(decompilationContext.MethodContext);
+            enclosingContext.MethodContext.VariableAssignmentData.AddRange(decompilationContext.MethodContext.VariableAssignmentData);
+            enclosingContext.MethodContext.GotoLabels.AddRange(decompilationContext.MethodContext.GotoLabels);
+            enclosingContext.MethodContext.GotoStatements.AddRange(decompilationContext.MethodContext.GotoStatements);
             BlockStatement theBlockStatement = thePipeline.Body;
             return theBlockStatement;
         }
 
-        private static DecompilationPipeline GetStateMachineRemovalPipeline(IStateMachineRemoverStep removeStateMachineStep,
-            Func<DecompilationContext, IStateMachineData> stateMachineDataSelector, ILanguage language)
+        private static DecompilationPipeline GetStateMachineRemovalPipeline(BaseStateMachineRemoverStep removeStateMachineStep,
+            Func<DecompilationContext, IStateMachineData> stateMachineDataSelector)
         {
-            DecompilationPipeline intermediatePipeline = language.CreateIntermediateRepresenationPipeline();
+            DecompilationPipeline intermediatePipeline = BaseLanguage.IntermediateRepresenationPipeline;
             List<IDecompilationStep> newSteps = new List<IDecompilationStep>();
 
             newSteps.Add(removeStateMachineStep);
@@ -142,23 +138,23 @@ namespace Telerik.JustDecompiler.Decompiler
             return new DecompilationPipeline(newSteps);
         }
 
-        internal static BlockStatement DecompileYieldStateMachine(this MethodBody body, MethodSpecificContext enclosingMethodContext,
-            ILanguage language, out YieldData yieldData)
+        internal static BlockStatement DecompileYieldStateMachine(this MethodBody body, DecompilationContext enclosingContext,
+            out YieldData yieldData)
         {
             DecompilationContext decompilationContext;
-            BlockStatement theBlockStatement = body.DecompileStateMachine(enclosingMethodContext, new RemoveYieldStateMachineStep(),
-                (DecompilationContext context) => context.MethodContext.YieldData, language, out decompilationContext);
+            BlockStatement theBlockStatement = body.DecompileStateMachine(enclosingContext, new RemoveYieldStateMachineStep(),
+                (DecompilationContext context) => context.MethodContext.YieldData, out decompilationContext);
 
             yieldData = decompilationContext.MethodContext.YieldData;
             return theBlockStatement;
         }
 
-        internal static BlockStatement DecompileAsyncStateMachine(this MethodBody body, MethodSpecificContext enclosingMethodContext,
-            ILanguage language, out AsyncData asyncData)
+        internal static BlockStatement DecompileAsyncStateMachine(this MethodBody body, DecompilationContext enclosingContext,
+            out AsyncData asyncData)
         {
             DecompilationContext decompilationContext;
-            BlockStatement theBlockStatement = body.DecompileStateMachine(enclosingMethodContext, new RemoveAsyncStateMachineStep(),
-                (DecompilationContext context) => context.MethodContext.AsyncData, language, out decompilationContext);
+            BlockStatement theBlockStatement = body.DecompileStateMachine(enclosingContext, new RemoveAsyncStateMachineStep(),
+                (DecompilationContext context) => context.MethodContext.AsyncData, out decompilationContext);
 
             asyncData = decompilationContext.MethodContext.AsyncData;
             return theBlockStatement;

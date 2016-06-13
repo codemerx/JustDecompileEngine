@@ -332,7 +332,6 @@
     <Compile Include="Decompiler\LogicFlow\DTree\BaseDominatorTreeBuilder.cs" />
     <Compile Include="Decompiler\LogicFlow\DTree\FastDominatorTreeBuilder.cs" />
     <Compile Include="Decompiler\Inlining\BaseVariablesInliner.cs" />
-    <Compile Include="Decompiler\VisualBasicExpressionDecompilerStep.cs" />
     <Compile Include="Decompiler\WriterContextServices\BaseWriterContextService.cs" />
     <Compile Include="Decompiler\WriterContextServices\FrameworkFoldersWriterContextService.cs" />
     <Compile Include="Decompiler\WriterContextServices\IWriterContextService.cs" />
@@ -446,7 +445,6 @@
     <Compile Include="Steps\RenameSplitPropertiesMethodsAndBackingFields.cs" />
     <Compile Include="Steps\ArrayVariablesStep.cs" />
     <Compile Include="Steps\VBCodePatternsStep.cs" />
-    <Compile Include="Steps\VisualBasicDetermineCtorInvocationStep.cs" />
     <Compile Include="Steps\VisualBasicRemoveDelegateCachingStep.cs" />
     <Compile Include="Steps\VisualBasicRemoveUnusedVariablesStep.cs" />
     <Compile Include="ThreadSafeWeakAssemblyResolver.cs" />
@@ -693,7 +691,6 @@
     <Compile Include="Steps\SwitchByString\RebuildSwitchByString.cs" />
     <Compile Include="Steps\EnumHelper.cs" />
     <Compile Include="Steps\BaseStateMachineRemoverStep.cs" />
-    <Compile Include="Steps\IStateMachineRemoverStep.cs" />
     <Compile Include="Steps\FixBinaryExpressionsStep.cs" />
     <Compile Include="Steps\CanCastStep.cs" />
     <Compile Include="Steps\CombinedTransformerStep.cs" />

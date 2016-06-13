@@ -38,12 +38,6 @@ namespace Telerik.JustDecompiler.Ast
 	{
 		private long visitsOnStack = 0;
 
-		public virtual ILanguage Language
-		{
-			get;
-			set;
-		}
-
 		public virtual MethodDefinition Method
 		{
 			get;

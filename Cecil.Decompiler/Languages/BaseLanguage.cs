@@ -11,6 +11,7 @@ using Telerik.JustDecompiler.Decompiler.LogicFlow;
 using Telerik.JustDecompiler.Steps;
 using Telerik.JustDecompiler.Decompiler.GotoElimination;
 using System.Text.RegularExpressions;
+using Telerik.JustDecompiler.Decompiler.Inlining;
 
 namespace Telerik.JustDecompiler.Languages
 {
@@ -34,20 +35,21 @@ namespace Telerik.JustDecompiler.Languages
             }
         }
 
-        public DecompilationPipeline CreateIntermediateRepresenationPipeline()
+        public static DecompilationPipeline IntermediateRepresenationPipeline
         {
-				return new DecompilationPipeline(new RemoveUnreachableBlocksStep(),
-												 new StackUsageAnalysis(),
-												 this.ExpressionDecompilerStep,
-												 new ManagedPointersRemovalStep(),
-												 new VariableAssignmentAnalysisStep(),
-												 new LogicalFlowBuilderStep(),
-												 new FollowNodeLoopCleanUpStep(),
-												 new StatementDecompilerStep(),
-												 new MapUnconditionalBranchesStep());
+            get
+            {
+                return new DecompilationPipeline(new RemoveUnreachableBlocksStep(),
+                                                 new StackUsageAnalysis(),
+                                                 new ExpressionDecompilerStep(),
+                                                 new ManagedPointersRemovalStep(),
+                                                 new VariableAssignmentAnalysisStep(),
+                                                 new LogicalFlowBuilderStep(),
+                                                 new FollowNodeLoopCleanUpStep(),
+                                                 new StatementDecompilerStep(),
+                                                 new MapUnconditionalBranchesStep());
+            }
         }
-
-        internal abstract IDecompilationStep ExpressionDecompilerStep { get; }
 
         private bool writeLargeNumbersInHex = true;
 
@@ -149,7 +151,7 @@ namespace Telerik.JustDecompiler.Languages
         public virtual DecompilationPipeline CreatePipeline(MethodDefinition method)
         {
             DecompilationPipeline result = new DecompilationPipeline();
-            result.AddSteps(CreateIntermediateRepresenationPipeline().Steps);
+            result.AddSteps(BaseLanguage.IntermediateRepresenationPipeline.Steps);
             result.AddSteps(LanguageDecompilationSteps(method, false));
             return result;
         }
@@ -179,7 +181,7 @@ namespace Telerik.JustDecompiler.Languages
 
         private DecompilationPipeline CreatePipelineInternal(MethodDefinition method, DecompilationContext context, bool inlineAggressively)
         {
-            DecompilationPipeline result = new DecompilationPipeline(CreateIntermediateRepresenationPipeline().Steps, context);
+            DecompilationPipeline result = new DecompilationPipeline(BaseLanguage.IntermediateRepresenationPipeline.Steps, context);
             result.AddSteps(LanguageDecompilationSteps(method, inlineAggressively));
             return result;
         }
@@ -297,5 +299,7 @@ namespace Telerik.JustDecompiler.Languages
         public abstract bool SupportsInlineInitializationOfAutoProperties { get; }
 
         public abstract bool SupportsExceptionFilters { get; }
+
+        public abstract IVariablesToNotInlineFinder VariablesToNotInlineFinder { get; }
     }
 }

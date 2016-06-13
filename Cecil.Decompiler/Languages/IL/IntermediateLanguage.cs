@@ -28,6 +28,7 @@ using Mono.Cecil;
 using Telerik.JustDecompiler.Decompiler;
 using System.Collections.Generic;
 using Telerik.JustDecompiler.Steps;
+using Telerik.JustDecompiler.Decompiler.Inlining;
 
 namespace Telerik.JustDecompiler.Languages.IL
 {
@@ -142,11 +143,11 @@ namespace Telerik.JustDecompiler.Languages.IL
             return false;
         }
 
-        internal override IDecompilationStep ExpressionDecompilerStep
+        public override IVariablesToNotInlineFinder VariablesToNotInlineFinder
         {
             get
             {
-                return null;
+                return new EmptyVariablesToNotInlineFinder();
             }
         }
 

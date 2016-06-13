@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using Telerik.JustDecompiler.Decompiler;
 using Telerik.JustDecompiler.Languages.CSharp;
 using Telerik.JustDecompiler.Steps;
+using Telerik.JustDecompiler.Decompiler.Inlining;
 
 namespace Telerik.JustDecompiler.Languages
 {
@@ -177,11 +178,11 @@ namespace Telerik.JustDecompiler.Languages
                 return result;
             }
 
-            internal override IDecompilationStep ExpressionDecompilerStep
+            public override IVariablesToNotInlineFinder VariablesToNotInlineFinder
             {
                 get
                 {
-                    return new ExpressionDecompilerStep(this);
+                    return new EmptyVariablesToNotInlineFinder();
                 }
             }
 

@@ -59,14 +59,14 @@ namespace Telerik.JustDecompiler.Languages
             {
                 return new IDecompilationStep[]
                 {
-                    new RebuildAsyncStatementsStep() { Language = this },
-                    new RebuildYieldStatementsStep() { Language = this },
+                    new RebuildAsyncStatementsStep(),
+                    new RebuildYieldStatementsStep(),
                     new VisualBasicRemoveDelegateCachingStep(),
                     // RebuildAnonymousDelegatesStep needs to be executed before the RebuildLambdaExpressions step
-                    new RebuildAnonymousDelegatesStep() { Language = this },
-                    new RebuildLambdaExpressions() { Language = this, Method = method },
+                    new RebuildAnonymousDelegatesStep(),
+                    new RebuildLambdaExpressions() { Method = method },
                     new GotoCancelation(),
-                    new CombinedTransformerStep() { Language = this, Method = method },
+                    new CombinedTransformerStep() { Method = method },
                     // new RemoveConditionOnlyVariables(),
                     new MergeUnaryAndBinaryExpression(),
                     new RemoveLastReturn(),
@@ -80,10 +80,10 @@ namespace Telerik.JustDecompiler.Languages
                     new RebuildUsingStatements(),
                     new RenameEnumValues(),
                     new FixMethodOverloadsStep(),
-                    new VisualBasicDetermineCtorInvocationStep(),
+                    new DetermineCtorInvocationStep(),
                     new RebuildExpressionTreesStep(),
                     new TransformMemberHandlersStep(),
-                    new VBCodePatternsStep(inlineAggressively) { Language = this },
+                    new VBCodePatternsStep(inlineAggressively),
                     // TransformCatchClausesFilterExpressionStep needs to be after VBCodePatternsStep,
                     // because it works only if the TernaryConditionPattern has been applied.
                     new TransformCatchClausesFilterExpressionStep(),
@@ -93,13 +93,13 @@ namespace Telerik.JustDecompiler.Languages
                     new VisualBasicRemoveUnusedVariablesStep(),
                     // RebuildCatchClausesFilterStep needs to be before DeclareVariablesOnFirstAssignment and after RemoveUnusedVariablesStep.
                     // RebuildCatchClausesFilterStep contains pattern matching and need to be after TransformCatchClausesFilterExpressionStep.
-                    new RebuildCatchClausesFilterStep() { Language = this },
+                    new RebuildCatchClausesFilterStep(),
                     new DeclareVariablesOnFirstAssignment(),
                     new DeclareTopLevelVariables(),
                     // There were a lot of issues when trying to merge the SelfAssignment step with the CombinedTransformerStep.
                     new SelfAssignement(),
                     new RenameSplitPropertiesMethodsAndBackingFields(),
-                    new RenameVBVariables() { Language = this },
+                    new RenameVBVariables(),
                     new CastEnumsToIntegersStep(),
                     new CastIntegersStep(),
                     new ArrayVariablesStep(),
@@ -119,7 +119,7 @@ namespace Telerik.JustDecompiler.Languages
                     // There were a lot of issues when trying to merge the SelfAssignment step with the CombinedTransformerStep.
                     new SelfAssignement(),
                     new RenameSplitPropertiesMethodsAndBackingFields(),
-                    new RenameVBVariables() { Language = this },
+                    new RenameVBVariables(),
                     new CastEnumsToIntegersStep(),
                     new CastIntegersStep(),
                     new ArrayVariablesStep(),

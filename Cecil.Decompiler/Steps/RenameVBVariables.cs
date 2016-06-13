@@ -15,6 +15,7 @@ namespace Telerik.JustDecompiler.Steps
 	{
 		public override BlockStatement Process(DecompilationContext context, BlockStatement block)
 		{
+            this.context = context;
 			this.suggestedNames.Add(GetMethodName(context.MethodContext.Method));
 			return base.Process(context, block);
 		}
@@ -42,7 +43,7 @@ namespace Telerik.JustDecompiler.Steps
 			}
 
 			string enclosingMethodName = GetMethodName(methodContext.Method);
-			if (Language.IdentifierComparer.Compare(name, enclosingMethodName) == 0)
+			if (this.context.Language.IdentifierComparer.Compare(name, enclosingMethodName) == 0)
 			{
 				return false;
 			}
@@ -64,7 +65,7 @@ namespace Telerik.JustDecompiler.Steps
 			}
 			if (method.IsConstructor)
 			{
-				return method.DeclaringType.GetFriendlyTypeName(Language);
+				return method.DeclaringType.GetFriendlyTypeName(this.context.Language);
 			}
 			return name;
 		}

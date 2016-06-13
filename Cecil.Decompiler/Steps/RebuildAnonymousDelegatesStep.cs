@@ -18,7 +18,6 @@ namespace Telerik.JustDecompiler.Steps
         public BlockStatement Process(DecompilationContext context, BlockStatement body)
         {
             theRebuilder = new AnonymousDelegateRebuilder(context, body);
-            theRebuilder.Language = Language;
             VisitBlockStatement(body);
             theRebuilder.CleanUpVariableCopyAssignments();
             return body;
@@ -312,10 +311,10 @@ namespace Telerik.JustDecompiler.Steps
                     MethodDefinition methodDefinition = (node.Arguments[1] as MethodReferenceExpression).MethodDefinition;
 
                     MethodSpecificContext delegateMethodContext = new MethodSpecificContext(methodDefinition.Body);
-                    DecompilationContext innerContext = new DecompilationContext(delegateMethodContext, context.TypeContext, context.ModuleContext, context.AssemblyContext);
+                    DecompilationContext innerContext = new DecompilationContext(delegateMethodContext, context.TypeContext, context.ModuleContext, context.AssemblyContext, context.Language);
                     delegateMethodContext.FieldToExpression = fieldDefToAssignedValueMap;
 
-                    BlockStatement methodStatements = methodDefinition.Body.DecompileLambda(Language, innerContext);
+                    BlockStatement methodStatements = methodDefinition.Body.DecompileLambda(context.Language, innerContext);
 
 					if ((methodStatements.Statements.Count == 1) && (methodStatements.Statements[0].CodeNodeType == CodeNodeType.ExpressionStatement) &&
 						((methodStatements.Statements[0] as ExpressionStatement).Expression.CodeNodeType == CodeNodeType.ReturnExpression))

@@ -124,8 +124,8 @@ namespace Telerik.JustDecompiler.Decompiler
                 return false;
             }
 
-            DecompilationPipeline pipeline = this.language.CreateIntermediateRepresenationPipeline();
-            pipeline.Run(methodDef.Body);
+            DecompilationPipeline pipeline = BaseLanguage.IntermediateRepresenationPipeline;
+            pipeline.Run(methodDef.Body, this.language);
             methodBody = pipeline.Body;
             return true;
         }

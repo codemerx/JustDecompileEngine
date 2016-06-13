@@ -146,7 +146,7 @@ namespace Telerik.JustDecompiler.Steps
                 return null;
             }
 
-            BlockStatement moveNextBody = moveNextMethod.Body.DecompileYieldStateMachine(decompilationContext.MethodContext, this.Language, out yieldData);
+            BlockStatement moveNextBody = moveNextMethod.Body.DecompileYieldStateMachine(decompilationContext, out yieldData);
 
             return moveNextBody != null ? GetStatements(moveNextBody) : null;
         }
@@ -191,7 +191,7 @@ namespace Telerik.JustDecompiler.Steps
                 return null;
             }
 
-            BlockStatement getEnumeratorBody = getEnumeratorMethod.Body != null ? getEnumeratorMethod.Body.Decompile(this.Language) : null;
+            BlockStatement getEnumeratorBody = getEnumeratorMethod.Body != null ? getEnumeratorMethod.Body.Decompile(this.decompilationContext.Language) : null;
 
             return getEnumeratorBody.Statements;
         }
@@ -403,7 +403,7 @@ namespace Telerik.JustDecompiler.Steps
                         TypeDefinition theDeclaringTypeDef = theMethodReferenceExpression.Method.DeclaringType.Resolve();
                         if (theDeclaringTypeDef == yieldDeclaringType)
                         {
-                            node.Finally = new FinallyClause(theMethodReferenceExpression.Method.Resolve().Body.Decompile(Language), node.Finally.UnderlyingSameMethodInstructions);
+                            node.Finally = new FinallyClause(theMethodReferenceExpression.Method.Resolve().Body.Decompile(this.decompilationContext.Language), node.Finally.UnderlyingSameMethodInstructions);
                         }
                     }
                 }

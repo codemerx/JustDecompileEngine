@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using Telerik.JustDecompiler.Decompiler.GotoElimination;
 using Telerik.JustDecompiler.Steps.SwitchByString;
 using Telerik.JustDecompiler.Languages.VisualBasic;
+using Telerik.JustDecompiler.Decompiler.Inlining;
 
 namespace Telerik.JustDecompiler.Languages
 {
@@ -280,11 +281,11 @@ namespace Telerik.JustDecompiler.Languages
                 return result;
             }
 
-            internal override IDecompilationStep ExpressionDecompilerStep
+            public override IVariablesToNotInlineFinder VariablesToNotInlineFinder
             {
                 get
                 {
-                    return new VisualBasicExpressionDecompilerStep(this);
+                    return new VisualBasicVariablesToNotInlineFinder();
                 }
             }
 

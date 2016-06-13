@@ -1,4 +1,6 @@
-﻿namespace Telerik.JustDecompiler.Decompiler
+﻿using Telerik.JustDecompiler.Languages;
+
+namespace Telerik.JustDecompiler.Decompiler
 {
 	public class DecompilationContext
 	{
@@ -10,17 +12,20 @@
 
 		public AssemblySpecificContext AssemblyContext { get; set; }
 
-		public DecompilationContext(MethodSpecificContext methodContext, TypeSpecificContext typeContext)
-			: this(methodContext, typeContext, new ModuleSpecificContext(), new AssemblySpecificContext())
+        public ILanguage Language{ get; set; }
+
+        public DecompilationContext(MethodSpecificContext methodContext, TypeSpecificContext typeContext, ILanguage language)
+			: this(methodContext, typeContext, new ModuleSpecificContext(), new AssemblySpecificContext(), language)
 		{
 		}
 
-		public DecompilationContext(MethodSpecificContext methodContext, TypeSpecificContext typeContext, ModuleSpecificContext moduleContext, AssemblySpecificContext assemblyContext)
+		public DecompilationContext(MethodSpecificContext methodContext, TypeSpecificContext typeContext, ModuleSpecificContext moduleContext, AssemblySpecificContext assemblyContext, ILanguage language)
 		{
 			this.MethodContext = methodContext;
 			this.TypeContext = typeContext;
 			this.ModuleContext = moduleContext;
 			this.AssemblyContext = assemblyContext;
+            this.Language = language;
 		}
 
 		public DecompilationContext() { }

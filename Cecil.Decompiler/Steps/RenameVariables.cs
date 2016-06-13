@@ -42,6 +42,7 @@ namespace Telerik.JustDecompiler.Steps
 		protected readonly Stack<ExpressionKind> expressions = new Stack<ExpressionKind>();
 		protected readonly Dictionary<VariableDefinition, VariableSuggestion> variableSuggestedNames = new Dictionary<VariableDefinition, VariableSuggestion>();
 		protected readonly HashSet<string> suggestedNames;// = new HashSet<string>();
+        protected DecompilationContext context;
 		protected MethodSpecificContext methodContext;
 		protected TypeSpecificContext typeContext;
         private int forInitializerStartSymbol = 105; // That's Utf32 code for the 'i' character
@@ -54,6 +55,7 @@ namespace Telerik.JustDecompiler.Steps
 
         public virtual BlockStatement Process(DecompilationContext context, BlockStatement block)
         {
+            this.context = context;
             this.methodContext = context.MethodContext;
             this.typeContext = context.TypeContext;
             //this.suggestedNames.UnionWith(methodContext.UsedNames);
@@ -131,7 +133,7 @@ namespace Telerik.JustDecompiler.Steps
         {
             foreach (ParameterDefinition parameter in this.methodContext.Method.Parameters)
             {
-                if (this.Language.IdentifierComparer.Compare(parameter.Name, name) == 0)
+                if (this.context.Language.IdentifierComparer.Compare(parameter.Name, name) == 0)
                 {
                     return true;
                 }
@@ -317,9 +319,9 @@ namespace Telerik.JustDecompiler.Steps
             if (!suggestedNames.Contains(nameWithSuffix))
             {
                 string escapedKeywordName = nameWithSuffix;
-                if (!Language.IsValidIdentifier(nameWithSuffix))
+                if (!this.context.Language.IsValidIdentifier(nameWithSuffix))
                 {
-                    escapedKeywordName = Language.ReplaceInvalidCharactersInIdentifier(nameWithSuffix);
+                    escapedKeywordName = this.context.Language.ReplaceInvalidCharactersInIdentifier(nameWithSuffix);
                 }
                 escapedKeywordName = EscapeIfGlobalKeyword(escapedKeywordName);
 				if (!IsValidNameInContext(escapedKeywordName, variable))
@@ -349,7 +351,7 @@ namespace Telerik.JustDecompiler.Steps
 
         private string EscapeIfGlobalKeyword(string name)
         {
-            return this.Language.IsGlobalKeyword(name) ? this.Language.EscapeWord(name) : name;
+            return this.context.Language.IsGlobalKeyword(name) ? this.context.Language.EscapeWord(name) : name;
         }
 
 		protected virtual bool IsValidNameInContext(string name, VariableDefinition variable)
@@ -368,7 +370,7 @@ namespace Telerik.JustDecompiler.Steps
 
 			foreach (GenericParameter parameter in this.methodContext.Method.GenericParameters)
 			{
-				if (this.Language.IdentifierComparer.Compare(parameter.GetFriendlyFullName(Language), name) == 0)
+				if (this.context.Language.IdentifierComparer.Compare(parameter.GetFriendlyFullName(this.context.Language), name) == 0)
 				{
 					return true;
 				}
@@ -380,7 +382,7 @@ namespace Telerik.JustDecompiler.Steps
         {
             foreach (KeyValuePair<ParameterDefinition, string> pair in this.methodContext.ParameterDefinitionToNameMap)
             {
-                if (this.Language.IdentifierComparer.Compare(pair.Value, name) == 0)
+                if (this.context.Language.IdentifierComparer.Compare(pair.Value, name) == 0)
                 {
                     return true;
                 }
@@ -393,7 +395,7 @@ namespace Telerik.JustDecompiler.Steps
         {
             foreach (KeyValuePair<VariableDefinition, string> pair in this.methodContext.VariableDefinitionToNameMap)
             {
-                if (pair.Key != variable && this.Language.IdentifierComparer.Compare(pair.Value, name) == 0)
+                if (pair.Key != variable && this.context.Language.IdentifierComparer.Compare(pair.Value, name) == 0)
                 {
                     return true;
                 }
@@ -947,7 +949,7 @@ namespace Telerik.JustDecompiler.Steps
 
 		private void CollectVariableNames()
 		{
-			HashSet<string> result = new HashSet<string>(this.methodContext.VariableNamesCollection, this.Language.IdentifierComparer);
+			HashSet<string> result = new HashSet<string>(this.methodContext.VariableNamesCollection, this.context.Language.IdentifierComparer);
 
 			foreach (VariableDefinition variable in this.methodContext.Body.Variables)
 			{

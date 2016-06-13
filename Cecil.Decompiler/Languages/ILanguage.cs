@@ -28,6 +28,7 @@ using Mono.Cecil;
 using Telerik.JustDecompiler.Decompiler;
 using System.Collections.Generic;
 using Telerik.JustDecompiler.Steps;
+using Telerik.JustDecompiler.Decompiler.Inlining;
 
 namespace Telerik.JustDecompiler.Languages
 {
@@ -68,9 +69,7 @@ namespace Telerik.JustDecompiler.Languages
 		bool IsEscapedWord(string escapedWord);
 
 		bool IsEscapedWord(string escapedWord, string originalWord);
-
-        DecompilationPipeline CreateIntermediateRepresenationPipeline();
-
+        
         DecompilationPipeline CreatePipeline(MethodDefinition method);
 
         DecompilationPipeline CreatePipeline(MethodDefinition method, DecompilationContext context);
@@ -110,5 +109,7 @@ namespace Telerik.JustDecompiler.Languages
         bool SupportsInlineInitializationOfAutoProperties { get; }
 
         bool SupportsExceptionFilters { get; }
+
+        IVariablesToNotInlineFinder VariablesToNotInlineFinder { get; }
     }
 }

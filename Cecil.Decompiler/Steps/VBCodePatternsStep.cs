@@ -19,13 +19,5 @@ namespace Telerik.JustDecompiler.Steps
 
             return result;
         }
-
-        protected override IVariablesToNotInlineFinder VariablesToNotInlineFinder
-        {
-            get
-            {
-                return new VisualBasicVariablesToNotInlineFinder();
-            }
-        }
     }
 }

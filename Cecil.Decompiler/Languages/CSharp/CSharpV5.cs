@@ -54,15 +54,15 @@ namespace Telerik.JustDecompiler.Languages
                 return new IDecompilationStep[]
                 {
                     new OutParameterAssignmentAnalysisStep(),
-                    new RebuildAsyncStatementsStep() { Language = this },
-                    new RebuildYieldStatementsStep() { Language = this },
+                    new RebuildAsyncStatementsStep(),
+                    new RebuildYieldStatementsStep(),
                     new RemoveDelegateCachingStep(),
                     // RebuildAnonymousDelegatesStep needs to be executed before the RebuildLambdaExpressions step
-                    new RebuildAnonymousDelegatesStep() { Language = this },
-                    new RebuildLambdaExpressions() { Language = this, Method = method },
+                    new RebuildAnonymousDelegatesStep(),
+                    new RebuildLambdaExpressions() { Method = method },
                     new ResolveDynamicVariablesStep(),
                     new GotoCancelation(),
-                    new CombinedTransformerStep() { Language = this, Method = method },
+                    new CombinedTransformerStep() { Method = method },
                     new MergeUnaryAndBinaryExpression(),
                     new RemoveLastReturn(),
                     new RebuildSwitchByString(),
@@ -76,7 +76,7 @@ namespace Telerik.JustDecompiler.Languages
                     new FixMethodOverloadsStep(),
                     new RebuildExpressionTreesStep(),
                     new TransformMemberHandlersStep(),
-                    new CodePatternsStep(inlineAggressively) { Language = this },
+                    new CodePatternsStep(inlineAggressively),
                     new DetermineCtorInvocationStep(),
                     new DeduceImplicitDelegates(),
                     new RebuildLinqQueriesStep(),
@@ -89,7 +89,7 @@ namespace Telerik.JustDecompiler.Languages
                     // There were a lot of issues when trying to merge the SelfAssignment step with the CombinedTransformerStep.
                     new SelfAssignement(),
                     new RenameSplitPropertiesMethodsAndBackingFields(),
-                    new RenameVariables() { Language = this },
+                    new RenameVariables(),
                     new CastEnumsToIntegersStep(),
                     new CastIntegersStep(),
                     new ArrayVariablesStep(),

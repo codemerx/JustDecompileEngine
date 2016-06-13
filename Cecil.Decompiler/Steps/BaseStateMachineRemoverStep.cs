@@ -7,14 +7,12 @@ using System.Collections.Generic;
 
 namespace Telerik.JustDecompiler.Steps
 {
-    abstract class BaseStateMachineRemoverStep : IStateMachineRemoverStep
+    abstract class BaseStateMachineRemoverStep : IDecompilationStep
     {
         protected readonly HashSet<InstructionBlock> toBeRemoved = new HashSet<InstructionBlock>();
 
         protected MethodSpecificContext moveNextMethodContext;
         protected ControlFlowGraph theCFG;
-
-        public ILanguage Language { get; set; }
 
         public Ast.Statements.BlockStatement Process(DecompilationContext context, Ast.Statements.BlockStatement body)
         {
@@ -26,7 +24,7 @@ namespace Telerik.JustDecompiler.Steps
 
             if (!ProcessCFG())
             {
-                ((BaseLanguage)Language).StopPipeline();
+                context.Language.StopPipeline();
             }
             return body;
         }

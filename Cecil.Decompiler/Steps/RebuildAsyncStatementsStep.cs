@@ -14,6 +14,7 @@ namespace Telerik.JustDecompiler.Steps
     {
         private readonly Dictionary<FieldDefinition, Expression> parameterMappings = new Dictionary<FieldDefinition, Expression>();
 
+        private DecompilationContext context;
         private MethodSpecificContext methodContext;
         private TypeDefinition stateMachineTypeDef;
         private FieldDefinition builderField;
@@ -24,6 +25,7 @@ namespace Telerik.JustDecompiler.Steps
 
         public BlockStatement Process(DecompilationContext context, BlockStatement body)
         {
+            this.context = context;
             this.methodContext = context.MethodContext;
             this.originalStatements = body.Statements;
             if (Match())
@@ -145,7 +147,7 @@ namespace Telerik.JustDecompiler.Steps
                 return null;
             }
 
-            BlockStatement moveNextStatements = moveNextMethod.Body.DecompileAsyncStateMachine(this.methodContext, this.Language, out this.asyncData);
+            BlockStatement moveNextStatements = moveNextMethod.Body.DecompileAsyncStateMachine(this.context, out this.asyncData);
             if (moveNextStatements == null)
             {
                 return null;
