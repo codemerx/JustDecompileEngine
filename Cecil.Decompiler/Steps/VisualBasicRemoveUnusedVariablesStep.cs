@@ -29,7 +29,7 @@ namespace Telerik.JustDecompiler.Steps
                 return true;
             }
 
-            return methodTarget.CodeNodeType.IsValidVBLineStarter();
+            return this.context.Language.IsValidLineStarter(methodTarget.CodeNodeType);
         }
     }
 }

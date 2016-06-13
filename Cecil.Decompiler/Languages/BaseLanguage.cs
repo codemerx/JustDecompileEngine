@@ -12,6 +12,7 @@ using Telerik.JustDecompiler.Steps;
 using Telerik.JustDecompiler.Decompiler.GotoElimination;
 using System.Text.RegularExpressions;
 using Telerik.JustDecompiler.Decompiler.Inlining;
+using Telerik.JustDecompiler.Ast;
 
 namespace Telerik.JustDecompiler.Languages
 {
@@ -285,6 +286,8 @@ namespace Telerik.JustDecompiler.Languages
         {
             return this.MemberwiseClone();
         }
+
+        public abstract bool IsValidLineStarter(CodeNodeType nodeType);
 
         public virtual bool HasOutKeyword
 		{

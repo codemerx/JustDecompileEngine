@@ -164,21 +164,6 @@ namespace Telerik.JustDecompiler.Decompiler
             return list[list.Count - 1];
         }
 
-        internal static bool IsValidVBLineStarter(this CodeNodeType codeNodeType)
-        {
-            return codeNodeType == CodeNodeType.FieldReferenceExpression ||
-                   codeNodeType == CodeNodeType.PropertyReferenceExpression ||
-                   codeNodeType == CodeNodeType.MethodInvocationExpression ||
-                   codeNodeType == CodeNodeType.SafeCastExpression ||
-                   codeNodeType == CodeNodeType.CastExpression ||
-                   codeNodeType == CodeNodeType.ThisReferenceExpression ||
-                   codeNodeType == CodeNodeType.BaseReferenceExpression ||
-                   codeNodeType == CodeNodeType.VariableReferenceExpression ||
-                   codeNodeType == CodeNodeType.ArgumentReferenceExpression ||
-                   codeNodeType == CodeNodeType.TypeOfExpression ||
-                   codeNodeType == CodeNodeType.ArrayIndexerExpression;
-        }
-
         internal static bool IsArgumentReferenceToRefParameter(this Expression expression)
         {
             if (expression.CodeNodeType != CodeNodeType.UnaryExpression)

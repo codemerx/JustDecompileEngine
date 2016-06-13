@@ -33,6 +33,7 @@ using Telerik.JustDecompiler.Decompiler.GotoElimination;
 using Telerik.JustDecompiler.Steps.SwitchByString;
 using Telerik.JustDecompiler.Languages.VisualBasic;
 using Telerik.JustDecompiler.Decompiler.Inlining;
+using Telerik.JustDecompiler.Ast;
 
 namespace Telerik.JustDecompiler.Languages
 {
@@ -281,11 +282,26 @@ namespace Telerik.JustDecompiler.Languages
                 return result;
             }
 
+            public override bool IsValidLineStarter(CodeNodeType nodeType)
+            {
+                return nodeType == CodeNodeType.FieldReferenceExpression ||
+                       nodeType == CodeNodeType.PropertyReferenceExpression ||
+                       nodeType == CodeNodeType.MethodInvocationExpression ||
+                       nodeType == CodeNodeType.SafeCastExpression ||
+                       nodeType == CodeNodeType.CastExpression ||
+                       nodeType == CodeNodeType.ThisReferenceExpression ||
+                       nodeType == CodeNodeType.BaseReferenceExpression ||
+                       nodeType == CodeNodeType.VariableReferenceExpression ||
+                       nodeType == CodeNodeType.ArgumentReferenceExpression ||
+                       nodeType == CodeNodeType.TypeOfExpression ||
+                       nodeType == CodeNodeType.ArrayIndexerExpression;
+            }
+
             public override IVariablesToNotInlineFinder VariablesToNotInlineFinder
             {
                 get
                 {
-                    return new VisualBasicVariablesToNotInlineFinder();
+                    return new VisualBasicVariablesToNotInlineFinder(this);
                 }
             }
 

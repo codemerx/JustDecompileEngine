@@ -31,6 +31,7 @@ using Telerik.JustDecompiler.Decompiler;
 using Telerik.JustDecompiler.Languages.CSharp;
 using Telerik.JustDecompiler.Steps;
 using Telerik.JustDecompiler.Decompiler.Inlining;
+using Telerik.JustDecompiler.Ast;
 
 namespace Telerik.JustDecompiler.Languages
 {
@@ -176,6 +177,12 @@ namespace Telerik.JustDecompiler.Languages
             {
                 bool result = this.operators.TryGetValue(operatorName, out languageOperator);
                 return result;
+            }
+
+            public override bool IsValidLineStarter(CodeNodeType nodeType)
+            {
+                // As far as we know, basically all nodes can be line starters.
+                return true;
             }
 
             public override IVariablesToNotInlineFinder VariablesToNotInlineFinder

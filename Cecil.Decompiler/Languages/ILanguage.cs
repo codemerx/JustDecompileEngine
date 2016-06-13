@@ -29,6 +29,7 @@ using Telerik.JustDecompiler.Decompiler;
 using System.Collections.Generic;
 using Telerik.JustDecompiler.Steps;
 using Telerik.JustDecompiler.Decompiler.Inlining;
+using Telerik.JustDecompiler.Ast;
 
 namespace Telerik.JustDecompiler.Languages
 {
@@ -111,5 +112,7 @@ namespace Telerik.JustDecompiler.Languages
         bool SupportsExceptionFilters { get; }
 
         IVariablesToNotInlineFinder VariablesToNotInlineFinder { get; }
+
+        bool IsValidLineStarter(CodeNodeType nodeType);
     }
 }

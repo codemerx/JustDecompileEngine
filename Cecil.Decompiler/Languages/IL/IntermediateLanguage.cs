@@ -29,6 +29,7 @@ using Telerik.JustDecompiler.Decompiler;
 using System.Collections.Generic;
 using Telerik.JustDecompiler.Steps;
 using Telerik.JustDecompiler.Decompiler.Inlining;
+using Telerik.JustDecompiler.Ast;
 
 namespace Telerik.JustDecompiler.Languages.IL
 {
@@ -139,6 +140,11 @@ namespace Telerik.JustDecompiler.Languages.IL
         }
 
         protected override bool IsGlobalKeyword(string word, HashSet<string> globalKeywords)
+        {
+            return false;
+        }
+
+        public override bool IsValidLineStarter(CodeNodeType nodeType)
         {
             return false;
         }

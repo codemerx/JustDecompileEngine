@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Telerik.JustDecompiler.Ast;
 using Telerik.JustDecompiler.Ast.Expressions;
 using Telerik.JustDecompiler.Ast.Statements;
+using Telerik.JustDecompiler.Languages;
 
 namespace Telerik.JustDecompiler.Decompiler.Inlining
 {
@@ -11,6 +12,12 @@ namespace Telerik.JustDecompiler.Decompiler.Inlining
     {
         private Dictionary<VariableReference, CodeNodeType> variableToAssignedCodeNodeTypeMap;
         private HashSet<VariableDefinition> variablesToNotInline;
+        private ILanguage language;
+
+        public VisualBasicVariablesToNotInlineFinder(ILanguage language)
+        {
+            this.language = language;
+        }
 
         public HashSet<VariableDefinition> Find(Dictionary<int, IList<Expression>> blockExpressions)
         {
@@ -145,7 +152,7 @@ namespace Telerik.JustDecompiler.Decompiler.Inlining
                 VariableDefinition variable = variableReference.Resolve();
                 if (!this.variablesToNotInline.Contains(variable))
                 {
-                    if (!variableAssignmentType.IsValidVBLineStarter())
+                    if (!this.language.IsValidLineStarter(variableAssignmentType))
                     {
                         this.variablesToNotInline.Add(variable);
                     }
