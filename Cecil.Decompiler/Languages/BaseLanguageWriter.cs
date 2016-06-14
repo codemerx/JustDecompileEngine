@@ -1003,7 +1003,6 @@ namespace Telerik.JustDecompiler.Languages
         public virtual void Stop()
         {
             isStopped = true;
-            Language.StopPipeline();
         }
 
         protected virtual void WriteTypeNamespaceStart(TypeDefinition member)

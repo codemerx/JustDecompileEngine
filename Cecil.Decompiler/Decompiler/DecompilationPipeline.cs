@@ -80,7 +80,7 @@ namespace Telerik.JustDecompiler.Decompiler
                 {
                     foreach (IDecompilationStep step in steps)
                     {
-                        if (language != null && language.IsStopped)
+                        if (this.Context.IsStopped)
                         {
                             break;
                         }

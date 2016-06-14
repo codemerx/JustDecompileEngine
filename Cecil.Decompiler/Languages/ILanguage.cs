@@ -88,12 +88,8 @@ namespace Telerik.JustDecompiler.Languages
 		string ReplaceInvalidCharactersInIdentifier(string identifier);
 
         string CommentLines(string text);
-
-		void StopPipeline();
-
+        
 		bool WriteLargeNumbersInHex { get; set; }
-
-		bool IsStopped { get; }
 
 		string VSCodeFileExtension { get; }
 

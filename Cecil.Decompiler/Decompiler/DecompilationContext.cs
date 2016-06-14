@@ -14,6 +14,8 @@ namespace Telerik.JustDecompiler.Decompiler
 
         public ILanguage Language{ get; set; }
 
+        public bool IsStopped { get; private set; }
+
         public DecompilationContext(MethodSpecificContext methodContext, TypeSpecificContext typeContext, ILanguage language)
 			: this(methodContext, typeContext, new ModuleSpecificContext(), new AssemblySpecificContext(), language)
 		{
@@ -26,8 +28,14 @@ namespace Telerik.JustDecompiler.Decompiler
 			this.ModuleContext = moduleContext;
 			this.AssemblyContext = assemblyContext;
             this.Language = language;
+            this.IsStopped = false;
 		}
 
 		public DecompilationContext() { }
+
+        public void StopPipeline()
+        {
+            this.IsStopped = true;
+        }
 	}
 }

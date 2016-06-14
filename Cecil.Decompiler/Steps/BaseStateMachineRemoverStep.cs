@@ -24,7 +24,7 @@ namespace Telerik.JustDecompiler.Steps
 
             if (!ProcessCFG())
             {
-                context.Language.StopPipeline();
+                context.StopPipeline();
             }
             return body;
         }
