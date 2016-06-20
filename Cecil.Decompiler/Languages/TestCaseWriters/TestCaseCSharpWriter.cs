@@ -12,10 +12,10 @@ namespace Telerik.JustDecompiler.Languages.TestCaseWriters
 {
 	public class TestCaseCSharpWriter : CSharpWriter, ILanguageTestCaseWriter
 	{
-		public TestCaseCSharpWriter(ILanguage language, IFormatter formatter, bool writeExceptionsAsComments)
-			: base(language, formatter, TestCaseExceptionFormatter.Instance, writeExceptionsAsComments) { }
+        public TestCaseCSharpWriter(ILanguage language, IFormatter formatter, IWriterSettings settings)
+            : base(language, formatter, TestCaseExceptionFormatter.Instance, settings) { }
 
-		public void SetContext(DecompilationContext context)
+        public void SetContext(DecompilationContext context)
 		{
 			this.writerContext = new WriterContext(context.AssemblyContext, context.ModuleContext, context.TypeContext, new Dictionary<string, MethodSpecificContext>(), new Dictionary<string, Statement>());
 			this.writerContext.MethodContexts.Add(Utilities.GetMemberUniqueName(context.MethodContext.Method), context.MethodContext);
@@ -91,7 +91,7 @@ namespace Telerik.JustDecompiler.Languages.TestCaseWriters
             DoVisit(node);
         }
 
-		protected override void WriteInternal(IMemberDefinition member, bool writeDocumentation, bool showCompilerGeneratedMembers = false)
+		protected override void WriteInternal(IMemberDefinition member)
 		{
 			if (isStopped)
 				return;
@@ -103,13 +103,13 @@ namespace Telerik.JustDecompiler.Languages.TestCaseWriters
 				formatter.PreserveIndent(member);
 			}
 
-			if (writeDocumentation)
+			if (this.Settings.WriteDocumentation)
 			{
 				WriteDocumentation(member);
 			}
 			if (member is TypeDefinition)
 			{
-				WriteTypeInANewWriterIfNeeded((TypeDefinition)member, writeDocumentation, showCompilerGeneratedMembers);
+				WriteTypeInANewWriterIfNeeded((TypeDefinition)member);
 			}
 			else
 			{

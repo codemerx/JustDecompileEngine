@@ -8,10 +8,10 @@ namespace Telerik.JustDecompiler.Languages.CSharp
 	{
 		private readonly CSharpAssemblyAttributeInternalWriter writer;
 
-		public CSharpAssemblyAttributeWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
-			: base(language, exceptionFormatter, writeExceptionsAsComments)
+		public CSharpAssemblyAttributeWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
+			: base(language, exceptionFormatter, settings)
         {
-			this.writer = new CSharpAssemblyAttributeInternalWriter(language, formatter, exceptionFormatter, writeExceptionsAsComments);
+			this.writer = new CSharpAssemblyAttributeInternalWriter(language, formatter, exceptionFormatter, settings);
             this.writer.ExceptionThrown += OnExceptionThrown;
         }
 
@@ -41,8 +41,8 @@ namespace Telerik.JustDecompiler.Languages.CSharp
 
 			public ModuleSpecificContext InternalModuleContext { get; set; }
 
-			public CSharpAssemblyAttributeInternalWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
-				: base(language, formatter, exceptionFormatter, writeExceptionsAsComments)
+			public CSharpAssemblyAttributeInternalWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
+				: base(language, formatter, exceptionFormatter, settings)
 			{
 			}
 

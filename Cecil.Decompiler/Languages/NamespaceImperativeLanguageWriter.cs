@@ -11,8 +11,7 @@ namespace Telerik.JustDecompiler.Languages
 	public abstract class NamespaceImperativeLanguageWriter : BaseImperativeLanguageWriter, INamespaceLanguageWriter
 	{
         protected const string CastToObjectResolvementError = "The cast to object might be unnecessary. Please, locate the assembly where \"{0}\" is defined.";
-
-		protected bool writeFullyQualifiedNames;
+        
 		protected string currentNamespace;
 		protected bool writeNamespacesandUsings;
 
@@ -24,14 +23,13 @@ namespace Telerik.JustDecompiler.Languages
 			}
 		}
 
-		public NamespaceImperativeLanguageWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
-			: base(language, formatter, exceptionFormatter, writeExceptionsAsComments)
+		public NamespaceImperativeLanguageWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
+			: base(language, formatter, exceptionFormatter, settings)
 		{
 			writeNamespacesandUsings = false;
-			writeFullyQualifiedNames = false;
 		}
 
-		public List<WritingInfo> WriteTypeAndNamespaces(TypeDefinition type, IWriterContextService writerContextService, bool writeDocumentation, bool showCompilerGeneratedMembers, bool writeFullyQualifiedNames)
+		public List<WritingInfo> WriteTypeAndNamespaces(TypeDefinition type, IWriterContextService writerContextService)
 		{
 			this.writerContextService = writerContextService;
 			this.writerContext = writerContextService.GetWriterContext(type, Language);
@@ -41,13 +39,13 @@ namespace Telerik.JustDecompiler.Languages
 			UpdateWritingInfo(this.writerContext, this.currentWritingInfo);
 			this.writingInfos = new List<WritingInfo>();
 			this.writingInfos.Add(this.currentWritingInfo);
-			WriteTypeAndNamespacesInternal(type, writeDocumentation, showCompilerGeneratedMembers, writeFullyQualifiedNames);
+			WriteTypeAndNamespacesInternal(type);
             return writingInfos;
 		}
 
 		public override void WriteNamespaceIfTypeInCollision(TypeReference reference)
 		{
-			if (this.writeFullyQualifiedNames)
+			if (this.Settings.WriteFullyQualifiedNames)
 			{
 				return;
 			}
@@ -55,10 +53,9 @@ namespace Telerik.JustDecompiler.Languages
 			base.WriteNamespaceIfTypeInCollision(reference);
 		}
 
-		protected void WriteTypeAndNamespacesInternal(TypeDefinition type, bool writeDocumentation, bool showCompilerGeneratedMembers, bool writeFullyQualifiedNames)
+		protected void WriteTypeAndNamespacesInternal(TypeDefinition type)
 		{
 			this.writeNamespacesandUsings = true;
-			this.writeFullyQualifiedNames = writeFullyQualifiedNames;
 			this.currentNamespace = GetCurrentNamespace(type);
 
 			if (TypeContext.UsedNamespaces.Count() > 0)
@@ -69,7 +66,7 @@ namespace Telerik.JustDecompiler.Languages
 			}
 
 			WriteTypeNamespaceStart(type);
-			WriteInternal(type, writeDocumentation, showCompilerGeneratedMembers);
+			WriteInternal(type);
 			WriteTypeNamespaceEnd(type);
 		}
 
@@ -79,15 +76,14 @@ namespace Telerik.JustDecompiler.Languages
 			return outerMostDeclaringType.Namespace;
 		}
 
-		public List<WritingInfo> WriteType(TypeDefinition type, IWriterContextService writerContextService, bool writeDocumentation, bool showCompilerGeneratedMembers, bool writeFullyQualifiedNames)
+		public List<WritingInfo> WriteType(TypeDefinition type, IWriterContextService writerContextService)
 		{
 			this.writeNamespacesandUsings = false;
-			this.writeFullyQualifiedNames = writeFullyQualifiedNames;
 			this.currentNamespace = GetCurrentNamespace(type);
-			return base.Write(type, writerContextService, writeDocumentation, showCompilerGeneratedMembers);
+			return base.Write(type, writerContextService);
 		}
 
-		public List<WritingInfo> WritePartialTypeAndNamespaces(TypeDefinition type, IWriterContextService writerContextService, bool showCompilerGeneratedMembers, bool writeFullyQualifiedNames, bool writeDocumentation, Dictionary<string, ICollection<string>> fieldsToSkip = null)
+		public List<WritingInfo> WritePartialTypeAndNamespaces(TypeDefinition type, IWriterContextService writerContextService, Dictionary<string, ICollection<string>> fieldsToSkip = null)
 		{
 			this.writerContextService = writerContextService;
 			this.writerContext = writerContextService.GetWriterContext(type, Language);
@@ -96,14 +92,13 @@ namespace Telerik.JustDecompiler.Languages
 			UpdateWritingInfo(this.writerContext, this.currentWritingInfo);
 			this.writingInfos = new List<WritingInfo>();
 			this.writingInfos.Add(this.currentWritingInfo);
-			WritePartialTypeAndNamespacesInternal(type, showCompilerGeneratedMembers, writeFullyQualifiedNames, writeDocumentation, fieldsToSkip);
+			WritePartialTypeAndNamespacesInternal(type, fieldsToSkip);
             return writingInfos;
 		}
 
-		public void WritePartialTypeAndNamespacesInternal(TypeDefinition type, bool showCompilerGeneratedMembers, bool writeFullyQualifiedNames, bool writeDocumentation, Dictionary<string, ICollection<string>> fieldsToSkip = null)
+		public void WritePartialTypeAndNamespacesInternal(TypeDefinition type, Dictionary<string, ICollection<string>> fieldsToSkip = null)
 		{ 			
 			this.writeNamespacesandUsings = true;
-			this.writeFullyQualifiedNames = writeFullyQualifiedNames;
 			currentNamespace = type.Namespace;
 			ICollection<string> typeFieldsToSkip = null;
 			if (fieldsToSkip.ContainsKey(type.FullName))
@@ -119,7 +114,7 @@ namespace Telerik.JustDecompiler.Languages
 			}
 
 			WriteTypeNamespaceStart(type);
-			WritePartialType(type, writeDocumentation,showCompilerGeneratedMembers, fieldsToSkip: typeFieldsToSkip);
+			WritePartialType(type, fieldsToSkip: typeFieldsToSkip);
 			WriteTypeNamespaceEnd(type);
 		}
 
@@ -142,7 +137,7 @@ namespace Telerik.JustDecompiler.Languages
 
 		public void WriteSecurityDeclarationNamespaceIfNeeded()
 		{
-			if (writeFullyQualifiedNames)
+			if (this.Settings.WriteFullyQualifiedNames)
 			{
 				Write("System.Security.Permissions");
 				WriteToken(".");
@@ -219,19 +214,19 @@ namespace Telerik.JustDecompiler.Languages
 			}
 		}
 
-		protected override void WriteTypeInANewWriterIfNeeded(TypeDefinition type, bool writeDocumentation, bool showCompilerGeneratedMembers = false)
+		protected override void WriteTypeInANewWriterIfNeeded(TypeDefinition type)
 		{
 			if (this.CurrentType != type)
 			{
-				ILanguageWriter writer = Language.GetWriter(this.formatter, this.exceptionFormatter, this.WriteExceptionsAsComments);
+				ILanguageWriter writer = Language.GetWriter(this.formatter, this.exceptionFormatter, this.Settings);
                 writer.ExceptionThrown += OnExceptionThrown;
-				List<WritingInfo> nestedWritingInfos = (writer as NamespaceImperativeLanguageWriter).WriteType(type, writerContextService, writeDocumentation, showCompilerGeneratedMembers, writeFullyQualifiedNames);
+				List<WritingInfo> nestedWritingInfos = (writer as NamespaceImperativeLanguageWriter).WriteType(type, writerContextService);
                 writer.ExceptionThrown -= OnExceptionThrown;
                 this.writingInfos.AddRange(nestedWritingInfos);
 			}
 			else
 			{
-				WriteType(type, writeDocumentation, showCompilerGeneratedMembers);
+				WriteType(type);
 			}
 		}
 
@@ -292,7 +287,7 @@ namespace Telerik.JustDecompiler.Languages
 			base.WriteReference(name, reference);
 		}
 
-		public void WriteBody(IMemberDefinition member, IWriterContextService writerContextService, bool writeFullQualifiedNames)
+		public override void WriteBody(IMemberDefinition member, IWriterContextService writerContextService)
 		{
 			this.writerContextService = writerContextService;
 			this.writerContext = writerContextService.GetWriterContext(member, Language);
@@ -300,21 +295,20 @@ namespace Telerik.JustDecompiler.Languages
 			UpdateWritingInfo(this.writerContext, this.currentWritingInfo);
 			this.writingInfos = new List<WritingInfo>();
 			this.writingInfos.Add(this.currentWritingInfo);
-			WriteBodyInternal(member, writeFullQualifiedNames);
+			WriteBodyInternal(member);
 		}
 
-		protected void WriteBodyInternal(IMemberDefinition member, bool writeFullyQualifiedNames)
+		protected override void WriteBodyInternal(IMemberDefinition member)
 		{
 			membersStack.Push(member);
-			this.writeFullyQualifiedNames = writeFullyQualifiedNames;
 			this.currentNamespace = member.DeclaringType.Namespace;
-			WriteBodyInternal(member);
+			base.WriteBodyInternal(member);
 			membersStack.Pop();
 		}
 
 		private void WriteNamespaceIfNeeded(TypeReference reference, bool forceWriteNamespace = false)
 		{
-			if ((!forceWriteNamespace) && (!writeFullyQualifiedNames || CheckForSpecialName(reference)))
+			if ((!forceWriteNamespace) && (!this.Settings.WriteFullyQualifiedNames || CheckForSpecialName(reference)))
 			{
 				return;
 			}

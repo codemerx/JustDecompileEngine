@@ -366,6 +366,7 @@
     <Compile Include="Languages\CSharp\ICSharp.cs" />
     <Compile Include="Languages\ILanguageTestCaseWriter.cs" />
     <Compile Include="Languages\IPositionMaintainingFormatter.cs" />
+    <Compile Include="Languages\IWriterSettings.cs" />
     <Compile Include="Languages\LanguageFactory.cs" />
     <Compile Include="Languages\MemberNamingUtils.cs" />
     <Compile Include="Languages\OffsetSpan.cs" />
@@ -389,6 +390,7 @@
     <Compile Include="Languages\VisualBasic\IVisualBasic.cs" />
     <Compile Include="Languages\VisualBasic\VisualBasicV10.cs" />
     <Compile Include="Languages\VisualBasic\VisualBasicVersion.cs" />
+    <Compile Include="Languages\WriterSettings.cs" />
     <Compile Include="Languages\WritingInfo.cs" />
     <Compile Include="Languages\VisualBasic\VisualBasicAssemblyAttributeWriter.cs" />
     <Compile Include="Mono.Cecil.Extensions\GenericHelper.cs" />

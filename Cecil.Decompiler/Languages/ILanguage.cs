@@ -53,9 +53,9 @@ namespace Telerik.JustDecompiler.Languages
 
 		StringComparer IdentifierComparer { get; }
 
-        ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments);
+        ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings);
 		
-		IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments);
+		IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings);
 
         bool IsLanguageKeyword(string word);
 
@@ -88,8 +88,6 @@ namespace Telerik.JustDecompiler.Languages
 		string ReplaceInvalidCharactersInIdentifier(string identifier);
 
         string CommentLines(string text);
-        
-		bool WriteLargeNumbersInHex { get; set; }
 
 		string VSCodeFileExtension { get; }
 

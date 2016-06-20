@@ -45,14 +45,20 @@ namespace Telerik.JustDecompiler.External
 			}
 		}
 
-		/// <summary>
-		/// Creates a new DecompilationPreferences object and sets its properties to the default values.
-		/// </summary>
-		public DecompilationPreferences()
+        /// <summary>
+        /// Decides whether to write large number in hexadecimal format or not.
+        /// </summary>
+        public bool WriteLargeNumbersInHex { get; set; }
+
+        /// <summary>
+        /// Creates a new DecompilationPreferences object and sets its properties to the default values.
+        /// </summary>
+        public DecompilationPreferences()
 		{
 			this.WriteDocumentation = true;
 			this.WriteFullNames = false;
 			this.renameInvalidMembers = true;
+            this.WriteLargeNumbersInHex = true;
 		}
 	}
 }

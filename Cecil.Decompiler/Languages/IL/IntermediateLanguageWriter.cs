@@ -14,7 +14,6 @@ namespace Telerik.JustDecompiler.Languages.IL
     public class IntermediateLanguageWriter : BaseLanguageWriter
     {
         private CodeMappings CodeMappings { get; set; }
-        private readonly bool shouldGenerateBlocks;
         private readonly FlagsWriter flagsWriter;
         private MethodDefinition method;
 
@@ -462,7 +461,7 @@ namespace Telerik.JustDecompiler.Languages.IL
             Outdent();
         }
 
-        public override void WriteMemberNavigationName(object memberDefinition, bool renameInvalidMembers)
+        public override void WriteMemberNavigationName(object memberDefinition)
         {
             if (memberDefinition == null)
             {
@@ -473,11 +472,11 @@ namespace Telerik.JustDecompiler.Languages.IL
             {
                 TypeReference typeRef = (TypeReference)memberDefinition;
 
-                this.formatter.Write(renameInvalidMembers ? typeRef.GetFriendlyTypeName(Language) : typeRef.Name);
+                this.formatter.Write(this.Settings.RenameInvalidMembers ? typeRef.GetFriendlyTypeName(Language) : typeRef.Name);
             }
             else
             {
-                string value = GetFullName(memberDefinition, renameInvalidMembers);
+                string value = GetFullName(memberDefinition);
 
                 var startIndex = value.Split(new string[] { "::" }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -489,25 +488,25 @@ namespace Telerik.JustDecompiler.Languages.IL
                 {
                     MethodDefinition methodDef = memberDefinition as MethodDefinition;
 
-                    this.formatter.Write(string.Format("{0} : {1}", value, renameInvalidMembers ? methodDef.ReturnType.GetFriendlyFullName(Language) : methodDef.ReturnType.FullName));
+                    this.formatter.Write(string.Format("{0} : {1}", value, this.Settings.RenameInvalidMembers ? methodDef.ReturnType.GetFriendlyFullName(Language) : methodDef.ReturnType.FullName));
                 }
                 else if (memberDefinition is PropertyDefinition)
                 {
                     var property = memberDefinition as PropertyDefinition;
 
-                    this.formatter.Write(string.Format("{0} : {1}", value, renameInvalidMembers ? property.PropertyType.GetFriendlyFullName(Language) : property.PropertyType.FullName));
+                    this.formatter.Write(string.Format("{0} : {1}", value, this.Settings.RenameInvalidMembers ? property.PropertyType.GetFriendlyFullName(Language) : property.PropertyType.FullName));
                 }
                 else if (memberDefinition is FieldDefinition)
                 {
                     var field = memberDefinition as FieldDefinition;
 
-                    this.formatter.Write(string.Format("{0} : {1}", value, renameInvalidMembers ? field.FieldType.GetFriendlyFullName(Language) : field.FieldType.FullName));
+                    this.formatter.Write(string.Format("{0} : {1}", value, this.Settings.RenameInvalidMembers ? field.FieldType.GetFriendlyFullName(Language) : field.FieldType.FullName));
                 }
                 else if (memberDefinition is EventDefinition)
                 {
                     var @event = memberDefinition as EventDefinition;
 
-                    this.formatter.Write(string.Format("{0} : {1}", value, renameInvalidMembers ? @event.EventType.GetFriendlyFullName(Language) : @event.EventType.FullName));
+                    this.formatter.Write(string.Format("{0} : {1}", value, this.Settings.RenameInvalidMembers ? @event.EventType.GetFriendlyFullName(Language) : @event.EventType.FullName));
                 }
                 else if (memberDefinition is ParameterReference)
                 {
@@ -515,7 +514,7 @@ namespace Telerik.JustDecompiler.Languages.IL
                 }
                 else if (memberDefinition is MemberReference)
                 {
-                    this.formatter.Write(renameInvalidMembers ? ((MemberReference)memberDefinition).GetFriendlyFullName(Language) : ((MemberReference)memberDefinition).FullName);
+                    this.formatter.Write(this.Settings.RenameInvalidMembers ? ((MemberReference)memberDefinition).GetFriendlyFullName(Language) : ((MemberReference)memberDefinition).FullName);
                 }
             }
         }
@@ -607,25 +606,25 @@ namespace Telerik.JustDecompiler.Languages.IL
         //    //}
         //}
 
-        private string GetFullName(object member, bool renameInvalidMembers)
+        private string GetFullName(object member)
         {
             string name = string.Empty;
 
             if (member is IMemberDefinition)
             {
-                name = renameInvalidMembers ? ((IMemberDefinition)member).GetFriendlyFullName(Language) : ((IMemberDefinition)member).FullName;
+                name = this.Settings.RenameInvalidMembers ? ((IMemberDefinition)member).GetFriendlyFullName(Language) : ((IMemberDefinition)member).FullName;
             }
             else if (member is ParameterReference)
             {
-                name = renameInvalidMembers ? Language.ReplaceInvalidCharactersInIdentifier(((ParameterReference)member).Name) : ((ParameterReference)member).Name;
+                name = this.Settings.RenameInvalidMembers ? Language.ReplaceInvalidCharactersInIdentifier(((ParameterReference)member).Name) : ((ParameterReference)member).Name;
             }
             else if (member is MemberReference)
             {
-                name = renameInvalidMembers ? ((MemberReference)member).GetFriendlyFullName(Language) : ((MemberReference)member).FullName;
+                name = this.Settings.RenameInvalidMembers ? ((MemberReference)member).GetFriendlyFullName(Language) : ((MemberReference)member).FullName;
             }
             else
             {
-                name = renameInvalidMembers ? Language.ReplaceInvalidCharactersInIdentifier(member.ToString()) : member.ToString();
+                name = this.Settings.RenameInvalidMembers ? Language.ReplaceInvalidCharactersInIdentifier(member.ToString()) : member.ToString();
             }
             return name;
         }
@@ -747,7 +746,7 @@ namespace Telerik.JustDecompiler.Languages.IL
                 WriteLine();
             }
 
-            if (shouldGenerateBlocks && body.Instructions.Count > 0)
+            if (this.Settings.ShouldGenerateBlocks && body.Instructions.Count > 0)
             {
                 Instruction inst = body.Instructions[0];
                 HashSet<int> branchTargets = GetBranchTargets(body.Instructions);
@@ -1970,10 +1969,9 @@ namespace Telerik.JustDecompiler.Languages.IL
             }
         }
 
-        public IntermediateLanguageWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments, bool shouldGenerateBlocks)
-            : base(language, formatter, exceptionFormatter, writeExceptionsAsComments)
+        public IntermediateLanguageWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
+            : base(language, formatter, exceptionFormatter, settings)
         {
-            this.shouldGenerateBlocks = shouldGenerateBlocks;
             this.flagsWriter = new FlagsWriter(this);
         }
 

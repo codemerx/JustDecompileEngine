@@ -12,9 +12,9 @@ namespace Telerik.JustDecompiler.Languages
 		{
 			var formatter = new PlainTextFormatter(new StringWriter());
 
-			ILanguageWriter writer = language.GetWriter(formatter, SimpleExceptionFormatter.Instance, false);
+			ILanguageWriter writer = language.GetWriter(formatter, SimpleExceptionFormatter.Instance, GetWriterSettings(renameInvalidMembers));
 
-			writer.WriteNamespaceNavigationName(@namespace, renameInvalidMembers);
+			writer.WriteNamespaceNavigationName(@namespace);
 
 			return formatter.ToString();
 		}
@@ -23,7 +23,7 @@ namespace Telerik.JustDecompiler.Languages
 		{
 			var formatter = new PlainTextFormatter(new StringWriter());
 
-			ILanguageWriter writer = language.GetWriter(formatter, SimpleExceptionFormatter.Instance, false);
+			ILanguageWriter writer = language.GetWriter(formatter, SimpleExceptionFormatter.Instance, GetWriterSettings());
 
 			writer.WriteMemberEscapedOnlyName(memberReference);
 
@@ -34,7 +34,7 @@ namespace Telerik.JustDecompiler.Languages
 		{
 			var formatter = new PlainTextFormatter(new StringWriter());
 
-			ILanguageWriter writer = language.GetWriter(formatter, SimpleExceptionFormatter.Instance, false);
+			ILanguageWriter writer = language.GetWriter(formatter, SimpleExceptionFormatter.Instance, GetWriterSettings());
 
 			writer.WriteMemberNavigationPathFullName(memberReference);
 
@@ -45,11 +45,16 @@ namespace Telerik.JustDecompiler.Languages
 		{
 			var formatter = new PlainTextFormatter(new StringWriter());
 
-			ILanguageWriter writer = language.GetWriter(formatter, SimpleExceptionFormatter.Instance, false);
+			ILanguageWriter writer = language.GetWriter(formatter, SimpleExceptionFormatter.Instance, GetWriterSettings(renameInvalidMembers));
 
-			writer.WriteMemberNavigationName(memberReference, renameInvalidMembers);
+			writer.WriteMemberNavigationName(memberReference);
 
 			return formatter.ToString();
 		}
+
+        private static IWriterSettings GetWriterSettings(bool renameInvalidMembers = false)
+        {
+            return new WriterSettings(renameInvalidMembers: renameInvalidMembers);
+        }
 	}
 }

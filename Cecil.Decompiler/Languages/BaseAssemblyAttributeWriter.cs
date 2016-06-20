@@ -10,7 +10,7 @@ namespace Telerik.JustDecompiler.Languages
 {
 	public abstract class BaseAssemblyAttributeWriter : ExceptionThrownNotifier, IAssemblyAttributeWriter
 	{
-		protected bool WriteExceptionsAsComments { get; private set; }
+		protected IWriterSettings Settings { get; private set; }
 		protected IExceptionFormatter exceptionFormatter;
 
 		public ILanguage Language { get; private set; }
@@ -45,11 +45,11 @@ namespace Telerik.JustDecompiler.Languages
 			}
 		}
 
-		public BaseAssemblyAttributeWriter(ILanguage language, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
+		public BaseAssemblyAttributeWriter(ILanguage language, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
         {
             this.Language = language;
 			this.exceptionFormatter = exceptionFormatter;
-			this.WriteExceptionsAsComments = writeExceptionsAsComments;
+			this.Settings = settings;
 		}
 
 		protected abstract AttributeWriter CreateAttributeWriter();

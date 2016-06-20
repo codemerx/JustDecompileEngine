@@ -201,10 +201,9 @@ namespace JustDecompileCmdShell
                 result.RenameInvalidMembers = renameInvalidMembers.Value;
             }
 
-            // This if statement must be after the if statement setting the language, because otherwise the value would be lost.
             if (writeLargeNumbersInHex.HasValue)
             {
-                result.Language.WriteLargeNumbersInHex = writeLargeNumbersInHex.Value;
+                result.WriteLargeNumbersInHex = writeLargeNumbersInHex.Value;
             }
 
             if (visualStudioVersion != VisualStudioVersion.Unknown)

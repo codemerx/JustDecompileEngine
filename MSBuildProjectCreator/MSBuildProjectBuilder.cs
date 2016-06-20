@@ -727,8 +727,16 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			writingInfos = null;
             StringWriter theWriter = new StringWriter();
 
-			IFormatter formatter = GetFormatter(theWriter);
-            ILanguageWriter writer = language.GetWriter(formatter, this.exceptionFormater, true);
+            bool showCompilerGeneratedMembers = Utilities.IsVbInternalTypeWithoutRootNamespace(type) ||
+                                                Utilities.IsVbInternalTypeWithRootNamespace(type);
+
+            IFormatter formatter = GetFormatter(theWriter);
+            IWriterSettings settings = new WriterSettings(writeExceptionsAsComments: true,
+                                                          writeFullyQualifiedNames: decompilationPreferences.WriteFullNames,
+                                                          writeDocumentation: decompilationPreferences.WriteDocumentation,
+                                                          showCompilerGeneratedMembers: showCompilerGeneratedMembers,
+                                                          writeLargeNumbersInHex: decompilationPreferences.WriteLargeNumbersInHex);
+            ILanguageWriter writer = language.GetWriter(formatter, this.exceptionFormater, settings);
 
             IWriterContextService writerContextService = this.GetWriterContextService();
 
@@ -739,24 +747,20 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
             try
             {
-				bool showCompilerGeneratedMembers = Utilities.IsVbInternalTypeWithoutRootNamespace(type) ||
-													Utilities.IsVbInternalTypeWithRootNamespace(type);
-
                 if (!(writer is INamespaceLanguageWriter))
                 {
-					writingInfos = writer.Write(type, writerContextService, decompilationPreferences.WriteDocumentation, showCompilerGeneratedMembers);
+					writingInfos = writer.Write(type, writerContextService);
                 }
                 else
                 {
 
                     if (shouldBePartial)
                     {
-						writingInfos = (writer as INamespaceLanguageWriter).WritePartialTypeAndNamespaces(type, writerContextService, showCompilerGeneratedMembers,
-							decompilationPreferences.WriteFullNames, decompilationPreferences.WriteDocumentation, membersToSkip);
+						writingInfos = (writer as INamespaceLanguageWriter).WritePartialTypeAndNamespaces(type, writerContextService, membersToSkip);
                     }
                     else
                     {
-						writingInfos = (writer as INamespaceLanguageWriter).WriteTypeAndNamespaces(type, writerContextService, decompilationPreferences.WriteDocumentation, showCompilerGeneratedMembers, decompilationPreferences.WriteFullNames);
+						writingInfos = (writer as INamespaceLanguageWriter).WriteTypeAndNamespaces(type, writerContextService);
                     }
                 }
 
@@ -798,7 +802,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             IAssemblyAttributeWriter writer = null;
             using (StringWriter stringWriter = new StringWriter())
             {
-                writer = language.GetAssemblyAttributeWriter(new PlainTextFormatter(stringWriter), this.exceptionFormater, true);
+                IWriterSettings settings = new WriterSettings(writeExceptionsAsComments: true);
+                writer = language.GetAssemblyAttributeWriter(new PlainTextFormatter(stringWriter), this.exceptionFormater, settings);
                 IWriterContextService writerContextService = this.GetWriterContextService();
                 writer.ExceptionThrown += OnExceptionThrown;
                 writerContextService.ExceptionThrown += OnExceptionThrown;

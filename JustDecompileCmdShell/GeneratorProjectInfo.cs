@@ -32,6 +32,7 @@ namespace JustDecompileCmdShell
 
             this.AddDocumentation = true;
             this.RenameInvalidMembers = true;
+            this.WriteLargeNumbersInHex = true;
 
             this.Error = error;
         }
@@ -63,6 +64,8 @@ namespace JustDecompileCmdShell
 		public bool AddDocumentation { get; set; }
 
 		public bool RenameInvalidMembers { get; set; }
+
+        public bool WriteLargeNumbersInHex { get; set; }
 
         public IProjectGenerationError Error { get; set; }
 

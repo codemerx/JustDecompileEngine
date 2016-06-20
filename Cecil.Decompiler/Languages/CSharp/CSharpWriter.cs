@@ -45,8 +45,8 @@ namespace Telerik.JustDecompiler.Languages.CSharp
         protected const string RefOutResolvementError = "Out parameters might be shown as ref. Please, locate the assembly where the method is defined.";
 
 
-        public CSharpWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
-            : base(language, formatter, exceptionFormatter, writeExceptionsAsComments)
+        public CSharpWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
+            : base(language, formatter, exceptionFormatter, settings)
         {
         }
 

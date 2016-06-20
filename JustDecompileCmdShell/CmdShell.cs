@@ -150,6 +150,7 @@ namespace JustDecompileCmdShell
             preferences.WriteFullNames = false;
             preferences.WriteDocumentation = projectInfo.AddDocumentation;
             preferences.RenameInvalidMembers = projectInfo.RenameInvalidMembers;
+            preferences.WriteLargeNumbersInHex = projectInfo.WriteLargeNumbersInHex;
 
             IFrameworkResolver frameworkResolver = new ConsoleFrameworkResolver(projectInfo.FrameworkVersion);
             MSBuildProjectBuilder projectBuilder = GetProjectBuilder(assembly, projectInfo, settings, projectInfo.Language, projFilePath, preferences, frameworkResolver);

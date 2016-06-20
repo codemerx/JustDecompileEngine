@@ -44,7 +44,7 @@ namespace Telerik.JustDecompiler.Languages
 	{
 		private AttributeWriter attributeWriter;
 
-		private readonly Stack<bool> shouldOmitSemicolon = new Stack<bool>();
+        private readonly Stack<bool> shouldOmitSemicolon = new Stack<bool>();
 
 		private readonly Stack<MethodReference> methodReferences = new Stack<MethodReference>();
 
@@ -78,8 +78,8 @@ namespace Telerik.JustDecompiler.Languages
 
 		public IKeyWordWriter KeyWordWriter { get; private set; }
 
-		public BaseImperativeLanguageWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
-			: base(language, formatter, exceptionFormatter, writeExceptionsAsComments)
+		public BaseImperativeLanguageWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
+			: base(language, formatter, exceptionFormatter, settings)
 		{
 			this.KeyWordWriter = CreateKeyWordWriter();
 		}
@@ -2226,7 +2226,7 @@ namespace Telerik.JustDecompiler.Languages
 					return;
 				case TypeCode.Int16:
 					short shortValue = (short)value;
-					if ((shortValue >= 255) && Language.WriteLargeNumbersInHex)
+					if ((shortValue >= 255) && this.Settings.WriteLargeNumbersInHex)
 					{
 						WriteLiteral(HexValuePrefix + shortValue.ToString("X").ToLowerInvariant());
 					}
@@ -2237,7 +2237,7 @@ namespace Telerik.JustDecompiler.Languages
 					return;
 				case TypeCode.Int32:
 					int intValue = (int)value;
-					if ((intValue >= 255) && Language.WriteLargeNumbersInHex)
+					if ((intValue >= 255) && this.Settings.WriteLargeNumbersInHex)
 					{
 						WriteLiteral(HexValuePrefix + intValue.ToString("X").ToLowerInvariant());
 					}
@@ -2248,7 +2248,7 @@ namespace Telerik.JustDecompiler.Languages
 					return;
 				case TypeCode.UInt16:
 					ushort ushortValue = (ushort)value;
-					if ((ushortValue >= 255) && Language.WriteLargeNumbersInHex)
+					if ((ushortValue >= 255) && this.Settings.WriteLargeNumbersInHex)
 					{
 						WriteLiteral(HexValuePrefix + ushortValue.ToString("X").ToLowerInvariant());
 					}
@@ -2259,7 +2259,7 @@ namespace Telerik.JustDecompiler.Languages
 					return;
 				case TypeCode.UInt32:
 					uint uintValue = (uint)value;
-					if ((uintValue >= 255) && Language.WriteLargeNumbersInHex)
+					if ((uintValue >= 255) && this.Settings.WriteLargeNumbersInHex)
 					{
 						WriteLiteral(HexValuePrefix + uintValue.ToString("X").ToLowerInvariant());
 					}
@@ -2270,7 +2270,7 @@ namespace Telerik.JustDecompiler.Languages
 					return;
 				case TypeCode.Int64:
 					long longValue = (long)value;
-					if ((longValue >= 255) && Language.WriteLargeNumbersInHex)
+					if ((longValue >= 255) && this.Settings.WriteLargeNumbersInHex)
 					{
 						WriteLiteral(HexValuePrefix + longValue.ToString("X").ToLowerInvariant() + "L");
 					}
@@ -2281,7 +2281,7 @@ namespace Telerik.JustDecompiler.Languages
 					return;
 				case TypeCode.UInt64:
 					ulong ulongValue = (ulong)value;
-					if ((ulongValue >= 255) && Language.WriteLargeNumbersInHex)
+					if ((ulongValue >= 255) && this.Settings.WriteLargeNumbersInHex)
 					{
 						WriteLiteral(HexValuePrefix + ulongValue.ToString("X").ToLowerInvariant() + "L");
 					}
@@ -4517,16 +4517,16 @@ namespace Telerik.JustDecompiler.Languages
 			}
 		}
 
-		public override void WriteMemberNavigationName(object memberDefinition, bool renameInvalidMembers)
+		public override void WriteMemberNavigationName(object memberDefinition)
 		{
 			if (memberDefinition is MethodReference)
 			{
-				WriteMethodReferenceNavigationName(memberDefinition as MethodReference, renameInvalidMembers);
+				WriteMethodReferenceNavigationName(memberDefinition as MethodReference);
 				return;
 			}
 			if (memberDefinition is TypeReference)
 			{
-				WriteTypeReferenceNavigationName(memberDefinition as TypeReference, renameInvalidMembers);
+				WriteTypeReferenceNavigationName(memberDefinition as TypeReference);
 				return;
 			}
 			if (memberDefinition is IMemberDefinition) // property or event
@@ -4543,7 +4543,7 @@ namespace Telerik.JustDecompiler.Languages
 						{
 							sb.Append('.');
 						}
-						if (renameInvalidMembers)
+						if (this.Settings.RenameInvalidMembers)
 						{
 							if (!NormalizeNameIfContainingGenericSymbols(nameParts[i], sb))
 							{
@@ -4558,7 +4558,7 @@ namespace Telerik.JustDecompiler.Languages
 					}
 					name = sb.ToString();
 				}
-				else if (renameInvalidMembers)
+				else if (this.Settings.RenameInvalidMembers)
 				{
 					name = Language.ReplaceInvalidCharactersInIdentifier(name);
 				}
@@ -4569,28 +4569,28 @@ namespace Telerik.JustDecompiler.Languages
 
 				TypeReference returnType = GetMemberType(theDefinition);
 
-				WriteTypeReferenceNavigationName(returnType, renameInvalidMembers);
+				WriteTypeReferenceNavigationName(returnType);
 			}
 		}
 
-		private void WriteTypeReferenceNavigationName(TypeReference type, bool renameInvalidMembers)
+		private void WriteTypeReferenceNavigationName(TypeReference type)
 		{
 			if (type.IsOptionalModifier || type.IsRequiredModifier)
 			{
-				WriteTypeReferenceNavigationName((type as IModifierType).ElementType, renameInvalidMembers);
+				WriteTypeReferenceNavigationName((type as IModifierType).ElementType);
 				return;
 			}
 			if (type.IsByReference)
 			{
 				type = (type as ByReferenceType).ElementType;
-				WriteTypeReferenceNavigationName(type, renameInvalidMembers);
+				WriteTypeReferenceNavigationName(type);
 				this.formatter.Write("&");
 				return;
 			}
 			if (type.IsPointer)
 			{
 				type = (type as PointerType).ElementType;
-				WriteTypeReferenceNavigationName(type, renameInvalidMembers);
+				WriteTypeReferenceNavigationName(type);
 				this.formatter.Write("*");
 				return;
 			}
@@ -4598,14 +4598,14 @@ namespace Telerik.JustDecompiler.Languages
 			{
 				int dimentions = (type as ArrayType).Dimensions.Count;
 				type = (type as ArrayType).ElementType;
-				WriteTypeReferenceNavigationName(type, renameInvalidMembers);
+				WriteTypeReferenceNavigationName(type);
 				this.formatter.Write(IndexLeftBracket);
 				this.formatter.Write(new string(',', dimentions - 1));
 				this.formatter.Write(IndexRightBracket);
 				return;
 			}
 			string name = GenericHelper.GetNonGenericName(type.Name);
-			if (renameInvalidMembers)
+			if (this.Settings.RenameInvalidMembers)
 			{
 				name = Language.ReplaceInvalidCharactersInIdentifier(name);
 			}
@@ -4614,15 +4614,15 @@ namespace Telerik.JustDecompiler.Languages
 
 			if (type is GenericInstanceType)
 			{
-				WriteGenericInstanceTypeArguments((GenericInstanceType)type, renameInvalidMembers);
+				WriteGenericInstanceTypeArguments((GenericInstanceType)type);
 			}
 			else if (type.HasGenericParameters)
 			{
-				this.WriteGenericParametersToDefinition(type, null, renameInvalidMembers);
+				this.WriteGenericParametersToDefinition(type, null, this.Settings.RenameInvalidMembers);
 			}
 		}
 
-		private void WriteGenericInstanceTypeArguments(IGenericInstance genericInstance, bool renameInvalidMembers)
+		private void WriteGenericInstanceTypeArguments(IGenericInstance genericInstance)
 		{
 			WriteToken(GenericLeftBracket);
 
@@ -4640,13 +4640,13 @@ namespace Telerik.JustDecompiler.Languages
 					genericArg = genericInstance.PostionToArgument[i];
 				}
 
-				WriteTypeReferenceNavigationName(genericArg, renameInvalidMembers);
+				WriteTypeReferenceNavigationName(genericArg);
 			}
 
 			WriteToken(GenericRightBracket);
 		}
 
-		private void WriteMethodReferenceNavigationName(MethodReference method, bool renameInvalidMembers)
+		private void WriteMethodReferenceNavigationName(MethodReference method)
 		{
 			string name = GenericHelper.GetNonGenericName(method.Name);
 			string[] nameParts = name.Split(new char[] { '.' });
@@ -4657,7 +4657,7 @@ namespace Telerik.JustDecompiler.Languages
 				{
 					sb.Append('.');
 				}
-				if (renameInvalidMembers)
+				if (this.Settings.RenameInvalidMembers)
 				{
 					if (!NormalizeNameIfContainingGenericSymbols(nameParts[i], sb))
 					{
@@ -4673,11 +4673,11 @@ namespace Telerik.JustDecompiler.Languages
 
 			if (method is GenericInstanceMethod)
 			{
-				this.WriteGenericInstanceTypeArguments((GenericInstanceMethod)method, renameInvalidMembers);
+				this.WriteGenericInstanceTypeArguments((GenericInstanceMethod)method);
 			}
 			else if (method.HasGenericParameters)
 			{
-				this.WriteGenericParametersToDefinition(method, null, renameInvalidMembers);
+				this.WriteGenericParametersToDefinition(method, null, this.Settings.RenameInvalidMembers);
 			}
 
 			this.formatter.Write("(");
@@ -4690,14 +4690,14 @@ namespace Telerik.JustDecompiler.Languages
 						this.formatter.Write(", ");
 					}
 					ParameterDefinition currentParameter = method.Parameters[i];
-					WriteTypeReferenceNavigationName(currentParameter.ParameterType, renameInvalidMembers);
+					WriteTypeReferenceNavigationName(currentParameter.ParameterType);
 				}
 			}
 			this.formatter.Write(")");
 
 			this.formatter.Write(" : ");
 
-			WriteTypeReferenceNavigationName(method.FixedReturnType, renameInvalidMembers);
+			WriteTypeReferenceNavigationName(method.FixedReturnType);
 		}
 
 		private bool NormalizeNameIfContainingGenericSymbols(string name, StringBuilder stringBuilder)

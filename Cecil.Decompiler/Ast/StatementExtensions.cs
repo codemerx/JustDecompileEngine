@@ -18,7 +18,7 @@ namespace Telerik.JustDecompiler.Ast
             using (System.IO.StringWriter statementDecompilerStrWriter = new System.IO.StringWriter())
             {
                 Telerik.JustDecompiler.Languages.ILanguageTestCaseWriter statementDecompilerLanguageWriter =
-                    new Telerik.JustDecompiler.Languages.TestCaseWriters.IntermediateDecompilationCSharpLanguageWriter(new Telerik.JustDecompiler.Languages.PlainTextFormatter(statementDecompilerStrWriter), true);
+                    new Telerik.JustDecompiler.Languages.TestCaseWriters.IntermediateDecompilationCSharpLanguageWriter(new Telerik.JustDecompiler.Languages.PlainTextFormatter(statementDecompilerStrWriter));
                 statementDecompilerLanguageWriter.Write(statement);
                 return statementDecompilerStrWriter.ToString();
             }

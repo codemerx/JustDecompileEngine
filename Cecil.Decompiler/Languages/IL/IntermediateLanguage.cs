@@ -73,20 +73,14 @@ namespace Telerik.JustDecompiler.Languages.IL
 			get { return "///"; }
 		}
 
-        public bool ShouldGenerateBlocks
+		public override ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
         {
-            get;
-            set;
+            return new IntermediateLanguageWriter(this, formatter, exceptionFormatter, settings);
         }
 
-		public override ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
-        {
-            return new IntermediateLanguageWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments, ShouldGenerateBlocks);
-        }
-
-		public override IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
+		public override IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
 		{
-			return new IntermediateLanguageAssemblyAttributeWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments, ShouldGenerateBlocks);
+			return new IntermediateLanguageAssemblyAttributeWriter(this, formatter, exceptionFormatter, settings);
 		}
 
         public override DecompilationPipeline CreatePipeline()

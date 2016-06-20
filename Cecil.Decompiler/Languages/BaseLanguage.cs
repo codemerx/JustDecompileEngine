@@ -51,27 +51,7 @@ namespace Telerik.JustDecompiler.Languages
                                                  new MapUnconditionalBranchesStep());
             }
         }
-
-        private bool writeLargeNumbersInHex = true;
-
-        public bool IsStopped
-        {
-            get;
-            private set;
-        }
-
-        public bool WriteLargeNumbersInHex
-        {
-            get
-            {
-                return writeLargeNumbersInHex;
-            }
-            set
-            {
-                writeLargeNumbersInHex = value;
-            }
-        }
-
+        
         public abstract string Name { get; }
 
         public abstract int Version { get; }
@@ -145,9 +125,9 @@ namespace Telerik.JustDecompiler.Languages
             return firstCharacter.IsValidIdentifierFirstCharacter();
         }
 
-        public abstract ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments);
+        public abstract ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings);
 
-        public abstract IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments);
+        public abstract IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings);
 
         public virtual DecompilationPipeline CreatePipeline()
         {
@@ -195,11 +175,6 @@ namespace Telerik.JustDecompiler.Languages
         protected virtual IDecompilationStep[] LanguageFilterMethodDecompilationSteps(bool inlineAggressively)
         {
             return new IDecompilationStep[0];
-        }
-
-        public void StopPipeline()
-        {
-            IsStopped = true;
         }
 
         public virtual bool IsLanguageKeyword(string word)

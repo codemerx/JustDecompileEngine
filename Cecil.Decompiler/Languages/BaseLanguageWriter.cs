@@ -48,7 +48,7 @@ namespace Telerik.JustDecompiler.Languages
         protected WriterContext writerContext;
         protected IWriterContextService writerContextService;
         protected TypeDefinition CurrentType { get; set; }
-        protected bool WriteExceptionsAsComments { get; private set; }
+        protected IWriterSettings Settings { get; private set; }
         protected IExceptionFormatter exceptionFormatter;
         protected WritingInfo currentWritingInfo;
         protected List<WritingInfo> writingInfos;
@@ -57,12 +57,12 @@ namespace Telerik.JustDecompiler.Languages
 
         new public ILanguage Language { get; private set; }
 
-        public BaseLanguageWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
+        public BaseLanguageWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
         {
             this.Language = language;
             this.formatter = formatter;
             this.exceptionFormatter = exceptionFormatter;
-            this.WriteExceptionsAsComments = writeExceptionsAsComments;
+            this.Settings = settings;
         }
 
         protected virtual AssemblySpecificContext AssemblyContext
@@ -367,7 +367,7 @@ namespace Telerik.JustDecompiler.Languages
             }
         }
 
-        public virtual List<WritingInfo> Write(IMemberDefinition member, IWriterContextService writerContextService, bool writeDocumentation, bool showCompilerGeneratedMembers = false)
+        public virtual List<WritingInfo> Write(IMemberDefinition member, IWriterContextService writerContextService)
         {
             this.writerContextService = writerContextService;
             this.writerContext = writerContextService.GetWriterContext(member, Language);
@@ -382,7 +382,7 @@ namespace Telerik.JustDecompiler.Languages
             this.writingInfos = new List<WritingInfo>();
             this.writingInfos.Add(this.currentWritingInfo);
 
-            WriteInternal(member, writeDocumentation, showCompilerGeneratedMembers);
+            WriteInternal(member);
 
             return writingInfos;
         }
@@ -403,7 +403,7 @@ namespace Telerik.JustDecompiler.Languages
 			}
 		}
 
-        protected virtual void WriteInternal(IMemberDefinition member, bool writeDocumentation, bool showCompilerGeneratedMembers = false)
+        protected virtual void WriteInternal(IMemberDefinition member)
         {
 			uint memberToken = member.MetadataToken.ToUInt32();
 
@@ -412,14 +412,15 @@ namespace Telerik.JustDecompiler.Languages
 
             membersStack.Push(member);
 
-            if (!(member is TypeDefinition) || (member == CurrentType))
+            bool isNestedType = member is TypeDefinition && member != this.CurrentType;
+            if (!isNestedType)
             {
                 formatter.PreserveIndent(member);
             }
 
             try
             {
-                if (writeDocumentation)
+                if (this.Settings.WriteDocumentation && !isNestedType)
                 {
 					int documentationStartIndex = this.formatter.CurrentPosition;
                     WriteDocumentation(member);
@@ -429,7 +430,7 @@ namespace Telerik.JustDecompiler.Languages
                 {
                     formatter.WriteMemberDeclaration(member);
 
-                    WriteTypeInANewWriterIfNeeded((TypeDefinition)member, writeDocumentation, showCompilerGeneratedMembers);
+                    WriteTypeInANewWriterIfNeeded((TypeDefinition)member);
                 }
                 else
                 {
@@ -519,26 +520,6 @@ namespace Telerik.JustDecompiler.Languages
             }
 
             membersStack.Pop();
-        }
-
-        protected virtual bool WriteMember(IMemberDefinition member, bool writeDocumentation, bool showCompilerGeneratedMembers = false)
-        {
-            membersStack.Push(member);
-
-            if (writeDocumentation)
-            {
-				int documentationStartIndex = this.formatter.CurrentPosition;
-                WriteDocumentation(member);
-				AddMemberDocumentationOffsetSpan(member.MetadataToken.ToUInt32(), documentationStartIndex, this.formatter.CurrentPosition);
-            }
-
-
-            // the documentation has already been written.
-            WriteInternal(member, false, showCompilerGeneratedMembers: showCompilerGeneratedMembers);
-
-
-            membersStack.Pop();
-            return true;
         }
 
         protected void WriteDocumentation(IMemberDefinition member)
@@ -649,19 +630,19 @@ namespace Telerik.JustDecompiler.Languages
             }
         }
 
-        public virtual void WriteTypeDeclarationsOnly(TypeDefinition member, IWriterContextService writerContextService, bool writeDocumentation, bool showCompilerGeneratedMembers = false)
+        public virtual void WriteTypeDeclarationsOnly(TypeDefinition member, IWriterContextService writerContextService)
         {
             this.writerContextService = writerContextService;
             this.writerContext = writerContextService.GetWriterContext(member, Language);
             this.currentWritingInfo = new WritingInfo(member);
-            WriteTypeDeclarationsOnlyInternal(member, writeDocumentation, showCompilerGeneratedMembers);
+            WriteTypeDeclarationsOnlyInternal(member);
         }
 
-        protected virtual void WriteTypeDeclarationsOnlyInternal(TypeDefinition member, bool writeDocumentation, bool showCompilerGeneratedMembers = false)
+        protected virtual void WriteTypeDeclarationsOnlyInternal(TypeDefinition member)
         {
             WriteTypeNamespaceStart(member);
             WriteAttributes(member);
-            WriteTypeInternal(member, (x) => WriteMemberDeclaration(x, showCompilerGeneratedMembers, writeDocumentation), showCompilerGeneratedMembers);
+            WriteTypeInternal(member, (x) => WriteMemberDeclaration(x));
             WriteTypeNamespaceEnd(member);
         }
 
@@ -669,7 +650,7 @@ namespace Telerik.JustDecompiler.Languages
         {
             string[] exceptionLines = exceptionFormatter.Format(ex, member.FullName, member.DeclaringType.Module.FilePath);
 
-            if (this.WriteExceptionsAsComments)
+            if (this.Settings.WriteExceptionsAsComments)
             {
                 var commentedExceptionLines = exceptionLines.Select(exceptionLine => Language.CommentLineSymbol + " " + exceptionLine).ToArray();
                 formatter.WriteException(commentedExceptionLines);
@@ -692,7 +673,7 @@ namespace Telerik.JustDecompiler.Languages
             }
         }
 
-        protected virtual bool WriteMemberDeclaration(IMemberDefinition member, bool showCompilergenerated, bool writeDocumentation)
+        protected virtual bool WriteMemberDeclaration(IMemberDefinition member)
         {
             if (member is MethodDefinition)
             {
@@ -746,7 +727,7 @@ namespace Telerik.JustDecompiler.Languages
                 }
                 else
                 {
-                    WriteTypeDeclarationsOnlyInternal((TypeDefinition)member, writeDocumentation, showCompilergenerated);
+                    WriteTypeDeclarationsOnlyInternal((TypeDefinition)member);
                     return true;
                 }
             }
@@ -755,23 +736,23 @@ namespace Telerik.JustDecompiler.Languages
 
         protected abstract void WriteDelegate(TypeDefinition delegateDefinition);
 
-        protected virtual void WriteTypeInANewWriterIfNeeded(TypeDefinition type, bool writeDocumentation, bool showCompilerGeneratedMembers = false)
+        protected virtual void WriteTypeInANewWriterIfNeeded(TypeDefinition type)
         {
             if (this.CurrentType != type)
             {
-                ILanguageWriter writer = Language.GetWriter(this.formatter, this.exceptionFormatter, this.WriteExceptionsAsComments);
+                ILanguageWriter writer = Language.GetWriter(this.formatter, this.exceptionFormatter, this.Settings);
                 writer.ExceptionThrown += OnExceptionThrown;
-                List<WritingInfo> nestedWritingInfos = writer.Write(type, writerContextService, writeDocumentation, showCompilerGeneratedMembers);
+                List<WritingInfo> nestedWritingInfos = writer.Write(type, writerContextService);
                 writer.ExceptionThrown -= OnExceptionThrown;
                 this.writingInfos.AddRange(nestedWritingInfos);
             }
             else
             {
-                WriteType(type, writeDocumentation, showCompilerGeneratedMembers);
+                WriteType(type);
             }
         }
 
-		public void WriteTypeDeclaration(TypeDefinition type, IWriterContextService writerContextService, bool showCompilerGeneratedMembers = false)
+		public void WriteTypeDeclaration(TypeDefinition type, IWriterContextService writerContextService)
 		{
 			this.writerContextService = writerContextService;
 			this.writerContext = writerContextService.GetWriterContext(type, Language);
@@ -794,7 +775,7 @@ namespace Telerik.JustDecompiler.Languages
 			membersStack.Pop();
 		}
 
-        protected void WriteType(TypeDefinition type, bool writeDocumentation, bool showCompilerGeneratedMembers = false)
+        protected void WriteType(TypeDefinition type)
         {
             if (isStopped)
                 return;
@@ -808,8 +789,7 @@ namespace Telerik.JustDecompiler.Languages
 			this.currentWritingInfo.MemberTokenToAttributesMap.Add(type.MetadataToken.ToUInt32(), new OffsetSpan(attributesStartIndex, this.formatter.CurrentPosition - 1));
 
 			int decompiledCodeStartPosition = this.formatter.CurrentPosition;
-            WriteTypeInternal(type, (x) => WriteMember(x, writeDocumentation, showCompilerGeneratedMembers),
-                 showCompilerGeneratedMembers);
+            WriteTypeInternal(type, (x) => WriteInternal(x));
 			this.currentWritingInfo.MemberTokenToDecompiledCodeMap.Add(type.MetadataToken.ToUInt32(), new OffsetSpan(decompiledCodeStartPosition, this.formatter.CurrentPosition - 1));
 
             membersStack.Pop();
@@ -837,7 +817,7 @@ namespace Telerik.JustDecompiler.Languages
             return false;
         }
 
-        protected virtual void WriteTypeInternal(TypeDefinition type, Action<IMemberDefinition> writeMember, bool showCompilerGeneratedMembers)
+        protected virtual void WriteTypeInternal(TypeDefinition type, Action<IMemberDefinition> writeMember)
         {
             string typeName = string.Empty;
 
@@ -857,7 +837,7 @@ namespace Telerik.JustDecompiler.Languages
 
             WriteTypeOpeningBlock(type);
 
-            WriteTypeMembers(type, writeMember, showCompilerGeneratedMembers);
+            WriteTypeMembers(type, writeMember);
 
             WriteLine();
             Outdent();
@@ -870,10 +850,10 @@ namespace Telerik.JustDecompiler.Languages
             this.formatter.WriteEndBlock();
         }
 
-        private void WriteTypeMembers(TypeDefinition type, Action<IMemberDefinition> writeMember, bool showCompilerGeneratedMembers,
+        private void WriteTypeMembers(TypeDefinition type, Action<IMemberDefinition> writeMember,
             IEnumerable<string> attributesToSkip = null, ICollection<string> fieldsToSkip = null)
         {
-            List<IMemberDefinition> members = Utilities.GetTypeMembers(type, Language, showCompilerGeneratedMembers, attributesToSkip, fieldsToSkip,
+            List<IMemberDefinition> members = Utilities.GetTypeMembers(type, Language, this.Settings.ShowCompilerGeneratedMembers, attributesToSkip, fieldsToSkip,
                 currentWritingInfo.GeneratedFilterMethods, TypeContext.GetFieldToPropertyMap(Language).Keys);
 
             if (type.IsEnum)
@@ -1160,7 +1140,7 @@ namespace Telerik.JustDecompiler.Languages
 
         #region PartialTypes
 
-        protected void WritePartialType(TypeDefinition type, bool writeDocumentation, bool showCompilerGeneratedMembers = false, ICollection<string> fieldsToSkip = null)
+        protected void WritePartialType(TypeDefinition type, ICollection<string> fieldsToSkip = null)
         {
             if (isStopped)
                 return;
@@ -1168,11 +1148,10 @@ namespace Telerik.JustDecompiler.Languages
             /// Remove the CodeGeneratedAttribute
             WriteAttributes(type, new string[1] { "System.CodeDom.Compiler.GeneratedCodeAttribute" });
 
-            WritePartialType(type, (x) => WriteInternal(x, writeDocumentation, showCompilerGeneratedMembers), false,
-                showCompilerGeneratedMembers, fieldsToSkip: fieldsToSkip);
+            WritePartialType(type, (x) => WriteInternal(x), false, fieldsToSkip: fieldsToSkip);
         }
 
-        protected virtual void WritePartialType(TypeDefinition type, Action<IMemberDefinition> writeMember, bool writeNewLine, bool showCompilerGeneratedMembers,
+        protected virtual void WritePartialType(TypeDefinition type, Action<IMemberDefinition> writeMember, bool writeNewLine,
             ICollection<string> fieldsToSkip = null)
         {
             string typeName = string.Empty;
@@ -1181,8 +1160,7 @@ namespace Telerik.JustDecompiler.Languages
             WriteBeginBlock();
             WriteTypeOpeningBlock(type);
 
-            WriteTypeMembers(type, writeMember, showCompilerGeneratedMembers,
-                new string[1] { "System.Diagnostics.DebuggerNonUserCodeAttribute" }, fieldsToSkip);
+            WriteTypeMembers(type, writeMember, new string[1] { "System.Diagnostics.DebuggerNonUserCodeAttribute" }, fieldsToSkip);
 
             WriteLine();
             Outdent();
@@ -1191,7 +1169,7 @@ namespace Telerik.JustDecompiler.Languages
         }
         #endregion
 
-        public abstract void WriteMemberNavigationName(object memberDefinition, bool renameInvalidMembers);
+        public abstract void WriteMemberNavigationName(object memberDefinition);
 
         public void WriteMemberEscapedOnlyName(object memberDefinition)
         {
@@ -1307,7 +1285,7 @@ namespace Telerik.JustDecompiler.Languages
             }
         }
 
-        public virtual void WriteNamespaceNavigationName(string memberReferenceName, bool renameInvalidMembers)
+        public virtual void WriteNamespaceNavigationName(string memberReferenceName)
         {
             string[] splitValues = memberReferenceName.Split(new char[] { '.' });
 
@@ -1316,7 +1294,7 @@ namespace Telerik.JustDecompiler.Languages
             for (int i = 0; i < splitValues.Length; i++)
             {
                 string splitValue = splitValues[i];
-                if (!Language.IsValidIdentifier(splitValue) && renameInvalidMembers)
+                if (!Language.IsValidIdentifier(splitValue) && this.Settings.RenameInvalidMembers)
                 {
                     sb.Append(Language.ReplaceInvalidCharactersInIdentifier(splitValue));
                 }

@@ -175,14 +175,14 @@ namespace Telerik.JustDecompiler.Languages
 			    }
 		    }
 
-		    public override ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
+		    public override ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
             {
-			    return new VisualBasicWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments);
+			    return new VisualBasicWriter(this, formatter, exceptionFormatter, settings);
             }
 
-		    public override IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
+		    public override IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
 		    {
-			    return new VisualBasicAssemblyAttributeWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments);
+			    return new VisualBasicAssemblyAttributeWriter(this, formatter, exceptionFormatter, settings);
 		    }
 
 		    //public override DecompilationPipeline CreatePipeline(MethodDefinition method)

@@ -13,8 +13,8 @@ namespace Telerik.JustDecompiler.Languages.IL
 
         private const string SyntaxProblemsDueToNotResolvedType = "Enum keyword might be missing. Please, locate the assembly where the type is defined.";
 
-        public IntermediateLanguageAttributeWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments, bool shouldGenerateBlocks)
-			: base(language, formatter, exceptionFormatter, writeExceptionsAsComments, shouldGenerateBlocks) { }
+        public IntermediateLanguageAttributeWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
+			: base(language, formatter, exceptionFormatter, settings) { }
 
         public void WriteAssemblyAttributes(AssemblyDefinition assembly, ICollection<string> attributesToIgnore = null)
         {

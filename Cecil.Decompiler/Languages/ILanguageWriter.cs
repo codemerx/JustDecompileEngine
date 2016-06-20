@@ -32,14 +32,14 @@ namespace Telerik.JustDecompiler.Languages
 {
 	public interface ILanguageWriter : IExceptionThrownNotifier
     {
-		List<WritingInfo> Write(IMemberDefinition member, IWriterContextService writerContextService, bool writeDocumentation, bool showCompilerGeneratedMembers = false);
-        void WriteTypeDeclarationsOnly(TypeDefinition member, IWriterContextService writerContextService, bool writeDocumentation, bool showCompilerGeneratedMembers = false);
-		void WriteTypeDeclaration(TypeDefinition type, IWriterContextService writerContextService, bool showCompilerGeneratedMembers = false);
+		List<WritingInfo> Write(IMemberDefinition member, IWriterContextService writerContextService);
+        void WriteTypeDeclarationsOnly(TypeDefinition member, IWriterContextService writerContextService);
+		void WriteTypeDeclaration(TypeDefinition type, IWriterContextService writerContextService);
 		void WriteBody(IMemberDefinition member, IWriterContextService writerContextService); // used by JustCode
         void Stop();
-        void WriteMemberNavigationName(object memberReference, bool renameInvalidMembers);
+        void WriteMemberNavigationName(object memberReference);
         void WriteMemberEscapedOnlyName(object memberDefinition);
 		void WriteMemberNavigationPathFullName(object member);
-        void WriteNamespaceNavigationName(string memberDefinition, bool renameInvalidMembers);
+        void WriteNamespaceNavigationName(string memberDefinition);
     }
 }

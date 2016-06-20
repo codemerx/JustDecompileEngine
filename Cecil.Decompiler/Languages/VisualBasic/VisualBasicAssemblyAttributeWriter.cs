@@ -8,10 +8,10 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 	{
 		private readonly VisualBasicAssemblyAttributeInternalWriter writer;
 
-		public VisualBasicAssemblyAttributeWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
-			: base(language, exceptionFormatter, writeExceptionsAsComments)
+		public VisualBasicAssemblyAttributeWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
+			: base(language, exceptionFormatter, settings)
         {
-			this.writer = new VisualBasicAssemblyAttributeInternalWriter(language, formatter, exceptionFormatter, writeExceptionsAsComments);
+			this.writer = new VisualBasicAssemblyAttributeInternalWriter(language, formatter, exceptionFormatter, settings);
             this.writer.ExceptionThrown += OnExceptionThrown;
         }
 
@@ -41,8 +41,8 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 
 			public ModuleSpecificContext InternalModuleContext { get; set; }
 
-			public VisualBasicAssemblyAttributeInternalWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
-				: base(language, formatter, exceptionFormatter, writeExceptionsAsComments)
+			public VisualBasicAssemblyAttributeInternalWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
+				: base(language, formatter, exceptionFormatter, settings)
 			{
 			}
 

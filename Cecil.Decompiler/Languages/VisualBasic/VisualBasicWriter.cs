@@ -44,8 +44,8 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
     {
         readonly Stack<StatementState> statementStates = new Stack<StatementState>();
 
-        public VisualBasicWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
-            : base(language, formatter, exceptionFormatter, writeExceptionsAsComments)
+        public VisualBasicWriter(ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
+            : base(language, formatter, exceptionFormatter, settings)
         {
         }
 

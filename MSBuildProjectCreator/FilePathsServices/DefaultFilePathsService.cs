@@ -348,9 +348,11 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 		{
 			var formatter = new PlainTextFormatter(new StringWriter());
 
-			ILanguageWriter writer = language.GetWriter(formatter, SimpleExceptionFormatter.Instance, true);
+            IWriterSettings settings = new WriterSettings(writeExceptionsAsComments: true,
+                                                          renameInvalidMembers: true);
+			ILanguageWriter writer = language.GetWriter(formatter, SimpleExceptionFormatter.Instance, settings);
             writer.ExceptionThrown += OnExceptionThrown;
-			writer.WriteMemberNavigationName(type, true);
+			writer.WriteMemberNavigationName(type);
             writer.ExceptionThrown -= OnExceptionThrown;
 
             return formatter.ToString();
@@ -360,9 +362,11 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 		{
 			var formatter = new PlainTextFormatter(new StringWriter());
 
-			ILanguageWriter writer = language.GetWriter(formatter, SimpleExceptionFormatter.Instance, true);
+            IWriterSettings settings = new WriterSettings(writeExceptionsAsComments: true,
+                                                          renameInvalidMembers: true);
+            ILanguageWriter writer = language.GetWriter(formatter, SimpleExceptionFormatter.Instance, settings);
             writer.ExceptionThrown += OnExceptionThrown;
-            writer.WriteNamespaceNavigationName(@namespace, true);
+            writer.WriteNamespaceNavigationName(@namespace);
             writer.ExceptionThrown -= OnExceptionThrown;
 
             return formatter.ToString();

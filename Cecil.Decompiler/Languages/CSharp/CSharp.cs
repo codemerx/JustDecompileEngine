@@ -142,14 +142,14 @@ namespace Telerik.JustDecompiler.Languages
                 get { return "///"; }
             }
 
-            public override ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
+            public override ILanguageWriter GetWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
             {
-                return new CSharpWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments);
+                return new CSharpWriter(this, formatter, exceptionFormatter, settings);
             }
 
-            public override IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
+            public override IAssemblyAttributeWriter GetAssemblyAttributeWriter(IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
             {
-                return new CSharpAssemblyAttributeWriter(this, formatter, exceptionFormatter, writeExceptionsAsComments);
+                return new CSharpAssemblyAttributeWriter(this, formatter, exceptionFormatter, settings);
             }
 
             protected override bool IsLanguageKeyword(string word, HashSet<string> globalKeywords, HashSet<string> contextKeywords)
