@@ -41,9 +41,24 @@ namespace Telerik.JustDecompiler.Languages
     {
         private class VisualBasic : BaseLanguage, IVisualBasic
         {
+            private static VisualBasic instance;
+
             private Dictionary<string, string> operators;
 		    private HashSet<string> operatorKeywords;
         
+            static VisualBasic()
+            {
+                instance = new VisualBasic();
+            }
+
+            public static VisualBasic Instance
+            {
+                get
+                {
+                    return instance;
+                }
+            }
+
 		    protected override bool IsLanguageKeyword(string word, HashSet<string> globalKeywords, HashSet<string> contextKeywords)
 		    {
 			    foreach (string globalKeyword in globalKeywords)
@@ -83,7 +98,7 @@ namespace Telerik.JustDecompiler.Languages
 			    return this.operatorKeywords.Contains(@operator);
 		    }
 
-            public VisualBasic()
+            protected VisualBasic()
             {
                 this.operators = new Dictionary<string, string>();
 			    this.operatorKeywords = new HashSet<string>();

@@ -11,7 +11,14 @@ namespace Telerik.JustDecompiler.Languages
     {
         private class VisualBasicV10 : VisualBasic, IVisualBasic
         {
-            public VisualBasicV10()
+            private static VisualBasicV10 instance;
+
+            static VisualBasicV10()
+            {
+                instance = new VisualBasicV10();
+            }
+
+            protected VisualBasicV10()
             {
                 // Keywords are taken from https://msdn.microsoft.com/en-us/library/dd409611(v=vs.140).aspx
                 // The Out keyword is not added on purpose. That's because, we succeded to use it as identifier and the compiler
@@ -35,6 +42,14 @@ namespace Telerik.JustDecompiler.Languages
                 foreach (string word in GlobalKeywords)
                 {
                     this.languageSpecificGlobalKeywords.Add(word);
+                }
+            }
+
+            new public static VisualBasicV10 Instance
+            {
+                get
+                {
+                    return instance;
                 }
             }
 

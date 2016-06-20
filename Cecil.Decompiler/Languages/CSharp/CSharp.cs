@@ -39,12 +39,27 @@ namespace Telerik.JustDecompiler.Languages
     {
         private class CSharp : BaseLanguage, ICSharp
         {
+            private static CSharp instance;
+
             private Dictionary<string, string> operators;
 
-            public CSharp()
+            static CSharp()
+            {
+                instance = new CSharp();
+            }
+
+            protected CSharp()
             {
                 this.operators = new Dictionary<string, string>();
                 InitializeOperators();
+            }
+
+            public static CSharp Instance
+            {
+                get
+                {
+                    return instance;
+                }
             }
 
             private void InitializeOperators()

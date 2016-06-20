@@ -10,7 +10,14 @@ namespace Telerik.JustDecompiler.Languages
     {
         private class CSharpV5 : CSharp, ICSharp
         {
-            public CSharpV5()
+            private static CSharpV5 instance;
+
+            static CSharpV5()
+            {
+                instance = new CSharpV5();
+            }
+
+            protected CSharpV5()
             {
                 //list taken from http://msdn.microsoft.com/en-us/library/x53a06bb.aspx -> MSDN list of C# keywords
 
@@ -38,6 +45,14 @@ namespace Telerik.JustDecompiler.Languages
                 foreach (string word in contextualKeywords)
                 {
                     this.languageSpecificContextualKeywords.Add(word);
+                }
+            }
+
+            new public static CSharpV5 Instance
+            {
+                get
+                {
+                    return instance;
                 }
             }
 

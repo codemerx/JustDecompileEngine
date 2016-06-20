@@ -12,11 +12,11 @@ namespace Telerik.JustDecompiler.Languages
             switch (version)
             {
                 case CSharpVersion.None:
-                    return new CSharp();
+                    return CSharp.Instance;
                 case CSharpVersion.V5:
-                    return new CSharpV5();
+                    return CSharpV5.Instance;
                 case CSharpVersion.V6:
-                    return new CSharpV6();
+                    return CSharpV6.Instance;
                 default:
                     throw new ArgumentException();
             }
@@ -27,9 +27,9 @@ namespace Telerik.JustDecompiler.Languages
             switch (version)
             {
                 case VisualBasicVersion.None:
-                    return new VisualBasic();
+                    return VisualBasic.Instance;
                 case VisualBasicVersion.V10:
-                    return new VisualBasicV10();
+                    return VisualBasicV10.Instance;
                 default:
                     throw new ArgumentException();
             }

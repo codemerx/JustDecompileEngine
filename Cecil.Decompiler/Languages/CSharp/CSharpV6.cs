@@ -12,6 +12,25 @@ namespace Telerik.JustDecompiler.Languages
     {
         private class CSharpV6 : CSharpV5, ICSharp
         {
+            private static CSharpV6 instance;
+
+            static CSharpV6()
+            {
+                instance = new CSharpV6();
+            }
+
+            protected CSharpV6()
+            {
+            }
+
+            new public static CSharpV6 Instance
+            {
+                get
+                {
+                    return instance;
+                }
+            }
+
             public override int Version
             {
                 get
