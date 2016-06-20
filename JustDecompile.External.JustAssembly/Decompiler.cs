@@ -272,19 +272,20 @@ namespace JustDecompile.External.JustAssembly
 		{
 			ILanguage decompilerLangauge = GetLanguage(language);
 			IFormatter formatter = new PlainTextFormatter(stringWriter);
+            IWriterSettings settings = new WriterSettings(writeExceptionsAsComments: true);
 
-			switch (language)
+            switch (language)
 			{
 				case SupportedLanguage.CSharp:
 					{
 						JustAssemblyCSharpWriter cSharpWriter =
-							new JustAssemblyCSharpWriter(member, new SimpleWriterContextService(new EmptyDecompilationCacheService(), true), decompilerLangauge, formatter, SimpleExceptionFormatter.Instance, true);
+							new JustAssemblyCSharpWriter(member, new SimpleWriterContextService(new EmptyDecompilationCacheService(), true), decompilerLangauge, formatter, SimpleExceptionFormatter.Instance, settings);
 						return new CSharpAttributeWriter(cSharpWriter);
 					}
 				case SupportedLanguage.VB:
 					{
 						JustAssemblyVisualBasicWriter visualBasicWriter = 
-							new JustAssemblyVisualBasicWriter(member, new SimpleWriterContextService(new EmptyDecompilationCacheService(), true), decompilerLangauge, formatter, SimpleExceptionFormatter.Instance, true);
+							new JustAssemblyVisualBasicWriter(member, new SimpleWriterContextService(new EmptyDecompilationCacheService(), true), decompilerLangauge, formatter, SimpleExceptionFormatter.Instance, settings);
 						return new VisualBasicAttributeWriter(visualBasicWriter);
 					}
 				default:
@@ -445,8 +446,8 @@ namespace JustDecompile.External.JustAssembly
 		class JustAssemblyCSharpWriter : CSharpWriter
 		{
 			public JustAssemblyCSharpWriter(IMemberDefinition member, IWriterContextService writerContextService, 
-				ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
-				: base(language, formatter, exceptionFormatter, writeExceptionsAsComments)
+				ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
+				: base(language, formatter, exceptionFormatter, settings)
 			{
 				this.writerContextService = writerContextService;
 				this.writerContext = this.writerContextService.GetWriterContext(member, language);
@@ -456,8 +457,8 @@ namespace JustDecompile.External.JustAssembly
 		class JustAssemblyVisualBasicWriter : VisualBasicWriter
 		{
 			public JustAssemblyVisualBasicWriter(IMemberDefinition member, IWriterContextService writerContextService, 
-				ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, bool writeExceptionsAsComments)
-				: base(language, formatter, exceptionFormatter, writeExceptionsAsComments)
+				ILanguage language, IFormatter formatter, IExceptionFormatter exceptionFormatter, IWriterSettings settings)
+				: base(language, formatter, exceptionFormatter, settings)
 			{
 				this.writerContextService = writerContextService;
 				this.writerContext = this.writerContextService.GetWriterContext(member, language);

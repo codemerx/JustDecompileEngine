@@ -65,7 +65,8 @@ namespace JustDecompile.External.JustAssembly
 		{
 			AvalonEditCodeFormatter formatter = new AvalonEditCodeFormatter(new StringWriter());
 
-			IAssemblyAttributeWriter writer = language.GetAssemblyAttributeWriter(formatter, this.exceptionFormater, true);
+            IWriterSettings settings = new WriterSettings(writeExceptionsAsComments: true);
+			IAssemblyAttributeWriter writer = language.GetAssemblyAttributeWriter(formatter, this.exceptionFormater, settings);
 			IWriterContextService writerContextService = new TypeCollisionWriterContextService(new ProjectGenerationDecompilationCacheService(), decompilationPreferences.RenameInvalidMembers);
 
 			string fileContent;
