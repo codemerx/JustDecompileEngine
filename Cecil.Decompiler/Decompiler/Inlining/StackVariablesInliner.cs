@@ -52,7 +52,7 @@ namespace Telerik.JustDecompiler.Decompiler.Inlining
             {
                 IList<Expression> blockExpressions = offsetToExpressionsPair.Value;
                 bool[] isInlined = new bool[blockExpressions.Count];
-                for (int i = blockExpressions.Count - 2, j = i + 1; i >= 0 ; i--)
+                for (int i = blockExpressions.Count - 2, j = i + 1; i >= 0; i--)
                 {
                     BinaryExpression binaryExpression = blockExpressions[i] as BinaryExpression;
                     if (binaryExpression == null || !binaryExpression.IsAssignmentExpression || binaryExpression.Left.CodeNodeType != CodeNodeType.VariableReferenceExpression)
@@ -110,7 +110,7 @@ namespace Telerik.JustDecompiler.Decompiler.Inlining
                     Expression value = binaryExpression.Right;
                     SideEffectsFinder sideEffectsFinder = new SideEffectsFinder();
                     bool valueHasSideEffects = sideEffectsFinder.HasSideEffectsRecursive(value);
-                    VariablesAndArgumentsFinder variableFinder = new VariablesAndArgumentsFinder();
+                    VariablesArgumentsAndFieldsFinder variableFinder = new VariablesArgumentsAndFieldsFinder();
                     variableFinder.Visit(value);
                     VariableReferenceFinder referenceFinder = new VariableReferenceFinder(variableFinder.Variables, variableFinder.Parameters);
 
@@ -138,10 +138,12 @@ namespace Telerik.JustDecompiler.Decompiler.Inlining
                         else if (blockExpressions[j].CodeNodeType == CodeNodeType.BinaryExpression && (blockExpressions[j] as BinaryExpression).IsAssignmentExpression)
                         {
                             Expression assigned = (blockExpressions[j] as BinaryExpression).Left;
-                            if (assigned.CodeNodeType == CodeNodeType.ArgumentReferenceExpression &&
-                                variableFinder.Parameters.Contains((assigned as ArgumentReferenceExpression).Parameter.Resolve()) ||
-                                assigned.CodeNodeType == CodeNodeType.VariableReferenceExpression &&
-                                variableFinder.Variables.Contains((assigned as VariableReferenceExpression).Variable.Resolve()))
+                            if ((assigned.CodeNodeType == CodeNodeType.ArgumentReferenceExpression &&
+                                variableFinder.Parameters.Contains((assigned as ArgumentReferenceExpression).Parameter.Resolve())) ||
+                                (assigned.CodeNodeType == CodeNodeType.VariableReferenceExpression &&
+                                variableFinder.Variables.Contains((assigned as VariableReferenceExpression).Variable.Resolve())) ||
+                                (assigned.CodeNodeType == CodeNodeType.FieldReferenceExpression &&
+                                variableFinder.Fields.Contains((assigned as FieldReferenceExpression).Field.Resolve())))
                             {
                                 break;
                             }
@@ -303,15 +305,17 @@ namespace Telerik.JustDecompiler.Decompiler.Inlining
             }
         }
 
-        private class VariablesAndArgumentsFinder : BaseCodeVisitor
+        private class VariablesArgumentsAndFieldsFinder : BaseCodeVisitor
         {
             public HashSet<VariableDefinition> Variables { get; private set; }
             public HashSet<ParameterDefinition> Parameters { get; private set; }
+            public HashSet<FieldDefinition> Fields { get; private set; }
 
-            public VariablesAndArgumentsFinder()
+            public VariablesArgumentsAndFieldsFinder()
             {
                 this.Variables = new HashSet<VariableDefinition>();
                 this.Parameters = new HashSet<ParameterDefinition>();
+                this.Fields = new HashSet<FieldDefinition>();
             }
 
             public override void VisitVariableReferenceExpression(VariableReferenceExpression node)
@@ -322,6 +326,11 @@ namespace Telerik.JustDecompiler.Decompiler.Inlining
             public override void VisitArgumentReferenceExpression(ArgumentReferenceExpression node)
             {
                 this.Parameters.Add(node.Parameter.Resolve());
+            }
+
+            public override void VisitFieldReferenceExpression(FieldReferenceExpression node)
+            {
+                this.Fields.Add(node.Field.Resolve());
             }
         }
 
