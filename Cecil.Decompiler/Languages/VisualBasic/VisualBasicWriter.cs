@@ -2016,16 +2016,6 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 
         protected override void WriteMethodDeclaration(MethodDefinition method, bool writeDocumentation)
         {
-			foreach (ParameterDefinition parameter in method.Parameters)
-			{
-				if (parameter.IsOutParameter())
-				{
-					string paramName = GetParameterName(parameter);
-					WriteComment(String.Format("Parameter {0} is an \"out\" parameter, which is not supported in VisualBasic.", paramName));
-					WriteLine();
-				}
-			}
-
             bool hasModifierInSignature = false;
             if (method.ReturnType.IsOptionalModifier || method.ReturnType.IsRequiredModifier)
             {
