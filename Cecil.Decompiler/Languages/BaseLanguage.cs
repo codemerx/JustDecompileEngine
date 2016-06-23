@@ -257,11 +257,6 @@ namespace Telerik.JustDecompiler.Languages
             return string.Equals(this.Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
 
-        public object Clone()
-        {
-            return this.MemberwiseClone();
-        }
-
         public abstract bool IsValidLineStarter(CodeNodeType nodeType);
 
         public virtual bool HasOutKeyword

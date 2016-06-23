@@ -101,7 +101,7 @@ namespace Telerik.JustDecompiler.Decompiler
             out DecompilationContext decompilationContext)
         {
             DecompilationPipeline thePipeline = GetStateMachineRemovalPipeline(removeStateMachineStep, stateMachineDataSelector);
-            decompilationContext = thePipeline.Run(body, enclosingContext.Language.Clone() as ILanguage);
+            decompilationContext = thePipeline.Run(body, enclosingContext.Language);
 
             enclosingContext.MethodContext.Variables.AddRange(decompilationContext.MethodContext.Variables);
             enclosingContext.MethodContext.VariableDefinitionToNameMap.AddRange(decompilationContext.MethodContext.VariableDefinitionToNameMap);

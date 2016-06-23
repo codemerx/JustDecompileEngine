@@ -33,7 +33,7 @@ using Telerik.JustDecompiler.Ast;
 
 namespace Telerik.JustDecompiler.Languages
 {
-	public interface ILanguage : IEquatable<ILanguage>, ICloneable
+	public interface ILanguage : IEquatable<ILanguage>
 	{
 		bool IsValidIdentifierCharacter(char currentChar);
 
