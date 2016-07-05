@@ -234,7 +234,8 @@ namespace Telerik.JustDecompiler.Steps
                 context.DestructorStatements,
                 new HashSet<VariableDefinition>(context.UndeclaredLinqVariables),
                 new Dictionary<VariableReference, Dictionary<FieldDefinition, Expression>>(context.ClosureVariableToFieldValue),
-                new HashSet<VariableDefinition>(context.VariablesToNotDeclare));
+                new HashSet<VariableDefinition>(context.VariablesToNotDeclare),
+                context.SwitchByStringData.Clone() as CompilerOptimizedSwitchByStringData);
         }
 
         /// <summary>

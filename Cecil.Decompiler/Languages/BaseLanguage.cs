@@ -43,6 +43,7 @@ namespace Telerik.JustDecompiler.Languages
                 return new DecompilationPipeline(new RemoveUnreachableBlocksStep(),
                                                  new StackUsageAnalysis(),
                                                  new ExpressionDecompilerStep(),
+                                                 new RemoveCompilerOptimizationsStep(),
                                                  new ManagedPointersRemovalStep(),
                                                  new VariableAssignmentAnalysisStep(),
                                                  new LogicalFlowBuilderStep(),

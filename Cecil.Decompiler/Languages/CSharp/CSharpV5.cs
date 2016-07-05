@@ -96,6 +96,7 @@ namespace Telerik.JustDecompiler.Languages
                     new DeduceImplicitDelegates(),
                     new RebuildLinqQueriesStep(),
                     new CreateIfElseIfStatementsStep(),
+                    new CreateCompilerOptimizedSwitchByStringStatementsStep(),
                     new ParenthesizeExpressionsStep(),
                     new RemoveUnusedVariablesStep(),
                     new DeclareVariablesOnFirstAssignment(),

@@ -31,6 +31,7 @@ namespace Telerik.JustDecompiler.Ast
 
 		CodeNodeType CodeNodeType { get; }
 		IEnumerable<Instruction> UnderlyingSameMethodInstructions { get; }
+        ICollection<int> SearchableUnderlyingSameMethodInstructionOffsets { get; }
         IEnumerable<ICodeNode> Children { get; }
 	}
 }

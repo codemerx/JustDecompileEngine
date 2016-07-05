@@ -282,6 +282,7 @@
     <Compile Include="Ast\Statements\CaseGotoStatement.cs" />
     <Compile Include="Ast\Statements\ExceptionStatement.cs" />
     <Compile Include="Ast\Statements\FinallyClause.cs" />
+    <Compile Include="Ast\Statements\CompilerOptimizedSwitchByStringStatement.cs" />
     <Compile Include="Common\UnionFinder.cs" />
     <Compile Include="Common\VariableFinder.cs" />
     <Compile Include="Decompiler\AssignmentAnalysis\OutParameterUsageFinder.cs" />
@@ -289,6 +290,7 @@
     <Compile Include="Decompiler\Inlining\EmptyVariablesToNotInlineFinder.cs" />
     <Compile Include="Decompiler\Inlining\IVariablesToNotInlineFinder.cs" />
     <Compile Include="Decompiler\Inlining\VisualBasicVariablesToNotInlineFinder.cs" />
+    <Compile Include="Decompiler\CompilerOptimizedSwitchByStringData.cs" />
     <Compile Include="Decompiler\TypeNamesComparer.cs" />
     <Compile Include="Decompiler\PropertyDecompiler.cs" />
     <Compile Include="Decompiler\ExplicitlyImplementedMembersCollection.cs" />
@@ -418,6 +420,7 @@
     <Compile Include="Steps\CodePatterns\VariableInliningPattern.cs" />
     <Compile Include="Steps\CodePatterns\VariableInliningPatternAggressive.cs" />
     <Compile Include="Steps\CreateIfElseIfStatementsStep.cs" />
+    <Compile Include="Steps\CreateCompilerOptimizedSwitchByStringStatementsStep.cs" />
     <Compile Include="Steps\DeduceImplicitDelegates.cs" />
     <Compile Include="Steps\DependsOnAnalysisStep.cs" />
     <Compile Include="Steps\DetermineDestructorStep.cs" />
@@ -438,6 +441,7 @@
     <Compile Include="Steps\RebuildExpressionTreesStep.cs" />
     <Compile Include="Steps\RebuildVBForStatements.cs" />
     <Compile Include="Steps\RebuildLinqQueriesStep.cs" />
+    <Compile Include="Steps\RemoveCompilerOptimizationsStep.cs" />
     <Compile Include="Steps\RenameVBVariables.cs" />
     <Compile Include="Steps\SentinelStep.cs" />
     <Compile Include="Steps\TransformCatchClausesFilterExpressionStep.cs" />

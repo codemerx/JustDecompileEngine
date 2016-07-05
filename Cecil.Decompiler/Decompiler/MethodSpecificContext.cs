@@ -37,6 +37,7 @@ namespace Telerik.JustDecompiler.Decompiler
             this.UndeclaredLinqVariables = new HashSet<VariableDefinition>();
             this.ClosureVariableToFieldValue = new Dictionary<VariableReference, Dictionary<FieldDefinition, Expression>>();
             this.VariablesToNotDeclare = new HashSet<VariableDefinition>();
+            this.SwitchByStringData = new CompilerOptimizedSwitchByStringData();
         }
 
         public MethodSpecificContext(MethodBody body,
@@ -61,7 +62,7 @@ namespace Telerik.JustDecompiler.Decompiler
             int lambdaVariablesCount, Dictionary<VariableDefinition, AssignmentType> variableAssignmentData, List<ParameterDefinition> outParametersToAssign,
             bool isDestructor, BlockStatement destructorStatements, HashSet<VariableDefinition> undeclaredLinqVariables,
             Dictionary<VariableReference, Dictionary<FieldDefinition, Expression>> closureVariableToFieldValue,
-            HashSet<VariableDefinition> variablesToNotDeclare)
+            HashSet<VariableDefinition> variablesToNotDeclare, CompilerOptimizedSwitchByStringData switchByStringData)
         {
             this.AnalysisResults = analysisResults;
             this.YieldData = yieldData;
@@ -94,6 +95,7 @@ namespace Telerik.JustDecompiler.Decompiler
             this.UndeclaredLinqVariables = undeclaredLinqVariables;
             this.ClosureVariableToFieldValue = closureVariableToFieldValue;
             this.VariablesToNotDeclare = variablesToNotDeclare;
+            this.SwitchByStringData = switchByStringData;
         }
 
         public DecompilationAnalysisResults AnalysisResults { get; set; }
@@ -219,5 +221,7 @@ namespace Telerik.JustDecompiler.Decompiler
         public Dictionary<VariableReference, Dictionary<FieldDefinition, Expression>> ClosureVariableToFieldValue { get; private set; }
 
         public HashSet<VariableDefinition> VariablesToNotDeclare { get; private set; }
+
+        public CompilerOptimizedSwitchByStringData SwitchByStringData { get; set; }
     }
 }

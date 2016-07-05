@@ -98,6 +98,7 @@ namespace Telerik.JustDecompiler.Languages
                     new DeduceImplicitDelegates(),
                     new RebuildLinqQueriesStep(),
                     new CreateIfElseIfStatementsStep(),
+                    new CreateCompilerOptimizedSwitchByStringStatementsStep(),
                     new ParenthesizeExpressionsStep(),
                     new RemoveUnusedVariablesStep(),
                     // RebuildCatchClausesFilterStep needs to be before DeclareVariablesOnFirstAssignment and after RemoveUnusedVariablesStep.

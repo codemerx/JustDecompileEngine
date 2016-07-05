@@ -18,6 +18,14 @@ namespace Telerik.JustDecompiler.Ast
             }
         }
 
+        public ICollection<int> SearchableUnderlyingSameMethodInstructionOffsets
+        {
+            get
+            {
+                return MergeSearchableEnumerables(GetInstructionEnumerables());
+            }
+        }
+
         protected IEnumerable<Instruction> MergeSortedEnumerables(IEnumerable<IEnumerable<Instruction>> enumerables)
         {
             List<Instruction> result = new List<Instruction>();
@@ -26,6 +34,20 @@ namespace Telerik.JustDecompiler.Ast
                 result.AddRange(enumerable);
             }
             result.Sort((x, y) => x.Offset.CompareTo(y.Offset));
+            return result;
+        }
+
+        private ICollection<int> MergeSearchableEnumerables(IEnumerable<IEnumerable<Instruction>> enumerables)
+        {
+            HashSet<int> result = new HashSet<int>();
+            foreach (IEnumerable<Instruction> enumerable in enumerables)
+            {
+                foreach (Instruction instruction in enumerable)
+                {
+                    result.Add(instruction.Offset);
+                }
+            }
+
             return result;
         }
 

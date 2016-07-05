@@ -104,6 +104,7 @@ namespace Telerik.JustDecompiler.Languages
                     new TransformCatchClausesFilterExpressionStep(),
                     new DeduceImplicitDelegates(),
                     new CreateIfElseIfStatementsStep(),
+                    new CreateCompilerOptimizedSwitchByStringStatementsStep(),
                     new ParenthesizeExpressionsStep(),
                     new VisualBasicRemoveUnusedVariablesStep(),
                     // RebuildCatchClausesFilterStep needs to be before DeclareVariablesOnFirstAssignment and after RemoveUnusedVariablesStep.

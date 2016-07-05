@@ -136,6 +136,28 @@ namespace Telerik.JustDecompiler.Cil
 			get { return parents; }
 		}
 
+        public void AddToSuccessors(InstructionBlock toBeAdded)
+        {
+            InstructionBlock[] newSuccessors = new InstructionBlock[this.Successors.Length + 1];
+            this.Successors.CopyTo(newSuccessors, 0);
+            newSuccessors[newSuccessors.Length - 1] = toBeAdded;
+            this.Successors = newSuccessors;
+        }
+
+        public void RemoveFromSuccessors(InstructionBlock toBeRemoved)
+        {
+            InstructionBlock[] newSuccessors = new InstructionBlock[this.Successors.Length - 1];
+            for (int old = 0, @new = 0; old < this.Successors.Length; old++)
+            {
+                if (this.Successors[old] != toBeRemoved)
+                {
+                    newSuccessors[@new++] = this.Successors[old];
+                }
+            }
+
+            this.Successors = newSuccessors;
+        }
+
 		private void SetNewParent()
 		{
 			for (int i = 0; i < successors.Length; i++)
