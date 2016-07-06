@@ -6,6 +6,7 @@ using Telerik.JustDecompiler.Ast.Statements;
 using Telerik.JustDecompiler.Decompiler;
 using System;
 using System.Linq;
+using Telerik.JustDecompiler.Common;
 
 namespace Telerik.JustDecompiler.Steps
 {
@@ -16,6 +17,10 @@ namespace Telerik.JustDecompiler.Steps
         public BlockStatement Process(DecompilationContext context, BlockStatement body)
         {
             this.switchByStringData = context.MethodContext.SwitchByStringData;
+            if (this.switchByStringData.SwitchBlocksStartInstructions.Count == 0)
+            {
+                return body;
+            }
 
             return (BlockStatement)Visit(body);
         }
@@ -97,12 +102,22 @@ namespace Telerik.JustDecompiler.Steps
             CompilerOptimizedSwitchByStringStatement @switch = new CompilerOptimizedSwitchByStringStatement(firstSwitchExpression, switchExpressionLoadInstructions);
             foreach (KeyValuePair<Expression, BlockStatement> pair in node.ConditionBlocks)
             {
+                if (SwitchHelpers.BlockHasFallThroughSemantics(pair.Value))
+                {
+                    pair.Value.AddStatement(new BreakSwitchCaseStatement());
+                }
+
                 Expression condition = ((pair.Key as UnaryExpression).Operand as BinaryExpression).Right;
                 @switch.AddCase(new ConditionCase(condition, pair.Value));
             }
 
             if (node.Else != null)
             {
+                if (SwitchHelpers.BlockHasFallThroughSemantics(node.Else))
+                {
+                    node.Else.AddStatement(new BreakSwitchCaseStatement());
+                }
+
                 @switch.AddCase(new DefaultCase(node.Else));
             }
 

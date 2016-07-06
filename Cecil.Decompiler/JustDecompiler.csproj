@@ -283,6 +283,7 @@
     <Compile Include="Ast\Statements\ExceptionStatement.cs" />
     <Compile Include="Ast\Statements\FinallyClause.cs" />
     <Compile Include="Ast\Statements\CompilerOptimizedSwitchByStringStatement.cs" />
+    <Compile Include="Common\SwitchHelpers.cs" />
     <Compile Include="Common\UnionFinder.cs" />
     <Compile Include="Common\VariableFinder.cs" />
     <Compile Include="Decompiler\AssignmentAnalysis\OutParameterUsageFinder.cs" />
