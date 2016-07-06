@@ -27,101 +27,184 @@ namespace Telerik.JustDecompiler.Steps
 
         public override ICodeNode VisitIfElseIfStatement(IfElseIfStatement node)
         {
-            bool isSwitchByString = false;
+            SwitchData data;
+            if (IsSwitchByString(node) && TryGetSwitchData(node, out data))
+            {
+                return Visit(ComposeSwitch(data));
+            }
+
+            return base.VisitIfElseIfStatement(node);
+        }
+
+        private bool IsSwitchByString(IfElseIfStatement node)
+        {
             foreach (KeyValuePair<int, List<int>> pair in this.switchByStringData.SwitchBlocksToCasesMap)
             {
                 foreach (int caseOffset in pair.Value)
                 {
                     if (node.SearchableUnderlyingSameMethodInstructionOffsets.Contains(caseOffset))
                     {
-                        isSwitchByString = true;
-                        break;
+                        return true;
                     }
                 }
             }
 
-            if (!isSwitchByString)
-            {
-                return base.VisitIfElseIfStatement(node);
-            }
+            return false;
+        }
 
-            bool isMatch = true;
-            Expression firstSwitchExpression = null;
-            List<int> switchExpressionLoadInstructions = new List<int>();
+        private bool TryGetSwitchData(IfElseIfStatement node, out SwitchData data)
+        {
+            data = new SwitchData();
+            
             foreach (KeyValuePair<Expression, BlockStatement> pair in node.ConditionBlocks)
             {
-                if (pair.Key.CodeNodeType != CodeNodeType.UnaryExpression)
+                if (!TryMatchCondition(pair.Key, pair.Value, data))
                 {
-                    isMatch = false;
-                    break;
+                    return false;
                 }
-
-                UnaryExpression unary = pair.Key as UnaryExpression;
-                if (unary.Operator != UnaryOperator.None ||
-                    unary.Operand.CodeNodeType != CodeNodeType.BinaryExpression)
-                {
-                    isMatch = false;
-                    break;
-                }
-
-                BinaryExpression binary = unary.Operand as BinaryExpression;
-                if (binary.Right.CodeNodeType != CodeNodeType.LiteralExpression ||
-                    binary.Operator != BinaryOperator.ValueEquality)
-                {
-                    isMatch = false;
-                    break;
-                }
-
-                LiteralExpression literal = binary.Right as LiteralExpression;
-                if (literal.ExpressionType.FullName != "System.String")
-                {
-                    isMatch = false;
-                    break;
-                }
-
-                if (firstSwitchExpression == null)
-                {
-                    firstSwitchExpression = binary.Left;
-                }
-                else if (!firstSwitchExpression.Equals(binary.Left))
-                {
-                    isMatch = false;
-                    break;
-                }
-                else
-                {
-                    switchExpressionLoadInstructions.Add(binary.Left.UnderlyingSameMethodInstructions.First().Offset);
-                }
-            }
-
-            if (!isMatch)
-            {
-                return base.VisitIfElseIfStatement(node);
-            }
-
-            CompilerOptimizedSwitchByStringStatement @switch = new CompilerOptimizedSwitchByStringStatement(firstSwitchExpression, switchExpressionLoadInstructions);
-            foreach (KeyValuePair<Expression, BlockStatement> pair in node.ConditionBlocks)
-            {
-                if (SwitchHelpers.BlockHasFallThroughSemantics(pair.Value))
-                {
-                    pair.Value.AddStatement(new BreakSwitchCaseStatement());
-                }
-
-                Expression condition = ((pair.Key as UnaryExpression).Operand as BinaryExpression).Right;
-                @switch.AddCase(new ConditionCase(condition, pair.Value));
             }
 
             if (node.Else != null)
             {
-                if (SwitchHelpers.BlockHasFallThroughSemantics(node.Else))
-                {
-                    node.Else.AddStatement(new BreakSwitchCaseStatement());
-                }
-
-                @switch.AddCase(new DefaultCase(node.Else));
+                data.DefaultCase = node.Else;
             }
 
-            return Visit(@switch);
+            return true;
+        }
+
+        /// <summary>
+        /// There are 2 types is conditions:
+        /// - Simple condition - that's when the condition is composed from unary expression with "None" operator
+        ///   containing a binary expression with the actual string comparison.
+        /// - Complex condition - that's when there are 2 or more simple conditions OR'd in binary expressions.
+        ///   If we have 3 or more conditions, the complex ones will be always at the left hand side, e.g.
+        ///                         Binary
+        ///             Binary---------|---------Unary
+        ///     Binary-----|-----Unary
+        /// Unary--|--Unary
+        /// </summary>
+        private bool TryMatchCondition(Expression condition, BlockStatement block, SwitchData data)
+        {
+            if (condition.CodeNodeType != CodeNodeType.UnaryExpression &&
+                condition.CodeNodeType != CodeNodeType.BinaryExpression)
+            {
+                return false;
+            }
+
+            if (condition.CodeNodeType == CodeNodeType.BinaryExpression)
+            {
+                BinaryExpression multicondition = condition as BinaryExpression;
+                if (multicondition.Operator == BinaryOperator.LogicalOr)
+                {
+                    // Basically a DFS, which will result in traversing the unary expressions in left to right order.
+                    if (TryMatchCondition(multicondition.Left, null, data) &&
+                        TryMatchCondition(multicondition.Right, null, data))
+                    {
+                        // If this is the top BinaryExpression of the complex condition
+                        if (block != null)
+                        {
+                            // We replace the last condition with one with the block for the complex condition.
+                            int lastIndex = data.CaseConditionToBlockMap.Count - 1;
+                            Expression lastCondition = data.CaseConditionToBlockMap[lastIndex].Key;
+                            data.CaseConditionToBlockMap[lastIndex] = new KeyValuePair<Expression, BlockStatement>(lastCondition, block);
+                        }
+
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            UnaryExpression unary = condition as UnaryExpression;
+            if (unary.Operator != UnaryOperator.None ||
+                unary.Operand.CodeNodeType != CodeNodeType.BinaryExpression)
+            {
+                return false;
+            }
+
+            BinaryExpression binary = unary.Operand as BinaryExpression;
+            if (binary.Right.CodeNodeType != CodeNodeType.LiteralExpression ||
+                binary.Operator != BinaryOperator.ValueEquality)
+            {
+                return false;
+            }
+
+            LiteralExpression literal = binary.Right as LiteralExpression;
+            if (literal.ExpressionType.FullName != "System.String")
+            {
+                return false;
+            }
+
+            if (data.SwitchExpression == null)
+            {
+                data.SwitchExpression = binary.Left;
+            }
+            else if (!data.SwitchExpression.Equals(binary.Left))
+            {
+                return false;
+            }
+            else
+            {
+                data.SwitchExpressionLoadInstructions.Add(binary.Left.UnderlyingSameMethodInstructions.First().Offset);
+            }
+
+            data.CaseConditionToBlockMap.Add(new KeyValuePair<Expression, BlockStatement>(literal, block));
+
+            return true;
+        }
+        
+        private CompilerOptimizedSwitchByStringStatement ComposeSwitch(SwitchData data)
+        {
+            CompilerOptimizedSwitchByStringStatement @switch = new CompilerOptimizedSwitchByStringStatement(data.SwitchExpression, data.SwitchExpressionLoadInstructions);
+            foreach (KeyValuePair<Expression, BlockStatement> pair in data.CaseConditionToBlockMap)
+            {
+                if (pair.Value != null && SwitchHelpers.BlockHasFallThroughSemantics(pair.Value))
+                {
+                    pair.Value.AddStatement(new BreakSwitchCaseStatement());
+                }
+
+                @switch.AddCase(new ConditionCase(pair.Key, pair.Value));
+            }
+
+            if (data.HaveDefaultCase)
+            {
+                if (SwitchHelpers.BlockHasFallThroughSemantics(data.DefaultCase))
+                {
+                    data.DefaultCase.AddStatement(new BreakSwitchCaseStatement());
+                }
+
+                @switch.AddCase(new DefaultCase(data.DefaultCase));
+            }
+            
+            return @switch;
+        }
+
+        private class SwitchData
+        {
+            public SwitchData()
+            {
+                this.SwitchExpression = null;
+                this.SwitchExpressionLoadInstructions = new List<int>();
+                this.CaseConditionToBlockMap = new List<KeyValuePair<Expression, BlockStatement>>();
+                this.DefaultCase = null;
+            }
+
+            public Expression SwitchExpression { get; set; }
+
+            public List<int> SwitchExpressionLoadInstructions { get; set; }
+
+            public List<KeyValuePair<Expression, BlockStatement>> CaseConditionToBlockMap { get; set; }
+
+            public BlockStatement DefaultCase { get; set; }
+
+            public bool HaveDefaultCase
+            {
+                get
+                {
+                    return this.DefaultCase != null;
+                }
+            }
         }
     }
 }
