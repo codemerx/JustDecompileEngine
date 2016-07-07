@@ -159,9 +159,36 @@ namespace Telerik.JustDecompiler.Steps
 
                     blocksToBeRemoved.Add(current.First.Offset);
                 }
-                else if (IsCaseBlock(this.blockExpressions[current.First.Offset], data.SwitchExpression))
+                else if (IsCaseBlock(this.blockExpressions[current.First.Offset], data.SwitchExpression) ||
+                         IsNullCaseBlock(this.blockExpressions[current.First.Offset], data.SwitchExpression))
                 {
                     switchBlocksToCasesMap[block.First.Offset].Add(current.First.Offset);
+                    
+                    InstructionBlock secondSuccessor = current.Successors[1];
+                    if (IsEmptyStringCaseBlock(this.blockExpressions[secondSuccessor.First.Offset], data.SwitchExpression))
+                    {
+                        // The first successor is jump to the next/default statement, so we merge the current block with
+                        // its second successor, which contains the lenght check. The first successor of the current block
+                        // and the second successor of current block's second successor are exactly the same block. In this
+                        // case it will be marked for removal by the MarkSecondSuccessorForRemovalIfItIsUnconditionalJump
+                        // invocation below, so there is no need for us to mark it here.
+                        current.Last = secondSuccessor.Last;
+                        current.Successors = secondSuccessor.Successors;
+
+                        // We change the someExpr == null binary expression, so it became someExpr == "".
+                        BinaryExpression binary = this.blockExpressions[current.First.Offset][0] as BinaryExpression;
+                        binary.Right = new LiteralExpression("", this.methodContext.Method.Module.TypeSystem, null);
+
+                        // Preserve the instructions from the second block as instructions of the binary expression.
+                        IEnumerable<Instruction> secondSuccessorInstructions = this.blockExpressions[secondSuccessor.First.Offset][0].UnderlyingSameMethodInstructions;
+                        binary = binary.CloneAndAttachInstructions(secondSuccessorInstructions) as BinaryExpression;
+                        
+                        // Wrap the binary expression in unary with operator "None", because it should have the exact
+                        // same structure as the normal cases in order next steps of switch by string building to work.
+                        this.blockExpressions[current.First.Offset][0] = new UnaryExpression(UnaryOperator.None, binary, null);
+
+                        this.blocksToBeRemoved.Add(secondSuccessor.First.Offset);
+                    }
 
                     // If the second successor of the case block is unconditional jump we want to remove it.
                     // This is done, because later we take all case blocks and connect them one to each other.
@@ -218,16 +245,8 @@ namespace Telerik.JustDecompiler.Steps
 
         private bool IsCaseBlock(IList<Expression> expressions, Expression switchExpression)
         {
-            if (expressions.Count != 1)
-            {
-                return false;
-            }
-
-            if (expressions[0].CodeNodeType == CodeNodeType.BinaryExpression)
-            {
-                return IsNullCaseBlock(expressions[0], switchExpression);
-            }
-            else if (expressions[0].CodeNodeType != CodeNodeType.UnaryExpression)
+            if (expressions.Count != 1 ||
+                expressions[0].CodeNodeType != CodeNodeType.UnaryExpression)
             {
                 return false;
             }
@@ -255,14 +274,19 @@ namespace Telerik.JustDecompiler.Steps
             return true;
         }
 
-        private bool IsNullCaseBlock(Expression expression, Expression switchExpression)
+        private bool IsNullCaseBlock(IList<Expression> expressions, Expression switchExpression)
         {
-            if (expression.CodeNodeType != CodeNodeType.BinaryExpression)
+            if (expressions.Count != 1)
             {
                 return false;
             }
 
-            BinaryExpression binary = expression as BinaryExpression;
+            if (expressions[0].CodeNodeType != CodeNodeType.BinaryExpression)
+            {
+                return false;
+            }
+
+            BinaryExpression binary = expressions[0] as BinaryExpression;
             if (binary.Operator != BinaryOperator.ValueEquality ||
                 binary.Right.CodeNodeType != CodeNodeType.LiteralExpression)
             {
@@ -277,6 +301,53 @@ namespace Telerik.JustDecompiler.Steps
             }
 
             if (!binary.Left.Equals(switchExpression))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// When a case is compiled using the "" (emptry string literal) as value, the compiler produces the following structure:
+        /// - A block, checking if the switch expression is null (the same as the null case block)
+        /// - A block, which executes only if the switch expression is not null. In this block, there is a check for the length
+        ///   of the string and if it's 0 then the case block executes.
+        /// </summary>
+        /// <param name="expressions"></param>
+        /// <param name="switchExpression"></param>
+        /// <returns></returns>
+        private bool IsEmptyStringCaseBlock(IList<Expression> expressions, Expression switchExpression)
+        {
+            if (expressions.Count != 1 ||
+                expressions[0].CodeNodeType != CodeNodeType.BinaryExpression)
+            {
+                return false;
+            }
+
+            BinaryExpression binary = expressions[0] as BinaryExpression;
+            if (binary.Operator != BinaryOperator.ValueEquality ||
+                binary.Left.CodeNodeType != CodeNodeType.MethodInvocationExpression ||
+                binary.Right.CodeNodeType != CodeNodeType.LiteralExpression)
+            {
+                return false;
+            }
+
+            MethodInvocationExpression invocation = binary.Left as MethodInvocationExpression;
+            if (invocation.MethodExpression.Method.FullName != "System.Int32 System.String::get_Length()" ||
+                invocation.MethodExpression.Target == null)
+            {
+                return false;
+            }
+
+            LiteralExpression literal = binary.Right as LiteralExpression;
+            if (literal.ExpressionType.FullName != "System.Int32" &&
+                (int)literal.Value != 0)
+            {
+                return false;
+            }
+
+            if (!invocation.MethodExpression.Target.Equals(switchExpression))
             {
                 return false;
             }
