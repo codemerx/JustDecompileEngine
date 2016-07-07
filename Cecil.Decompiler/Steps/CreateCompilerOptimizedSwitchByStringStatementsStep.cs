@@ -91,14 +91,15 @@ namespace Telerik.JustDecompiler.Steps
                 return false;
             }
 
+            BinaryExpression binary;
             if (condition.CodeNodeType == CodeNodeType.BinaryExpression)
             {
-                BinaryExpression multicondition = condition as BinaryExpression;
-                if (multicondition.Operator == BinaryOperator.LogicalOr)
+                binary = condition as BinaryExpression;
+                if (binary.Operator == BinaryOperator.LogicalOr)
                 {
                     // Basically a DFS, which will result in traversing the unary expressions in left to right order.
-                    if (TryMatchCondition(multicondition.Left, null, data) &&
-                        TryMatchCondition(multicondition.Right, null, data))
+                    if (TryMatchCondition(binary.Left, null, data) &&
+                        TryMatchCondition(binary.Right, null, data))
                     {
                         // If this is the top BinaryExpression of the complex condition
                         if (block != null)
@@ -111,19 +112,22 @@ namespace Telerik.JustDecompiler.Steps
 
                         return true;
                     }
+
+                    return false;
+                }
+            }
+            else
+            {
+                UnaryExpression unary = condition as UnaryExpression;
+                if (unary.Operator != UnaryOperator.None ||
+                    unary.Operand.CodeNodeType != CodeNodeType.BinaryExpression)
+                {
+                    return false;
                 }
 
-                return false;
+                binary = unary.Operand as BinaryExpression;
             }
 
-            UnaryExpression unary = condition as UnaryExpression;
-            if (unary.Operator != UnaryOperator.None ||
-                unary.Operand.CodeNodeType != CodeNodeType.BinaryExpression)
-            {
-                return false;
-            }
-
-            BinaryExpression binary = unary.Operand as BinaryExpression;
             if (binary.Right.CodeNodeType != CodeNodeType.LiteralExpression ||
                 binary.Operator != BinaryOperator.ValueEquality)
             {
@@ -131,7 +135,14 @@ namespace Telerik.JustDecompiler.Steps
             }
 
             LiteralExpression literal = binary.Right as LiteralExpression;
-            if (literal.ExpressionType.FullName != "System.String")
+            if (condition.CodeNodeType == CodeNodeType.UnaryExpression &&
+                literal.ExpressionType.FullName != "System.String")
+            {
+                return false;
+            }
+            else if (condition.CodeNodeType == CodeNodeType.BinaryExpression &&
+                     (literal.ExpressionType.FullName != "System.Object" ||
+                      literal.Value != null))
             {
                 return false;
             }

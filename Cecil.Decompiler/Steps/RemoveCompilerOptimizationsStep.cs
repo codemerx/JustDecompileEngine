@@ -218,8 +218,16 @@ namespace Telerik.JustDecompiler.Steps
 
         private bool IsCaseBlock(IList<Expression> expressions, Expression switchExpression)
         {
-            if (expressions.Count != 1 ||
-                expressions[0].CodeNodeType != CodeNodeType.UnaryExpression)
+            if (expressions.Count != 1)
+            {
+                return false;
+            }
+
+            if (expressions[0].CodeNodeType == CodeNodeType.BinaryExpression)
+            {
+                return IsNullCaseBlock(expressions[0], switchExpression);
+            }
+            else if (expressions[0].CodeNodeType != CodeNodeType.UnaryExpression)
             {
                 return false;
             }
@@ -240,6 +248,35 @@ namespace Telerik.JustDecompiler.Steps
             }
 
             if (!invocation.Arguments[0].Equals(switchExpression))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool IsNullCaseBlock(Expression expression, Expression switchExpression)
+        {
+            if (expression.CodeNodeType != CodeNodeType.BinaryExpression)
+            {
+                return false;
+            }
+
+            BinaryExpression binary = expression as BinaryExpression;
+            if (binary.Operator != BinaryOperator.ValueEquality ||
+                binary.Right.CodeNodeType != CodeNodeType.LiteralExpression)
+            {
+                return false;
+            }
+
+            LiteralExpression literal = binary.Right as LiteralExpression;
+            if (literal.ExpressionType.FullName != "System.Object" ||
+                literal.Value != null)
+            {
+                return false;
+            }
+
+            if (!binary.Left.Equals(switchExpression))
             {
                 return false;
             }
