@@ -107,7 +107,8 @@ namespace Telerik.JustDecompiler.Ast.Expressions
 										{
                                             IsChecked = this.IsChecked,
                                             IsExplicitInterfaceCast = this.IsExplicitInterfaceCast,
-                                            UnresolvedReferenceForAmbiguousCastToObject = this.UnresolvedReferenceForAmbiguousCastToObject
+                                            UnresolvedReferenceForAmbiguousCastToObject = this.UnresolvedReferenceForAmbiguousCastToObject,
+                                            DynamicPositioningFlags = this.DynamicPositioningFlags != null ? (bool[])this.DynamicPositioningFlags.Clone() : null
                                         };
 			return result;
         }
@@ -118,8 +119,9 @@ namespace Telerik.JustDecompiler.Ast.Expressions
 										{
                                             IsChecked = this.IsChecked,
                                             IsExplicitInterfaceCast = this.IsExplicitInterfaceCast,
-                                            UnresolvedReferenceForAmbiguousCastToObject = this.UnresolvedReferenceForAmbiguousCastToObject
-                                        };
+                                            UnresolvedReferenceForAmbiguousCastToObject = this.UnresolvedReferenceForAmbiguousCastToObject,
+                                            DynamicPositioningFlags = this.DynamicPositioningFlags != null ? (bool[])this.DynamicPositioningFlags.Clone() : null
+            };
             return result;
         }
 

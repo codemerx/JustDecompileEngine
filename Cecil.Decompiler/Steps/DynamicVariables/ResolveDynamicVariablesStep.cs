@@ -17,6 +17,8 @@ namespace Telerik.JustDecompiler.Steps
         private const int UseCompileTimeType = 1;
         private const string CallSiteInstanceTypeName = "System.Runtime.CompilerServices.CallSite<!0>";
         private const string InvalidStatementExceptionString = "Invalid statement.";
+        private const string IEnumerableOfCSharpArgumentInfo = "System.Collections.Generic.IEnumerable<Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo>";
+        private const string IEnumerableOfSystemType = "System.Collections.Generic.IEnumerable<System.Type>";
 
         private readonly Dictionary<FieldDefinition, CallSiteInfo> fieldToCallSiteInfoMap = new Dictionary<FieldDefinition, CallSiteInfo>();
         private readonly Dictionary<VariableReference, CallSiteInfo> variableToCallSiteInfoMap = new Dictionary<VariableReference, CallSiteInfo>();
@@ -308,28 +310,61 @@ namespace Telerik.JustDecompiler.Steps
         private VariableReference GetTypeArrayVariable(MethodInvocationExpression binderMethodInvocation)
         {
             int typeArrayArgumentIndex = 2;
-            if(binderMethodInvocation.Arguments[typeArrayArgumentIndex].CodeNodeType == CodeNodeType.VariableReferenceExpression)
-            {
-                return (binderMethodInvocation.Arguments[typeArrayArgumentIndex] as VariableReferenceExpression).Variable;
-            }
-            else if (binderMethodInvocation.Arguments[typeArrayArgumentIndex].CodeNodeType == CodeNodeType.LiteralExpression &&
-                (binderMethodInvocation.Arguments[typeArrayArgumentIndex] as LiteralExpression).Value == null)
+            Expression typeArrayArgument = binderMethodInvocation.Arguments[typeArrayArgumentIndex];
+            if (typeArrayArgument.CodeNodeType == CodeNodeType.LiteralExpression &&
+                (typeArrayArgument as LiteralExpression).Value == null)
             {
                 return null;
             }
 
-            throw new Exception("Invalid argument: typeArguments.");
+            VariableReferenceExpression typeArrayVariableReference = null;
+            if (typeArrayArgument.CodeNodeType == CodeNodeType.VariableReferenceExpression)
+            {
+                typeArrayVariableReference = typeArrayArgument as VariableReferenceExpression;
+            }
+            else if (typeArrayArgument.CodeNodeType == CodeNodeType.CastExpression)
+            {
+                CastExpression cast = typeArrayArgument as CastExpression;
+                if (cast.ExpressionType.GetFriendlyFullName(null) == IEnumerableOfSystemType &&
+                    cast.Expression.CodeNodeType == CodeNodeType.VariableReferenceExpression)
+                {
+                    typeArrayVariableReference = cast.Expression as VariableReferenceExpression;
+                }
+            }
+
+            if (typeArrayVariableReference == null)
+            {
+                throw new Exception("Invalid argument: typeArguments.");
+            }
+
+            return typeArrayVariableReference.Variable;
         }
 
         private VariableReference GetArgumentArrayVariable(MethodInvocationExpression binderMethodInvocation)
         {
             int argumentArrayIndex = binderMethodInvocation.Arguments.Count - 1;
-            if(binderMethodInvocation.Arguments[argumentArrayIndex].CodeNodeType != CodeNodeType.VariableReferenceExpression)
+            Expression argumentArrayExpression = binderMethodInvocation.Arguments[argumentArrayIndex];
+            VariableReferenceExpression argumentArrayVariableReference = null;
+            if (argumentArrayExpression.CodeNodeType == CodeNodeType.VariableReferenceExpression)
+            {
+                argumentArrayVariableReference = argumentArrayExpression as VariableReferenceExpression;
+            }
+            else if (argumentArrayExpression.CodeNodeType == CodeNodeType.CastExpression)
+            {
+                CastExpression cast = argumentArrayExpression as CastExpression;
+                if (cast.ExpressionType.GetFriendlyFullName(null) == IEnumerableOfCSharpArgumentInfo &&
+                    cast.Expression.CodeNodeType == CodeNodeType.VariableReferenceExpression)
+                {
+                    argumentArrayVariableReference = cast.Expression as VariableReferenceExpression;
+                }
+            }
+
+            if (argumentArrayVariableReference == null)
             {
                 throw new Exception("Invalid argument: argumentInfo.");
             }
 
-            return (binderMethodInvocation.Arguments[argumentArrayIndex] as VariableReferenceExpression).Variable;
+            return argumentArrayVariableReference.Variable;
         }
 
         private void RemoveStatements()
