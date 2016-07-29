@@ -65,5 +65,16 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 
             return ignoredAttributes;
         }
+
+        protected override void WriteReturnValueAttributeKeyword()
+        {
+            // There is no need of return value attribute keyword in VB.NET
+        }
+
+        public override void WriteMemberReturnValueAttributes(IMemberDefinition member)
+        {
+            List<ICustomAttribute> returnValueAttributes = this.GetSortedReturnValueAttributes(member as IMethodSignature);
+            base.WriteAttributesInternal(member, returnValueAttributes, true, true);
+        }
     }
 }

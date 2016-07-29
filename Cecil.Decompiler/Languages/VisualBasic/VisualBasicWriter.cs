@@ -455,6 +455,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 			}
 
 			WriteAsBetweenSpaces();
+            this.AttributeWriter.WriteMemberReturnValueAttributes(property.GetMethod);
 			WriteReferenceAndNamespaceIfInCollision(property.PropertyType);
 		}
 
@@ -615,6 +616,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             if ((method.ReturnType != null) && (method.ReturnType.FullName != Constants.Void))
             {
                 WriteAsBetweenSpaces();
+                this.AttributeWriter.WriteMemberReturnValueAttributes(method);
                 WriteMethodReturnType(method);
             }
         }
