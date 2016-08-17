@@ -221,9 +221,8 @@ namespace Telerik.JustDecompiler.Steps
                 if (CheckForOverloadedEqualityOperators(expression.Left, out leftUnresolvedReference) &&
                     CheckForOverloadedEqualityOperators(expression.Right, out rightUnresolvedReference))
                 {
-                    expression.Left = new CastExpression(left, left.ExpressionType.Module.TypeSystem.Object, left.MappedInstructions, leftUnresolvedReference);
-                    expression.Right = new CastExpression(right, right.ExpressionType.Module.TypeSystem.Object, right.MappedInstructions, rightUnresolvedReference);
-
+                    expression.Left = new CastExpression(left, left.ExpressionType.Module.TypeSystem.Object, null, leftUnresolvedReference);
+                    expression.Right = new CastExpression(right, right.ExpressionType.Module.TypeSystem.Object, null, rightUnresolvedReference);
                 }
             }
 

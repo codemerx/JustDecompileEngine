@@ -34,16 +34,20 @@ namespace Telerik.JustDecompiler.Ast.Expressions
 {
     public class CastExpression : Expression, IDynamicTypeContainer
     {
-        public CastExpression(Expression expression, TypeReference targetType, IEnumerable<Instruction> instructions, MemberReference unresolvedReferenceForAmbiguousCastToObject = null)
+        public CastExpression(Expression expression, TypeReference targetType, IEnumerable<Instruction> instructions)
             :base(instructions)
 		{
 			this.Expression = expression;
 			this.TargetType = targetType;
 
-            this.UnresolvedReferenceForAmbiguousCastToObject = unresolvedReferenceForAmbiguousCastToObject;
-
             DetermineIsChecked();
 		}
+
+        public CastExpression(Expression expression, TypeReference targetType, IEnumerable<Instruction> instructions, MemberReference unresolvedReferenceForAmbiguousCastToObject)
+            : this(expression, targetType, instructions)
+        {
+            this.UnresolvedReferenceForAmbiguousCastToObject = unresolvedReferenceForAmbiguousCastToObject;
+        }
 
         internal bool IsExplicitInterfaceCast { get; set; }
 
