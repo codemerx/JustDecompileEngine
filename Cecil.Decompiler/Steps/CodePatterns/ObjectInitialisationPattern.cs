@@ -76,7 +76,7 @@ namespace Telerik.JustDecompiler.Steps.CodePatterns
 						break;
 					}
 					initializer = new PropertyInitializerExpression(property, property.PropertyType,
-						assignment.Right.UnderlyingSameMethodInstructions);
+						assignment.Left.UnderlyingSameMethodInstructions);
 				}
 				else if (assignment.Left.CodeNodeType == CodeNodeType.FieldReferenceExpression)
 				{
@@ -86,7 +86,7 @@ namespace Telerik.JustDecompiler.Steps.CodePatterns
 						break;
 					}
 					initializer = new FieldInitializerExpression(field, field.FieldType,
-						assignment.Right.UnderlyingSameMethodInstructions);
+						assignment.Left.UnderlyingSameMethodInstructions);
 				}
 
 				var inlinedAssignment = new BinaryExpression(BinaryOperator.Assign,
