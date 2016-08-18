@@ -457,16 +457,16 @@ namespace Telerik.JustDecompiler.Decompiler
                     Expression target = targetMethod.HasThis ? Pop() : null;
                     target = FixCallTarget(instruction, target);
 
-                    MethodReferenceExpression theMethodRefExpression = new MethodReferenceExpression(target, (MethodReference)instruction.Operand, IncludePrefixIfPresent(instruction, Code.Constrained));
+                    MethodReferenceExpression theMethodRefExpression = new MethodReferenceExpression(target, (MethodReference)instruction.Operand, null);
 
                     MethodInvocationExpression invocation;
                     if (currentMethodTypeRef.GetFriendlyFullName(null) == targetMethodTypeRef.GetFriendlyFullName(null))
                     {
-                        invocation = new ThisCtorExpression(theMethodRefExpression, null) { InstanceReference = target };
+                        invocation = new ThisCtorExpression(theMethodRefExpression, IncludePrefixIfPresent(instruction, Code.Constrained)) { InstanceReference = target };
                     }
                     else
                     {
-                        invocation = new BaseCtorExpression(theMethodRefExpression, null) { InstanceReference = target };
+                        invocation = new BaseCtorExpression(theMethodRefExpression, IncludePrefixIfPresent(instruction, Code.Constrained)) { InstanceReference = target };
                     }
 
                     ///Adds the arguments to the constructor call
@@ -488,7 +488,7 @@ namespace Telerik.JustDecompiler.Decompiler
                 target = FixCallTarget(instruction, target);
 
                 MethodInvocationExpression invocation =
-                    new MethodInvocationExpression(new MethodReferenceExpression(target, (MethodReference)instruction.Operand, IncludePrefixIfPresent(instruction, Code.Constrained)), null);
+                    new MethodInvocationExpression(new MethodReferenceExpression(target, (MethodReference)instruction.Operand, null), IncludePrefixIfPresent(instruction, Code.Constrained));
 
                 AddRange(invocation.Arguments, arguments);
                 if (!TryProcessRuntimeHelpersInitArray(invocation) && !TryProcessMultidimensionalIndexing(invocation))
@@ -672,7 +672,7 @@ namespace Telerik.JustDecompiler.Decompiler
             {
                 methodRef.Target = Pop();
             }
-            MethodInvocationExpression invocation = new MethodInvocationExpression(methodRef, null);
+            MethodInvocationExpression invocation = new MethodInvocationExpression(methodRef, new Instruction[] { instruction });
             invocation.Arguments = arguments;
             Push(invocation);
         }
