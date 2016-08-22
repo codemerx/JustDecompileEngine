@@ -36,15 +36,8 @@ namespace Telerik.JustDecompiler.Steps
             initializerExpressions = new BlockExpression(null);
             ProcessAnonymousType(typeDef, node.Type as GenericInstanceType, node.Constructor.Resolve(), node.Arguments);
 
-            node.Initializer = new InitializerExpression(initializerExpressions, InitializerType.ObjectInitializer);
-
-            List<Instruction> instructions = new List<Instruction>(node.MappedInstructions);
-            foreach (Expression argument in node.Arguments)
-            {
-                instructions.AddRange(argument.UnderlyingSameMethodInstructions);
-            }
 			InitializerExpression initializer = new InitializerExpression(initializerExpressions, InitializerType.AnonymousInitializer);
-			return new AnonymousObjectCreationExpression(node.Constructor, typeDef, initializer, instructions);
+			return new AnonymousObjectCreationExpression(node.Constructor, typeDef, initializer, node.MappedInstructions);
 		}
 
         private void ProcessAnonymousType(TypeDefinition anonymousTypeDefinition, GenericInstanceType anonymousInstanceType,
@@ -63,7 +56,7 @@ namespace Telerik.JustDecompiler.Steps
                 Expression parameterExpression =
                     new AnonymousPropertyInitializerExpression(property, propertyType);
                 int argumentIndex = GetParameterIndexWithType(constructorDefinition, currentParameter.ParameterType);
-                Expression argumentExpression = transformer.Visit(constructorArguments[argumentIndex].CloneExpressionOnly()) as Expression;
+                Expression argumentExpression = transformer.Visit(constructorArguments[argumentIndex].Clone()) as Expression;
                 initializerExpressions.Expressions.Add(
                     new BinaryExpression(BinaryOperator.Assign, parameterExpression, argumentExpression, this.typeSystem, null));
             }
