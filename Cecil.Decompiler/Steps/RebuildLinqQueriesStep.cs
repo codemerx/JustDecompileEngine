@@ -129,7 +129,7 @@ namespace Telerik.JustDecompiler.Steps
                     clauses.Add(new SelectClause(new VariableReferenceExpression(this.currentIdentifier, null), null));
                 }
 
-                return new LinqQueryExpression(new List<QueryClause>(this.clauses), topInvoke.ExpressionType, topInvoke.UnderlyingSameMethodInstructions);
+                return new LinqQueryExpression(new List<QueryClause>(this.clauses), topInvoke.ExpressionType, null);
             }
 
             private bool TryProcessSingleParameterQuery(MethodInvocationExpression methodInvoke, bool canChangeIdentifier, bool queryable, out Expression result)
@@ -178,7 +178,7 @@ namespace Telerik.JustDecompiler.Steps
                 }
 
                 this.currentIdentifier = null;
-                clauses.Add(new SelectClause(selectExpression, null));
+                clauses.Add(new SelectClause(selectExpression, methodInvoke.InvocationInstructions));
                 return true;
             }
 
@@ -190,7 +190,7 @@ namespace Telerik.JustDecompiler.Steps
                     return false;
                 }
 
-                clauses.Add(new WhereClause(condition, null));
+                clauses.Add(new WhereClause(condition, methodInvoke.InvocationInstructions));
                 return true;
             }
 
@@ -202,7 +202,7 @@ namespace Telerik.JustDecompiler.Steps
                     return false;
                 }
 
-                OrderByClause orderBy = new OrderByClause(new PairList<Expression, OrderDirection>(), null);
+                OrderByClause orderBy = new OrderByClause(new PairList<Expression, OrderDirection>(), methodInvoke.InvocationInstructions);
                 orderBy.ExpressionToOrderDirectionMap.Add(key, ascending ? OrderDirection.Ascending : OrderDirection.Descending);
                 clauses.Add(orderBy);
 
@@ -223,6 +223,7 @@ namespace Telerik.JustDecompiler.Steps
                     return false;
                 }
                 orderBy.ExpressionToOrderDirectionMap.Add(key, ascending ? OrderDirection.Ascending : OrderDirection.Descending);
+                clauses[clauses.Count - 1] = orderBy.CloneAndAttachInstructions(methodInvoke.InvocationInstructions) as QueryClause;
                 return true;
             }
 
@@ -270,7 +271,7 @@ namespace Telerik.JustDecompiler.Steps
 
                 Expression secondIdentifierReference = GetIdentifierReference(secondFromIdentifier, ref collection);
                 clauses.Add(new FromClause(secondIdentifierReference, collection, null));
-                clauses.Add(new SelectClause(result, null));
+                clauses.Add(new SelectClause(result, methodInvoke.InvocationInstructions));
                 this.currentIdentifier = null;
                 return true;
             }
@@ -344,7 +345,7 @@ namespace Telerik.JustDecompiler.Steps
                     return false;
                 }
 
-                clauses.Add(new JoinClause(GetIdentifierReference(innerIdentifier, ref innerCollection), innerCollection, outerKey, innerKey, null));
+                clauses.Add(new JoinClause(GetIdentifierReference(innerIdentifier, ref innerCollection), innerCollection, outerKey, innerKey, methodInvoke.InvocationInstructions));
 
                 if(isGroupJoin)
                 {
@@ -400,7 +401,7 @@ namespace Telerik.JustDecompiler.Steps
                     elementExpression = new VariableReferenceExpression(this.currentIdentifier, null);
                 }
 
-                clauses.Add(new GroupClause(elementExpression, keyExpression, null));
+                clauses.Add(new GroupClause(elementExpression, keyExpression, methodInvoke.InvocationInstructions));
                 this.currentIdentifier = null;
                 return true;
             }
