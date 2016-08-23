@@ -104,7 +104,8 @@ namespace Telerik.JustDecompiler.Steps.CodePatterns
             }
 
             DelegateInvokeExpression delegateInvocationExpression = delegateInvocationStatement.Expression as DelegateInvokeExpression;
-            if (delegateInvocationExpression.Target.CodeNodeType != CodeNodeType.VariableReferenceExpression)
+            if (delegateInvocationExpression.Target == null ||
+                delegateInvocationExpression.Target.CodeNodeType != CodeNodeType.VariableReferenceExpression)
             {
                 return false;
             }
@@ -117,7 +118,9 @@ namespace Telerik.JustDecompiler.Steps.CodePatterns
 
             List<Instruction> instructions = new List<Instruction>();
             instructions.AddRange(eventVariableAssignmentStatement.UnderlyingSameMethodInstructions);
-            instructions.AddRange(theIf.UnderlyingSameMethodInstructions);
+            instructions.AddRange(condition.UnderlyingSameMethodInstructions);
+            instructions.AddRange(delegateInvocationExpression.MappedInstructions);
+            instructions.AddRange(delegateInvocationVariableReferece.UnderlyingSameMethodInstructions);
 
             result = new ExpressionStatement(new RaiseEventExpression(eventReferenceExpression.Event, delegateInvocationExpression.InvokeMethodReference, delegateInvocationExpression.Arguments, instructions));
 
