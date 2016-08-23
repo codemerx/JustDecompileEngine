@@ -100,7 +100,18 @@ namespace Telerik.JustDecompiler.Steps
 
             this.context.MethodContext.VariablesToNotDeclare.Add(variableDeclaration.Variable);
 
-            node.Variable = variableDeclaration;
+            // If the pattern matches then there is no additional method and the variable declaration is used as is.
+            // If the pattern doesn't match - we use the expressions only, because if we don't, the result is
+            // two expressions (one in the catch variable and one in the generated method) with the same instructions.
+            if (matchSucceed)
+            {
+                node.Variable = variableDeclaration;
+            }
+            else
+            {
+                node.Variable = variableDeclaration.CloneExpressionOnly() as VariableDeclarationExpression;
+            }
+
             node.Type = variableDeclaration.ExpressionType;
             node.Filter = new ExpressionStatement(filterExpression);
 
