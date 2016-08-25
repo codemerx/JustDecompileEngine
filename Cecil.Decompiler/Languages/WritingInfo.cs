@@ -13,7 +13,6 @@ namespace Telerik.JustDecompiler.Languages
         public WritingInfo(IMemberDefinition member)
         {
             this.Member = member;
-			this.StatementPositions = new Dictionary<ICodeNode, OffsetSpan>();
 			this.ControlFlowGraphs = new Dictionary<MethodDefinition, ControlFlowGraph>();
 			this.MethodsVariableDefinitionToNameMap = new Dictionary<MethodDefinition, Dictionary<VariableDefinition, string>>();
 			this.AutoImplementedProperties = new HashSet<PropertyDefinition>();
@@ -26,9 +25,9 @@ namespace Telerik.JustDecompiler.Languages
 			this.MemberTokenToDecompiledCodeMap = new Dictionary<uint, OffsetSpan>();
 			this.MembersWithExceptions = new HashSet<uint>();
             this.GeneratedFilterMethods = new List<MethodDefinition>();
+            this.CodeMappingInfo = new CodeMappingInfo();
         }
 
-        public Dictionary<ICodeNode, OffsetSpan> StatementPositions { get; private set; }
         public IMemberDefinition Member { get; private set; }
 		public Dictionary<MethodDefinition, ControlFlowGraph> ControlFlowGraphs { get; private set; }
 		public Dictionary<MethodDefinition, Dictionary<VariableDefinition, string>> MethodsVariableDefinitionToNameMap { get; private set; }
@@ -46,5 +45,6 @@ namespace Telerik.JustDecompiler.Languages
 		public HashSet<IMemberDefinition> ExceptionsWhileWriting;
 		public HashSet<uint> MembersWithExceptions { get; private set; }
         public IList<MethodDefinition> GeneratedFilterMethods { get; private set; }
+        public CodeMappingInfo CodeMappingInfo { get; private set; }
     }
 }

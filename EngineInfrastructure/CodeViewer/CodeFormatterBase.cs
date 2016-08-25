@@ -59,6 +59,7 @@ namespace JustDecompile.EngineInfrastructure
 			this.write_indent = true;
 
 			this.CurrentLineNumber++;
+            this.OnNewLineWritten();
 		}
 
 		protected string CleanLastNewLineIfAny(string sourceCodeResult)

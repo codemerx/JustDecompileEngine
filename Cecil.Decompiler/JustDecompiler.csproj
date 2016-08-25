@@ -361,6 +361,7 @@
     <Compile Include="External\FileGeneratedInfo.cs" />
     <Compile Include="External\TypeGeneratedInfo.cs" />
     <Compile Include="External\UniqueMemberIdentifier.cs" />
+    <Compile Include="Languages\CodeMappingInfo.cs" />
     <Compile Include="Languages\CodePosition.cs" />
     <Compile Include="Languages\CodeSpan.cs" />
     <Compile Include="Languages\CSharp\CSharpV5.cs" />

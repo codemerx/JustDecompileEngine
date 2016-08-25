@@ -739,8 +739,8 @@ namespace Telerik.JustDecompiler.Languages
 					Write(constant);
 				}
 				else
-				{
-					WriteLiteralInLanguageSyntax(field.Constant.Value);
+                {
+                    WriteLiteralInLanguageSyntax(field.Constant.Value);
 				}
 			}
 		}
@@ -796,16 +796,16 @@ namespace Telerik.JustDecompiler.Languages
 			bool isOneSideNull = IsNull(node.Left) || IsNull(node.Right);
 			string @operator = ToString(node.Operator, isOneSideNull);
 
-			if (this.Language.IsOperatorKeyword(@operator))
-			{
-				WriteKeyword(@operator);
-			}
-			else
-			{
-				Write(@operator);
-			}
+            if (this.Language.IsOperatorKeyword(@operator))
+            {
+                WriteKeyword(@operator);
+            }
+            else
+            {
+                Write(@operator);
+            }
 
-			if (node.Right.CodeNodeType == CodeNodeType.InitializerExpression)
+            if (node.Right.CodeNodeType == CodeNodeType.InitializerExpression)
 			{
 				StartInitializer(node.Right as InitializerExpression);
 			}
@@ -1071,15 +1071,21 @@ namespace Telerik.JustDecompiler.Languages
 				if (node != null &&
 					node.CodeNodeType != CodeNodeType.EmptyStatement)
 				{
-					int beginStatement = formatter.CurrentPosition;
-					base.Visit(node);
-					int endStatement = formatter.CurrentPosition - 1;
+                    OffsetSpan span = ExecuteAndGetOffsetSpan(() => base.Visit(node));
 
 					if (node != null)
 					{
-						this.currentWritingInfo.StatementPositions.Add(node, new OffsetSpan(beginStatement, endStatement));
-					}
-				}
+						this.currentWritingInfo.CodeMappingInfo.Add(node, new OffsetSpan(span.StartOffset, span.EndOffset - 1));
+
+                        if (node is Expression)
+                        {
+                            foreach (Instruction instruction in (node as Expression).MappedInstructions)
+                            {
+                                this.currentWritingInfo.CodeMappingInfo.Add(instruction, span);
+                            }
+                        }
+                    }
+                }
 				else
 				{
 					DoVisit(node);
@@ -1087,7 +1093,34 @@ namespace Telerik.JustDecompiler.Languages
 			}
 		}
 
-		protected void DoVisit(ICodeNode node)
+        private OffsetSpan ExecuteAndGetOffsetSpan(Action toBeExecuted)
+        {
+            int startPosition = formatter.CurrentPosition;
+
+            EventHandler<int> onFirstNonWhiteSpaceCharacter = (sender, currentPosition) =>
+            {
+                startPosition = currentPosition;
+            };
+
+            EventHandler onNewLine = (sender, args) =>
+            {
+                this.formatter.FirstNonWhiteSpaceCharacterOnLineWritten -= onFirstNonWhiteSpaceCharacter;
+            };
+
+            this.formatter.FirstNonWhiteSpaceCharacterOnLineWritten += onFirstNonWhiteSpaceCharacter;
+            this.formatter.NewLineWritten += onNewLine;
+
+            toBeExecuted();
+
+            this.formatter.FirstNonWhiteSpaceCharacterOnLineWritten -= onFirstNonWhiteSpaceCharacter;
+            this.formatter.NewLineWritten -= onNewLine;
+
+            int endPosition = formatter.CurrentPosition;
+
+            return new OffsetSpan(startPosition, endPosition);
+        }
+
+        protected void DoVisit(ICodeNode node)
 		{
 			base.Visit(node);
 		}
@@ -1997,7 +2030,7 @@ namespace Telerik.JustDecompiler.Languages
 					WriteSpace();
 				}
 
-				if ((i == 0) && (KeyWordWriter.ExtensionThis != null) && method.IsExtensionMethod)
+                if ((i == 0) && (KeyWordWriter.ExtensionThis != null) && method.IsExtensionMethod)
 				{
 					WriteKeyword(KeyWordWriter.ExtensionThis);
 					WriteSpace();
@@ -2138,9 +2171,9 @@ namespace Telerik.JustDecompiler.Languages
 		}
 
 		public override void VisitArgumentReferenceExpression(ArgumentReferenceExpression node)
-		{
-			Write(GetArgumentName(node.Parameter));
-		}
+        {
+            Write(GetArgumentName(node.Parameter));
+        }
 
 		private MethodSpecificContext GetCurrentMethodContext()
 		{
@@ -2194,14 +2227,14 @@ namespace Telerik.JustDecompiler.Languages
 		}
 
 		public override void VisitVariableReferenceExpression(VariableReferenceExpression node)
-		{
-			Write(GetVariableName(node.Variable));
-		}
+        {
+            Write(GetVariableName(node.Variable));
+        }
 
 		public override void VisitLiteralExpression(LiteralExpression node)
-		{
-			WriteLiteralInLanguageSyntax(node.Value);
-		}
+        {
+            WriteLiteralInLanguageSyntax(node.Value);
+        }
 
 		public void WriteLiteralInLanguageSyntax(object value)
 		{
@@ -2582,79 +2615,74 @@ namespace Telerik.JustDecompiler.Languages
 
 		public override void VisitMethodInvocationExpression(MethodInvocationExpression node)
 		{
-			bool isExtentionMethod = false;
+            bool isExtentionMethod = false;
 
-			if (node.MethodExpression.CodeNodeType == CodeNodeType.MethodReferenceExpression)
-			{
-				MethodReferenceExpression methodReference = node.MethodExpression;
+            if (node.MethodExpression.CodeNodeType == CodeNodeType.MethodReferenceExpression)
+            {
+                MethodReferenceExpression methodReference = node.MethodExpression;
 
-				MethodReference method = methodReference.Method;
+                MethodReference method = methodReference.Method;
 
-				if (method != null)
-				{
-					// performance : must be static and do not use method.Resolve that resolves the whole graph.
-					if (!method.HasThis && methodReference.MethodDefinition != null)
-					{
-						isExtentionMethod = methodReference.MethodDefinition.IsExtensionMethod;
-					}
-				}
-			}
+                if (method != null)
+                {
+                    // performance : must be static and do not use method.Resolve that resolves the whole graph.
+                    if (!method.HasThis && methodReference.MethodDefinition != null)
+                    {
+                        isExtentionMethod = methodReference.MethodDefinition.IsExtensionMethod;
+                    }
+                }
+            }
 
-			if (isExtentionMethod)
-			{
-				// TODO: This shouldn't happen but fact is it happens. Seems like some other issue that needs fixing.
-				if (node.Arguments.Count > 0)
-				{
-					ProcessExtensionMethod(node.MethodExpression.Method);
-					WriteMethodTarget(node.Arguments[0]);
-				}
-			}
-			else
-			{
-				if (node.MethodExpression.Target != null)
-				{
-					WriteMethodTarget(node.MethodExpression.Target);
-				}
+            if (isExtentionMethod)
+            {
+                // TODO: This shouldn't happen but fact is it happens. Seems like some other issue that needs fixing.
+                if (node.Arguments.Count > 0)
+                {
+                    WriteMethodTarget(node.Arguments[0]);
+                }
+            }
+            else
+            {
+                if (node.MethodExpression.Target != null)
+                {
+                    WriteMethodTarget(node.MethodExpression.Target);
+                }
 
-				if (!node.MethodExpression.Method.HasThis)
-				{
-					if (node.MethodExpression.MethodDefinition != null && !node.MethodExpression.MethodDefinition.IsExtensionMethod || node.MethodExpression.MethodDefinition == null)
-					{
-						WriteReferenceAndNamespaceIfInCollision(node.MethodExpression.Method.DeclaringType);
-						WriteToken(".");
-					}
-				}
-			}
+                if (!node.MethodExpression.Method.HasThis)
+                {
+                    if (node.MethodExpression.MethodDefinition != null && !node.MethodExpression.MethodDefinition.IsExtensionMethod || node.MethodExpression.MethodDefinition == null)
+                    {
+                        WriteReferenceAndNamespaceIfInCollision(node.MethodExpression.Method.DeclaringType);
+                        WriteToken(".");
+                    }
+                }
+            }
 
-			WriteMethodReference(node.MethodExpression);
-			//VisitMethodReferenceExpression(node.MethodExpression);
+            WriteMethodReference(node.MethodExpression);
+            //VisitMethodReferenceExpression(node.MethodExpression);
 
-			bool indexProp = false;
+            bool indexProp = false;
 
-			WriteToken(indexProp ? IndexLeftBracket : "(");
-			if (node.MethodExpression is MethodReferenceExpression)
-			{
-				EnterMethodInvocation(node.MethodExpression.Method);
-				if (!isExtentionMethod)
-				{
-					VisitMethodParameters(node.Arguments);
-				}
-				else
-				{
-					VisitExtensionMethodParameters(node.Arguments);
-				}
-				LeaveMethodInvocation();
-			}
-			else
-			{
-				VisitMethodParameters(node.Arguments);
-			}
-			WriteToken(indexProp ? IndexRightBracket : ")");
-		}
-
-		protected virtual void ProcessExtensionMethod(MethodReference extensionMethod)
-		{
-		}
+            WriteToken(indexProp ? IndexLeftBracket : "(");
+            if (node.MethodExpression is MethodReferenceExpression)
+            {
+                EnterMethodInvocation(node.MethodExpression.Method);
+                if (!isExtentionMethod)
+                {
+                    VisitMethodParameters(node.Arguments);
+                }
+                else
+                {
+                    VisitExtensionMethodParameters(node.Arguments);
+                }
+                LeaveMethodInvocation();
+            }
+            else
+            {
+                VisitMethodParameters(node.Arguments);
+            }
+            WriteToken(indexProp ? IndexRightBracket : ")");
+        }
 
 		public override void VisitBlockExpression(BlockExpression node)
 		{
@@ -2760,32 +2788,32 @@ namespace Telerik.JustDecompiler.Languages
 
 		public override void VisitMethodReferenceExpression(MethodReferenceExpression node)
 		{
-			if (node.Target != null)
-			{
-				WriteMethodTarget(node.Target);
-			}
-			else
-			{
-				WriteReferenceAndNamespaceIfInCollision(node.Method.DeclaringType);
-				WriteToken(".");
-			}
-
-			WriteMethodReference(node);
-		}
+            if (node.Target != null)
+            {
+                WriteMethodTarget(node.Target);
+            }
+            else
+            {
+                WriteReferenceAndNamespaceIfInCollision(node.Method.DeclaringType);
+                WriteToken(".");
+            }
+                
+            WriteMethodReference(node);
+        }
 
 		protected virtual void WriteMethodReference(MethodReferenceExpression methodReferenceExpression)
-		{
-			MethodReference methodReference = methodReferenceExpression.Method;
+        {
+            MethodReference methodReference = methodReferenceExpression.Method;
 
-			if (methodReference is GenericInstanceMethod)
-			{
-				WriteGenericInstanceMethod(methodReference as GenericInstanceMethod);
-				return;
-			}
+            if (methodReference is GenericInstanceMethod)
+            {
+                WriteGenericInstanceMethod(methodReference as GenericInstanceMethod);
+                return;
+            }
 
-			string methodName = GetMethodName(methodReference);
-			WriteReference(methodName, methodReference);
-		}
+            string methodName = GetMethodName(methodReference);
+            WriteReference(methodName, methodReference);
+        }
 
 		protected virtual void WriteGenericInstanceMethod(GenericInstanceMethod genericMethod)
 		{
@@ -2823,14 +2851,14 @@ namespace Telerik.JustDecompiler.Languages
         }
 
 		public override void VisitThisReferenceExpression(ThisReferenceExpression node)
-		{
-			WriteKeyword(KeyWordWriter.This);
-		}
+        {
+            WriteKeyword(KeyWordWriter.This);
+        }
 
 		public override void VisitBaseReferenceExpression(BaseReferenceExpression node)
-		{
-			WriteKeyword(KeyWordWriter.Base);
-		}
+        {
+            WriteKeyword(KeyWordWriter.Base);
+        }
 
 		protected string WriteLogicalToken(BinaryOperator logical)
 		{
@@ -3207,8 +3235,8 @@ namespace Telerik.JustDecompiler.Languages
 			}
 
 			WriteToken(".");
-			WriteFieldName(node.Field);
-		}
+            WriteFieldName(node.Field);
+        }
 
 		protected virtual void WriteFieldName(FieldReference field)
 		{
@@ -3237,14 +3265,14 @@ namespace Telerik.JustDecompiler.Languages
 			else
 			{
 				WriteReferenceAndNamespaceIfInCollision(node.DeclaringType);
-			}
+            }
 
-			if (!node.IsIndexer)
-			{
-				WriteToken(".");
-				WritePropertyName(node.Property);
-			}
-			else
+            if (!node.IsIndexer)
+            {
+                WriteToken(".");
+                WritePropertyName(node.Property);
+            }
+            else
             {
                 WriteIndexerArguments(node);
             }
@@ -3332,9 +3360,9 @@ namespace Telerik.JustDecompiler.Languages
 
 		public override void VisitVariableDeclarationExpression(VariableDeclarationExpression node)
 		{
-			VariableDefinition variable = node.Variable;
-			WriteTypeAndName(variable.VariableType, GetVariableName(variable));
-		}
+            VariableDefinition variable = node.Variable;
+            WriteTypeAndName(variable.VariableType, GetVariableName(variable));
+        }
 
 		public override void VisitGotoStatement(GotoStatement node)
 		{
@@ -3426,10 +3454,10 @@ namespace Telerik.JustDecompiler.Languages
 		}
 
 		public override void VisitReturnExpression(ReturnExpression node)
-		{
-			WriteKeyword(KeyWordWriter.Return);
+        {
+            WriteKeyword(KeyWordWriter.Return);
 
-			if (node.Value != null)
+            if (node.Value != null)
 			{
 				WriteSpace();
 				Visit(node.Value);
@@ -3445,9 +3473,9 @@ namespace Telerik.JustDecompiler.Languages
 		}
 
 		public override void VisitThrowExpression(ThrowExpression node)
-		{
-			WriteKeyword(KeyWordWriter.Throw);
-			if (node.Expression != null)
+        {
+            WriteKeyword(KeyWordWriter.Throw);
+            if (node.Expression != null)
 			{
 				WriteSpace();
 				Visit(node.Expression);
@@ -3487,9 +3515,9 @@ namespace Telerik.JustDecompiler.Languages
 		}
 
 		public override void VisitMakeRefExpression(MakeRefExpression node)
-		{
-			WriteKeyword("__makeref");
-			WriteToken("(");
+        {
+            WriteKeyword("__makeref");
+            WriteToken("(");
 			Visit(node.Expression);
 			WriteToken(")");
 		}
@@ -3520,9 +3548,9 @@ namespace Telerik.JustDecompiler.Languages
 		{
 			WriteKeyword(KeyWordWriter.New);
 			WriteSpace();
-			WriteReferenceAndNamespaceIfInCollision(GetBaseElementType(node.ElementType));
+            WriteReferenceAndNamespaceIfInCollision(GetBaseElementType(node.ElementType));
 
-			bool isInitializerPresent = Utilities.IsInitializerPresent(node.Initializer);
+            bool isInitializerPresent = Utilities.IsInitializerPresent(node.Initializer);
 
 			WriteArrayDimensions(node.Dimensions, node.ElementType, isInitializerPresent);
 
@@ -3616,10 +3644,10 @@ namespace Telerik.JustDecompiler.Languages
 			{
 				WriteToken(")");
 			}
-
-			WriteToken(IndexLeftBracket);
-			VisitList(node.Indices);
-			WriteToken(IndexRightBracket);
+            
+            WriteToken(IndexLeftBracket);
+            VisitList(node.Indices);
+            WriteToken(IndexRightBracket);
 		}
 
 		protected virtual bool IsComplexTarget(Expression target)
@@ -3778,15 +3806,15 @@ namespace Telerik.JustDecompiler.Languages
 			WriteKeyword(KeyWordWriter.New);
 
 			WriteSpace();
-
-			if (node.Constructor != null)
-			{
-				WriteConstructorInvocation(node);
-			}
-			else
-			{
-				WriteReferenceAndNamespaceIfInCollision(node.Type);
-			}
+            
+            if (node.Constructor != null)
+            {
+                WriteConstructorInvocation(node);
+            }
+            else
+            {
+                WriteReferenceAndNamespaceIfInCollision(node.Type);
+            }
 
 			WriteToken("(");
 			EnterMethodInvocation(node.Constructor);
@@ -3856,35 +3884,35 @@ namespace Telerik.JustDecompiler.Languages
 
 		protected virtual void WriteDelegateCreation(ObjectCreationExpression node)
 		{
-			WriteKeyword(KeyWordWriter.New);
-			WriteSpace();
-			WriteReferenceAndNamespaceIfInCollision(node.ExpressionType);
-			WriteToken("(");
-			WriteDelegateArgument(node);
-			WriteToken(")");
+            WriteKeyword(KeyWordWriter.New);
+            WriteSpace();
+            WriteReferenceAndNamespaceIfInCollision(node.ExpressionType);
+            WriteToken("(");
+            WriteDelegateArgument(node);
+            WriteToken(")");
 		}
 
 		protected void WriteDelegateArgument(ObjectCreationExpression node)
 		{
-			//if (node.Arguments[1].CodeNodeType == CodeNodeType.LambdaExpression)
-			//{
-			//	VisitLambdaExpression((LambdaExpression)node.Arguments[1]);
-			//	return;
-			//}
+            //if (node.Arguments[1].CodeNodeType == CodeNodeType.LambdaExpression)
+            //{
+            //	VisitLambdaExpression((LambdaExpression)node.Arguments[1]);
+            //	return;
+            //}
 			if ((node.Arguments[0].CodeNodeType != CodeNodeType.LiteralExpression ||
 				(node.Arguments[0] as LiteralExpression).Value != null) &&
 				(node.Arguments[1] as MethodReferenceExpression) != null &&
 				(node.Arguments[1] as MethodReferenceExpression).Target == null)
-			{
-				Write(node.Arguments[0]);
-				WriteToken(".");
-				WriteMethodReference(node.Arguments[1] as MethodReferenceExpression);
-			}
+            {
+                Write(node.Arguments[0]);
+                WriteToken(".");
+                WriteMethodReference(node.Arguments[1] as MethodReferenceExpression);
+            }
 			else
 			{
 				Write(node.Arguments[1]);
-			}
-		}
+            }
+        }
 
 		private bool IsNewDelegate(ObjectCreationExpression node)
 		{
@@ -3988,12 +4016,12 @@ namespace Telerik.JustDecompiler.Languages
 
 				WriteToken(")");
 			}
-
-			WriteToken("(");
-			EnterMethodInvocation(node.InvokeMethodReference);
-			VisitMethodParameters(node.Arguments);
-			LeaveMethodInvocation();
-			WriteToken(")");
+            
+            WriteToken("(");
+            EnterMethodInvocation(node.InvokeMethodReference);
+            VisitMethodParameters(node.Arguments);
+            LeaveMethodInvocation();
+            WriteToken(")");
 		}
 
 		public override void VisitLambdaExpression(LambdaExpression node)
@@ -4197,7 +4225,7 @@ namespace Telerik.JustDecompiler.Languages
 		protected virtual void WriteTypeAndName(TypeReference typeReference, string name)
 		{
 		}
-
+        
 		protected virtual void WriteParameterTypeAndName(TypeReference typeReference, string name, ParameterDefinition reference)
 		{
 		}
@@ -4498,24 +4526,24 @@ namespace Telerik.JustDecompiler.Languages
 
 		public override void VisitDelegateCreationExpression(DelegateCreationExpression node)
 		{
-			if (!node.TypeIsImplicitlyInferable)
-			{
-				WriteKeyword(KeyWordWriter.New);
+            if (!node.TypeIsImplicitlyInferable)
+            {
+                WriteKeyword(KeyWordWriter.New);
 				WriteSpace();
 				WriteReference(node.Type);
 				Write("(");
-			}
+            }
 			if (node.MethodExpression.CodeNodeType != CodeNodeType.LambdaExpression)
 			{
 				Write(node.Target);
 				Write(".");
 			}
 			Write(node.MethodExpression);
-			if (!node.TypeIsImplicitlyInferable)
-			{
-				Write(")");
-			}
-		}
+            if (!node.TypeIsImplicitlyInferable)
+            {
+                Write(")");
+            }
+        }
 
 		public override void WriteMemberNavigationName(object memberDefinition)
 		{

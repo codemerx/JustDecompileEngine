@@ -48,6 +48,9 @@ namespace Telerik.JustDecompiler.Languages
         /// </summary>
         protected bool writeCommentsOnly;
 
+        public event EventHandler<int> FirstNonWhiteSpaceCharacterOnLineWritten;
+        public event EventHandler NewLineWritten;
+
         public PlainTextFormatter(StringWriter writer)
         {
             this.writer = writer;
@@ -102,6 +105,10 @@ namespace Telerik.JustDecompiler.Languages
 
             for (int i = 0; i < indent; i++)
                 WriteTab();
+
+            write_indent = false;
+
+            this.OnFirstNonWhiteSpaceCharacterOnLineWritten();
         }
 
         protected virtual void WriteTab()
@@ -113,13 +120,14 @@ namespace Telerik.JustDecompiler.Languages
         {
             WriteIndent();
             writer.Write(str);
-            write_indent = false;
         }
 
         public virtual void WriteLine()
         {
             writer.WriteLine();
             write_indent = true;
+
+            OnNewLineWritten();
         }
 
         public virtual void WriteSpace()
@@ -244,5 +252,23 @@ namespace Telerik.JustDecompiler.Languages
         public virtual void WriteEndUsagesBlock() { }
 
         public virtual void WriteMemberDeclaration(IMemberDefinition member){}
+
+        protected void OnFirstNonWhiteSpaceCharacterOnLineWritten()
+        {
+            EventHandler<int> handler = this.FirstNonWhiteSpaceCharacterOnLineWritten;
+            if (handler != null)
+            {
+                handler(this, this.CurrentPosition);
+            }
+        }
+
+        protected void OnNewLineWritten()
+        {
+            EventHandler handler = this.NewLineWritten;
+            if (handler != null)
+            {
+                handler(this, EventArgs.Empty);
+            }
+        }
     }
 }

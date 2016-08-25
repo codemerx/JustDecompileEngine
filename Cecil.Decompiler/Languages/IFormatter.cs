@@ -67,5 +67,8 @@ namespace Telerik.JustDecompiler.Languages {
         void WriteEndUsagesBlock();
 
         void WriteMemberDeclaration(IMemberDefinition member);
+
+        event EventHandler<int> FirstNonWhiteSpaceCharacterOnLineWritten;
+        event EventHandler NewLineWritten;
     }
 }
