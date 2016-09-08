@@ -861,7 +861,7 @@ namespace Telerik.JustDecompiler.Decompiler
             {
                 dummyVarType = toPop.ExpressionType;
             }
-            VariableDefinition dummyVar = new VariableDefinition(dummyVarName, dummyVarType);
+            VariableDefinition dummyVar = new VariableDefinition(dummyVarName, dummyVarType, this.methodContext.Method);
             
             StackVariableDefineUseInfo defineUseInfo = new StackVariableDefineUseInfo();
             defineUseInfo.DefinedAt.Add(instruction.Offset);

@@ -103,7 +103,7 @@ namespace Telerik.JustDecompiler.Steps
                 throw new Exception("Caching field not found.");
             }
 
-            VariableDefinition newVariable = new VariableDefinition(fieldDefinition.FieldType);
+            VariableDefinition newVariable = new VariableDefinition(fieldDefinition.FieldType, this.context.MethodContext.Method);
             VariableReferenceExpression newVariableReference = new VariableReferenceExpression(newVariable, null);
             BinaryExpression newAssignment = new BinaryExpression(BinaryOperator.Assign, newVariableReference, this.fieldToReplacingExpressionMap[fieldDefinition],
                                                                   this.context.MethodContext.Method.Module.TypeSystem, null);

@@ -287,7 +287,7 @@ namespace Telerik.JustDecompiler.Steps
             if (foreachVariables.Contains(foreachVariable))
             {
                 VariableDefinition oldForeachVariable = foreachVariable;
-                foreachVariable = new VariableDefinition(foreachVariable.VariableType);
+                foreachVariable = new VariableDefinition(foreachVariable.VariableType, this.methodContext.Method);
                 foreachVariableInstructions.Clear();
                 this.methodContext.Variables.Add(foreachVariable);
                 this.methodContext.VariablesToRename.Add(foreachVariable);
@@ -338,7 +338,7 @@ namespace Telerik.JustDecompiler.Steps
         {
             if (foreachVariable == null)
             {
-                foreachVariable = new VariableDefinition(foreachVariableType);
+                foreachVariable = new VariableDefinition(foreachVariableType, this.methodContext.Method);
                 foreachVariableInstructions.Clear();
                 this.methodContext.VariablesToRename.Add(foreachVariable);
             }

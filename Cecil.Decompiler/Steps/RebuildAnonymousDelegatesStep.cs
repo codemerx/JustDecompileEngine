@@ -172,7 +172,7 @@ namespace Telerik.JustDecompiler.Steps
                 {
                     if(!this.fieldDefToAssignedValueMap.ContainsKey(fieldDef))
                     {
-                        VariableDefinition newVar = new VariableDefinition("lambdaVar" + context.MethodContext.LambdaVariablesCount++, fieldDef.FieldType);
+                        VariableDefinition newVar = new VariableDefinition("lambdaVar" + context.MethodContext.LambdaVariablesCount++, fieldDef.FieldType, this.context.MethodContext.Method);
                         this.context.MethodContext.Variables.Add(newVar);
                         this.context.MethodContext.VariablesToRename.Add(newVar);
                         fieldDefToAssignedValueMap[fieldDef] = new VariableReferenceExpression(newVar, null);

@@ -731,7 +731,10 @@ namespace Telerik.JustDecompiler.Languages
 				WriteSpace();
 				WriteToken("=");
 				WriteSpace();
-				TypeDefinition fieldType = field.FieldType.Resolve();
+
+                int start = this.formatter.CurrentPosition;
+
+                TypeDefinition fieldType = field.FieldType.Resolve();
 				if (fieldType != null && fieldType.IsEnum)
 				{
 					LiteralExpression fieldConstant = new LiteralExpression(field.Constant.Value, field.DeclaringType.Module.TypeSystem, null);
@@ -742,6 +745,8 @@ namespace Telerik.JustDecompiler.Languages
                 {
                     WriteLiteralInLanguageSyntax(field.Constant.Value);
 				}
+
+                this.currentWritingInfo.CodeMappingInfo.Add(field, new OffsetSpan(start, this.formatter.CurrentPosition));
 			}
 		}
 
@@ -3360,8 +3365,7 @@ namespace Telerik.JustDecompiler.Languages
 
 		public override void VisitVariableDeclarationExpression(VariableDeclarationExpression node)
 		{
-            VariableDefinition variable = node.Variable;
-            WriteTypeAndName(variable.VariableType, GetVariableName(variable));
+			WriteVariableTypeAndName(node.Variable);
         }
 
 		public override void VisitGotoStatement(GotoStatement node)
@@ -3944,7 +3948,7 @@ namespace Telerik.JustDecompiler.Languages
 		{
 			WriteKeyword(KeyWordWriter.TypeOf);
 			WriteToken("(");
-			WriteGenericReference(node.Type);
+            WriteGenericReference(node.Type);
 			WriteToken(")");
 		}
 
@@ -3959,7 +3963,7 @@ namespace Telerik.JustDecompiler.Languages
 			WriteSpace();
 			WriteKeyword(KeyWordWriter.Is);
 			WriteSpace();
-			WriteReferenceAndNamespaceIfInCollision(node.TargetType);
+            WriteReferenceAndNamespaceIfInCollision(node.TargetType);
 		}
 
 		public override void VisitSizeOfExpression(SizeOfExpression node)
@@ -4225,7 +4229,11 @@ namespace Telerik.JustDecompiler.Languages
 		protected virtual void WriteTypeAndName(TypeReference typeReference, string name)
 		{
 		}
-        
+
+        protected virtual void WriteVariableTypeAndName(VariableDefinition variable)
+        {
+        }
+
 		protected virtual void WriteParameterTypeAndName(TypeReference typeReference, string name, ParameterDefinition reference)
 		{
 		}
@@ -4913,6 +4921,27 @@ namespace Telerik.JustDecompiler.Languages
 
             WriteToken(".");
             WritePropertyName(node.Property);
+        }
+
+        protected void WriteAndMapVariableToCode(Action write, VariableDefinition variable)
+        {
+            int start = this.formatter.CurrentPosition;
+
+            write();
+            
+            OffsetSpan span = new OffsetSpan(start, this.formatter.CurrentPosition);
+            this.currentWritingInfo.CodeMappingInfo.Add(variable, span);
+        }
+
+        protected void WriteAndMapParameterToCode(Action write, int index)
+        {
+            int start = this.formatter.CurrentPosition;
+
+            write();
+
+            IMemberDefinition currentMember = this.membersStack.Peek();
+            OffsetSpan span = new OffsetSpan(start, this.formatter.CurrentPosition);
+            this.currentWritingInfo.CodeMappingInfo.Add(currentMember, index, span);
         }
 	}
 }

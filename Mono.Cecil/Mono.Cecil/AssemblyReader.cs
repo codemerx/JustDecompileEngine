@@ -2118,6 +2118,12 @@ namespace Mono.Cecil {
                 instruction.ContainingMethod = method;
             }
 
+            /*Telerik Authorship*/
+            foreach (VariableDefinition variable in result.Variables)
+            {
+                variable.ContainingMethod = method;
+            }
+
             return result;
 		}
 

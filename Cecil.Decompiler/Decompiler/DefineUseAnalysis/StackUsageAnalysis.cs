@@ -89,13 +89,13 @@ namespace Telerik.JustDecompiler.Decompiler.DefineUseAnalysis
                         InstructionBlock filterBlock = controlFlowGraph.InstructionToBlockMapping[handler.FilterStart.Offset];
                         RecursiveDfs(filterBlock, new int[] { -handler.FilterStart.Offset });
                         instructionOffsetToVariableDefinitionMap[-handler.FilterStart.Offset] =
-                            new VariableDefinition(ExceptionVariablePrefix + exceptionVariableCount++, Utilities.GetCorlibTypeReference(typeof(Exception), methodContext.Method.Module));
+                            new VariableDefinition(ExceptionVariablePrefix + exceptionVariableCount++, Utilities.GetCorlibTypeReference(typeof(Exception), methodContext.Method.Module), this.methodContext.Method);
                         exceptionVariableInstructionsSet.Add(-handler.FilterStart.Offset);
                     }
                     RecursiveDfs(handlerBlock, new int[] { -handler.HandlerStart.Offset });
                     instructionOffsetToVariableDefinitionMap[-handler.HandlerStart.Offset] =
                         new VariableDefinition(ExceptionVariablePrefix + exceptionVariableCount++,
-                            handler.CatchType ?? Utilities.GetCorlibTypeReference(typeof(Exception), methodContext.Method.Module));
+                            handler.CatchType ?? Utilities.GetCorlibTypeReference(typeof(Exception), methodContext.Method.Module), this.methodContext.Method);
                     exceptionVariableInstructionsSet.Add(-handler.HandlerStart.Offset);
                 }
             }
@@ -345,7 +345,7 @@ namespace Telerik.JustDecompiler.Decompiler.DefineUseAnalysis
                 int representative = unionFinder.Find(instructionOffset);
                 if (!instructionOffsetToVariableDefinitionMap.TryGetValue(representative, out varDef))
                 {
-                    varDef = new VariableDefinition(StackVariablePrefix + stackVariablesCount++, null);
+                    varDef = new VariableDefinition(StackVariablePrefix + stackVariablesCount++, null, this.methodContext.Method);
                     instructionOffsetToVariableDefinitionMap.Add(representative, varDef);
                 }
 

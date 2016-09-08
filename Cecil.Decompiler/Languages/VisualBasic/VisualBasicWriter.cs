@@ -390,6 +390,21 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             WriteReferenceAndNamespaceIfInCollision(typeReference);
         }
 
+        protected override void DoWriteVariableTypeAndName(VariableDefinition variable)
+        {
+            if (this.isWritingComment)
+            {
+                Write(GetVariableName(variable));
+            }
+            else
+            {
+                this.WriteAndMapVariableToCode(() => Write(GetVariableName(variable)), variable);
+            }
+
+            WriteAsBetweenSpaces();
+            WriteReferenceAndNamespaceIfInCollision(variable.VariableType);
+        }
+
         protected override void DoWriteParameterTypeAndName(TypeReference type, string name, ParameterDefinition reference)
         {
             if (reference.IsParamArray())
@@ -408,7 +423,14 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 				name = Utilities.EscapeNameIfNeeded(name, this.Language);
 			}
 
-            Write(name);
+            if (this.isWritingComment)
+            {
+                Write(name);
+            }
+            else
+            {
+                this.WriteAndMapParameterToCode(() => Write(name), reference.Index);
+            }
 
             // undocumented C# keyword like __arglist
 
@@ -1781,7 +1803,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             VariableDefinition variable = node.Variable;
             if (variable.VariableType.ContainsAnonymousType())
             {
-                WriteToken(GetVariableName(variable));
+                this.WriteAndMapVariableToCode(() => WriteToken(GetVariableName(variable)), node.Variable);
             }
             else
             {
@@ -1834,7 +1856,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
 			WriteDim();
 			
 			string variableName = GetVariableName(node.Variable.Variable);
-			Write(variableName);
+			this.WriteAndMapVariableToCode(() => Write(variableName), node.Variable.Variable);
 
             WriteArrayDimensions(node.Dimensions, node.ArrayType, node.HasInitializer);
 			WriteAsBetweenSpaces();

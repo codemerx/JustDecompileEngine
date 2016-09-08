@@ -5,6 +5,7 @@ using Mono.Cecil;
 using Mono.Cecil.Extensions;
 using Telerik.JustDecompiler.Decompiler.WriterContextServices;
 using Telerik.JustDecompiler.Decompiler;
+using Mono.Cecil.Cil;
 
 namespace Telerik.JustDecompiler.Languages
 {
@@ -239,8 +240,13 @@ namespace Telerik.JustDecompiler.Languages
 		{
 			DoWriteTypeAndName(typeReference, name);			
 		}
- 
-		protected override sealed void WriteParameterTypeAndName(TypeReference type, string name, ParameterDefinition reference)
+
+        protected override sealed void WriteVariableTypeAndName(VariableDefinition variable)
+        {
+            DoWriteVariableTypeAndName(variable);
+        }
+
+        protected override sealed void WriteParameterTypeAndName(TypeReference type, string name, ParameterDefinition reference)
 		{
 			DoWriteParameterTypeAndName(type, name, reference);
 		}
@@ -350,6 +356,7 @@ namespace Telerik.JustDecompiler.Languages
 		
 		protected abstract void DoWriteTypeAndName(TypeReference typeReference, string name, object reference);
 		protected abstract void DoWriteTypeAndName(TypeReference typeReference, string name);
-		protected abstract void DoWriteParameterTypeAndName(TypeReference type, string name, ParameterDefinition reference);
+        protected abstract void DoWriteVariableTypeAndName(VariableDefinition variable);
+        protected abstract void DoWriteParameterTypeAndName(TypeReference type, string name, ParameterDefinition reference);
 	}
 }

@@ -464,7 +464,7 @@ namespace Telerik.JustDecompiler.Steps
 
             private VariableDefinition CreateNewIdentifier(string name, TypeReference type)
             {
-                VariableDefinition variable = new VariableDefinition(name, type);
+                VariableDefinition variable = new VariableDefinition(name, type, this.methodContext.Method);
                 //methodContext.VariablesToRename.Add(variable);
                 methodContext.UndeclaredLinqVariables.Add(variable);
                 return variable;

@@ -462,7 +462,7 @@ namespace Telerik.JustDecompiler.Steps
                 return parameterMappings[fieldDef].CloneExpressionOnlyAndAttachInstructions(node.UnderlyingSameMethodInstructions);
             }
 
-            VariableDefinition variableDefinition = new VariableDefinition(GetFriendlyName(fieldDef.Name), fieldDef.FieldType);
+            VariableDefinition variableDefinition = new VariableDefinition(GetFriendlyName(fieldDef.Name), fieldDef.FieldType, this.methodContext.Method);
             this.methodContext.Variables.Add(variableDefinition);
             this.methodContext.VariableAssignmentData.Add(variableDefinition, asyncData.FieldAssignmentData[fieldDef]);
             this.methodContext.VariablesToRename.Add(variableDefinition);

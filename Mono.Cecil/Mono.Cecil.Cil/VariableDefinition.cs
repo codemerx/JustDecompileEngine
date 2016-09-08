@@ -51,17 +51,29 @@ namespace Mono.Cecil.Cil {
             }
         }
 
-		public VariableDefinition (TypeReference variableType)
+        /*Telerik Authorship*/
+        public MethodDefinition ContainingMethod { get; internal set; }
+
+        /*Telerik Authorship*/internal VariableDefinition (TypeReference variableType)
 			: base (variableType)
 		{
 		}
 
-		public VariableDefinition (string name, TypeReference variableType)
+        /*Telerik Authorship*/
+        public VariableDefinition(TypeReference variableType, MethodDefinition containingMethod)
+            : this (variableType)
+        {
+            this.ContainingMethod = containingMethod;
+        }
+
+		public VariableDefinition (string name, TypeReference variableType, /*Telerik Authorship*/MethodDefinition containingMethod)
 			: base (name, variableType)
 		{
-		}
+            /*Telerik Authorship*/
+            this.ContainingMethod = containingMethod;
+        }
 
-		public override VariableDefinition Resolve ()
+        public override VariableDefinition Resolve ()
 		{
 			return this;
 		}

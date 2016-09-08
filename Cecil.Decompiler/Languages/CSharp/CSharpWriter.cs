@@ -36,6 +36,7 @@ using System.Collections;
 using Telerik.JustDecompiler.Common;
 using System.Linq;
 using Telerik.JustDecompiler.Decompiler;
+using Mono.Cecil.Cil;
 
 
 namespace Telerik.JustDecompiler.Languages.CSharp
@@ -290,6 +291,13 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             Write(name);
         }
 
+        protected override void DoWriteVariableTypeAndName(VariableDefinition variable)
+        {
+            WriteReferenceAndNamespaceIfInCollision(variable.VariableType);
+            WriteSpace();
+            this.WriteAndMapVariableToCode(() => Write(GetVariableName(variable)), variable);
+        }
+
         protected override void WriteFieldTypeAndName(FieldDefinition field)
         {
             if (field.IsUnsafe)
@@ -367,7 +375,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                 name = Utilities.EscapeNameIfNeeded(name, this.Language);
             }
 
-            Write(name);
+            this.WriteAndMapParameterToCode(() => Write(name), reference.Index);
         }
 
         public override void VisitUnsafeBlockStatement(UnsafeBlockStatement unsafeBlock)
@@ -733,7 +741,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                 }
             }
             WriteToken(")");
-
+            
             bool isComplexCastTarget = IsComplexTarget(node.Expression);
 
             if (isComplexCastTarget)
@@ -933,13 +941,13 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                 {
                     WriteKeyword(KeyWordWriter.Dim);
                     WriteSpace();
-                    Write(variableName);
+                    this.WriteAndMapVariableToCode(() => Write(variableName), node.Variable);
                 }
                 else if (node.Variable.Resolve().IsDynamic)
                 {
                     WriteDynamicType(node.Variable.VariableType, node.Variable.DynamicPositioningFlags);
                     WriteSpace();
-                    Write(variableName);
+                    this.WriteAndMapVariableToCode(() => Write(variableName), node.Variable);
                 }
                 else
                 {
