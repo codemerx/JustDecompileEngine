@@ -4930,7 +4930,15 @@ namespace Telerik.JustDecompiler.Languages
             write();
             
             OffsetSpan span = new OffsetSpan(start, this.formatter.CurrentPosition);
-            this.currentWritingInfo.CodeMappingInfo.Add(variable, span);
+
+            try
+            {
+                this.currentWritingInfo.CodeMappingInfo.Add(variable, span);
+            }
+            catch (ArgumentException ex)
+            {
+                this.OnExceptionThrown(ex);
+            }
         }
 
         protected void WriteAndMapParameterToCode(Action write, int index)
