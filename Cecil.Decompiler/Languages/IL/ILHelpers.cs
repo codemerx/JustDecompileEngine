@@ -33,7 +33,7 @@ namespace Telerik.JustDecompiler.Languages.IL
 			"synchronized", "syschar", "sysstring", "tbstr", "thiscall", "tls", "to", "true", "typedref",
 			"unicode", "unmanaged", "unmanagedexp", "unsigned", "unused", "userdefined", "value", "valuetype",
 			"vararg", "variant", "vector", "virtual", "void", "wchar", "winapi", "with", "wrapper",
-			"property", "type", "flags", "callconv", "strict");
+			"property", "type", "flags", "callconv", "strict", "aggressiveinlining");
 
 		internal static HashSet<string> BuildKeywordList(params string[] keywords)
 		{

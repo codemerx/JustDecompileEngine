@@ -57,6 +57,15 @@ namespace Mono.Cecil {
 			set { attributes = (ushort) value; }
 		}
 
+        /*Telerik Authorship*/
+        public bool HasImplAttributes
+        {
+            get
+            {
+                return (ushort)this.ImplAttributes != 0;
+            }
+        }
+
 		public MethodImplAttributes ImplAttributes {
 			get { return (MethodImplAttributes) impl_attributes; }
 			set { impl_attributes = (ushort) value; }
@@ -391,9 +400,16 @@ namespace Mono.Cecil {
 		public bool IsNative {
 			get { return impl_attributes.GetMaskedAttributes ((ushort) MethodImplAttributes.CodeTypeMask, (ushort) MethodImplAttributes.Native); }
 			set { impl_attributes = impl_attributes.SetMaskedAttributes ((ushort) MethodImplAttributes.CodeTypeMask, (ushort) MethodImplAttributes.Native, value); }
-		}
+        }
 
-		public bool IsRuntime {
+        /*Telerik Authorship*/
+        public bool IsOPTIL
+        {
+            get { return impl_attributes.GetMaskedAttributes((ushort)MethodImplAttributes.CodeTypeMask, (ushort)MethodImplAttributes.OPTIL); }
+            set { impl_attributes = impl_attributes.SetMaskedAttributes((ushort)MethodImplAttributes.CodeTypeMask, (ushort)MethodImplAttributes.OPTIL, value); }
+        }
+
+        public bool IsRuntime {
 			get { return impl_attributes.GetMaskedAttributes ((ushort) MethodImplAttributes.CodeTypeMask, (ushort) MethodImplAttributes.Runtime); }
 			set { impl_attributes = impl_attributes.SetMaskedAttributes ((ushort) MethodImplAttributes.CodeTypeMask, (ushort) MethodImplAttributes.Runtime, value); }
 		}
@@ -436,13 +452,20 @@ namespace Mono.Cecil {
 		public bool NoOptimization {
 			get { return impl_attributes.GetAttributes ((ushort) MethodImplAttributes.NoOptimization); }
 			set { impl_attributes = impl_attributes.SetAttributes ((ushort) MethodImplAttributes.NoOptimization, value); }
-		}
+        }
 
-		#endregion
+        /*Telerik Authorship*/
+        public bool AggressiveInlining
+        {
+            get { return impl_attributes.GetAttributes((ushort)MethodImplAttributes.AggressiveInlining); }
+            set { impl_attributes = impl_attributes.SetAttributes((ushort)MethodImplAttributes.AggressiveInlining, value); }
+        }
 
-		#region MethodSemanticsAttributes
+        #endregion
 
-		public bool IsSetter {
+        #region MethodSemanticsAttributes
+
+        public bool IsSetter {
 			get { return this.GetSemantics (MethodSemanticsAttributes.Setter); }
 			set { this.SetSemantics (MethodSemanticsAttributes.Setter, value); }
 		}

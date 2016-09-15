@@ -380,6 +380,12 @@ namespace Telerik.JustDecompiler.Languages
             {
                 attributes.Add(AttributesUtilities.GetMethodDllImportAttribute(method));
             }
+
+            if (method.HasImplAttributes)
+            {
+                attributes.Add(AttributesUtilities.GetMethodImplAttribute(method));
+            }
+
             return attributes;
         }
 

@@ -61,6 +61,7 @@ namespace Telerik.JustDecompiler.Languages.IL
 			{ MethodImplAttributes.PreserveSig, "preservesig" },
 			{ MethodImplAttributes.InternalCall, "internalcall" },
 			{ MethodImplAttributes.ForwardRef, "forwardref" },
+            { MethodImplAttributes.AggressiveInlining, "aggressiveinlining" }
 		};
 
 		EnumNameCollection<FieldAttributes> fieldVisibility = new EnumNameCollection<FieldAttributes>() {
