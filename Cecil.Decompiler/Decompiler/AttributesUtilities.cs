@@ -268,7 +268,8 @@ namespace Telerik.JustDecompiler.Decompiler
 				usedTypes.AddRange(GetCustomAttributeUsedTypes(GetMethodDllImportAttribute(method)));
 			}
 
-            if (method.HasImplAttributes)
+            if (method.HasImplAttributes &&
+                ShouldWriteImplAttribute(method))
             {
                 usedTypes.AddRange(GetCustomAttributeUsedTypes(GetMethodImplAttribute(method)));
             }
@@ -436,7 +437,19 @@ namespace Telerik.JustDecompiler.Decompiler
 			}
 		}
 
-		private static void CreateAndAddCharSetFieldArgument(MethodDefinition method, CustomAttribute dllImportAttr)
+        internal static bool ShouldWriteImplAttribute(MethodDefinition method)
+        {
+            // The PreserveSig attribute can be controlled using the DllImport attribute.
+            if (method.HasPInvokeInfo &&
+                method.ImplAttributes == MethodImplAttributes.PreserveSig)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static void CreateAndAddCharSetFieldArgument(MethodDefinition method, CustomAttribute dllImportAttr)
 		{
 			System.Runtime.InteropServices.CharSet charSet = System.Runtime.InteropServices.CharSet.None;
 			if (method.PInvokeInfo.IsCharSetAnsi)
@@ -702,7 +715,7 @@ namespace Telerik.JustDecompiler.Decompiler
                     value |= MethodImplOptions.NoOptimization;
                 }
 
-                if (method.IsPreserveSig)
+                if (method.IsPreserveSig && !method.HasPInvokeInfo)
                 {
                     value |= MethodImplOptions.PreserveSig;
                 }
@@ -764,7 +777,7 @@ namespace Telerik.JustDecompiler.Decompiler
                    method.IsInternalCall ||
                    method.NoInlining ||
                    method.NoOptimization ||
-                   method.IsPreserveSig ||
+                   (method.IsPreserveSig && !method.HasPInvokeInfo) ||
                    method.IsSynchronized ||
                    method.IsUnmanaged;
         }

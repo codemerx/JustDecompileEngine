@@ -381,7 +381,8 @@ namespace Telerik.JustDecompiler.Languages
                 attributes.Add(AttributesUtilities.GetMethodDllImportAttribute(method));
             }
 
-            if (method.HasImplAttributes)
+            if (method.HasImplAttributes &&
+                AttributesUtilities.ShouldWriteImplAttribute(method))
             {
                 attributes.Add(AttributesUtilities.GetMethodImplAttribute(method));
             }
