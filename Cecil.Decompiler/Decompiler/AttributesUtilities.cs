@@ -269,7 +269,7 @@ namespace Telerik.JustDecompiler.Decompiler
 			}
 
             if (method.HasImplAttributes &&
-                ShouldWriteImplAttribute(method))
+                ShouldWriteMethodImplAttribute(method))
             {
                 usedTypes.AddRange(GetCustomAttributeUsedTypes(GetMethodImplAttribute(method)));
             }
@@ -437,9 +437,14 @@ namespace Telerik.JustDecompiler.Decompiler
 			}
 		}
 
-        internal static bool ShouldWriteImplAttribute(MethodDefinition method)
+        internal static bool ShouldWriteMethodImplAttribute(MethodDefinition method)
         {
-            // The PreserveSig attribute can be controlled using the DllImport attribute.
+            if (method.DeclaringType.IsDelegate())
+            {
+                return false;
+            }
+
+            // The preservesig flag can be controlled using the DllImport attribute.
             if (method.HasPInvokeInfo &&
                 method.ImplAttributes == MethodImplAttributes.PreserveSig)
             {
