@@ -124,7 +124,7 @@ namespace Telerik.JustDecompiler.Languages
                 return this.writerContext.MethodContexts.Count == 0;
             }
         }
-
+        
         protected MethodSpecificContext GetMethodContext(IMemberDefinition member)
         {
             string memberFullName = Utilities.GetMemberUniqueName(member);
@@ -718,23 +718,25 @@ namespace Telerik.JustDecompiler.Languages
             }
             if (member is TypeDefinition)
             {
-                TypeReference memberType = (member as TypeDefinition).BaseType;
-                if (memberType != null && memberType.Name == "MulticastDelegate")
+                TypeDefinition type = member as TypeDefinition;
+                if (this.ShouldWriteAsDelegate(type))
                 {
-                    WriteAttributes(member);
-                    WriteDelegate(member as TypeDefinition);
+                    WriteAttributes(type);
+                    WriteDelegate(type);
                     return true;
                 }
                 else
                 {
-                    WriteTypeDeclarationsOnlyInternal((TypeDefinition)member);
+                    WriteTypeDeclarationsOnlyInternal(type);
                     return true;
                 }
             }
             return true;
         }
 
-        protected abstract void WriteDelegate(TypeDefinition delegateDefinition);
+        protected virtual void WriteDelegate(TypeDefinition delegateDefinition)
+        {
+        }
 
         protected virtual void WriteTypeInANewWriterIfNeeded(TypeDefinition type)
         {
@@ -761,7 +763,7 @@ namespace Telerik.JustDecompiler.Languages
 			WriteAttributes(type, new string[] { "System.Reflection.DefaultMemberAttribute" });
 
 			membersStack.Push(type);
-			if (type.IsDelegate())
+            if (this.ShouldWriteAsDelegate(type))
 			{
 				WriteDelegate(type);
 				WriteLine();
@@ -822,7 +824,7 @@ namespace Telerik.JustDecompiler.Languages
             string typeName = string.Empty;
 
             membersStack.Push(type);
-            if (type.IsDelegate())
+            if (this.ShouldWriteAsDelegate(type))
             {
                 WriteDelegate(type);
                 return;
@@ -848,6 +850,11 @@ namespace Telerik.JustDecompiler.Languages
             this.currentWritingInfo.MemberDefinitionToFoldingPositionMap[type] = new OffsetSpan(startIndex, formatter.CurrentPosition - 1);
 
             this.formatter.WriteEndBlock();
+        }
+
+        private bool ShouldWriteAsDelegate(TypeDefinition type)
+        {
+            return this.Language.HasDelegateSpecificSyntax && type.IsDelegate();
         }
 
         private void WriteTypeMembers(TypeDefinition type, Action<IMemberDefinition> writeMember,

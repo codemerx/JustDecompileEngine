@@ -1982,11 +1982,6 @@ namespace Telerik.JustDecompiler.Languages.IL
             TypeName,
             ShortTypeName
         }
-
-        protected override void WriteDelegate(TypeDefinition delegateDefinition)
-        {
-            WriteTypeDeclaration(delegateDefinition);
-        }
     }
 
     class CodeMappings

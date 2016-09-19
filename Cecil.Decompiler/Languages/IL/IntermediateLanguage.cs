@@ -182,5 +182,13 @@ namespace Telerik.JustDecompiler.Languages.IL
                 return 0;
             }
         }
+
+        public override bool HasDelegateSpecificSyntax
+        {
+            get
+            {
+                return false;
+            }
+        }
     }
 }

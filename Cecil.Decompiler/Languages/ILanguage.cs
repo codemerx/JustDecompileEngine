@@ -108,5 +108,7 @@ namespace Telerik.JustDecompiler.Languages
         IVariablesToNotInlineFinder VariablesToNotInlineFinder { get; }
 
         bool IsValidLineStarter(CodeNodeType nodeType);
+
+        bool HasDelegateSpecificSyntax { get; }
     }
 }

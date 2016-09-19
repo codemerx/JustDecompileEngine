@@ -352,6 +352,14 @@ namespace Telerik.JustDecompiler.Languages
                     return true;
                 }
             }
+
+            public override bool HasDelegateSpecificSyntax
+            {
+                get
+                {
+                    return true;
+                }
+            }
         }
     }
 }

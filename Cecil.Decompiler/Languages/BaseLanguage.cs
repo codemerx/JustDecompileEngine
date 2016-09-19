@@ -275,5 +275,7 @@ namespace Telerik.JustDecompiler.Languages
         public abstract bool SupportsExceptionFilters { get; }
 
         public abstract IVariablesToNotInlineFinder VariablesToNotInlineFinder { get; }
+
+        public abstract bool HasDelegateSpecificSyntax { get; }
     }
 }
