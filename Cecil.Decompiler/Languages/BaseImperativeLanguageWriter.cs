@@ -1084,9 +1084,16 @@ namespace Telerik.JustDecompiler.Languages
 
                         if (node is Expression)
                         {
-                            foreach (Instruction instruction in (node as Expression).MappedInstructions)
+                            try
                             {
-                                this.currentWritingInfo.CodeMappingInfo.Add(instruction, span);
+                                foreach (Instruction instruction in (node as Expression).MappedInstructions)
+                                {
+                                    this.currentWritingInfo.CodeMappingInfo.Add(instruction, span);
+                                }
+                            }
+                            catch (ArgumentException ex)
+                            {
+                                this.OnExceptionThrown(ex);
                             }
                         }
                     }
