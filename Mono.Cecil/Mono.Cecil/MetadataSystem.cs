@@ -1,29 +1,11 @@
 //
-// MetadataSystem.cs
-//
 // Author:
 //   Jb Evain (jbevain@gmail.com)
 //
-// Copyright (c) 2008 - 2011 Jb Evain
+// Copyright (c) 2008 - 2015 Jb Evain
+// Copyright (c) 2008 - 2011 Novell, Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
-//
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Licensed under the MIT/X11 license.
 //
 
 using System;
@@ -65,13 +47,13 @@ namespace Mono.Cecil {
 		internal Dictionary<MetadataToken, uint> FieldMarshals;
 		internal Dictionary<MetadataToken, Row<ElementType, uint>> Constants;
 		internal Dictionary<uint, MetadataToken []> Overrides;
-		internal Dictionary<MetadataToken, Range> CustomAttributes;
-		internal Dictionary<MetadataToken, Range> SecurityDeclarations;
+		internal Dictionary<MetadataToken, Range []> CustomAttributes;
+		internal Dictionary<MetadataToken, Range []> SecurityDeclarations;
 		internal Dictionary<uint, Range> Events;
 		internal Dictionary<uint, Range> Properties;
 		internal Dictionary<uint, Row<MethodSemanticsAttributes, MetadataToken>> Semantics;
 		internal Dictionary<uint, Row<PInvokeAttributes, uint, uint>> PInvokes;
-		internal Dictionary<MetadataToken, Range> GenericParameters;
+		internal Dictionary<MetadataToken, Range []> GenericParameters;
 		internal Dictionary<uint, MetadataToken []> GenericConstraints;
 
 		static Dictionary<string, Row<ElementType, bool>> primitive_value_types;
@@ -302,9 +284,9 @@ namespace Mono.Cecil {
 			Events.Remove (type.token.RID);
 		}
 
-		public bool TryGetGenericParameterRange (IGenericParameterProvider owner, out Range range)
+		public bool TryGetGenericParameterRanges (IGenericParameterProvider owner, out Range [] ranges)
 		{
-			return GenericParameters.TryGetValue (owner.MetadataToken, out range);
+			return GenericParameters.TryGetValue (owner.MetadataToken, out ranges);
 		}
 
 		public void RemoveGenericParameterRange (IGenericParameterProvider owner)
@@ -312,9 +294,9 @@ namespace Mono.Cecil {
 			GenericParameters.Remove (owner.MetadataToken);
 		}
 
-		public bool TryGetCustomAttributeRange (ICustomAttributeProvider owner, out Range range)
+		public bool TryGetCustomAttributeRanges (ICustomAttributeProvider owner, out Range [] ranges)
 		{
-			return CustomAttributes.TryGetValue (owner.MetadataToken, out range);
+			return CustomAttributes.TryGetValue (owner.MetadataToken, out ranges);
 		}
 
 		public void RemoveCustomAttributeRange (ICustomAttributeProvider owner)
@@ -322,9 +304,9 @@ namespace Mono.Cecil {
 			CustomAttributes.Remove (owner.MetadataToken);
 		}
 
-		public bool TryGetSecurityDeclarationRange (ISecurityDeclarationProvider owner, out Range range)
+		public bool TryGetSecurityDeclarationRanges (ISecurityDeclarationProvider owner, out Range [] ranges)
 		{
-			return SecurityDeclarations.TryGetValue (owner.MetadataToken, out range);
+			return SecurityDeclarations.TryGetValue (owner.MetadataToken, out ranges);
 		}
 
 		public void RemoveSecurityDeclarationRange (ISecurityDeclarationProvider owner)

@@ -1,29 +1,11 @@
 //
-// EventDefinition.cs
-//
 // Author:
 //   Jb Evain (jbevain@gmail.com)
 //
-// Copyright (c) 2008 - 2011 Jb Evain
+// Copyright (c) 2008 - 2015 Jb Evain
+// Copyright (c) 2008 - 2011 Novell, Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
-//
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Licensed under the MIT/X11 license.
 //
 
 using Mono.Collections.Generic;
@@ -112,6 +94,7 @@ namespace Mono.Cecil {
 			}
 		}
 
+		/*Telerik Authorship*/
 		private bool? hasCustomAttributes;
 		public bool HasCustomAttributes
 		{
@@ -120,15 +103,16 @@ namespace Mono.Cecil {
 				if (custom_attributes != null)
 					return custom_attributes.Count > 0;
 
+				/*Telerik Authorship*/
 				if (hasCustomAttributes != null)
 					return hasCustomAttributes == true;
 
+				/*Telerik Authorship*/
 				return this.GetHasCustomAttributes(ref hasCustomAttributes, Module);
 			}
 		}
 
 		public Collection<CustomAttribute> CustomAttributes {
-			/*Telerik Authorship*/
 			get { return custom_attributes ?? (this.GetCustomAttributes (ref custom_attributes, Module)); }
 		}
 
@@ -140,8 +124,8 @@ namespace Mono.Cecil {
 		}
 
 		public bool IsRuntimeSpecialName {
-			get { return attributes.GetAttributes ((ushort) FieldAttributes.RTSpecialName); }
-			set { attributes = attributes.SetAttributes ((ushort) FieldAttributes.RTSpecialName, value); }
+			get { return attributes.GetAttributes ((ushort) EventAttributes.RTSpecialName); }
+			set { attributes = attributes.SetAttributes ((ushort) EventAttributes.RTSpecialName, value); }
 		}
 
 		#endregion
@@ -164,10 +148,11 @@ namespace Mono.Cecil {
 
 		void InitializeMethods ()
 		{
-			/*Telerik Authorship*/
 			var module = this.Module;
-			lock (module.SyncRoot)
-			{
+			if (module == null)
+				return;
+
+			lock (module.SyncRoot) {
 				if (add_method != null
 					|| invoke_method != null
 					|| remove_method != null)
@@ -175,6 +160,7 @@ namespace Mono.Cecil {
 
 				if (!module.HasImage ())
 					return;
+
 				module.Read (this, (@event, reader) => reader.ReadMethods (@event));
 			}
 		}

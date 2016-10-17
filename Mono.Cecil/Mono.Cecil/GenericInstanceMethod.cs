@@ -1,32 +1,15 @@
 //
-// GenericInstanceMethod.cs
-//
 // Author:
 //   Jb Evain (jbevain@gmail.com)
 //
-// Copyright (c) 2008 - 2011 Jb Evain
+// Copyright (c) 2008 - 2015 Jb Evain
+// Copyright (c) 2008 - 2011 Novell, Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
-//
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Licensed under the MIT/X11 license.
 //
 
 using System;
+/*Telerik Authorship*/
 using System.Collections.Generic;
 using System.Text;
 
@@ -52,7 +35,7 @@ namespace Mono.Cecil {
 		/*Telerik Authorship*/
 		private object locker = new object();
 
-        /*Telerik Authorship*/
+		/*Telerik Authorship*/
 		public void AddGenericArgument(TypeReference theArgument)
 		{
 			/// don't change the outer type.
@@ -62,7 +45,7 @@ namespace Mono.Cecil {
 			{
 				this.PostionToArgument.Add(this.PostionToArgument.Count, theArgument);
 				int i = this.GenericArguments.Count - 1;
-
+				
 				foreach (ParameterDefinition parameter in this.Parameters)
 				{
 					TypeReference pType = parameter.ParameterType;
@@ -85,7 +68,8 @@ namespace Mono.Cecil {
 				}
 			}
 		}
-  
+
+		/*Telerik Authorship*/
 		private void UpdateSingleDependingType(GenericInstanceType dependingType, TypeReference theArgument, int argumentIndex)
 		{
 			int index = 0;
@@ -127,7 +111,7 @@ namespace Mono.Cecil {
 			get { return ElementMethod.DeclaringType; }
 		}
 
-		internal override bool ContainsGenericParameter {
+		public override bool ContainsGenericParameter {
 			get { return this.ContainsGenericParameter () || base.ContainsGenericParameter; }
 		}
 

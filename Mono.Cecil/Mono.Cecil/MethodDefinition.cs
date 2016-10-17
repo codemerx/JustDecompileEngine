@@ -1,32 +1,17 @@
 //
-// MethodDefinition.cs
-//
 // Author:
 //   Jb Evain (jbevain@gmail.com)
 //
-// Copyright (c) 2008 - 2011 Jb Evain
+// Copyright (c) 2008 - 2015 Jb Evain
+// Copyright (c) 2008 - 2011 Novell, Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
+// Licensed under the MIT/X11 license.
 //
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+
+/*Telerik Authorship*/
 using System;
 using System.Text;
+
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
 
@@ -38,10 +23,7 @@ namespace Mono.Cecil {
 
 		ushort attributes;
 		ushort impl_attributes;
-		
-		/*Telerik Authorship*/
 		internal volatile bool sem_attrs_ready;
-		/*Telerik Authorship*/
 		internal MethodSemanticsAttributes sem_attrs;
 		Collection<CustomAttribute> custom_attributes;
 		Collection<SecurityDeclaration> security_declarations;
@@ -57,15 +39,15 @@ namespace Mono.Cecil {
 			set { attributes = (ushort) value; }
 		}
 
-        /*Telerik Authorship*/
-        public bool HasImplAttributes
-        {
-            get
-            {
-                return (ushort)this.ImplAttributes != 0;
-            }
-        }
-
+		/*Telerik Authorship*/
+		public bool HasImplAttributes
+		{
+			get
+			{
+				return (ushort)this.ImplAttributes != 0;
+			}
+		}
+		
 		public MethodImplAttributes ImplAttributes {
 			get { return (MethodImplAttributes) impl_attributes; }
 			set { impl_attributes = (ushort) value; }
@@ -73,40 +55,34 @@ namespace Mono.Cecil {
 
 		public MethodSemanticsAttributes SemanticsAttributes {
 			get {
-				/*Telerik Authorship*/
 				if (sem_attrs_ready)
 					return sem_attrs;
 
-				/*Telerik Authorship*/
 				if (HasImage) {
 					ReadSemantics ();
-					/*Telerik Authorship*/
 					return sem_attrs;
 				}
 
 				sem_attrs = MethodSemanticsAttributes.None;
-				/*Telerik Authorship*/
 				sem_attrs_ready = true;
-				/*Telerik Authorship*/
 				return sem_attrs;
 			}
 			set {
-                /*Telerik Authorship*/
-                sem_attrs_ready = true;
-                sem_attrs = value;
-            }
+				/*Telerik Authorship*/
+				sem_attrs_ready = true;
+				sem_attrs = value;
+			}
 		}
-		
-        /*Telerik Authorship*/
-        private bool? isOperator;
-        /*Telerik Authorship*/
-        private string operatorName;
-        /*Telerik Authorship*/
-        private bool? isUnsafe;
+
+		/*Telerik Authorship*/
+		private bool? isOperator;
+		/*Telerik Authorship*/
+		private string operatorName;
+		/*Telerik Authorship*/
+		private bool? isUnsafe;
 
 		internal void ReadSemantics ()
 		{
-			/*Telerik Authorship*/
 			if (sem_attrs_ready)
 				return;
 
@@ -117,9 +93,10 @@ namespace Mono.Cecil {
 			if (!module.HasImage)
 				return;
 
-			module.Read(this, (method, reader) => reader.ReadAllSemantics(method));
+			module.Read (this, (method, reader) => reader.ReadAllSemantics (method));
 		}
 
+		/*Telerik Authorship*/
 		private bool? hasSecurityDeclarations;
 		public bool HasSecurityDeclarations
 		{
@@ -128,18 +105,20 @@ namespace Mono.Cecil {
 				if (security_declarations != null)
 					return security_declarations.Count > 0;
 
+				/*Telerik Authorship*/
 				if (hasSecurityDeclarations != null)
 					return hasSecurityDeclarations == true;
 
+				/*Telerik Authorship*/
 				return this.GetHasSecurityDeclarations(ref hasSecurityDeclarations, Module);
 			}
 		}
 
 		public Collection<SecurityDeclaration> SecurityDeclarations {
-			/*Telerik Authorship*/
 			get { return security_declarations ?? (this.GetSecurityDeclarations (ref security_declarations, Module)); }
 		}
 
+		/*Telerik Authorship*/
 		private bool? hasCustomAttributes;
 		public bool HasCustomAttributes
 		{
@@ -148,15 +127,16 @@ namespace Mono.Cecil {
 				if (custom_attributes != null)
 					return custom_attributes.Count > 0;
 
+				/*Telerik Authorship*/
 				if (hasCustomAttributes != null)
 					return hasCustomAttributes == true;
 
+				/*Telerik Authorship*/
 				return this.GetHasCustomAttributes(ref hasCustomAttributes, Module);
 			}
 		}
 
 		public Collection<CustomAttribute> CustomAttributes {
-			/*Telerik Authorship*/
 			get { return custom_attributes ?? (this.GetCustomAttributes (ref custom_attributes, Module)); }
 		}
 
@@ -177,7 +157,6 @@ namespace Mono.Cecil {
 
 		public MethodBody Body {
 			get {
-				/*Telerik Authorship*/
 				MethodBody localBody = this.body;
 				if (localBody != null)
 					return localBody;
@@ -190,12 +169,23 @@ namespace Mono.Cecil {
 
 				return body = new MethodBody (this);
 			}
-			set { body = value; }
+			set {
+				var module = this.Module;
+				if (module == null) {
+					body = value;
+					return;
+				}
+
+				// we reset Body to null in ILSpy to save memory; so we need that operation to be thread-safe
+				lock (module.SyncRoot) {
+					body = value;
+				}
+			}
 		}
 
-        /*Telerik Authorship*/
-        public void RefreshBody()
-        {
+		/*Telerik Authorship*/
+		public void RefreshBody()
+		{
 			lock (Module.SyncRoot)
 			{
 				if(!HasBody)
@@ -211,8 +201,8 @@ namespace Mono.Cecil {
 					body = new MethodBody(this);
 				}
 			}
-        }
-		
+		}
+
 		public bool HasPInvokeInfo {
 			get {
 				if (pinvoke != null)
@@ -228,7 +218,6 @@ namespace Mono.Cecil {
 					return pinvoke;
 
 				if (HasImage && IsPInvokeImpl)
-					/*Telerik Authorship*/
 					return Module.Read (ref pinvoke, this, (method, reader) => reader.ReadPInvokeInfo (method));
 
 				return null;
@@ -239,18 +228,22 @@ namespace Mono.Cecil {
 			}
 		}
 
+		/*Telerik Authorship*/
 		private bool? hasOverrides;
 		public bool HasOverrides {
 			get {
 				if (overrides != null)
 					return overrides.Count > 0;
 
+				/*Telerik Authorship*/
 				if (hasOverrides != null)
 					return hasOverrides == true;
 
+				/*Telerik Authorship*/
 				if (HasImage)
 					return Module.Read (ref hasOverrides, this, (method, reader) => reader.HasOverrides (method)) == true;
 
+				/*Telerik Authorship*/
 				return false;
 			}
 		}
@@ -261,28 +254,29 @@ namespace Mono.Cecil {
 					return overrides;
 
 				if (HasImage)
-					/*Telerik Authorship*/
 					return Module.Read (ref overrides, this, (method, reader) => reader.ReadOverrides (method));
 
 				return overrides = new Collection<MethodReference> ();
 			}
 		}
 
+		/*Telerik Authorship*/
 		private bool? hasGenericParameters;
 		public override bool HasGenericParameters {
 			get {
 				if (generic_parameters != null)
 					return generic_parameters.Count > 0;
 
+				/*Telerik Authorship*/
 				if (hasGenericParameters != null)
 					return hasGenericParameters == true;
 
+				/*Telerik Authorship*/
 				return this.GetHasGenericParameters(ref hasGenericParameters, Module);
 			}
 		}
 
 		public override Collection<GenericParameter> GenericParameters {
-			/*Telerik Authorship*/
 			get { return generic_parameters ?? (this.GetGenericParameters (ref generic_parameters, Module)); }
 		}
 
@@ -400,16 +394,16 @@ namespace Mono.Cecil {
 		public bool IsNative {
 			get { return impl_attributes.GetMaskedAttributes ((ushort) MethodImplAttributes.CodeTypeMask, (ushort) MethodImplAttributes.Native); }
 			set { impl_attributes = impl_attributes.SetMaskedAttributes ((ushort) MethodImplAttributes.CodeTypeMask, (ushort) MethodImplAttributes.Native, value); }
-        }
+		}
 
-        /*Telerik Authorship*/
-        public bool IsOPTIL
-        {
-            get { return impl_attributes.GetMaskedAttributes((ushort)MethodImplAttributes.CodeTypeMask, (ushort)MethodImplAttributes.OPTIL); }
-            set { impl_attributes = impl_attributes.SetMaskedAttributes((ushort)MethodImplAttributes.CodeTypeMask, (ushort)MethodImplAttributes.OPTIL, value); }
-        }
+		/*Telerik Authorship*/
+		public bool IsOPTIL
+		{
+			get { return impl_attributes.GetMaskedAttributes((ushort)MethodImplAttributes.CodeTypeMask, (ushort)MethodImplAttributes.OPTIL); }
+			set { impl_attributes = impl_attributes.SetMaskedAttributes((ushort)MethodImplAttributes.CodeTypeMask, (ushort)MethodImplAttributes.OPTIL, value); }
+		}
 
-        public bool IsRuntime {
+		public bool IsRuntime {
 			get { return impl_attributes.GetMaskedAttributes ((ushort) MethodImplAttributes.CodeTypeMask, (ushort) MethodImplAttributes.Runtime); }
 			set { impl_attributes = impl_attributes.SetMaskedAttributes ((ushort) MethodImplAttributes.CodeTypeMask, (ushort) MethodImplAttributes.Runtime, value); }
 		}
@@ -452,20 +446,20 @@ namespace Mono.Cecil {
 		public bool NoOptimization {
 			get { return impl_attributes.GetAttributes ((ushort) MethodImplAttributes.NoOptimization); }
 			set { impl_attributes = impl_attributes.SetAttributes ((ushort) MethodImplAttributes.NoOptimization, value); }
-        }
+		}
 
-        /*Telerik Authorship*/
-        public bool AggressiveInlining
-        {
-            get { return impl_attributes.GetAttributes((ushort)MethodImplAttributes.AggressiveInlining); }
-            set { impl_attributes = impl_attributes.SetAttributes((ushort)MethodImplAttributes.AggressiveInlining, value); }
-        }
+		/*Telerik Authorship*/
+		public bool AggressiveInlining
+		{
+			get { return impl_attributes.GetAttributes((ushort)MethodImplAttributes.AggressiveInlining); }
+			set { impl_attributes = impl_attributes.SetAttributes((ushort)MethodImplAttributes.AggressiveInlining, value); }
+		}
 
-        #endregion
+		#endregion
 
-        #region MethodSemanticsAttributes
+		#region MethodSemanticsAttributes
 
-        public bool IsSetter {
+		public bool IsSetter {
 			get { return this.GetSemantics (MethodSemanticsAttributes.Setter); }
 			set { this.SetSemantics (MethodSemanticsAttributes.Setter, value); }
 		}
@@ -533,100 +527,99 @@ namespace Mono.Cecil {
 		}
 
 		/*Telerik Authorship*/
-        public bool IsExtensionMethod
-        {
-            get
-            {
-                if ((this.CustomAttributes.Count > 0) &&
-                    (this.CustomAttributes[0].AttributeType.FullName == "System.Runtime.CompilerServices.ExtensionAttribute"))
-                {
-                    return true;
-                }
-                return false;
-            }
+		public bool IsExtensionMethod
+		{
+			get
+			{
+				if ((this.CustomAttributes.Count > 0) &&
+					(this.CustomAttributes[0].AttributeType.FullName == "System.Runtime.CompilerServices.ExtensionAttribute"))
+				{
+					return true;
+				}
+				return false;
+			}
+		}
 
-        }
+		/*Telerik Authorship*/
+		public bool IsOperator
+		{
+			get
+			{
+				if (isOperator == null)
+				{
+					isOperator = this.Name.StartsWith("op_");
+				}
+				return isOperator.Value;
+			}
+		}
 
-        /*Telerik Authorship*/
-        public bool IsOperator
-        {
-            get
-            {
-                if (isOperator == null)
-                {
-                    isOperator = this.Name.StartsWith("op_");
-                }
-                return isOperator.Value;
-            }
-        }
+		/*Telerik Authorship*/
+		public string OperatorName
+		{
+			get
+			{
+				if (IsOperator)
+				{
+					if (string.IsNullOrEmpty(operatorName))
+					{
+						operatorName = this.Name.Remove(0, 3); //chars op_
+					}
+				}
+				return operatorName;
+			}
+		}
 
-        /*Telerik Authorship*/
-        public string OperatorName
-        {
-            get
-            {
-                if (IsOperator)
-                {
-                    if (string.IsNullOrEmpty(operatorName))
-                    {
-                        operatorName = this.Name.Remove(0, 3); //chars op_
-                    }
-                }
-                return operatorName;
-            }
-        }
+		/*Telerik Authorship*/
+		public bool IsUnsafe
+		{
+			get
+			{
+				if (isUnsafe.HasValue == false)
+				{
+					if (ReturnType.IsPointer)
+					{
+						isUnsafe = true;
+						return true;
+					}
+					if (parameters != null)
+					{
+						foreach (ParameterDefinition parameter in parameters)
+						{
+							if (parameter.ParameterType.IsPointer)
+							{
+								isUnsafe = true;
+								return true;
+							}
+						}
+					}
+					if (this.body != null)
+					{
+						if (body.Variables != null)
+						{
+							foreach (VariableDefinition variable in body.Variables)
+							{
+								if (variable.VariableType.IsPointer)
+								{
+									isUnsafe = true;
+									return true;
+								}
+							}
+						}
+						isUnsafe = false;
+					}
+				}
 
-        /*Telerik Authorship*/
-        public bool IsUnsafe
-        {
-            get
-            {
-                if (isUnsafe.HasValue == false)
-                {
-                    if (ReturnType.IsPointer)
-                    {
-                        isUnsafe = true;
-                        return true;
-                    }
-                    if (parameters != null)
-                    {
-                        foreach (ParameterDefinition parameter in parameters)
-                        {
-                            if (parameter.ParameterType.IsPointer)
-                            {
-                                isUnsafe = true;
-                                return true;
-                            }
-                        }
-                    }
-                    if (this.body != null)
-                    {
-                        if (body.Variables != null)
-                        {
-                            foreach (VariableDefinition variable in body.Variables)
-                            {
-                                if (variable.VariableType.IsPointer)
-                                {
-                                    isUnsafe = true;
-                                    return true;
-                                }
-                            }
-                        }
-                        isUnsafe = false;
-                    }
-                }
+				return isUnsafe??false;
+			}
+			private set
+			{
+				this.isUnsafe = value;
+			}
+		}
 
-                return isUnsafe??false;
-            }
-            private set
-            {
-                this.isUnsafe = value;
-            }
-        }
-
-        /*Telerik Authorship*/
-        public bool IsJustDecompileGenerated { get; set; }
-    }
+		/*Telerik Authorship*/
+		public bool IsJustDecompileGenerated { get; set; }
+	}
 	static partial class Mixin {
 
 		public static ParameterDefinition GetParameter (this MethodBody self, int index)

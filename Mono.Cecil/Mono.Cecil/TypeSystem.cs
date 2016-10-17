@@ -1,29 +1,11 @@
 //
-// TypeSystem.cs
-//
 // Author:
 //   Jb Evain (jbevain@gmail.com)
 //
-// Copyright (c) 2008 - 2011 Jb Evain
+// Copyright (c) 2008 - 2015 Jb Evain
+// Copyright (c) 2008 - 2011 Novell, Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
-//
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Licensed under the MIT/X11 license.
 //
 
 using System;
@@ -117,12 +99,10 @@ namespace Mono.Cecil {
 
 				var references = module.AssemblyReferences;
 
-				for (int i = 0; i < references.Count; i++)
-				{
-					var reference = references[i];
+				for (int i = 0; i < references.Count; i++) {
+					var reference = references [i];
 					if (reference.Name == mscorlib)
 						return corlib = reference;
-
 				}
 
 
@@ -209,23 +189,19 @@ namespace Mono.Cecil {
 
 		internal abstract TypeReference LookupType (string @namespace, string name);
 
-		/*Telerik Authorship*/
-		TypeReference LookupSystemType (ref TypeReference typeRef, string name, ElementType element_type)
+		TypeReference LookupSystemType (ref TypeReference reference, string name, ElementType element_type)
 		{
-			/*Telerik Authorship*/
 			lock (module.SyncRoot) {
-				if (typeRef != null)
-					return typeRef;
+				if (reference != null)
+					return reference;
 				var type = LookupType ("System", name);
 				type.etype = element_type;
-				return typeRef = type;
+				return reference = type;
 			}
 		}
 
-		/*Telerik Authorship*/
 		TypeReference LookupSystemValueType (ref TypeReference typeRef, string name, ElementType element_type)
 		{
-			/*Telerik Authorship*/
 			lock (module.SyncRoot) {
 				if (typeRef != null)
 					return typeRef;
@@ -247,92 +223,74 @@ namespace Mono.Cecil {
 		}
 
 		public TypeReference Object {
-			/*Telerik Authorship*/
 			get { return type_object ?? (LookupSystemType (ref type_object, "Object", ElementType.Object)); }
 		}
 
 		public TypeReference Void {
-			/*Telerik Authorship*/
 			get { return type_void ?? (LookupSystemType (ref type_void, "Void", ElementType.Void)); }
 		}
 
 		public TypeReference Boolean {
-			/*Telerik Authorship*/
 			get { return type_bool ?? (LookupSystemValueType (ref type_bool, "Boolean", ElementType.Boolean)); }
 		}
 
 		public TypeReference Char {
-			/*Telerik Authorship*/
 			get { return type_char ?? (LookupSystemValueType (ref type_char, "Char", ElementType.Char)); }
 		}
 
 		public TypeReference SByte {
-			/*Telerik Authorship*/
 			get { return type_sbyte ?? (LookupSystemValueType (ref type_sbyte, "SByte", ElementType.I1)); }
 		}
 
 		public TypeReference Byte {
-			/*Telerik Authorship*/
 			get { return type_byte ?? (LookupSystemValueType (ref type_byte, "Byte", ElementType.U1)); }
 		}
 
 		public TypeReference Int16 {
-			/*Telerik Authorship*/
 			get { return type_int16 ?? (LookupSystemValueType (ref type_int16, "Int16", ElementType.I2)); }
 		}
 
 		public TypeReference UInt16 {
-			/*Telerik Authorship*/
 			get { return type_uint16 ?? (LookupSystemValueType (ref type_uint16, "UInt16", ElementType.U2)); }
 		}
 
 		public TypeReference Int32 {
-			/*Telerik Authorship*/
 			get { return type_int32 ?? (LookupSystemValueType (ref type_int32, "Int32", ElementType.I4)); }
 		}
 
 		public TypeReference UInt32 {
-			/*Telerik Authorship*/
 			get { return type_uint32 ?? (LookupSystemValueType (ref type_uint32, "UInt32", ElementType.U4)); }
 		}
 
 		public TypeReference Int64 {
-			/*Telerik Authorship*/
 			get { return type_int64 ?? (LookupSystemValueType (ref type_int64, "Int64", ElementType.I8)); }
 		}
 
 		public TypeReference UInt64 {
-			/*Telerik Authorship*/
 			get { return type_uint64 ?? (LookupSystemValueType (ref type_uint64, "UInt64", ElementType.U8)); }
 		}
 
 		public TypeReference Single {
-			/*Telerik Authorship*/
 			get { return type_single ?? (LookupSystemValueType (ref type_single, "Single", ElementType.R4)); }
 		}
 
 		public TypeReference Double {
-			/*Telerik Authorship*/
 			get { return type_double ?? (LookupSystemValueType (ref type_double, "Double", ElementType.R8)); }
 		}
 
 		public TypeReference IntPtr {
-			/*Telerik Authorship*/
 			get { return type_intptr ?? (LookupSystemValueType (ref type_intptr, "IntPtr", ElementType.I)); }
 		}
 
 		public TypeReference UIntPtr {
-			/*Telerik Authorship*/
 			get { return type_uintptr ?? (LookupSystemValueType (ref type_uintptr, "UIntPtr", ElementType.U)); }
 		}
 
 		public TypeReference String {
-			/*Telerik Authorship*/
 			get { return type_string ?? (LookupSystemType (ref type_string, "String", ElementType.String)); }
 		}
 
 		public TypeReference TypedReference {
-			/*Telerik Authorship*/
 			get { return type_typedref ?? (LookupSystemValueType (ref type_typedref, "TypedReference", ElementType.TypedByRef)); }
 		}
 	}

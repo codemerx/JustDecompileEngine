@@ -1,29 +1,11 @@
 //
-// AssemblyDefinition.cs
-//
 // Author:
 //   Jb Evain (jbevain@gmail.com)
 //
-// Copyright (c) 2008 - 2011 Jb Evain
+// Copyright (c) 2008 - 2015 Jb Evain
+// Copyright (c) 2008 - 2011 Novell, Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
-//
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Licensed under the MIT/X11 license.
 //
 
 using System;
@@ -92,6 +74,7 @@ namespace Mono.Cecil {
 			set { main_module.EntryPoint = value; }
 		}
 
+		/*Telerik Authorship*/
 		private bool? hasCustomAttributes;
 		public bool HasCustomAttributes
 		{
@@ -100,9 +83,11 @@ namespace Mono.Cecil {
 				if (custom_attributes != null)
 					return custom_attributes.Count > 0;
 
+				/*Telerik Authorship*/
 				if (hasCustomAttributes != null)
 					return hasCustomAttributes == true;
 
+				/*Telerik Authorship*/
 				return this.GetHasCustomAttributes(ref hasCustomAttributes, main_module);
 			}
 		}
@@ -164,32 +149,33 @@ namespace Mono.Cecil {
         }
 
 		public Collection<CustomAttribute> CustomAttributes {
-			/*Telerik Authorship*/
 			get { return custom_attributes ?? (this.GetCustomAttributes (ref custom_attributes, main_module)); }
 		}
 
+		/*Telerik Authorship*/
 		private bool? hasSecurityDeclarations;
 		public bool HasSecurityDeclarations {
 			get {
 				if (security_declarations != null)
 					return security_declarations.Count > 0;
 
+				/*Telerik Authorship*/
 				if (hasSecurityDeclarations != null)
 					return hasSecurityDeclarations == true;
 
+				/*Telerik Authorship*/
 				return this.GetHasSecurityDeclarations (ref hasSecurityDeclarations, main_module);
 			}
 		}
 
 		public Collection<SecurityDeclaration> SecurityDeclarations {
-			/*Telerik Authorship*/
 			get { return security_declarations ?? (this.GetSecurityDeclarations (ref security_declarations, main_module)); }
 		}
 
 		internal AssemblyDefinition ()
 		{
-            /*Telerik Authorship*/
-            this.targetFrameworkAttributeValue = null;
+			/*Telerik Authorship*/
+			this.targetFrameworkAttributeValue = null;
 		}
 
 #if !READ_ONLY
@@ -215,20 +201,22 @@ namespace Mono.Cecil {
 		}
 #endif
 
-        //public static AssemblyDefinition ReadAssembly (string fileName)
-        //{
-        //    return ReadAssembly (ModuleDefinition.ReadModule (fileName));
-        //}
+		/*Telerik Authorship*/
+		//public static AssemblyDefinition ReadAssembly (string fileName)
+		//{
+		//	return ReadAssembly (ModuleDefinition.ReadModule (fileName));
+		//}
 
 		public static AssemblyDefinition ReadAssembly (string fileName, ReaderParameters parameters)
 		{
 			return ReadAssembly (ModuleDefinition.ReadModule (fileName, parameters));
 		}
 
-        //public static AssemblyDefinition ReadAssembly (Stream stream)
-        //{
-        //    return ReadAssembly (ModuleDefinition.ReadModule (stream));
-        //}
+		/*Telerik Authorship*/
+		//public static AssemblyDefinition ReadAssembly (Stream stream)
+		//{
+		//	return ReadAssembly (ModuleDefinition.ReadModule (stream));
+		//}
 
 		public static AssemblyDefinition ReadAssembly (Stream stream, ReaderParameters parameters)
 		{

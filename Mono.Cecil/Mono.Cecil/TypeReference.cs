@@ -1,29 +1,11 @@
 //
-// TypeReference.cs
-//
 // Author:
 //   Jb Evain (jbevain@gmail.com)
 //
-// Copyright (c) 2008 - 2011 Jb Evain
+// Copyright (c) 2008 - 2015 Jb Evain
+// Copyright (c) 2008 - 2011 Novell, Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
-//
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Licensed under the MIT/X11 license.
 //
 
 using System;
@@ -157,6 +139,7 @@ namespace Mono.Cecil {
 				return scope;
 			}
 			set {
+				/*Telerik Authorship*/
 				lock (Module.SyncRoot)
 				{
 					var declaring_type = this.DeclaringType;
@@ -185,17 +168,15 @@ namespace Mono.Cecil {
 
 		public override string FullName {
 			get {
-				/*Telerik Authorship*/
 				if (fullname != null)
 					return fullname;
 
+				fullname = this.TypeFullName ();
+
 				if (IsNested)
-					return fullname = DeclaringType.FullName + "/" + Name;
+					fullname = DeclaringType.FullName + "/" + fullname;
 
-				if (string.IsNullOrEmpty (@namespace))
-					return fullname = Name;
-
-				return fullname = @namespace + "." + Name;
+				return fullname;
 			}
 		}
 
@@ -265,7 +246,7 @@ namespace Mono.Cecil {
 		
 		/*Telerik Authorship*/
 		private bool TrySetElementType(string @namespace, string name)
-        {
+		{
 			if (@namespace != "System")
 			{
 				return false;
@@ -335,8 +316,8 @@ namespace Mono.Cecil {
 			}
 
 			return success;
-        }
-		
+		}
+
 		public TypeReference (string @namespace, string name, ModuleDefinition module, IMetadataScope scope)
 			: this (@namespace, name)
 		{
@@ -358,10 +339,10 @@ namespace Mono.Cecil {
 		public virtual TypeDefinition Resolve ()
 		{
 			var module = this.Module;
-            if (module == null)
-                /*Telerik Authorship*/
-                //throw new NotSupportedException ();
-                return null;
+			if (module == null)
+				/*Telerik Authorship*/
+				//throw new NotSupportedException ();
+				return null;
 
 			return module.Resolve (this);
 		}
@@ -391,6 +372,13 @@ namespace Mono.Cecil {
 			default:
 				return false;
 			}
+		}
+
+		public static string TypeFullName (this TypeReference self)
+		{
+			return string.IsNullOrEmpty (self.Namespace)
+				? self.Name
+				: self.Namespace + '.' + self.Name;
 		}
 
 		public static bool IsTypeOf (this TypeReference self, string @namespace, string name)

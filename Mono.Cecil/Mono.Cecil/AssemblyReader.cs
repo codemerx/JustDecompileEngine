@@ -1,29 +1,11 @@
 //
-// AssemblyReader.cs
-//
 // Author:
 //   Jb Evain (jbevain@gmail.com)
 //
-// Copyright (c) 2008 - 2011 Jb Evain
+// Copyright (c) 2008 - 2015 Jb Evain
+// Copyright (c) 2008 - 2011 Novell, Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
-//
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Licensed under the MIT/X11 license.
 //
 
 using System;
@@ -37,6 +19,7 @@ using Mono.Cecil.Metadata;
 using Mono.Cecil.PE;
 
 using RVA = System.UInt32;
+/*Telerik Authorship*/
 using Mono.Cecil.Mono.Cecil;
 
 namespace Mono.Cecil {
@@ -46,12 +29,12 @@ namespace Mono.Cecil {
 		readonly protected Image image;
 		readonly protected ModuleDefinition module;
 
-        /*Telerik Authorship*/
+		/*Telerik Authorship*/
 		protected ModuleReader (Image image, ReaderParameters parameters)
 		{
 			this.image = image;
-			this.module = new ModuleDefinition (image, parameters.AssemblyResolver);
-			this.module.ReadingMode = parameters.ReadingMode;
+			this.module = new ModuleDefinition (image, /*Telerik Authorship*/ parameters.AssemblyResolver);
+			this.module.ReadingMode = /*Telerik Authorship*/ parameters.ReadingMode;
 		}
 
 		protected abstract void ReadModule ();
@@ -80,15 +63,19 @@ namespace Mono.Cecil {
 
 		public static ModuleDefinition CreateModuleFrom (Image image, ReaderParameters parameters)
 		{
-			var module = ReadModule (image, parameters);
-
-			ReadSymbols (module, parameters);
+			/*Telerik Authorship*/
+			var reader = CreateModuleReader (image, parameters);
+			var module = reader.module;
 
 			if (parameters.AssemblyResolver != null)
 				module.assembly_resolver = parameters.AssemblyResolver;
 
 			if (parameters.MetadataResolver != null)
 				module.metadata_resolver = parameters.MetadataResolver;
+
+			reader.ReadModule ();
+
+			ReadSymbols (module, parameters);
 
 			return module;
 		}
@@ -117,22 +104,16 @@ namespace Mono.Cecil {
 			}
 		}
 
-		static ModuleDefinition ReadModule (Image image, ReaderParameters parameters)
+		static ModuleReader CreateModuleReader(Image image, /*Telerik Authorship*/ ReaderParameters parameters)
 		{
-            /*Telerik Authorship*/
-			var reader = CreateModuleReader (image, parameters);
-			reader.ReadModule ();
-			return reader.module;
-		}
-
-		static ModuleReader CreateModuleReader (Image image, ReaderParameters parameters)
-		{
-			switch (parameters.ReadingMode) {
-			case ReadingMode.Immediate:
-                    /*Telerik Authorship*/
+			/*Telerik Authorship*/
+			switch (parameters.ReadingMode)
+			{
+				case ReadingMode.Immediate:
+				/*Telerik Authorship*/
 				return new ImmediateModuleReader (image, parameters);
 			case ReadingMode.Deferred:
-                    /*Telerik Authorship*/
+				/*Telerik Authorship*/
 				return new DeferredModuleReader (image, parameters);
 			default:
 				throw new ArgumentException ();
@@ -142,15 +123,15 @@ namespace Mono.Cecil {
 
 	sealed class ImmediateModuleReader : ModuleReader {
 
-        /*Telerik Authorship*/
-        public ImmediateModuleReader(Image image, ReaderParameters parameters)
-            : base(image, parameters)
-        {
-            if (parameters.ReadingMode != ReadingMode.Immediate)
-            {
-                throw new ArgumentException("Invalid reader parameters.");
-            }
-        }
+		/*Telerik Authorship*/
+		public ImmediateModuleReader(Image image, ReaderParameters parameters)
+			: base(image, parameters)
+		{
+			if (parameters.ReadingMode != ReadingMode.Immediate)
+			{
+				throw new ArgumentException("Invalid reader parameters.");
+			}
+		}
 
 		protected override void ReadModule ()
 		{
@@ -181,7 +162,7 @@ namespace Mono.Cecil {
 				return;
 
 			if (assembly.HasCustomAttributes)
-				Read (assembly.CustomAttributes);
+				ReadCustomAttributes (assembly);
 			if (assembly.HasSecurityDeclarations)
 				Read (assembly.SecurityDeclarations);
 		}
@@ -234,21 +215,36 @@ namespace Mono.Cecil {
 				if (parameter.HasConstraints)
 					Read (parameter.Constraints);
 
-				if (parameter.HasCustomAttributes)
-					Read (parameter.CustomAttributes);
+				ReadCustomAttributes (parameter);
 			}
 		}
 
 		static void ReadSecurityDeclarations (ISecurityDeclarationProvider provider)
 		{
-			if (provider.HasSecurityDeclarations)
-				Read (provider.SecurityDeclarations);
+			if (!provider.HasSecurityDeclarations)
+				return;
+
+			var security_declarations = provider.SecurityDeclarations;
+
+			for (int i = 0; i < security_declarations.Count; i++) {
+				var security_declaration = security_declarations [i];
+
+				Read (security_declaration.SecurityAttributes);
+			}
 		}
 
 		static void ReadCustomAttributes (ICustomAttributeProvider provider)
 		{
-			if (provider.HasCustomAttributes)
-				Read (provider.CustomAttributes);
+			if (!provider.HasCustomAttributes)
+				return;
+
+			var custom_attributes = provider.CustomAttributes;
+
+			for (int i = 0; i < custom_attributes.Count; i++) {
+				var custom_attribute = custom_attributes [i];
+
+				Read (custom_attribute.ConstructorArguments);
+			}
 		}
 
 		static void ReadFields (TypeDefinition type)
@@ -359,15 +355,15 @@ namespace Mono.Cecil {
 
 	sealed class DeferredModuleReader : ModuleReader {
 
-        /*Telerik Authorship*/
-        public DeferredModuleReader(Image image, ReaderParameters parameters)
-            : base(image, parameters)
-        {
-            if (parameters.ReadingMode != ReadingMode.Deferred)
-            {
-                throw new ArgumentException("Invalid reader parameters.");
-            }
-        }
+		/*Telerik Authorship*/
+		public DeferredModuleReader(Image image, ReaderParameters parameters)
+			: base(image, parameters)
+		{
+			if (parameters.ReadingMode != ReadingMode.Deferred)
+			{
+				throw new ArgumentException("Invalid reader parameters.");
+			}
+		}
 
 		protected override void ReadModule ()
 		{
@@ -556,7 +552,7 @@ namespace Mono.Cecil {
 			return GetMethodDefinition (token.RID);
 		}
 
-        /*Telerik Authorship*/
+		/*Telerik Authorship*/
 		public Collection<ModuleDefinition> ReadModules (IAssemblyResolver resolver)
 		{
 			var modules = new Collection<ModuleDefinition> (1);
@@ -571,10 +567,11 @@ namespace Mono.Cecil {
 				if (attributes != FileAttributes.ContainsMetaData)
 					continue;
 
-                /*Telerik Authorship*/
+				/*Telerik Authorship*/
 				var parameters = new ReaderParameters(resolver) {
 					ReadingMode = module.ReadingMode,
 					SymbolReaderProvider = module.SymbolReaderProvider,
+					/*Telerik Authorship*/
 				};
 
 				modules.Add (ModuleDefinition.ReadModule (
@@ -589,7 +586,7 @@ namespace Mono.Cecil {
 			if (module.FullyQualifiedName == null)
 				throw new NotSupportedException ();
 
-            /*Telerik Authorship*/
+			/*Telerik Authorship*/
 			var path = module.ModuleDirectoryPath;
 			return Path.Combine (path, name);
 		}
@@ -1068,18 +1065,29 @@ namespace Mono.Cecil {
 
 		IMetadataScope GetTypeReferenceScope (MetadataToken scope)
 		{
+			if (scope.TokenType == TokenType.Module)
+				return module;
+
+			IMetadataScope[] scopes;
+
 			switch (scope.TokenType) {
 			case TokenType.AssemblyRef:
 				InitializeAssemblyReferences ();
-				return metadata.AssemblyReferences [(int) scope.RID - 1];
+				scopes = metadata.AssemblyReferences;
+				break;
 			case TokenType.ModuleRef:
 				InitializeModuleReferences ();
-				return metadata.ModuleReferences [(int) scope.RID - 1];
-			case TokenType.Module:
-				return module;
+				scopes = metadata.ModuleReferences;
+				break;
 			default:
 				throw new NotSupportedException ();
 			}
+
+			var index = scope.RID - 1;
+			if (index < 0 || index >= scopes.Length)
+				return null;
+
+			return scopes [index];
 		}
 
 		public IEnumerable<TypeReference> GetTypeReferences ()
@@ -1206,15 +1214,15 @@ namespace Mono.Cecil {
 			return field;
 		}
 
-        /*Telerik Authorship*/
-        void ReadField(uint field_rid, Collection<FieldDefinition> fields)
-        {
-            FieldDefinition field = ReadField(field_rid);
-            if (field != null)
-            {
-                fields.Add(field);
-            }
-        }
+		/*Telerik Authorship*/
+		void ReadField(uint field_rid, Collection<FieldDefinition> fields)
+		{
+			FieldDefinition field = ReadField(field_rid);
+			if (field != null)
+			{
+				fields.Add(field);
+			}
+		}
 
 		void InitializeFields ()
 		{
@@ -1313,8 +1321,8 @@ namespace Mono.Cecil {
 			case ElementType.CModReqD:
 				return GetFieldTypeSize (((IModifierType) type).ElementType);
 			default:
-				var field_type = type.CheckedResolve ();
-				if (field_type.HasLayoutInfo)
+				var field_type = type.Resolve ();
+				if (field_type != null && field_type.HasLayoutInfo)
 					size = field_type.ClassSize;
 
 				break;
@@ -1485,7 +1493,7 @@ namespace Mono.Cecil {
 
 			return properties;
 		}
-		
+
 		/*Telerik Authorship*/
 		PropertyDefinition ReadProperty (uint property_rid)
 		{
@@ -1520,15 +1528,15 @@ namespace Mono.Cecil {
 			return property;
 		}
 
-        /*Telerik Authorship*/
-        void ReadProperty(uint property_rid, Collection<PropertyDefinition> properties)
-        {
-            PropertyDefinition property = ReadProperty(property_rid);
+		/*Telerik Authorship*/
+		void ReadProperty(uint property_rid, Collection<PropertyDefinition> properties)
+		{
+			PropertyDefinition property = ReadProperty(property_rid);
 			if (property != null)
 			{
 				properties.Add(property);
 			}
-        }
+		}
 
 		void InitializeProperties ()
 		{
@@ -1713,18 +1721,15 @@ namespace Mono.Cecil {
 			return method.SemanticsAttributes;
 		}
 
-		void ReadAllSemantics(TypeDefinition type)
+		void ReadAllSemantics (TypeDefinition type)
 		{
 			var methods = type.Methods;
-			for (int i = 0; i < methods.Count; i++)
-			{
-				var method = methods[i];
-				/*Telerik Authorship*/
+			for (int i = 0; i < methods.Count; i++) {
+				var method = methods [i];
 				if (method.sem_attrs_ready)
 					continue;
 
-				method.sem_attrs = ReadMethodSemantics(method);
-				/*Telerik Authorship*/
+				method.sem_attrs = ReadMethodSemantics (method);
 				method.sem_attrs_ready = true;
 			}
 		}
@@ -1911,25 +1916,35 @@ namespace Mono.Cecil {
 		{
 			InitializeGenericParameters ();
 
-			Range range;
-			if (!metadata.TryGetGenericParameterRange (provider, out range))
+			Range [] ranges;
+			if (!metadata.TryGetGenericParameterRanges (provider, out ranges))
 				return false;
 
-			return range.Length > 0;
+			return RangesSize (ranges) > 0;
 		}
 
 		public Collection<GenericParameter> ReadGenericParameters (IGenericParameterProvider provider)
 		{
 			InitializeGenericParameters ();
 
-			Range range;
-			if (!metadata.TryGetGenericParameterRange (provider, out range)
-				|| !MoveTo (Table.GenericParam, range.Start))
+			Range [] ranges;
+			if (!metadata.TryGetGenericParameterRanges (provider, out ranges))
 				return new GenericParameterCollection (provider);
 
 			metadata.RemoveGenericParameterRange (provider);
 
-			var generic_parameters = new GenericParameterCollection (provider, (int) range.Length);
+			var generic_parameters = new GenericParameterCollection (provider, RangesSize (ranges));
+
+			for (int i = 0; i < ranges.Length; i++)
+				ReadGenericParametersRange (ranges [i], provider, generic_parameters);
+
+			return generic_parameters;
+		}
+
+		void ReadGenericParametersRange (Range range, IGenericParameterProvider provider, GenericParameterCollection generic_parameters)
+		{
+			if (!MoveTo (Table.GenericParam, range.Start))
+				return;
 
 			for (uint i = 0; i < range.Length; i++) {
 				ReadUInt16 (); // index
@@ -1943,8 +1958,6 @@ namespace Mono.Cecil {
 
 				generic_parameters.Add (parameter);
 			}
-
-			return generic_parameters;
 		}
 
 		void InitializeGenericParameters ()
@@ -1961,10 +1974,10 @@ namespace Mono.Cecil {
 			});
 		}
 
-		Dictionary<MetadataToken, Range> InitializeRanges (Table table, Func<MetadataToken> get_next)
+		Dictionary<MetadataToken, Range []> InitializeRanges (Table table, Func<MetadataToken> get_next)
 		{
 			int length = MoveTo (table);
-			var ranges = new Dictionary<MetadataToken, Range> (length);
+			var ranges = new Dictionary<MetadataToken, Range []> (length);
 
 			if (length == 0)
 				return ranges;
@@ -1979,20 +1992,32 @@ namespace Mono.Cecil {
 					owner = next;
 					range.Length++;
 				} else if (next != owner) {
-					/*Telerik Authorship*/
-					if (owner.RID != 0)
-						ranges[owner] = range;
+					AddRange (ranges, owner, range);
 					range = new Range (i, 1);
 					owner = next;
 				} else
 					range.Length++;
 			}
 
-			/*Telerik Authorship*/
-			if (owner != MetadataToken.Zero)
-				ranges[owner] = range;
+			AddRange (ranges, owner, range);
 
 			return ranges;
+		}
+
+		static void AddRange (Dictionary<MetadataToken, Range []> ranges, MetadataToken owner, Range range)
+		{
+			if (owner.RID == 0)
+				return;
+
+			Range [] slots;
+			if (!ranges.TryGetValue (owner, out slots)) {
+				ranges.Add (owner, new [] { range });
+				return;
+			}
+
+			slots = slots.Resize (slots.Length + 1);
+			slots [slots.Length - 1] = range;
+			ranges [owner] = slots;
 		}
 
 		public bool HasGenericConstraints (GenericParameter generic_parameter)
@@ -2110,21 +2135,21 @@ namespace Mono.Cecil {
 
 		public MethodBody ReadMethodBody (MethodDefinition method)
 		{
-            /*Telerik Authorship*/
+			/*Telerik Authorship*/
 			MethodBody result = code.ReadMethodBody (method);
 
-            foreach (Instruction instruction in result.Instructions)
-            {
-                instruction.ContainingMethod = method;
-            }
+			foreach (Instruction instruction in result.Instructions)
+			{
+				instruction.ContainingMethod = method;
+			}
 
-            /*Telerik Authorship*/
-            foreach (VariableDefinition variable in result.Variables)
-            {
-                variable.ContainingMethod = method;
-            }
+			/*Telerik Authorship*/
+			foreach (VariableDefinition variable in result.Variables)
+			{
+				variable.ContainingMethod = method;
+			}
 
-            return result;
+			return result;
 		}
 
 		public CallSite ReadCallSite (MetadataToken token)
@@ -2476,23 +2501,35 @@ namespace Mono.Cecil {
 		{
 			InitializeCustomAttributes ();
 
-			Range range;
-			if (!metadata.TryGetCustomAttributeRange (owner, out range))
+			Range [] ranges;
+			if (!metadata.TryGetCustomAttributeRanges (owner, out ranges))
 				return false;
 
-			return range.Length > 0;
+			return RangesSize (ranges) > 0;
 		}
 
 		public Collection<CustomAttribute> ReadCustomAttributes (ICustomAttributeProvider owner)
 		{
 			InitializeCustomAttributes ();
 
-			Range range;
-			if (!metadata.TryGetCustomAttributeRange (owner, out range)
-				|| !MoveTo (Table.CustomAttribute, range.Start))
+			Range [] ranges;
+			if (!metadata.TryGetCustomAttributeRanges (owner, out ranges))
 				return new Collection<CustomAttribute> ();
 
-			var custom_attributes = new Collection<CustomAttribute> ((int) range.Length);
+			var custom_attributes = new Collection<CustomAttribute> (RangesSize (ranges));
+
+			for (int i = 0; i < ranges.Length; i++)
+				ReadCustomAttributeRange (ranges [i], custom_attributes);
+
+			metadata.RemoveCustomAttributeRange (owner);
+
+			return custom_attributes;
+		}
+
+		void ReadCustomAttributeRange (Range range, Collection<CustomAttribute> custom_attributes)
+		{
+			if (!MoveTo (Table.CustomAttribute, range.Start))
+				return;
 
 			for (int i = 0; i < range.Length; i++) {
 				ReadMetadataToken (CodedIndex.HasCustomAttribute);
@@ -2504,10 +2541,15 @@ namespace Mono.Cecil {
 
 				custom_attributes.Add (new CustomAttribute (signature, constructor));
 			}
+		}
 
-			metadata.RemoveCustomAttributeRange (owner);
+		static int RangesSize (Range [] ranges)
+		{
+			uint size = 0;
+			for (int i = 0; i < ranges.Length; i++)
+				size += ranges [i].Length;
 
-			return custom_attributes;
+			return (int) size;
 		}
 
 		public byte [] ReadCustomAttributeBlob (uint signature)
@@ -2599,23 +2641,35 @@ namespace Mono.Cecil {
 		{
 			InitializeSecurityDeclarations ();
 
-			Range range;
-			if (!metadata.TryGetSecurityDeclarationRange (owner, out range))
+			Range [] ranges;
+			if (!metadata.TryGetSecurityDeclarationRanges (owner, out ranges))
 				return false;
 
-			return range.Length > 0;
+			return RangesSize (ranges) > 0;
 		}
 
 		public Collection<SecurityDeclaration> ReadSecurityDeclarations (ISecurityDeclarationProvider owner)
 		{
 			InitializeSecurityDeclarations ();
 
-			Range range;
-			if (!metadata.TryGetSecurityDeclarationRange (owner, out range)
-				|| !MoveTo (Table.DeclSecurity, range.Start))
+			Range [] ranges;
+			if (!metadata.TryGetSecurityDeclarationRanges (owner, out ranges))
 				return new Collection<SecurityDeclaration> ();
 
-			var security_declarations = new Collection<SecurityDeclaration> ((int) range.Length);
+			var security_declarations = new Collection<SecurityDeclaration> (RangesSize (ranges));
+
+			for (int i = 0; i < ranges.Length; i++)
+				ReadSecurityDeclarationRange (ranges [i], security_declarations);
+
+			metadata.RemoveSecurityDeclarationRange (owner);
+
+			return security_declarations;
+		}
+
+		void ReadSecurityDeclarationRange (Range range, Collection<SecurityDeclaration> security_declarations)
+		{
+			if (!MoveTo (Table.DeclSecurity, range.Start))
+				return;
 
 			for (int i = 0; i < range.Length; i++) {
 				var action = (SecurityAction) ReadUInt16 ();
@@ -2624,10 +2678,6 @@ namespace Mono.Cecil {
 
 				security_declarations.Add (new SecurityDeclaration (action, signature, module));
 			}
-
-			metadata.RemoveSecurityDeclarationRange (owner);
-
-			return security_declarations;
 		}
 
 		public byte [] ReadSecurityDeclarationBlob (uint signature)
@@ -2850,9 +2900,9 @@ namespace Mono.Cecil {
 
 			for (int i = 0; i < arity; i++)
 			{
+				/*Telerik Authorship*/
 				var toAdd = ReadTypeSignature();
 				instance_arguments.Add(toAdd);
-				/*Telerik Authorship*/
 				instance.AddGenericArgument(toAdd);
 			}
 		}

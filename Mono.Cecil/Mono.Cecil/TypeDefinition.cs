@@ -1,29 +1,11 @@
 //
-// TypeDefinition.cs
-//
 // Author:
 //   Jb Evain (jbevain@gmail.com)
 //
-// Copyright (c) 2008 - 2011 Jb Evain
+// Copyright (c) 2008 - 2015 Jb Evain
+// Copyright (c) 2008 - 2011 Novell, Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
-//
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Licensed under the MIT/X11 license.
 //
 
 using System;
@@ -32,11 +14,12 @@ using System.Linq;
 
 using Mono.Cecil.Metadata;
 using Mono.Collections.Generic;
+/*Telerik Authorship*/
 using System.ComponentModel;
 
 namespace Mono.Cecil {
 
-	public sealed class TypeDefinition : TypeReference, IMemberDefinition, ISecurityDeclarationMemberDefinition/*Telerik Authorship*/, ISecurityDeclarationProvider, IGenericDefinition/*Telerik Authorship*/, INotifyPropertyChanged {
+	public sealed class TypeDefinition : TypeReference, IMemberDefinition, ISecurityDeclarationMemberDefinition/*Telerik Authorship*/, ISecurityDeclarationProvider, IGenericDefinition/*Telerik Authorship*/, INotifyPropertyChanged/*Telerik Authorship*/ {
 
 		uint attributes;
 		TypeReference base_type;
@@ -45,10 +28,10 @@ namespace Mono.Cecil {
 
 		short packing_size = Mixin.NotResolvedMarker;
 		int class_size = Mixin.NotResolvedMarker;
-        /*Telerik Authorship*/
-        bool? isdefaultenum;
-        /*Telerik Authorship*/
-        bool? isStatic;
+		/*Telerik Authorship*/
+		bool? isdefaultenum;
+		/*Telerik Authorship*/
+		bool? isStatic;
 
 		Collection<TypeReference> interfaces;
 		Collection<TypeDefinition> nested_types;
@@ -58,16 +41,16 @@ namespace Mono.Cecil {
 		Collection<PropertyDefinition> properties;
 		Collection<CustomAttribute> custom_attributes;
 		Collection<SecurityDeclaration> security_declarations;
-		
-        /*Telerik Authorship*/
-        public bool IsUnsafe
-        {
-            get
-            {
-                return false;
-            }
-        }
-		
+
+		/*Telerik Authorship*/
+		public bool IsUnsafe
+		{
+			get
+			{
+				return false;
+			}
+		}
+
 		public TypeAttributes Attributes {
 			get { return (TypeAttributes) attributes; }
 			set { attributes = (uint) value; }
@@ -135,10 +118,7 @@ namespace Mono.Cecil {
 				if (interfaces != null)
 					return interfaces.Count > 0;
 
-				if (HasImage)
-					return Module.Read (this, (type, reader) => reader.HasInterfaces (type));
-
-				return false;
+				return HasImage && Module.Read (this, (type, reader) => reader.HasInterfaces (type));
 			}
 		}
 
@@ -148,7 +128,6 @@ namespace Mono.Cecil {
 					return interfaces;
 
 				if (HasImage)
-					/*Telerik Authorship*/
 					return Module.Read (ref interfaces, this, (type, reader) => reader.ReadInterfaces (type));
 
 				return interfaces = new Collection<TypeReference> ();
@@ -160,10 +139,7 @@ namespace Mono.Cecil {
 				if (nested_types != null)
 					return nested_types.Count > 0;
 
-				if (HasImage)
-					return Module.Read (this, (type, reader) => reader.HasNestedTypes (type));
-
-				return false;
+				return HasImage && Module.Read (this, (type, reader) => reader.HasNestedTypes (type));
 			}
 		}
 
@@ -173,7 +149,6 @@ namespace Mono.Cecil {
 					return nested_types;
 
 				if (HasImage)
-					/*Telerik Authorship*/
 					return Module.Read (ref nested_types, this, (type, reader) => reader.ReadNestedTypes (type));
 
 				return nested_types = new MemberDefinitionCollection<TypeDefinition> (this);
@@ -185,10 +160,7 @@ namespace Mono.Cecil {
 				if (methods != null)
 					return methods.Count > 0;
 
-				if (HasImage)
-					return methods_range.Length > 0;
-
-				return false;
+				return HasImage && methods_range.Length > 0;
 			}
 		}
 
@@ -198,7 +170,6 @@ namespace Mono.Cecil {
 					return methods;
 
 				if (HasImage)
-					/*Telerik Authorship*/
 					return Module.Read (ref methods, this, (type, reader) => reader.ReadMethods (type));
 
 				return methods = new MemberDefinitionCollection<MethodDefinition> (this);
@@ -210,10 +181,7 @@ namespace Mono.Cecil {
 				if (fields != null)
 					return fields.Count > 0;
 
-				if (HasImage)
-					return fields_range.Length > 0;
-
-				return false;
+				return HasImage && fields_range.Length > 0;
 			}
 		}
 
@@ -223,7 +191,6 @@ namespace Mono.Cecil {
 					return fields;
 
 				if (HasImage)
-					/*Telerik Authorship*/
 					return Module.Read (ref fields, this, (type, reader) => reader.ReadFields (type));
 
 				return fields = new MemberDefinitionCollection<FieldDefinition> (this);
@@ -235,10 +202,7 @@ namespace Mono.Cecil {
 				if (events != null)
 					return events.Count > 0;
 
-				if (HasImage)
-					return Module.Read (this, (type, reader) => reader.HasEvents (type));
-
-				return false;
+				return HasImage && Module.Read (this, (type, reader) => reader.HasEvents (type));
 			}
 		}
 
@@ -248,7 +212,6 @@ namespace Mono.Cecil {
 					return events;
 
 				if (HasImage)
-					/*Telerik Authorship*/
 					return Module.Read (ref events, this, (type, reader) => reader.ReadEvents (type));
 
 				return events = new MemberDefinitionCollection<EventDefinition> (this);
@@ -260,10 +223,7 @@ namespace Mono.Cecil {
 				if (properties != null)
 					return properties.Count > 0;
 
-				if (HasImage)
-					return Module.Read (this, (type, reader) => reader.HasProperties (type));
-
-				return false;
+				return HasImage && Module.Read (this, (type, reader) => reader.HasProperties (type));
 			}
 		}
 
@@ -273,13 +233,13 @@ namespace Mono.Cecil {
 					return properties;
 
 				if (HasImage)
-					/*Telerik Authorship*/
 					return Module.Read (ref properties, this, (type, reader) => reader.ReadProperties (type));
 
 				return properties = new MemberDefinitionCollection<PropertyDefinition> (this);
 			}
 		}
 
+		/*Telerik Authorship*/
 		private bool? hasSecurityDeclarations;
 		public bool HasSecurityDeclarations
 		{
@@ -298,10 +258,10 @@ namespace Mono.Cecil {
 		}
 
 		public Collection<SecurityDeclaration> SecurityDeclarations {
-			/*Telerik Authorship*/
 			get { return security_declarations ?? (this.GetSecurityDeclarations (ref security_declarations, Module)); }
 		}
 
+		/*Telerik Authorship*/
 		private bool? hasCustomAttributes;
 		public bool HasCustomAttributes {
 			get {
@@ -318,10 +278,10 @@ namespace Mono.Cecil {
 		}
 
 		public Collection<CustomAttribute> CustomAttributes {
-			/*Telerik Authorship*/
 			get { return custom_attributes ?? (this.GetCustomAttributes (ref custom_attributes, Module)); }
 		}
 
+		/*Telerik Authorship*/
 		private bool? hasGenericParameters;
 		public override bool HasGenericParameters
 		{
@@ -340,7 +300,6 @@ namespace Mono.Cecil {
 		}
 
 		public override Collection<GenericParameter> GenericParameters {
-			/*Telerik Authorship*/
 			get { return generic_parameters ?? (this.GetGenericParameters (ref generic_parameters, Module)); }
 		}
 
@@ -471,94 +430,94 @@ namespace Mono.Cecil {
 			set { attributes = attributes.SetAttributes ((uint) TypeAttributes.HasSecurity, value); }
 		}
 
-        /*Telerik Authorship*/
-        public bool IsStaticClass
-        {
-            get 
-            {
-                if (isStatic == null)
-                {
-                    if (IsClass)
-                    {
-                        if (IsAbstract && IsSealed)
-                        {
-                            // Static class compiled with C# compiler
-                            isStatic = true;
-                        }
-                        else if (this.CustomAttributes.Any(a => a.AttributeType.FullName == "Microsoft.VisualBasic.CompilerServices.StandardModuleAttribute"))
-                        {
-                            // Static class compiled with VB.NET compiler aka Module
-                            isStatic = true;
-                        }
+		/*Telerik Authorship*/
+		public bool IsStaticClass
+		{
+			get 
+			{
+				if (isStatic == null)
+				{
+					if (IsClass)
+					{
+						if (IsAbstract && IsSealed)
+						{
+							// Static class compiled with C# compiler
+							isStatic = true;
+						}
+						else if (this.CustomAttributes.Any(a => a.AttributeType.FullName == "Microsoft.VisualBasic.CompilerServices.StandardModuleAttribute"))
+						{
+							// Static class compiled with VB.NET compiler aka Module
+							isStatic = true;
+						}
 
-                        // Also, static classes does not have instance constructor (.ctor). This can be added if needed.
-                    }
+						// Also, static classes does not have instance constructor (.ctor). This can be added if needed.
+					}
 
-                    if (isStatic == null)
-                    {
-                        isStatic = false;
-                    }
-                }
+					if (isStatic == null)
+					{
+						isStatic = false;
+					}
+				}
 
-                return isStatic.Value;
-            }
-        }
+				return isStatic.Value;
+			}
+		}
 		#endregion
 
 		public bool IsEnum {
 			get { return base_type != null && base_type.IsTypeOf ("System", "Enum"); }
 		}
 
-        /*Telerik Authorship*/
-        public bool IsDefaultEnum
-        {
-            get 
-            {
-                if (IsEnum == false)
-                {
-                    return false;
-                }
-                if (isdefaultenum == null)
-                {
-                    isdefaultenum = IsDefaultEnumType && IsDefaultEnumConstants;
-                }
-                return isdefaultenum ?? false;
-            }
-        }
+		/*Telerik Authorship*/
+		public bool IsDefaultEnum
+		{
+			get 
+			{
+				if (IsEnum == false)
+				{
+					return false;
+				}
+				if (isdefaultenum == null)
+				{
+					isdefaultenum = IsDefaultEnumType && IsDefaultEnumConstants;
+				}
+				return isdefaultenum ?? false;
+			}
+		}
 
-        /*Telerik Authorship*/
-        public bool IsDefaultEnumType
-        {
-            get 
-            {
-                if (IsEnum == false)
-                {
-                    return false;
-                }
-                return CheckDefaultEnumValueType();
-            }
-        }
+		/*Telerik Authorship*/
+		public bool IsDefaultEnumType
+		{
+			get 
+			{
+				if (IsEnum == false)
+				{
+					return false;
+				}
+				return CheckDefaultEnumValueType();
+			}
+		}
 
-        /*Telerik Authorship*/
-        public bool IsDefaultEnumConstants
-        {
-            get 
-            {
-                if (IsEnum == false)
-                {
-                    return false;
-                }
-                return CheckDefaultEnumConstants();
-            }
-        }
+		/*Telerik Authorship*/
+		public bool IsDefaultEnumConstants
+		{
+			get 
+			{
+				if (IsEnum == false)
+				{
+					return false;
+				}
+				return CheckDefaultEnumConstants();
+			}
+		}
 
-        /*Telerik Authorship*/
-        private bool CheckDefaultEnumConstants()
-        {
-            for (int i = 1; i < Fields.Count; i++)
-            {
-                switch (Fields[0].FieldType.Name)
-                {
+		/*Telerik Authorship*/
+		private bool CheckDefaultEnumConstants()
+		{
+			for (int i = 1; i < Fields.Count; i++)
+			{
+				switch (Fields[0].FieldType.Name)
+				{
 					case "Byte":
 						if ((byte)Fields[i].Constant.Value != (byte)(i - 1))
 						{
@@ -566,23 +525,23 @@ namespace Mono.Cecil {
 						}
 						break;
 					case "Int16":
-                        if ((short)Fields[i].Constant.Value != (short)(i - 1))
-                        {
-                            return false;
-                        }
-                        break;
-                    case "Int32":
-                        if ((int)Fields[i].Constant.Value != (i - 1))
-                        {
-                            return false;
-                        }
-                        break;
-                    case "Int64":
-                        if ((long)Fields[i].Constant.Value != (long)(i - 1))
-                        {
-                            return false;
-                        }
-                        break;
+						if ((short)Fields[i].Constant.Value != (short)(i - 1))
+						{
+							return false;
+						}
+						break;
+					case "Int32":
+						if ((int)Fields[i].Constant.Value != (i - 1))
+						{
+							return false;
+						}
+						break;
+					case "Int64":
+						if ((long)Fields[i].Constant.Value != (long)(i - 1))
+						{
+							return false;
+						}
+						break;
 					case "SByte":
 						if ((sbyte)Fields[i].Constant.Value != (sbyte)(i - 1))
 						{
@@ -590,40 +549,40 @@ namespace Mono.Cecil {
 						}
 						break;
 					case "UInt16":
-                        if ((ushort)Fields[i].Constant.Value != (ushort)(i - 1))
-                        {
-                            return false;
-                        }
-                        break;
-                    case "UInt32":
-                        if ((uint)Fields[i].Constant.Value != (uint)(i - 1))
-                        {
-                            return false;
-                        }
-                        break;
-                    case "UInt64":
-                        if ((ulong)Fields[i].Constant.Value != (ulong)(i - 1))
-                        {
-                            return false;
-                        }
-                        break;
+						if ((ushort)Fields[i].Constant.Value != (ushort)(i - 1))
+						{
+							return false;
+						}
+						break;
+					case "UInt32":
+						if ((uint)Fields[i].Constant.Value != (uint)(i - 1))
+						{
+							return false;
+						}
+						break;
+					case "UInt64":
+						if ((ulong)Fields[i].Constant.Value != (ulong)(i - 1))
+						{
+							return false;
+						}
+						break;
 					default:
 						return false;
 				}
-            }
-            return true;
-        }
+			}
+			return true;
+		}
 
-        /*Telerik Authorship*/
-        private bool CheckDefaultEnumValueType()
-        {
-            if (Fields[0].FieldType.Name != "Int32")
-            {
-                return false;
-            }
-            return true;
-        }
-		
+		/*Telerik Authorship*/
+		private bool CheckDefaultEnumValueType()
+		{
+			if (Fields[0].FieldType.Name != "Int32")
+			{
+				return false;
+			}
+			return true;
+		}
+
 		public override bool IsValueType {
 			get {
 				if (base_type == null)
@@ -676,7 +635,7 @@ namespace Mono.Cecil {
 		{
 			return this;
 		}
-		
+
 		/*Telerik Authorship*/
 		public event PropertyChangedEventHandler PropertyChanged = delegate { };
 	}
@@ -697,7 +656,7 @@ namespace Mono.Cecil {
 			throw new ArgumentException ();
 		}
 
-		public static TypeDefinition GetNestedType (this TypeDefinition self, string name)
+		public static TypeDefinition GetNestedType (this TypeDefinition self, string fullname)
 		{
 			if (!self.HasNestedTypes)
 				return null;
@@ -706,20 +665,9 @@ namespace Mono.Cecil {
 
 			for (int i = 0; i < nested_types.Count; i++) {
 				var nested_type = nested_types [i];
-				if (nested_type.Name == name)
-				{
-					return nested_type;
-				}
-				/*Telerik Authorship*/
-				else if (nested_type.Namespace != string.Empty && nested_type.Namespace.StartsWith("<"))
-				{
-					string combinedName = nested_type.Namespace + "." + nested_type.Name;
 
-					if (combinedName == name)
-					{
-						return nested_type;
-					}
-				}
+				if (nested_type.TypeFullName () == fullname)
+					return nested_type;
 			}
 
 			return null;

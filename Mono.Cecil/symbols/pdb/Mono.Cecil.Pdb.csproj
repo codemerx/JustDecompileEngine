@@ -1,65 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\Mono.Cecil.settings" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">net_4_0_Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{63E6915C-7EA4-4D76-AB28-0D7191EEA626}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Mono.Cecil.Pdb</RootNamespace>
+    <!--Telerik Authorship-->
     <AssemblyName>Telerik.JustDecompile.Mono.Cecil.Pdb</AssemblyName>
-    <FileAlignment>512</FileAlignment>
     <NoWarn>0649</NoWarn>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
-    <TargetFrameworkProfile />
   </PropertyGroup>
+  <!--Telerik Authorship-->
   <PropertyGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' And '$(Configuration)' != 'Debug JustAssembly' And '$(Configuration)' != 'Release JustAssembly' ">
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../../../JDKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_2_0_Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\UI\DebugBuild\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+  <!--Telerik Authorship-->
+  <PropertyGroup Condition=" $(Configuration.EndsWith('Debug')) ">
+	<OutputPath>..\..\..\..\UI\DebugBuild\</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_2_0_Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\..\..\UI\ReleaseBuild\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+  <!--Telerik Authorship-->
+  <PropertyGroup Condition=" $(Configuration.EndsWith('Release')) ">
+	<OutputPath>..\..\..\..\UI\ReleaseBuild\</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_3_5_Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\UI\DebugBuild\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NET_3_5</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_3_5_Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\..\..\UI\ReleaseBuild\</OutputPath>
-    <DefineConstants>TRACE;NET_3_5</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-  </PropertyGroup>
+  <!--Telerik Authorship-->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_3_5_ReleaseServer|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
@@ -69,25 +35,7 @@
     <WarningLevel>4</WarningLevel>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_4_0_Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\UI\DebugBuild\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NET_3_5;NET_4_0</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_4_0_Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\..\..\UI\ReleaseBuild\</OutputPath>
-    <DefineConstants>TRACE;NET_3_5;NET_4_0</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-  </PropertyGroup>
+  <!--Telerik Authorship-->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug EngineOnly|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\..\..\ConsoleRunner\bin\Debug\</OutputPath>
@@ -98,6 +46,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <!--Telerik Authorship-->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release EngineOnly|AnyCPU'">
     <OutputPath>..\..\..\ConsoleRunner\bin\Release\</OutputPath>
     <DefineConstants>TRACE;NET_3_5;NET_4_0;ENGINEONLYBUILD</DefineConstants>
@@ -108,6 +57,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <!--Telerik Authorship-->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug JustAssembly|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\..\..\..\UI\DebugBuild\</OutputPath>
@@ -118,6 +68,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <!--Telerik Authorship-->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release JustAssembly|AnyCPU'">
     <OutputPath>..\..\..\..\UI\ReleaseBuild\</OutputPath>
     <DefineConstants>TRACE;NET_3_5;NET_4_0;JUSTASSEMBLY</DefineConstants>
@@ -128,6 +79,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <!--Telerik Authorship-->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release Server JustAssembly|AnyCPU'">
     <OutputPath>..\..\..\..\UI\ReleaseBuild\</OutputPath>
     <DefineConstants>TRACE;NET_3_5;NET_4_0;JUSTASSEMBLY</DefineConstants>
@@ -140,16 +92,19 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../../../BuildUtilities/JDKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFrameworkVersion)' != 'v2.0' ">
-    <Reference Include="System.Core" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\Mono.Cecil.csproj">
+      <Project>{D68133BD-1E63-496E-9EDE-4FBDBF77B486}</Project>
+      <Name>Mono.Cecil</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System" />
-  </ItemGroup>
-  <ItemGroup>
+    <!--Telerik Authorship-->
     <Compile Include="..\..\..\CommonVersionAssemblyInfo.cs">
       <Link>Mono.Cecil.Pdb\CommonVersionAssemblyInfo.cs</Link>
     </Compile>
+	
+    <Compile Include="..\..\ProjectInfo.cs" />
     <Compile Include="Microsoft.Cci.Pdb\BitAccess.cs" />
     <Compile Include="Microsoft.Cci.Pdb\BitSet.cs" />
     <Compile Include="Microsoft.Cci.Pdb\CvInfo.cs" />
@@ -173,6 +128,7 @@
     <Compile Include="Microsoft.Cci.Pdb\PdbScope.cs" />
     <Compile Include="Microsoft.Cci.Pdb\PdbSlot.cs" />
     <Compile Include="Microsoft.Cci.Pdb\PdbSource.cs" />
+    <Compile Include="Microsoft.Cci.Pdb\PdbTokenLine.cs" />
     <Compile Include="Microsoft.Cci.Pdb\SourceLocationProvider.cs" />
     <Compile Include="Mono.Cecil.Pdb\AssemblyInfo.cs" />
     <Compile Include="Mono.Cecil.Pdb\ISymUnmanagedDocumentWriter.cs" />
@@ -184,18 +140,5 @@
     <Compile Include="Mono.Cecil.Pdb\SymDocumentWriter.cs" />
     <Compile Include="Mono.Cecil.Pdb\SymWriter.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Mono.Cecil.csproj">
-      <Project>{D68133BD-1E63-496E-9EDE-4FBDBF77B486}</Project>
-      <Name>Mono.Cecil</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

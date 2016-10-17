@@ -1,29 +1,11 @@
 //
-// ModuleDefinition.cs
-//
 // Author:
 //   Jb Evain (jbevain@gmail.com)
 //
-// Copyright (c) 2008 - 2011 Jb Evain
+// Copyright (c) 2008 - 2015 Jb Evain
+// Copyright (c) 2008 - 2011 Novell, Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
-//
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Licensed under the MIT/X11 license.
 //
 
 using System;
@@ -31,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using SR = System.Reflection;
+/*Telerik Authorship*/
 using System.Linq;
 
 using Mono.Cecil.Cil;
@@ -84,21 +67,21 @@ namespace Mono.Cecil {
 			set { read_symbols = value; }
 		}
 
-        /*Telerik Authorship*/
+		/*Telerik Authorship*/
 		public ReaderParameters (IAssemblyResolver resolver)
 			: this (resolver, ReadingMode.Deferred)
 		{
 		}
 
-        /*Telerik Authorship*/
+		/*Telerik Authorship*/
 		public ReaderParameters (IAssemblyResolver resolver, ReadingMode readingMode)
 		{
-            /*Telerik Authorship*/
-            if (resolver == null)
-            {
-                throw new ArgumentNullException("resolver");
-            }
-            this.assembly_resolver = resolver;
+			/*Telerik Authorship*/
+			if (resolver == null)
+			{
+				throw new ArgumentNullException("resolver");
+			}
+			this.assembly_resolver = resolver;
 
 			this.reading_mode = readingMode;
 		}
@@ -142,7 +125,7 @@ namespace Mono.Cecil {
 		public ModuleParameters ()
 		{
 			this.kind = ModuleKind.Dll;
-			this.runtime = GetCurrentRuntime ();
+			this.Runtime = GetCurrentRuntime ();
 			this.architecture = TargetArchitecture.I386;
 		}
 
@@ -218,6 +201,7 @@ namespace Mono.Cecil {
 		readonly MetadataReader reader;
 		readonly string fq_name;
 
+		internal string runtime_version;
 		internal ModuleKind kind;
 		TargetRuntime runtime;
 		TargetArchitecture architecture;
@@ -242,14 +226,14 @@ namespace Mono.Cecil {
 			get { return kind != ModuleKind.NetModule; }
 		}
 
-        /*TelerikAuthorship*/
-        public string FilePath 
-        {
-            get 
-            {
-                return Image.FileName;
-            }
-        }
+		/*TelerikAuthorship*/
+		public string FilePath 
+		{
+			get 
+			{
+				return Image.FileName;
+			}
+		}
 
 		public ModuleKind Kind {
 			get { return kind; }
@@ -258,7 +242,18 @@ namespace Mono.Cecil {
 
 		public TargetRuntime Runtime {
 			get { return runtime; }
-			set { runtime = value; }
+			set {
+				runtime = value;
+				runtime_version = runtime.RuntimeVersionString ();
+			}
+		}
+
+		public string RuntimeVersion {
+			get { return runtime_version; }
+			set {
+				runtime_version = value;
+				runtime = runtime_version.ParseRuntime ();
+			}
 		}
 
 		public TargetArchitecture Architecture {
@@ -280,15 +275,15 @@ namespace Mono.Cecil {
 			get { return fq_name; }
 		}
 
-        /*Telerik Authorship*/
-        string directoryPath;
-        public string ModuleDirectoryPath
-        {
-            get
-            {
-                return directoryPath ?? (directoryPath = Path.GetDirectoryName(fq_name));
-            }
-        }
+		/*Telerik Authorship*/
+		string directoryPath;
+		public string ModuleDirectoryPath
+		{
+			get
+			{
+				return directoryPath ?? (directoryPath = Path.GetDirectoryName(fq_name));
+			}
+		}
 
 		public Guid Mvid {
 			get { return mvid; }
@@ -319,22 +314,25 @@ namespace Mono.Cecil {
 
 #if !READ_ONLY
 		internal MetadataImporter MetadataImporter {
-			/*Telerik Authorship*/
 			get {
 				if (importer == null)
 					Interlocked.CompareExchange (ref importer, new MetadataImporter (this), null);
+
 				return importer;
 			}
 		}
 #endif
 
 		public IAssemblyResolver AssemblyResolver {
-            /*Telerik Authorship*/
-			get { return assembly_resolver ?? (assembly_resolver = GlobalAssemblyResolver.Instance); }
+			get {
+				if (assembly_resolver == null)
+					Interlocked.CompareExchange (ref assembly_resolver, /*Telerik Authorship*/ GlobalAssemblyResolver.Instance, null);
+
+				return assembly_resolver;
+			}
 		}
 
 		public IMetadataResolver MetadataResolver {
-			/*Telerik Authorship*/
 			get {
 				if (metadata_resolver == null)
 					Interlocked.CompareExchange (ref metadata_resolver, new MetadataResolver (this.AssemblyResolver), null);
@@ -344,10 +342,10 @@ namespace Mono.Cecil {
 		}
 
 		public TypeSystem TypeSystem {
-			/*Telerik Authorship*/
 			get {
 				if (type_system == null)
 					Interlocked.CompareExchange (ref type_system, TypeSystem.CreateTypeSystem (this), null);
+
 				return type_system;
 			}
 		}
@@ -367,7 +365,7 @@ namespace Mono.Cecil {
 					return references;
 
 				if (HasImage)
-					return references = Read (this, (_, reader) => reader.ReadAssemblyReferences ());
+					return Read (ref references, this, (_, reader) => reader.ReadAssemblyReferences ());
 
 				return references = new Collection<AssemblyNameReference> ();
 			}
@@ -388,7 +386,6 @@ namespace Mono.Cecil {
 					return modules;
 
 				if (HasImage)
-					/*Telerik Authorship*/
 					return Read (ref modules, this, (_, reader) => reader.ReadModuleReferences ());
 
 				return modules = new Collection<ModuleReference> ();
@@ -413,28 +410,29 @@ namespace Mono.Cecil {
 					return resources;
 
 				if (HasImage)
-					/*Telerik Authorship*/
 					return Read (ref resources, this, (_, reader) => reader.ReadResources ());
 
 				return resources = new Collection<Resource> ();
 			}
 		}
 
+		/*Telerik Authorship*/
 		private bool? hasCustomAttributes;
 		public bool HasCustomAttributes {
 			get {
 				if (custom_attributes != null)
 					return custom_attributes.Count > 0;
 
+				/*Telerik Authorship*/
 				if (hasCustomAttributes != null)
 					return hasCustomAttributes == true;
 
+				/*Telerik Authorship*/
 				return this.GetHasCustomAttributes (ref hasCustomAttributes, this);
 			}
 		}
 
 		public Collection<CustomAttribute> CustomAttributes {
-			/*Telerik Authorship*/
 			get { return custom_attributes ?? (this.GetCustomAttributes (ref custom_attributes, this)); }
 		}
 
@@ -453,7 +451,6 @@ namespace Mono.Cecil {
 					return types;
 
 				if (HasImage)
-					/*Telerik Authorship*/
 					return Read (ref types, this, (_, reader) => reader.ReadTypes ());
 
 				return types = new TypeDefinitionCollection (this);
@@ -532,7 +529,6 @@ namespace Mono.Cecil {
 					return exported_types;
 
 				if (HasImage)
-					/*Telerik Authorship*/
 					return Read (ref exported_types, this, (_, reader) => reader.ReadExportedTypes ());
 
 				return exported_types = new Collection<ExportedType> ();
@@ -545,7 +541,6 @@ namespace Mono.Cecil {
 					return entry_point;
 
 				if (HasImage)
-					/*Telerik Authorship*/
 					return Read (ref entry_point, this, (_, reader) => reader.ReadEntryPoint ());
 
 				return entry_point = null;
@@ -553,7 +548,7 @@ namespace Mono.Cecil {
 			set { entry_point = value; }
 		}
 
-		internal ModuleDefinition (/*Telerik Authorship*/IAssemblyResolver resolver)
+		internal ModuleDefinition (/*Telerik Authorship*/ IAssemblyResolver resolver)
 		{
 			this.MetadataSystem = new MetadataSystem ();
 			this.token = new MetadataToken (TokenType.Module, 1);
@@ -562,12 +557,12 @@ namespace Mono.Cecil {
 			this.assembly_resolver = resolver;
 		}
 
-		internal ModuleDefinition (Image image, IAssemblyResolver resolver)
-			: this (resolver)
+		internal ModuleDefinition (Image image, /*Telerik Authorship*/ IAssemblyResolver resolver)
+			: this(/*Telerik Authorship*/ resolver)
 		{
 			this.Image = image;
 			this.kind = image.Kind;
-			this.runtime = image.Runtime;
+			this.RuntimeVersion = image.RuntimeVersion;
 			this.architecture = image.Architecture;
 			this.attributes = image.Attributes;
 			this.characteristics = image.Characteristics;
@@ -751,89 +746,57 @@ namespace Mono.Cecil {
 				throw new ArgumentException ();
 		}
 
+		static ImportGenericContext GenericContextFor (IGenericParameterProvider context)
+		{
+			return context != null ? new ImportGenericContext (context) : default (ImportGenericContext);
+		}
+
 #if !CF
+
 		public TypeReference Import (Type type)
 		{
-			CheckType (type);
-
-			return MetadataImporter.ImportType (type, null, ImportGenericKind.Definition);
+			return Import (type, null);
 		}
 
-		public TypeReference Import (Type type, TypeReference context)
-		{
-			return Import (type, (IGenericParameterProvider) context);
-		}
-
-		public TypeReference Import (Type type, MethodReference context)
-		{
-			return Import (type, (IGenericParameterProvider) context);
-		}
-
-		TypeReference Import (Type type, IGenericParameterProvider context)
+		public TypeReference Import (Type type, IGenericParameterProvider context)
 		{
 			CheckType (type);
 			CheckContext (context, this);
 
 			return MetadataImporter.ImportType (
 				type,
-				(IGenericContext) context,
-				context != null
-					? ImportGenericKind.Open
-					: ImportGenericKind.Definition);
+				GenericContextFor (context),
+				context != null ? ImportGenericKind.Open : ImportGenericKind.Definition);
 		}
 
 		public FieldReference Import (SR.FieldInfo field)
 		{
-			CheckField (field);
-
-			return MetadataImporter.ImportField (field, null);
+			return Import (field, null);
 		}
 
-		public FieldReference Import (SR.FieldInfo field, TypeReference context)
-		{
-			return Import (field, (IGenericParameterProvider) context);
-		}
-
-		public FieldReference Import (SR.FieldInfo field, MethodReference context)
-		{
-			return Import (field, (IGenericParameterProvider) context);
-		}
-
-		FieldReference Import (SR.FieldInfo field, IGenericParameterProvider context)
+		public FieldReference Import (SR.FieldInfo field, IGenericParameterProvider context)
 		{
 			CheckField (field);
 			CheckContext (context, this);
 
-			return MetadataImporter.ImportField (field, (IGenericContext) context);
+			return MetadataImporter.ImportField (field, GenericContextFor (context));
 		}
 
 		public MethodReference Import (SR.MethodBase method)
 		{
 			CheckMethod (method);
 
-			return MetadataImporter.ImportMethod (method, null, ImportGenericKind.Definition);
+			return MetadataImporter.ImportMethod (method, default (ImportGenericContext), ImportGenericKind.Definition);
 		}
 
-		public MethodReference Import (SR.MethodBase method, TypeReference context)
-		{
-			return Import (method, (IGenericParameterProvider) context);
-		}
-
-		public MethodReference Import (SR.MethodBase method, MethodReference context)
-		{
-			return Import (method, (IGenericParameterProvider) context);
-		}
-
-		MethodReference Import (SR.MethodBase method, IGenericParameterProvider context)
+		public MethodReference Import (SR.MethodBase method, IGenericParameterProvider context)
 		{
 			CheckMethod (method);
 			CheckContext (context, this);
 
 			return MetadataImporter.ImportMethod (method,
-				(IGenericContext) context,
-				context != null
-					? ImportGenericKind.Open
-					: ImportGenericKind.Definition);
+				GenericContextFor (context),
+				context != null ? ImportGenericKind.Open : ImportGenericKind.Definition);
 		}
 #endif
 
@@ -844,20 +807,10 @@ namespace Mono.Cecil {
 			if (type.Module == this)
 				return type;
 
-			return MetadataImporter.ImportType (type, null);
+			return MetadataImporter.ImportType (type, default (ImportGenericContext));
 		}
 
-		public TypeReference Import (TypeReference type, TypeReference context)
-		{
-			return Import (type, (IGenericParameterProvider) context);
-		}
-
-		public TypeReference Import (TypeReference type, MethodReference context)
-		{
-			return Import (type, (IGenericParameterProvider) context);
-		}
-
-		TypeReference Import (TypeReference type, IGenericParameterProvider context)
+		public TypeReference Import (TypeReference type, IGenericParameterProvider context)
 		{
 			CheckType (type);
 
@@ -866,7 +819,7 @@ namespace Mono.Cecil {
 
 			CheckContext (context, this);
 
-			return MetadataImporter.ImportType (type, (IGenericContext) context);
+			return MetadataImporter.ImportType (type, GenericContextFor (context));
 		}
 
 		public FieldReference Import (FieldReference field)
@@ -876,20 +829,10 @@ namespace Mono.Cecil {
 			if (field.Module == this)
 				return field;
 
-			return MetadataImporter.ImportField (field, null);
+			return MetadataImporter.ImportField (field, default (ImportGenericContext));
 		}
 
-		public FieldReference Import (FieldReference field, TypeReference context)
-		{
-			return Import (field, (IGenericParameterProvider) context);
-		}
-
-		public FieldReference Import (FieldReference field, MethodReference context)
-		{
-			return Import (field, (IGenericParameterProvider) context);
-		}
-
-		FieldReference Import (FieldReference field, IGenericParameterProvider context)
+		public FieldReference Import (FieldReference field, IGenericParameterProvider context)
 		{
 			CheckField (field);
 
@@ -898,30 +841,15 @@ namespace Mono.Cecil {
 
 			CheckContext (context, this);
 
-			return MetadataImporter.ImportField (field, (IGenericContext) context);
+			return MetadataImporter.ImportField (field, GenericContextFor (context));
 		}
 
 		public MethodReference Import (MethodReference method)
 		{
-			CheckMethod (method);
-
-			if (method.Module == this)
-				return method;
-
-			return MetadataImporter.ImportMethod (method, null);
+			return Import (method, null);
 		}
 
-		public MethodReference Import (MethodReference method, TypeReference context)
-		{
-			return Import (method, (IGenericParameterProvider) context);
-		}
-
-		public MethodReference Import (MethodReference method, MethodReference context)
-		{
-			return Import (method, (IGenericParameterProvider) context);
-		}
-
-		MethodReference Import (MethodReference method, IGenericParameterProvider context)
+		public MethodReference Import (MethodReference method, IGenericParameterProvider context)
 		{
 			CheckMethod (method);
 
@@ -930,7 +858,7 @@ namespace Mono.Cecil {
 
 			CheckContext (context, this);
 
-			return MetadataImporter.ImportMethod (method, (IGenericContext) context);
+			return MetadataImporter.ImportMethod (method, GenericContextFor (context));
 		}
 
 #endif
@@ -945,19 +873,15 @@ namespace Mono.Cecil {
 			return Read (token, (t, reader) => reader.LookupToken (t));
 		}
 
-		/*Telerik Authorship*/
 		readonly object module_lock = new object();
 
-		/*Telerik Authorship*/
 		internal object SyncRoot {
 			get { return module_lock; }
 		}
 
 		internal TRet Read<TItem, TRet> (TItem item, Func<TItem, MetadataReader, TRet> read)
 		{
-			/*Telerik Authorship*/
 			lock (module_lock) {
-
 				var position = reader.position;
 				var context = reader.context;
 
@@ -970,14 +894,11 @@ namespace Mono.Cecil {
 			}
 		}
 
-		/*Telerik Authorship*/
-		internal TRet Read<TItem, TRet> (ref TRet variable, TItem item, Func<TItem, MetadataReader, TRet> read)
+		internal TRet Read<TItem, TRet> (ref TRet variable, TItem item, Func<TItem, MetadataReader, TRet> read) /*Telerik Authorship*/ // where TRet : class
 		{
 			lock (module_lock) {
 				if (variable != null)
-				{
 					return variable;
-				}
 
 				var position = reader.position;
 				var context = reader.context;
@@ -1034,7 +955,7 @@ namespace Mono.Cecil {
 			var module = new ModuleDefinition (GlobalAssemblyResolver.Instance) {
 				Name = name,
 				kind = parameters.Kind,
-				runtime = parameters.Runtime,
+				Runtime = parameters.Runtime,
 				architecture = parameters.Architecture,
 				mvid = Guid.NewGuid (),
 				Attributes = ModuleAttributes.ILOnly,
@@ -1095,17 +1016,17 @@ namespace Mono.Cecil {
 			ProcessDebugHeader ();
 		}
 
-        /*Telerik Authorship*/
-        //public static ModuleDefinition ReadModule (string fileName)
-        //{
-        //    return ReadModule (fileName, new ReaderParameters (ReadingMode.Deferred));
-        //}
+		/*Telerik Authorship*/
+		//public static ModuleDefinition ReadModule (string fileName)
+		//{
+		//    return ReadModule (fileName, new ReaderParameters (ReadingMode.Deferred));
+		//}
 
-        /*Telerik Authorship*/
-        //public static ModuleDefinition ReadModule (Stream stream)
-        //{
-        //    return ReadModule (stream, new ReaderParameters (ReadingMode.Deferred));
-        //}
+		/*Telerik Authorship*/
+		//public static ModuleDefinition ReadModule (Stream stream)
+		//{
+		//    return ReadModule (stream, new ReaderParameters (ReadingMode.Deferred));
+		//}
 
 		public static ModuleDefinition ReadModule (string fileName, ReaderParameters parameters)
 		{
@@ -1221,6 +1142,21 @@ namespace Mono.Cecil {
 			case '4':
 			default:
 				return TargetRuntime.Net_4_0;
+			}
+		}
+
+		public static string RuntimeVersionString (this TargetRuntime runtime)
+		{
+			switch (runtime) {
+			case TargetRuntime.Net_1_0:
+				return "v1.0.3705";
+			case TargetRuntime.Net_1_1:
+				return "v1.1.4322";
+			case TargetRuntime.Net_2_0:
+				return "v2.0.50727";
+			case TargetRuntime.Net_4_0:
+			default:
+				return "v4.0.30319";
 			}
 		}
 	}

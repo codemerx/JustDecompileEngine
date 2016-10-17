@@ -454,7 +454,7 @@ namespace Telerik.JustDecompiler.Languages
 
 		private void WriteReference(TypeReference reference)
 		{
-			if (reference.DeclaringType != null)
+			if (reference.DeclaringType != null && !reference.IsGenericParameter)
 			{
 				TypeReference declaringType = reference.DeclaringType;
 				if (reference.IsGenericInstance)
@@ -3146,7 +3146,7 @@ namespace Telerik.JustDecompiler.Languages
 
 		public virtual void WriteGenericReference(TypeReference type)
 		{
-			if (type.IsNested)
+			if (type.IsNested && !type.IsGenericParameter)
 			{
 				WriteGenericReference(type.DeclaringType);
 				WriteToken(".");

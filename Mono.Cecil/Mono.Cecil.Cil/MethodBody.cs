@@ -1,35 +1,17 @@
 //
-// MethodBody.cs
-//
 // Author:
 //   Jb Evain (jbevain@gmail.com)
 //
-// Copyright (c) 2008 - 2011 Jb Evain
+// Copyright (c) 2008 - 2015 Jb Evain
+// Copyright (c) 2008 - 2011 Novell, Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
-//
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Licensed under the MIT/X11 license.
 //
 
 using System;
+using System.Threading;
 
 using Mono.Collections.Generic;
-using System.Threading;
 
 namespace Mono.Cecil.Cil {
 
@@ -96,33 +78,29 @@ namespace Mono.Cecil.Cil {
 			set { scope = value; }
 		}
 
-		public ParameterDefinition ThisParameter
-		{
-			get
-			{
+		public ParameterDefinition ThisParameter {
+			get {
 				if (method == null || method.DeclaringType == null)
-					throw new NotSupportedException();
+					throw new NotSupportedException ();
 
 				if (!method.HasThis)
 					return null;
 
-				/*Telerik Authorship*/
 				if (this_parameter == null)
-					Interlocked.CompareExchange(ref this_parameter, ThisParameterFor(method), null);
+					Interlocked.CompareExchange (ref this_parameter, CreateThisParameter (method), null);
 
 				return this_parameter;
 			}
 		}
 
-		/*Telerik Authorship*/
-		static ParameterDefinition ThisParameterFor(MethodDefinition method)
+		static ParameterDefinition CreateThisParameter (MethodDefinition method)
 		{
 			var declaring_type = method.DeclaringType;
 			var type = declaring_type.IsValueType || declaring_type.IsPrimitive
-				? new PointerType(declaring_type)
+				? new PointerType (declaring_type)
 				: declaring_type as TypeReference;
 
-			return new ParameterDefinition(type, method);
+			return new ParameterDefinition (type, method);
 		}
 
 		public MethodBody (MethodDefinition method)
