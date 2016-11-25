@@ -398,6 +398,7 @@
     <Compile Include="Languages\WritingInfo.cs" />
     <Compile Include="Languages\VisualBasic\VisualBasicAssemblyAttributeWriter.cs" />
     <Compile Include="Mono.Cecil.Extensions\GenericHelper.cs" />
+    <Compile Include="Mono.Cecil.Extensions\IGenericParameterProviderExtensions.cs" />
     <Compile Include="Mono.Cecil.Extensions\ImplementedMember.cs" />
     <Compile Include="Mono.Cecil.Extensions\SecurityDeclarationExtensions.cs" />
     <Compile Include="Steps\AssignOutParametersStep.cs" />

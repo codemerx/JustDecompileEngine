@@ -331,6 +331,15 @@ namespace Mono.Cecil {
 
 			return module.Resolve (this);
 		}
+
+		/*Telerik Authorship*/
+		public virtual bool IsConstructor
+		{
+			get
+			{
+				return this.Name == ".cctor" || this.Name == ".ctor";
+			}
+		}
 	}
 
 	static partial class Mixin {

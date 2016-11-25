@@ -496,11 +496,12 @@ namespace Mono.Cecil {
 			set { base.DeclaringType = value; }
 		}
 
-		public bool IsConstructor {
+		public /*Telerik Authorship*/ override bool IsConstructor {
 			get {
 				return this.IsRuntimeSpecialName
 					&& this.IsSpecialName
-					&& (this.Name == ".cctor" || this.Name == ".ctor");
+					/*Telerik Authorship*/
+					&& base.IsConstructor;
 			}
 		}
 

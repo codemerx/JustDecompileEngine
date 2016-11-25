@@ -4691,8 +4691,14 @@ namespace Telerik.JustDecompiler.Languages
 
 		private void WriteMethodReferenceNavigationName(MethodReference method)
 		{
-			string name = GenericHelper.GetNonGenericName(method.Name);
-			string[] nameParts = name.Split(new char[] { '.' });
+			string name = method.Name;
+			bool writeAsConstructor = method.IsConstructor && method.DeclaringType != null;
+			if (writeAsConstructor)
+			{
+				name = method.DeclaringType.Name;
+			}
+
+			string[] nameParts = GenericHelper.GetNonGenericName(name).Split(new char[] { '.' });
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < nameParts.Length; i++)
 			{
@@ -4738,9 +4744,12 @@ namespace Telerik.JustDecompiler.Languages
 			}
 			this.formatter.Write(")");
 
-			this.formatter.Write(" : ");
+			if (!writeAsConstructor)
+			{
+				this.formatter.Write(" : ");
 
-			WriteTypeReferenceNavigationName(method.FixedReturnType);
+				WriteTypeReferenceNavigationName(method.FixedReturnType);
+			}
 		}
 
 		private bool NormalizeNameIfContainingGenericSymbols(string name, StringBuilder stringBuilder)
