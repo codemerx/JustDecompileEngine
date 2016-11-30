@@ -41,5 +41,6 @@ namespace Telerik.JustDecompiler.Languages
         void WriteMemberEscapedOnlyName(object memberDefinition);
 		void WriteMemberNavigationPathFullName(object member);
         void WriteNamespaceNavigationName(string memberDefinition);
-    }
+		void WriteEscapeLiteral(string literal);
+	}
 }

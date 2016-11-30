@@ -1050,7 +1050,7 @@ namespace Telerik.JustDecompiler.Languages
         {
         }
 
-        protected virtual void WriteEscapeLiteral(string literal)
+        public virtual void WriteEscapeLiteral(string literal)
         {
             formatter.WriteLiteral(OnConvertString(literal));
         }
