@@ -239,6 +239,24 @@ namespace Telerik.JustDecompiler.Languages
                     return true;
                 }
             }
-        }
+
+			public override HashSet<string> AttributesToHide
+			{
+				get
+				{
+					string[] attributesToHide = new string[] { "System.ParamArrayAttribute",
+															   "System.Runtime.CompilerServices.IteratorStateMachineAttribute",
+															   "Microsoft.VisualBasic.CompilerServices.StandardModuleAttribute",
+															   "Windows.Foundation.Metadata.ActivatableAttribute",
+															   "System.Runtime.CompilerServices.DynamicAttribute",
+															   "System.Runtime.CompilerServices.ExtensionAttribute",
+															   "System.Diagnostics.DebuggerStepThroughAttribute",
+															   "System.Runtime.CompilerServices.AsyncStateMachineAttribute",
+															   "System.Runtime.CompilerServices.CompilerGeneratedAttribute" };
+
+					return new HashSet<string>(attributesToHide);
+				}
+			}
+		}
     }
 }

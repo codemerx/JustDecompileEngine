@@ -277,5 +277,7 @@ namespace Telerik.JustDecompiler.Languages
         public abstract IVariablesToNotInlineFinder VariablesToNotInlineFinder { get; }
 
         public abstract bool HasDelegateSpecificSyntax { get; }
-    }
+
+		public abstract HashSet<string> AttributesToHide { get; }
+	}
 }

@@ -110,5 +110,7 @@ namespace Telerik.JustDecompiler.Languages
         bool IsValidLineStarter(CodeNodeType nodeType);
 
         bool HasDelegateSpecificSyntax { get; }
+
+		HashSet<string> AttributesToHide { get; }
     }
 }

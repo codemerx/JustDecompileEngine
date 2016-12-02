@@ -190,5 +190,13 @@ namespace Telerik.JustDecompiler.Languages.IL
                 return false;
             }
         }
-    }
+
+		public override HashSet<string> AttributesToHide
+		{
+			get
+			{
+				return new HashSet<string>();
+			}
+		}
+	}
 }
