@@ -188,6 +188,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             {
                 project.ToolsVersion = 14.0M;
             }
+            else if (this.visualStudioVersion == VisualStudioVersion.VS2017)
+            {
+                project.ToolsVersion = 15.0M;
+            }
             else
             {
                 throw new NotImplementedException();
@@ -955,7 +959,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             int i = 0;
             if (this.visualStudioVersion == VisualStudioVersion.VS2012 ||
                 this.visualStudioVersion == VisualStudioVersion.VS2013 ||
-                this.visualStudioVersion == VisualStudioVersion.VS2015)
+                this.visualStudioVersion == VisualStudioVersion.VS2015 ||
+                this.visualStudioVersion == VisualStudioVersion.VS2017)
             {
                 items = new object[items.Length + 1];
                 items[i++] = GenerateCommonPropsProjectImportProperty();

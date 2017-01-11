@@ -249,6 +249,9 @@ namespace JustDecompileCmdShell
                     case "2015":
                         visualStudioVersion = VisualStudioVersion.VS2015;
                         return true;
+                    case "2017":
+                        visualStudioVersion = VisualStudioVersion.VS2017;
+                        return true;
                     default:
                         isInvalidVisualStudioVersion = true;
                         break;

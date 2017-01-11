@@ -567,6 +567,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             {
                 visualStudioProductVersion = "14.0";
             }
+            else if (this.visualStudioVersion == VisualStudioVersion.VS2017)
+            {
+                visualStudioProductVersion = "15.0";
+            }
             else
             {
                 throw new NotSupportedException();
