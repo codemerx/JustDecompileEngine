@@ -900,14 +900,16 @@ namespace Mono.Cecil {
 			}
 			catch (Exception ex)
 			{
-				if (loadPdb && (ex.GetType().FullName == "Microsoft.Cci.Pdb.PdbException" /*Telerik Authorship*/|| ex.GetType().FullName == "Microsoft.Cci.Pdb.PdbDebugException"))
-				{
-					//// NOTE: There is no other way to catch a PdbException as it is internal!
+                if (loadPdb && (ex.GetType().FullName == "Microsoft.Cci.Pdb.PdbException" /*Telerik Authorship*/|| ex.GetType().FullName == "Microsoft.Cci.Pdb.PdbDebugException"))
+                {
+                    //// NOTE: There is no other way to catch a PdbException as it is internal!
 
-					var exception = new Exception(string.Format("Failed reading {0}\\{1}.pdb", Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath)), ex);
+                    var exception = new Exception(string.Format("Failed reading {0}\\{1}.pdb", Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath)), ex);
+                    AssemblyDefinitionFailure(this, exception);
+                }
 
-					AssemblyDefinitionFailure(this, exception);
-
+                if (loadPdb)
+                {
 					parameters.ReadSymbols = false;
 
 					return LoadAssemblyDefinition(filePath, parameters, false);
