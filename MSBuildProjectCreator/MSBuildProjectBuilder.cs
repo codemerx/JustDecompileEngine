@@ -1370,7 +1370,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
 			Guid guid = Guid.NewGuid();
 			modulesProjectsGuids.Add(assembly.MainModule, guid);
-            basicProjectProperties.ProjectGuid = "{" + guid.ToString() + "}";
+            basicProjectProperties.ProjectGuid = "{" + guid.ToString().ToUpper() + "}";
 
             if (this.visualStudioVersion == VisualStudioVersion.VS2010)
             {
