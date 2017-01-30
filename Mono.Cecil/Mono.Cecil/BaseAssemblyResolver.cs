@@ -906,14 +906,16 @@ namespace Mono.Cecil {
 
                     var exception = new Exception(string.Format("Failed reading {0}\\{1}.pdb", Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath)), ex);
                     AssemblyDefinitionFailure(this, exception);
-                }
-
-                if (loadPdb)
-                {
+                
 					parameters.ReadSymbols = false;
 
 					return LoadAssemblyDefinition(filePath, parameters, false);
 				}
+                else if (ex.Message == "Magic is wrong.")
+                {
+                    parameters.ReadSymbols = false;
+                    return LoadAssemblyDefinition(filePath, parameters, false);
+                }
 				else
 				{
 					var exception = new Exception(filePath, ex);
