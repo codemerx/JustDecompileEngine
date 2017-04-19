@@ -18,15 +18,15 @@
   </PropertyGroup>
   <!--Telerik Authorship-->
   <PropertyGroup Condition=" $(Configuration.EndsWith('Debug')) ">
-	<OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
   </PropertyGroup>
   <!--Telerik Authorship-->
   <PropertyGroup Condition=" $(Configuration.EndsWith('Release')) ">
-	<OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   <!--Telerik Authorship-->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_3_5_Release|AnyCPU' ">
-	<OutputPath>..\..\..\..\UI\ReleaseBuild\</OutputPath>
+    <OutputPath>..\..\..\..\UI\ReleaseBuild\</OutputPath>
   </PropertyGroup>
   <!--Telerik Authorship-->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_3_5_ReleaseServer|AnyCPU' ">
@@ -40,8 +40,9 @@
   </PropertyGroup>
   <!--Telerik Authorship-->
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'winphone_Release|AnyCPU' ">
-	<TargetFrameworkProfile></TargetFrameworkProfile>
-	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <!--Telerik Authorship-->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug EngineOnly|AnyCPU'">
@@ -106,21 +107,20 @@
     <Compile Include="Mono.Cecil.AssemblyResolver\AssemblyName.cs" />
     <Compile Include="Mono.Cecil.AssemblyResolver\AssemblyPathResolver.cs" />
     <Compile Include="Mono.Cecil.AssemblyResolver\AssemblyPathResolverCache.cs" />
+    <Compile Include="Mono.Cecil.AssemblyResolver\AssemblyStrongNameExtended.cs" />
+    <Compile Include="Mono.Cecil.AssemblyResolver\SpecialTypeAssembly.cs" />
     <Compile Include="Mono.Cecil\ConstantValue.cs" />
     <Compile Include="SmartAssembly.Attributes.cs" />
     <Compile Include="Mono.Cecil.AssemblyResolver\SystemInformation.cs" />
     <Compile Include="Mono.Cecil.AssemblyResolver\TargetPlatform.cs" />
     <Compile Include="Mono.Cecil.AssemblyResolver\UnresolvedAssembliesSet.cs" />
-    
     <Compile Include="Mono.Cecil.Cil\Code.cs" />
     <Compile Include="Mono.Cecil.Cil\CodeWriter.cs" />
     <Compile Include="Mono.Cecil.Cil\CodeReader.cs" />
     <Compile Include="Mono.Cecil.Cil\Document.cs" />
     <Compile Include="Mono.Cecil.Cil\ExceptionHandler.cs" />
-
     <!--Telerik Authorship-->
     <Compile Include="Mono.Cecil.Cil\IDynamicTypeContainer.cs" />
-    
     <Compile Include="Mono.Cecil.Cil\ILProcessor.cs" />
     <Compile Include="Mono.Cecil.Cil\Instruction.cs" />
     <Compile Include="Mono.Cecil.Cil\MethodBody.cs" />
@@ -130,12 +130,10 @@
     <Compile Include="Mono.Cecil.Cil\Symbols.cs" />
     <Compile Include="Mono.Cecil.Cil\VariableDefinition.cs" />
     <Compile Include="Mono.Cecil.Cil\VariableReference.cs" />
-
     <!--Telerik Authorship-->
     <Compile Include="Mono.Cecil.Extensions\AssemblyNameReferenceExtensions.cs" />
     <Compile Include="Mono.Cecil.Extensions\ModuleArchitectureExtensions.cs" />
     <Compile Include="Mono.Cecil.Extensions\ModuleDefinitionExtensions.cs" />
-    
     <Compile Include="Mono.Cecil.Metadata\BlobHeap.cs" />
     <Compile Include="Mono.Cecil.Metadata\Buffers.cs" />
     <Compile Include="Mono.Cecil.Metadata\CodedIndex.cs" />
@@ -171,12 +169,10 @@
     <Compile Include="Mono.Cecil\AssemblyWriter.cs" />
     <Compile Include="Mono.Cecil\BaseAssemblyResolver.cs" />
     <Compile Include="Mono.Cecil\CallSite.cs" />
-
     <!--Telerik Authorship-->
     <Compile Include="Mono.Cecil\IGenericDefinition.cs" />
     <Compile Include="Mono.Cecil\IVisibilityDefinition.cs" />
     <Compile Include="Mono.Cecil\ISecurityDeclarationMemberDefinition.cs" />
-    
     <Compile Include="Mono.Cecil\TypeParser.cs" />
     <Compile Include="Mono.Cecil\Import.cs" />
     <Compile Include="Mono.Collections.Generic\Collection.cs" />
@@ -256,7 +252,6 @@
     <Compile Include="Mono\Actions.cs" />
     <Compile Include="Mono\Empty.cs" />
     <Compile Include="Mono\Funcs.cs" />
-
     <!--Telerik Authorship-->
     <Compile Include="JustDecompileExtensions\NET4.0Extensions.cs" />
   </ItemGroup>

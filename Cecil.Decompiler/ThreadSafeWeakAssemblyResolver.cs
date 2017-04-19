@@ -54,11 +54,11 @@ namespace Telerik.JustDecompiler
             }
         }
 
-        protected override bool TryGetResolvedAssembly(string key, out List<AssemblyDefinition> assemblyList)
+        protected override bool TryGetResolvedAssembly(AssemblyStrongNameExtended assemblyKey, out List<AssemblyDefinition> assemblyList)
         {
             lock (this.resolvedAssembliesAccessLock)
             {
-                return base.TryGetResolvedAssembly(key, out assemblyList);
+                return base.TryGetResolvedAssembly(assemblyKey, out assemblyList);
             }
         }
 
@@ -70,7 +70,7 @@ namespace Telerik.JustDecompiler
             }
         }
 
-        protected override void RemoveFromResolvedAssemblies(string assemblyKey)
+        protected override void RemoveFromResolvedAssemblies(AssemblyStrongNameExtended assemblyKey)
         {
             lock (this.resolvedAssembliesAccessLock)
             {
@@ -78,7 +78,7 @@ namespace Telerik.JustDecompiler
             }
         }
 
-        protected override void AddToResolvedAssembliesInternal(string assemblyKey, List<AssemblyDefinition> assemblyList)
+        protected override void AddToResolvedAssembliesInternal(AssemblyStrongNameExtended assemblyKey, List<AssemblyDefinition> assemblyList)
         {
             lock (this.resolvedAssembliesAccessLock)
             {

@@ -1068,15 +1068,17 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
             ICollection<AssemblyNameReference> filteredDependingOnAssemblies = FilterDependingOnAssemblies(dependingOnAssemblies);
             int assemblyReferenceIndex = 0;
+            SpecialTypeAssembly special = module.IsReferenceAssembly() ? SpecialTypeAssembly.Reference : SpecialTypeAssembly.None;
             foreach (AssemblyNameReference reference in filteredDependingOnAssemblies)
             {
                 AssemblyName assemblyName = new AssemblyName(reference.Name,
                                                                 reference.FullName,
                                                                 reference.Version,
                                                                 reference.PublicKeyToken);
+                AssemblyStrongNameExtended assemblyKey = new AssemblyStrongNameExtended(assemblyName.FullName, module.Architecture, special);
 
-                string currentReferenceInitialLocation = this.currentAssemblyResolver.FindAssemblyPath(assemblyName, null);
-                AssemblyDefinition referencedAssembly = this.currentAssemblyResolver.Resolve(reference, "", assembly.MainModule.GetModuleArchitecture());
+                string currentReferenceInitialLocation = this.currentAssemblyResolver.FindAssemblyPath(assemblyName, null, assemblyKey);
+                AssemblyDefinition referencedAssembly = this.currentAssemblyResolver.Resolve(reference, "", assembly.MainModule.GetModuleArchitecture(), special);
                 result.Reference[assemblyReferenceIndex] = new ProjectItemGroupReference();
 #if NET35
 				if (!currentReferenceInitialLocation.IsNullOrWhiteSpace())

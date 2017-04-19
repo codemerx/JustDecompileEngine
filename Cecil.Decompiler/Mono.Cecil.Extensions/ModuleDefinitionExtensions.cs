@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Mono.Cecil.AssemblyResolver;
 using JustDecompile.SmartAssembly.Attributes;
 using Telerik.JustDecompiler.Common.NamespaceHierarchy;
 
@@ -41,7 +42,9 @@ namespace Mono.Cecil.Extensions
 
 			AssemblyNameReference assemblyRef = self.ReferencedMscorlibRef();
             IAssemblyResolver resolver = self.AssemblyResolver;
-			AssemblyDefinition a = resolver.Resolve(assemblyRef,"",self.GetModuleArchitecture());
+
+            SpecialTypeAssembly special = self.IsReferenceAssembly() ? SpecialTypeAssembly.Reference : SpecialTypeAssembly.None;
+            AssemblyDefinition a = resolver.Resolve(assemblyRef,"",self.GetModuleArchitecture(), special);
 			if (a != null)
 			{
 				return a.MainModule;

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Extensions;
+using Mono.Cecil.AssemblyResolver;
 using Telerik.JustDecompiler.Languages;
 using Telerik.JustDecompiler.Ast.Statements;
 using Telerik.JustDecompiler.Decompiler.Caching;
@@ -241,9 +242,11 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 			UpdateNamespaceHiearchyDataWithTypes(namespaceHierarchy, module.Types);
 
             Dictionary<AssemblyNameReference, List<TypeReference>> dependingOnAssembliesToUsedTypesMap = GetModuleDependsOnAnalysis(module);
-			foreach (AssemblyNameReference assemblyNameReference in dependingOnAssembliesToUsedTypesMap.Keys)
+
+            SpecialTypeAssembly special = module.IsReferenceAssembly() ? SpecialTypeAssembly.Reference : SpecialTypeAssembly.None;
+            foreach (AssemblyNameReference assemblyNameReference in dependingOnAssembliesToUsedTypesMap.Keys)
 			{
-				AssemblyDefinition referencedAssembly = module.AssemblyResolver.Resolve(assemblyNameReference, "", module.GetModuleArchitecture());
+				AssemblyDefinition referencedAssembly = module.AssemblyResolver.Resolve(assemblyNameReference, "", module.GetModuleArchitecture(), special);
 
 				if (referencedAssembly != null)
 				{
@@ -305,9 +308,11 @@ namespace Telerik.JustDecompiler.Decompiler.WriterContextServices
 			UpdateCollisionTypesDataWithTypes(collisionTypesData, typeNamesFirstOccurrence, module.Types);
 
             Dictionary<AssemblyNameReference, List<TypeReference>> dependingOnAssembliesToUsedTypesMap = GetModuleDependsOnAnalysis(module);
-			foreach (AssemblyNameReference assemblyNameReference in dependingOnAssembliesToUsedTypesMap.Keys)
+
+            SpecialTypeAssembly special = module.IsReferenceAssembly() ? SpecialTypeAssembly.Reference : SpecialTypeAssembly.None;
+            foreach (AssemblyNameReference assemblyNameReference in dependingOnAssembliesToUsedTypesMap.Keys)
 			{
-				AssemblyDefinition referencedAssembly = module.AssemblyResolver.Resolve(assemblyNameReference, "", module.GetModuleArchitecture());
+				AssemblyDefinition referencedAssembly = module.AssemblyResolver.Resolve(assemblyNameReference, "", module.GetModuleArchitecture(), special);
 
 				if (referencedAssembly != null)
 				{

@@ -10,36 +10,43 @@ namespace Mono.Cecil.AssemblyResolver
     }
 
     /*Telerik Authorship*/
-    internal class UnresolvedAssembliesCollection : IClonableCollection<string>
+    internal class UnresolvedAssembliesCollection : IClonableCollection<AssemblyStrongNameExtended>
     {
-        private static readonly HashSet<string> UnresolvableAssemblies = new HashSet<string>()
-        { "mscorlib, Version=255.255.255.255, Culture=neutral, PublicKeyToken=b77a5c561934e089",
-	      "mscorlib, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"
+        private static readonly HashSet<AssemblyStrongNameExtended> UnresolvableAssemblies = new HashSet<AssemblyStrongNameExtended>()
+        {
+            new AssemblyStrongNameExtended("mscorlib, Version=255.255.255.255, Culture=neutral, PublicKeyToken=b77a5c561934e089", TargetArchitecture.AnyCPU, SpecialTypeAssembly.None),
+            new AssemblyStrongNameExtended("mscorlib, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", TargetArchitecture.AnyCPU, SpecialTypeAssembly.None)
 		};
 
-        private readonly HashSet<string> theSet;
+        /*Telerik Authorship*/
+        private readonly HashSet<AssemblyStrongNameExtended> theSet;
 
+        /*Telerik Authorship*/
         public UnresolvedAssembliesCollection()
         {
-            this.theSet = new HashSet<string>();
+            this.theSet = new HashSet<AssemblyStrongNameExtended>();
         }
 
-        public UnresolvedAssembliesCollection(IEnumerable<string> collection)
+        /*Telerik Authorship*/
+        public UnresolvedAssembliesCollection(IEnumerable<AssemblyStrongNameExtended> collection)
         {
-            this.theSet = new HashSet<string>(collection);
+            this.theSet = new HashSet<AssemblyStrongNameExtended>(collection);
         }
 
-        public bool Contains(string item)
+        /*Telerik Authorship*/
+        public bool Contains(AssemblyStrongNameExtended item)
         {
             return UnresolvableAssemblies.Contains(item) || this.theSet.Contains(item);
         }
 
-        public IClonableCollection<string> Clone()
+        /*Telerik Authorship*/
+        public IClonableCollection<AssemblyStrongNameExtended> Clone()
         {
             return new UnresolvedAssembliesCollection(this.theSet);
         }
 
-        public void Add(string item)
+        /*Telerik Authorship*/
+        public void Add(AssemblyStrongNameExtended item)
         {
             this.theSet.Add(item);
         }
@@ -49,7 +56,8 @@ namespace Mono.Cecil.AssemblyResolver
             this.theSet.Clear();
         }
 
-        public void CopyTo(string[] array, int arrayIndex)
+        /*Telerik Authorship*/
+        public void CopyTo(AssemblyStrongNameExtended[] array, int arrayIndex)
         {
             this.theSet.CopyTo(array, arrayIndex);
         }
@@ -64,12 +72,14 @@ namespace Mono.Cecil.AssemblyResolver
             get { return false; }
         }
 
-        public bool Remove(string item)
+        /*Telerik Authorship*/
+        public bool Remove(AssemblyStrongNameExtended item)
         {
             return this.theSet.Remove(item);
         }
 
-        public IEnumerator<string> GetEnumerator()
+        /*Telerik Authorship*/
+        public IEnumerator<AssemblyStrongNameExtended> GetEnumerator()
         {
             return this.theSet.GetEnumerator();
         }

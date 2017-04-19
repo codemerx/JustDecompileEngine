@@ -22,31 +22,35 @@ namespace Mono.Cecil {
 	public interface IAssemblyResolver {
 
 		/*Telerik Authorship*/
-		AssemblyDefinition Resolve(AssemblyNameReference name, string path, TargetArchitecture platform, bool provideFailedEventToUser = true);
-		AssemblyDefinition Resolve(AssemblyNameReference name, string path, TargetArchitecture platform, bool addToFailedCache, bool provideFailedEventToUser = true);
-		AssemblyDefinition Resolve(string fullName, ReaderParameters parameters, TargetArchitecture platform, bool provideFailedEventToUser = true);
+		AssemblyDefinition Resolve(AssemblyNameReference name, string path, TargetArchitecture platform, SpecialTypeAssembly special, bool provideFailedEventToUser = true);
+		AssemblyDefinition Resolve(AssemblyNameReference name, string path, TargetArchitecture platform, SpecialTypeAssembly special, bool addToFailedCache, bool provideFailedEventToUser = true);
+		AssemblyDefinition Resolve(string fullName, ReaderParameters parameters, TargetArchitecture platform, SpecialTypeAssembly special, bool provideFailedEventToUser = true);
 
 		/*Telerik Authorship*/
 		AssemblyDefinition GetAssemblyDefinition(string filePath);
-		string ResolveAssemblyPath(string strongName);
+
+        /*Telerik Authorship*/
+		string ResolveAssemblyPath(string strongName, SpecialTypeAssembly special);
 
 		/*Telerik Authorship*/
 		event AssemblyResolveEventHandler ResolveFailure;
 		event AssemblyDefinitionFailureEventHandler AssemblyDefinitionFailure;
 		void AddToAssemblyCache(string filePath, TargetArchitecture platform, bool storeAssemblyDefInCahce = false);
-		string FindAssemblyPath(AssemblyName assemblyNameReference, string fallbackDir, bool bubbleToUserIfFailed = true);
+        /*Telerik Authorship*/
+		string FindAssemblyPath(AssemblyName assemblyNameReference, string fallbackDir, AssemblyStrongNameExtended assemblyKey, bool bubbleToUserIfFailed = true);
 		TargetPlatform GetTargetPlatform(string assemliyFilePath);
 		bool ArePublicKeyEquals(byte[] publicKeyToken1, byte[] publicKeyToken2);
 		void ClearCache();
 		void AddSearchDirectory(string directory);
 		void RemoveSearchDirectory(string directory);
 		void RemoveFromAssemblyCache(string fileName);
-		void RemoveFromFailedAssemblies(string assemblyName);
+		void RemoveFromFailedAssemblies(AssemblyStrongNameExtended assemblyName);
 
 		/*Telerik Authorship*/
-		IEnumerable<string> GetNotResolvedAssemblyNames();
+		IEnumerable<AssemblyStrongNameExtended> GetNotResolvedAssemblyNames();
 		IEnumerable<string> GetUserDefiniedAssemblies();
-		void SetNotResolvedAssembliesForCurrentSession(IList<string> list);
+        /*Telerik Authorship*/
+        void SetNotResolvedAssembliesForCurrentSession(IList<AssemblyStrongNameExtended> list);
 		void AddResolvedAssembly(string filePath);
 		void ClearAssemblyFailedResolverCache();
 		AssemblyDefinition LoadAssemblyDefinition(string filePath, ReaderParameters parameters, bool loadPdb);
@@ -149,7 +153,8 @@ namespace Mono.Cecil {
 				case MetadataScopeType.AssemblyNameReference:
 					/*Telerik Authorship*/
 					TargetArchitecture architecture = type.Module.GetModuleArchitecture();
-					var assembly = assembly_resolver.Resolve((AssemblyNameReference)scope, type.Module.ModuleDirectoryPath, architecture);
+                    SpecialTypeAssembly special = type.Module.IsReferenceAssembly() ? SpecialTypeAssembly.Reference : SpecialTypeAssembly.None;
+					var assembly = assembly_resolver.Resolve((AssemblyNameReference)scope, type.Module.ModuleDirectoryPath, architecture, special);
 					if (assembly == null)
 						return null;
 

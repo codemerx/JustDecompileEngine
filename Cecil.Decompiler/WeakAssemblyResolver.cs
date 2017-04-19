@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.AssemblyResolver;
-using AssemblyPathName = System.Collections.Generic.KeyValuePair<string, string>;
+using AssemblyPathName = System.Collections.Generic.KeyValuePair<Mono.Cecil.AssemblyResolver.AssemblyStrongNameExtended, string>;
 
 namespace Telerik.JustDecompiler
 {
@@ -12,24 +12,24 @@ namespace Telerik.JustDecompiler
         public WeakAssemblyResolver(AssemblyPathResolverCache cache)
             : base(new WeakAssemblyCache(cache)) { }
 
-        public override string FindAssemblyPath(AssemblyName assemblyName, string fallbackDir, bool bubbleToUserIfFailed = true)
+        public override string FindAssemblyPath(AssemblyName assemblyName, string fallbackDir, AssemblyStrongNameExtended assemblyKey, bool bubbleToUserIfFailed = true)
         {
-            return base.FindAssemblyPath(assemblyName, fallbackDir, bubbleToUserIfFailed: false);
+            return base.FindAssemblyPath(assemblyName, fallbackDir, assemblyKey, bubbleToUserIfFailed: false);
         }
 
-        public override AssemblyDefinition Resolve(AssemblyNameReference name, string path, TargetArchitecture architecture, bool bubbleToUserIfFailed = true)
+        public override AssemblyDefinition Resolve(AssemblyNameReference name, string path, TargetArchitecture architecture, SpecialTypeAssembly special, bool bubbleToUserIfFailed = true)
         {
-            return base.Resolve(name, path, architecture, bubbleToUserIfFailed: false);
+            return base.Resolve(name, path, architecture, special, bubbleToUserIfFailed: false);
         }
 
-        public override AssemblyDefinition Resolve(string fullName, ReaderParameters parameters, TargetArchitecture platform, bool bubbleToUserIfFailed = true)
+        public override AssemblyDefinition Resolve(string fullName, ReaderParameters parameters, TargetArchitecture platform, SpecialTypeAssembly special, bool bubbleToUserIfFailed = true)
         {
-            return base.Resolve(fullName, parameters, platform, bubbleToUserIfFailed: false);
+            return base.Resolve(fullName, parameters, platform, special, bubbleToUserIfFailed: false);
         }
 
-        public override AssemblyDefinition Resolve(AssemblyNameReference name, string path, TargetArchitecture architecture, bool addToFailedCache, bool bubbleToUserIfFailed = true)
+        public override AssemblyDefinition Resolve(AssemblyNameReference name, string path, TargetArchitecture architecture, SpecialTypeAssembly special, bool addToFailedCache, bool bubbleToUserIfFailed = true)
         {
-            return base.Resolve(name, path, architecture, addToFailedCache, bubbleToUserIfFailed: false);
+            return base.Resolve(name, path, architecture, special, addToFailedCache, bubbleToUserIfFailed: false);
         }
 
         private class WeakAssemblyCache : AssemblyPathResolverCache

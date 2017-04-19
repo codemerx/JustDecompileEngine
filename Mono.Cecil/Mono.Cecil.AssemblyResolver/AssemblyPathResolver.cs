@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Mono.Cecil.Extensions;
-using AssemblyPathName = System.Collections.Generic.KeyValuePair<string, string>;
+/*Telerik Authorship*/
+using AssemblyPathName = System.Collections.Generic.KeyValuePair<Mono.Cecil.AssemblyResolver.AssemblyStrongNameExtended, string>;
 
 namespace Mono.Cecil.AssemblyResolver
 {
@@ -51,18 +52,24 @@ namespace Mono.Cecil.AssemblyResolver
                 {
                     pathRepository.AssemblyParts.Add(filePath, platform);
                 }
-                if (!pathRepository.AssemblyPathName.ContainsKey(assemblyName.FullName))
+
+                /*Telerik Authorship*/
+                ModuleDefinition module = AssemblyDefinition.ReadAssembly(filePath, readerParameters).MainModule;
+                SpecialTypeAssembly special = module.IsReferenceAssembly() ? SpecialTypeAssembly.Reference : SpecialTypeAssembly.None;
+                AssemblyStrongNameExtended assemblyKey = new AssemblyStrongNameExtended(assemblyName.FullName, assemblyName.TargetArchitecture, special);
+                if (!pathRepository.AssemblyPathName.ContainsKey(assemblyKey))
                 {
                     CheckFileExistence(assemblyName, filePath, true, false);
 
-                    RemoveFromUnresolvedCache(assemblyName.FullName);
+                    RemoveFromUnresolvedCache(assemblyKey);
                 }
             }
         }
 
-        internal string GetAssemblyPath(AssemblyName assemblyName)
+        /*Telerik Authorship*/
+        internal string GetAssemblyPath(AssemblyName assemblyName, AssemblyStrongNameExtended assemblyKey)
         {
-            if (IsFailedAssembly(assemblyName.FullName))
+            if (IsFailedAssembly(assemblyKey))
             {
                 return string.Empty;
             }
@@ -70,7 +77,7 @@ namespace Mono.Cecil.AssemblyResolver
 
             if (string.IsNullOrEmpty(filePath))
             {
-                IEnumerable<string> filePaths = GetAssemblyPaths(assemblyName);
+                IEnumerable<string> filePaths = GetAssemblyPaths(assemblyName, assemblyKey);
 
                 filePath = filePaths.FirstOrDefault() ?? string.Empty;
 
@@ -176,13 +183,17 @@ namespace Mono.Cecil.AssemblyResolver
                 var areEquals = AreVersionEquals(assemblyNameFromStorage.Version, assemblyName.Version)
                                 && ArePublicKeyEquals(assemblyNameFromStorage.PublicKeyToken, assemblyName.PublicKeyToken)
                                 && assemblyName.TargetArchitecture.CanReference(assemblyNameFromStorage.TargetArchitecture)
-                                && (!checkForBaseDir || AreDefaultDirEqual(assemblyName, assemblyNameFromStorage));
+                                && (!checkForBaseDir || AreDefaultDirEqual(assemblyName, assemblyNameFromStorage));                
                 if (areEquals && caching)
                 {
-                    pathRepository.AssemblyPathName.Add(assemblyName.FullName, searchPattern);
+                    /*Telerik Authorship*/
+                    ModuleDefinition module = AssemblyDefinition.ReadAssembly(searchPattern, readerParameters).MainModule;
+                    SpecialTypeAssembly special = module.IsReferenceAssembly() ? SpecialTypeAssembly.Reference : SpecialTypeAssembly.None;
+                    AssemblyStrongNameExtended assemblyKey = new AssemblyStrongNameExtended(assemblyName.FullName, assemblyName.TargetArchitecture, special);
+                    pathRepository.AssemblyPathName.Add(assemblyKey, searchPattern);
                     if (!pathRepository.AssemblyPathArchitecture.ContainsKey(searchPattern))
                     {
-                        TargetArchitecture architecture = AssemblyDefinition.ReadAssembly(searchPattern, readerParameters).MainModule.GetModuleArchitecture();
+                        TargetArchitecture architecture = module.GetModuleArchitecture();
                         pathRepository.AssemblyPathArchitecture.Add(new KeyValuePair<string, TargetArchitecture>(searchPattern, architecture));
                     }
                 }
@@ -201,14 +212,16 @@ namespace Mono.Cecil.AssemblyResolver
             bool checkFileExistence = CheckFileExistence(assemblyName, filePath, false, false);
             return checkFileExistence;
         }
-
-        internal bool TryGetAssemblyPathsFromCache(AssemblyName sourceAssemblyName, out IEnumerable<string> filePaths)
+        
+        /*Telerik Authorship*/
+        internal bool TryGetAssemblyPathsFromCache(AssemblyName sourceAssemblyName, AssemblyStrongNameExtended assemblyKey, out IEnumerable<string> filePaths)
         {
             filePaths = Enumerable.Empty<string>();
 
-            if (pathRepository.AssemblyPathName.ContainsKey(sourceAssemblyName.FullName))
+            if (pathRepository.AssemblyPathName.ContainsKey(assemblyKey))
             {
-                List<string> targets = pathRepository.AssemblyPathName.Where(a => a.Key == sourceAssemblyName.FullName)
+                /*Telerik Authorship*/
+                List<string> targets = pathRepository.AssemblyPathName.Where(a => a.Key == assemblyKey)
                                                         .Select(a => a.Value)
                                                         .ToList();
 
@@ -220,9 +233,10 @@ namespace Mono.Cecil.AssemblyResolver
                 }
                 else
                 {
+                    /*Telerik Authorship*/
                     string targetAssembly = pathRepository.AssemblyPathName
                                                              .Where(a => pathRepository.AssemblyPathArchitecture.ContainsKey(a.Value) && pathRepository.AssemblyPathArchitecture[a.Value].CanReference(sourceAssemblyName.TargetArchitecture))
-                                                             .FirstOrDefault(a => a.Key == sourceAssemblyName.FullName).Value;
+                                                             .FirstOrDefault(a => a.Key == assemblyKey).Value;
                     if (targetAssembly != null)
                     {
                         filePaths = new string[] { targetAssembly };
@@ -234,15 +248,16 @@ namespace Mono.Cecil.AssemblyResolver
             return false;
         }
 
-        public IEnumerable<string> GetAssemblyPaths(AssemblyName sourceAssemblyName)
+        /*Telerik Authorship*/
+        public IEnumerable<string> GetAssemblyPaths(AssemblyName sourceAssemblyName, AssemblyStrongNameExtended assemblyKey)
         {
             IEnumerable<string> results;
 
-            if (TryGetAssemblyPathsFromCache(sourceAssemblyName, out results))
+            if (TryGetAssemblyPathsFromCache(sourceAssemblyName, assemblyKey, out results))
             {
                 return results;
             }
-            if (IsFailedAssembly(sourceAssemblyName.FullName))
+            if (IsFailedAssembly(assemblyKey))
             {
                 return Enumerable.Empty<string>();
             }
@@ -589,7 +604,11 @@ namespace Mono.Cecil.AssemblyResolver
 
         internal void AddToAssemblyPathNameCache(AssemblyName assemblyName, string filePath)
         {
-            pathRepository.AssemblyPathName.Add(assemblyName.FullName, filePath);
+            /*Telerik Authorship*/
+            ModuleDefinition module = AssemblyDefinition.ReadAssembly(filePath, readerParameters).MainModule;
+            SpecialTypeAssembly special = module.IsReferenceAssembly() ? SpecialTypeAssembly.Reference : SpecialTypeAssembly.None;
+            AssemblyStrongNameExtended assemblyKey = new AssemblyStrongNameExtended(assemblyName.FullName, assemblyName.TargetArchitecture, special);
+            pathRepository.AssemblyPathName.Add(assemblyKey, filePath);
 
             if (!pathRepository.AssemblyPathArchitecture.ContainsKey(filePath))
             {
@@ -598,15 +617,17 @@ namespace Mono.Cecil.AssemblyResolver
         }
 
         #region failed cache
-        internal void AddToUnresolvedCache(string fullName)
+        /*Telerik Authorship*/
+        internal void AddToUnresolvedCache(AssemblyStrongNameExtended fullName)
         {
             if (!this.pathRepository.AssemblyFaildedResolverCache.Contains(fullName))
             {
                 this.pathRepository.AssemblyFaildedResolverCache.Add(fullName);
             }
         }
-
-        internal void RemoveFromUnresolvedCache(string fullName)
+        
+        /*Telerik Authorship*/
+        internal void RemoveFromUnresolvedCache(AssemblyStrongNameExtended fullName)
         {
             if (pathRepository.AssemblyFaildedResolverCache.Contains(fullName))
             {
@@ -614,21 +635,24 @@ namespace Mono.Cecil.AssemblyResolver
             }
         }
 
-        internal bool IsFailedAssembly(string fullName)
+        /*Telerik Authorship*/
+        internal bool IsFailedAssembly(AssemblyStrongNameExtended fullName)
         {
             return pathRepository.AssemblyFaildedResolverCache.Contains(fullName);
         }
 
-        internal IClonableCollection<string> GetAssemblyFailedResolvedCache()
+        /*Telerik Authorship*/
+        internal IClonableCollection<AssemblyStrongNameExtended> GetAssemblyFailedResolvedCache()
         {
             return pathRepository.AssemblyFaildedResolverCache;
         }
 
-        internal void SetFailedAssemblyCache(IList<string> list)
+        /*Telerik Authorship*/
+        internal void SetFailedAssemblyCache(IList<AssemblyStrongNameExtended> list)
         {
-            foreach (string file in list)
+            foreach (AssemblyStrongNameExtended assemblyKey in list)
             {
-                AddToUnresolvedCache(file);
+                AddToUnresolvedCache(assemblyKey);
             }
         }
 
@@ -641,14 +665,16 @@ namespace Mono.Cecil.AssemblyResolver
 
     public static class Extensions
     {
-        internal static bool ContainsKey(this IList<AssemblyPathName> collection, string key)
+        /*Telerik Authorship*/
+        internal static bool ContainsKey(this IList<AssemblyPathName> collection, AssemblyStrongNameExtended assemblyKey)
         {
-            return collection.Any(a => a.Key == key);
+            return collection.Any(a => a.Key == assemblyKey);
         }
 
-        internal static void Add(this IList<AssemblyPathName> collection, string key, string value)
+        /*Telerik Authorship*/
+        internal static void Add(this IList<AssemblyPathName> collection, AssemblyStrongNameExtended assemblyKey, string value)
         {
-            collection.Add(new AssemblyPathName(key, value));
+            collection.Add(new AssemblyPathName(assemblyKey, value));
         }
 
         public static bool IsReferenceAssembly(this ModuleDefinition moduleDef)

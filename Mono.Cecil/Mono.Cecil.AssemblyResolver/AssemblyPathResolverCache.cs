@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AssemblyPathName = System.Collections.Generic.KeyValuePair<string, string>;
+using AssemblyPathName = System.Collections.Generic.KeyValuePair<Mono.Cecil.AssemblyResolver.AssemblyStrongNameExtended, string>;
 
 namespace Mono.Cecil.AssemblyResolver
 {
@@ -11,7 +11,7 @@ namespace Mono.Cecil.AssemblyResolver
         protected IDictionary<string, TargetPlatform> assemblyParts;
         protected IDictionary<string, AssemblyName> assemblyNameDefinition;
         protected IDictionary<string, TargetArchitecture> assemblyPathArchitecture;
-        protected IClonableCollection<string> assemblyFaildedResolver;
+        protected IClonableCollection<AssemblyStrongNameExtended> assemblyFaildedResolver;
 
         public AssemblyPathResolverCache()
         {
@@ -22,7 +22,7 @@ namespace Mono.Cecil.AssemblyResolver
             assemblyFaildedResolver = new UnresolvedAssembliesCollection();
         }
 
-        public IClonableCollection<string> AssemblyFaildedResolverCache
+        public IClonableCollection<AssemblyStrongNameExtended> AssemblyFaildedResolverCache
         {
             get { return this.assemblyFaildedResolver; }
         }
