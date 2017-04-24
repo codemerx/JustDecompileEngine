@@ -801,8 +801,8 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
-      if not "$(ConfigurationName)" == "Debug EngineOnly" if not "$(ConfigurationName)" == "Release EngineOnly" if not "$(ConfigurationName)" == "Debug JustAssembly" if not "$(ConfigurationName)" == "Release JustAssembly" if not "$(ConfigurationName)" == "Release Server JustAssembly" call "$(SolutionDir)COMInterface\BuildNETWrapper.bat" "$(SolutionDir)"
-    </PreBuildEvent>
-    <PostBuildEvent>if not "$(ConfigurationName)" == "Debug EngineOnly" if not "$(ConfigurationName)" == "Release EngineOnly" if not "$(ConfigurationName)" == "Debug JustAssembly" if not "$(ConfigurationName)" == "Release JustAssembly" if not "$(ConfigurationName)" == "Release Server JustAssembly" echo F|xcopy /Y "$(SolutionDir)COMInterface\TelerikJustDecompileCOM.tlb" "$(SolutionDir)\UI\ReleaseBuild"</PostBuildEvent>
+      if not "$(ConfigurationName)" == "Debug EngineOnly" if not "$(ConfigurationName)" == "Release EngineOnly" if not "$(ConfigurationName)" == "Debug JustAssembly" if not "$(ConfigurationName)" == "Release JustAssembly" if not "$(ConfigurationName)" == "Release Server JustAssembly" if not "$(ConfigurationName)" == "Release" call "$(SolutionDir)COMInterface\BuildNETWrapper.bat" "$(SolutionDir)"
+</PreBuildEvent>
+    <PostBuildEvent>if not "$(ConfigurationName)" == "Debug EngineOnly" if not "$(ConfigurationName)" == "Release EngineOnly" if not "$(ConfigurationName)" == "Debug JustAssembly" if not "$(ConfigurationName)" == "Release JustAssembly" if not "$(ConfigurationName)" == "Release Server JustAssembly" if not "$(ConfigurationName)" == "Release" echo F|xcopy /Y "$(SolutionDir)COMInterface\TelerikJustDecompileCOM.tlb" "$(SolutionDir)\UI\ReleaseBuild"</PostBuildEvent>
   </PropertyGroup>
 </Project>
