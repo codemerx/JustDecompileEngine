@@ -38,6 +38,7 @@
 
             return this.Equals(other);
         }
+
         public static bool operator ==(AssemblyStrongNameExtended first, AssemblyStrongNameExtended second)
         {
             if (((object)first == null) || ((object)second == null))
@@ -62,9 +63,10 @@
 
             return this.StrongName == other.StrongName && this.Architecture == other.Architecture && this.Special == other.Special;
         }
+
         public override int GetHashCode()
         {
-            return (this.StrongName + this.Architecture + this.Special).GetHashCode();
+            return this.StrongName.GetHashCode();
         }
     }
 }
