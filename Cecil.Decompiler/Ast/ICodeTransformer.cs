@@ -108,5 +108,7 @@ namespace Telerik.JustDecompiler.Ast {
         ICodeNode VisitMemberHandleExpression(MemberHandleExpression node);
         ICodeNode VisitAutoPropertyConstructorInitializerExpression(AutoPropertyConstructorInitializerExpression node);
         ICodeNode VisitRaiseEventExpression(RaiseEventExpression node);
-	}
+        ICodeNode VisitRefVariableDeclarationExpression(RefVariableDeclarationExpression node);
+        ICodeNode VisitRefReturnExpression(RefReturnExpression node);
+    }
 }

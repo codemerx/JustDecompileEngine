@@ -156,5 +156,13 @@ namespace Telerik.JustDecompiler.Ast.Expressions
                 return this.MethodExpression.Target;
             }
         }
+
+        public bool IsByReference
+        {
+            get
+            {
+                return this.MethodExpression.Method.ReturnType.IsByReference;
+            }
+        }
     }
 }

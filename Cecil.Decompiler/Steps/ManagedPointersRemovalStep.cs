@@ -100,10 +100,82 @@ namespace Telerik.JustDecompiler.Steps
                 throw new Exception("Managed pointer usage not in SSA");
             }
 
+            // We don't want to multiplicate method calls, since this will alter the logic.
+            if (node.Right.CodeNodeType == CodeNodeType.MethodInvocationExpression)
+            {
+                return false;
+            }
+
+            if (!ShouldBeInlined(node.Right))
+            {
+                return false;
+            }
+
             variableToAssignExpression.Add(byRefVariable, node);
             return true;
         }
 
+        private bool ShouldBeInlined(Expression expression)
+        {
+            if (this.context.Language.InlineManagedPointersAggressively)
+            {
+                return true;
+            }
+
+            Queue<Expression> queue = new Queue<Expression>();
+            if (expression.CodeNodeType == CodeNodeType.UnaryExpression &&
+                (expression as UnaryExpression).Operator == UnaryOperator.AddressReference)
+            {
+                queue.Enqueue((expression as UnaryExpression).Operand);
+            }
+            else
+            {
+                queue.Enqueue(expression);
+            }
+
+            bool shouldBeInlined = true;
+            while (queue.Count > 0)
+            {
+                Expression current = queue.Dequeue();
+
+                if (current.CodeNodeType == CodeNodeType.ArrayIndexerExpression)
+                {
+                    ArrayIndexerExpression indexer = current as ArrayIndexerExpression;
+                    if (indexer.Target.CodeNodeType == CodeNodeType.ArrayCreationExpression)
+                    {
+                        return false;
+                    }
+
+                    return true;
+                }
+
+                if (current.CodeNodeType == CodeNodeType.ArgumentReferenceExpression &&
+                    (current as ArgumentReferenceExpression).Parameter.ParameterType.IsByReference)
+                {
+                    return true;
+                }
+
+                if (current.CodeNodeType != CodeNodeType.ThisReferenceExpression &&
+                    current.CodeNodeType != CodeNodeType.BaseReferenceExpression)
+                {
+                    if (current.HasType && !current.ExpressionType.IsValueType && !(current.ExpressionType.IsByReference && current.ExpressionType.GetElementType().IsValueType))
+                    {
+                        shouldBeInlined = false;
+                    }
+                }
+                
+                foreach (var item in current.Children)
+                {
+                    if (item is Expression)
+                    {
+                        queue.Enqueue(item as Expression);
+                    }
+                }
+            }
+
+            return shouldBeInlined;
+        }
+        
         public override void VisitUnaryExpression(UnaryExpression node)
         {
             if (node.Operator != UnaryOperator.AddressDereference || node.Operand.CodeNodeType != CodeNodeType.VariableReferenceExpression ||
@@ -128,6 +200,18 @@ namespace Telerik.JustDecompiler.Steps
             {
                 if (expressionsToSkip.Contains(node))
                 {
+                    // Although we don't need the result of the traversing those binary expressions, we still should traverse them
+                    // because there could be variable chaining - one variable is assinged some managed pointer, another variable
+                    // is assigned the value of the first variable and then the value of the second variable is used.
+                    //  int& a = &ofSomething;
+                    //  int& b = a;
+                    //  return b;
+                    // If we do not traverse all binary expressions that will be inlined (in this case the first 2 lines) the end
+                    // result would be like this:
+                    //  return a;
+                    // Instead of the correct one:
+                    //  return &ofSomething;
+                    base.VisitBinaryExpression(node);
                     return null;
                 }
                 return base.VisitBinaryExpression(node);
@@ -175,6 +259,18 @@ namespace Telerik.JustDecompiler.Steps
                     {
                         TypeReference targetType = (castOperand.TargetType as ByReferenceType).ElementType;
                         return new CastExpression((Expression)Visit(castOperand.Expression), targetType, null);
+                    }
+
+                    VariableReferenceExpression variableReference = node.Operand as VariableReferenceExpression;
+                    if (variableReference != null && variableReference.Variable.VariableType.IsByReference)
+                    {
+                        return Visit(node.Operand);
+                    }
+
+                    MethodInvocationExpression methodInvocation = node.Operand as MethodInvocationExpression;
+                    if (methodInvocation != null && methodInvocation.IsByReference)
+                    {
+                        return Visit(node.Operand);
                     }
                 }
                 return base.VisitUnaryExpression(node);

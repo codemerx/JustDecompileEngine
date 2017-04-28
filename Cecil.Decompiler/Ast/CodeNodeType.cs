@@ -120,6 +120,8 @@ namespace Telerik.JustDecompiler.Ast
         CheckedExpression,
         MemberHandleExpression,
         AutoPropertyConstructorInitializerExpression,
-        RaiseEventExpression
+        RaiseEventExpression,
+        RefVariableDeclarationExpression,
+        RefReturnExpression
 	}
 }

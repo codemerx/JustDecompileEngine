@@ -232,7 +232,14 @@ namespace Telerik.JustDecompiler.Decompiler
             }
             else
             {
-                returnEx = new ReturnExpression(Pop(), new Instruction[] { instruction });
+                if (methodContext.Method.ReturnType.IsByReference)
+                {
+                    returnEx = new RefReturnExpression(Pop(), new Instruction[] { instruction });
+                }
+                else
+                {
+                    returnEx = new ReturnExpression(Pop(), new Instruction[] { instruction });
+                }
             }
             Push(returnEx);
         }

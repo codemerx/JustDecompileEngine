@@ -817,12 +817,17 @@ namespace Telerik.JustDecompiler.Languages
 			else
 			{
 				WriteSpace();
-			}
+            }
 
-			Visit(node.Right);
+            WriteRightPartOfBinaryExpression(node);
 		}
 
-		public override void VisitUnaryExpression(UnaryExpression node)
+        protected virtual void WriteRightPartOfBinaryExpression(BinaryExpression binaryExpression)
+        {
+            Visit(binaryExpression.Right);
+        }
+        
+        public override void VisitUnaryExpression(UnaryExpression node)
 		{
 			if (node.Operator == UnaryOperator.AddressDereference)
 			{
@@ -2734,6 +2739,24 @@ namespace Telerik.JustDecompiler.Languages
 					byRef = true;
 				}
 
+                if (list[i].CodeNodeType == CodeNodeType.MethodInvocationExpression)
+                {
+                    MethodInvocationExpression invocation = list[i] as MethodInvocationExpression;
+                    if (invocation.IsByReference)
+                    {
+                        byRef = CheckIfParameterIsByRef(MethodReferences.Peek(), i);
+                    }
+                }
+
+                if (list[i].CodeNodeType == CodeNodeType.VariableReferenceExpression)
+                {
+                    VariableReferenceExpression variableReference = list[i] as VariableReferenceExpression;
+                    if (variableReference.Variable.VariableType.IsByReference)
+                    {
+                        byRef = CheckIfParameterIsByRef(MethodReferences.Peek(), i);
+                    }
+                }
+
 				if (byRef)
 				{
 					MethodDefinition methodDefinition = MethodReferences.Peek().Resolve();
@@ -2765,7 +2788,12 @@ namespace Telerik.JustDecompiler.Languages
 			}
 		}
 
-		protected void VisitMethodParameters(IList<Expression> list)
+        private bool CheckIfParameterIsByRef(MethodReference methodReference, int parameterIndex)
+        {
+            return methodReference.Parameters[parameterIndex].ParameterType.IsByReference;
+        }
+
+        protected void VisitMethodParameters(IList<Expression> list)
 		{
 			VisitMethodParametersInternal(list, false);
 		}
@@ -3375,7 +3403,7 @@ namespace Telerik.JustDecompiler.Languages
 			WriteVariableTypeAndName(node.Variable);
         }
 
-		public override void VisitGotoStatement(GotoStatement node)
+        public override void VisitGotoStatement(GotoStatement node)
 		{
 			WriteKeyword(KeyWordWriter.GoTo);
 			WriteSpace();
@@ -3471,11 +3499,11 @@ namespace Telerik.JustDecompiler.Languages
             if (node.Value != null)
 			{
 				WriteSpace();
-				Visit(node.Value);
-			}
+                Visit(node.Value);
+            }
 		}
 
-		public override void VisitShortFormReturnExpression(ShortFormReturnExpression node)
+        public override void VisitShortFormReturnExpression(ShortFormReturnExpression node)
 		{
 			if (node.Value != null)
 			{

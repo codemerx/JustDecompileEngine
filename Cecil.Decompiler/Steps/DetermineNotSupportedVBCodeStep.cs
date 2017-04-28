@@ -22,7 +22,7 @@ namespace Telerik.JustDecompiler.Steps
 				throw new ArgumentException(string.Format("The unary opperator {0} is not supported in VisualBasic", notSupportedUnaryOperatorFinder.FoundUnaryOperator));
 			}
             
-            (new NotSupportedEventUsageFinder()).Visit(body);
+            (new NotSupportedFeatureUsageFinder()).Visit(body);
 
 			return body;
 		}
@@ -80,7 +80,7 @@ namespace Telerik.JustDecompiler.Steps
 			}
 		}
 
-        private class NotSupportedEventUsageFinder : BaseCodeVisitor
+        private class NotSupportedFeatureUsageFinder : BaseCodeVisitor
         {
             public override void VisitBinaryExpression(BinaryExpression node)
             {
@@ -99,6 +99,16 @@ namespace Telerik.JustDecompiler.Steps
             public override void VisitEventReferenceExpression(EventReferenceExpression node)
             {
                 throw new Exception("Visual Basic does not support this type of event usage. Please, try using other language.");
+            }
+
+            public override void VisitRefVariableDeclarationExpression(RefVariableDeclarationExpression node)
+            {
+                throw new Exception("Visual Basic does not support reference variables (a.k.a. ref locals). Please, try using other language.");
+            }
+
+            public override void VisitRefReturnExpression(RefReturnExpression node)
+            {
+                throw new Exception("Visual Basic does not support returning references (a.k.a. ref returns). Please, try using other language.");
             }
         }
     }

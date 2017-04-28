@@ -295,6 +295,20 @@ namespace Telerik.JustDecompiler.Languages.CSharp
         {
             WriteReferenceAndNamespaceIfInCollision(variable.VariableType);
             WriteSpace();
+            WriteVariableName(variable);
+        }
+        
+        public override void VisitRefVariableDeclarationExpression(RefVariableDeclarationExpression node)
+        {
+            WriteKeyword(KeyWordWriter.ByRef);
+            WriteSpace();
+            WriteReferenceAndNamespaceIfInCollision(node.Variable.VariableType.GetElementType());
+            WriteSpace();
+            WriteVariableName(node.Variable);
+        }
+
+        private void WriteVariableName(VariableDefinition variable)
+        {
             this.WriteAndMapVariableToCode(() => Write(GetVariableName(variable)), variable);
         }
 
@@ -626,6 +640,47 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                 return;
             }
             base.VisitBinaryExpression(node);
+        }
+
+        protected override void WriteRightPartOfBinaryExpression(BinaryExpression binaryExpression)
+        {
+            if (binaryExpression.IsAssignmentExpression &&
+                binaryExpression.Left.CodeNodeType == CodeNodeType.RefVariableDeclarationExpression)
+            {
+                WriteKeyword(KeyWordWriter.ByRef);
+                WriteSpace();
+
+                if (binaryExpression.Right.CodeNodeType == CodeNodeType.UnaryExpression)
+                {
+                    UnaryExpression unary = binaryExpression.Right as UnaryExpression;
+                    if (unary.Operator == UnaryOperator.AddressReference)
+                    {
+                        Visit(unary.Operand);
+
+                        return;
+                    }
+                }
+            }
+
+            Visit(binaryExpression.Right);
+        }
+
+        public override void VisitRefReturnExpression(RefReturnExpression node)
+        {
+            WriteKeyword(KeyWordWriter.Return);
+            WriteSpace();
+            WriteKeyword(KeyWordWriter.ByRef);
+            WriteSpace();
+
+            if (node.Value.CodeNodeType == CodeNodeType.UnaryExpression &&
+                (node.Value as UnaryExpression).Operator == UnaryOperator.AddressReference)
+            {
+                Visit((node.Value as UnaryExpression).Operand);
+            }
+            else
+            {
+                Visit(node.Value);
+            }
         }
 
         public override void VisitBoxExpression(BoxExpression node)
@@ -1450,6 +1505,15 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             if (method.MethodReturnType.TryGetDynamicAttribute(out dynamicAttribute))
             {
                 WriteDynamicType(method.ReturnType, dynamicAttribute);
+                return;
+            }
+
+            if (method.ReturnType.IsByReference)
+            {
+                this.WriteKeyword(this.KeyWordWriter.ByRef);
+                this.WriteSpace();
+                WriteReferenceAndNamespaceIfInCollision(method.ReturnType.GetElementType());
+
                 return;
             }
 

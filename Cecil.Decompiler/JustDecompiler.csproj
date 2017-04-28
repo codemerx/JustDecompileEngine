@@ -271,6 +271,8 @@
     <Compile Include="Ast\Expressions\QueryClause.cs" />
     <Compile Include="Ast\Expressions\AutoPropertyConstructorInitializerExpression.cs" />
     <Compile Include="Ast\Expressions\RaiseEventExpression.cs" />
+    <Compile Include="Ast\Expressions\RefReturnExpression.cs" />
+    <Compile Include="Ast\Expressions\RefVariableDeclarationExpression.cs" />
     <Compile Include="Ast\Expressions\SelectClause.cs" />
     <Compile Include="Ast\Expressions\ShortFormReturnExpression.cs" />
     <Compile Include="Ast\Expressions\ArrayVariableDeclarationExpression.cs" />

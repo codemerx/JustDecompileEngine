@@ -279,5 +279,7 @@ namespace Telerik.JustDecompiler.Languages
         public abstract bool HasDelegateSpecificSyntax { get; }
 
 		public abstract HashSet<string> AttributesToHide { get; }
-	}
+
+        public abstract bool InlineManagedPointersAggressively { get; }
+    }
 }

@@ -458,6 +458,20 @@ namespace Telerik.JustDecompiler.Steps
 
         public override void VisitVariableDeclarationExpression(VariableDeclarationExpression node)
         {
+            ProcessVariableDeclaration(node);
+
+            base.VisitVariableDeclarationExpression(node);
+        }
+
+        public override void VisitRefVariableDeclarationExpression(RefVariableDeclarationExpression node)
+        {
+            ProcessVariableDeclaration(node);
+            
+            base.VisitRefVariableDeclarationExpression(node);
+        }
+
+        private void ProcessVariableDeclaration(VariableDeclarationExpression node)
+        {
             if (!methodContext.VariableDefinitionToNameMap.ContainsKey(node.Variable))
             {
                 methodContext.VariableDefinitionToNameMap.Add(node.Variable, node.Variable.Name);
@@ -471,8 +485,6 @@ namespace Telerik.JustDecompiler.Steps
             {
                 TryRenameVariable(node.Variable);
             }
-
-            base.VisitVariableDeclarationExpression(node);
         }
 
         public override void VisitForStatement(ForStatement node)

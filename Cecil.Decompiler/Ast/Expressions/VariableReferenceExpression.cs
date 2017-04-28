@@ -88,5 +88,13 @@ namespace Telerik.JustDecompiler.Ast.Expressions
                 return CodeNodeType.VariableReferenceExpression;
             }
         }
+
+        public bool IsByReference
+        {
+            get
+            {
+                return this.Variable.VariableType.IsByReference;
+            }
+        }
     }
 }

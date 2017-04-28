@@ -338,6 +338,12 @@ namespace Telerik.JustDecompiler.Ast
                 case CodeNodeType.RaiseEventExpression:
                     VisitRaiseEventExpression((RaiseEventExpression)node);
                     break;
+                case CodeNodeType.RefVariableDeclarationExpression:
+                    VisitRefVariableDeclarationExpression((RefVariableDeclarationExpression)node);
+                    break;
+                case CodeNodeType.RefReturnExpression:
+                    VisitRefReturnExpression((RefReturnExpression)node);
+                    break;
 				default:
 					throw new ArgumentException();
 			}
@@ -848,6 +854,15 @@ namespace Telerik.JustDecompiler.Ast
         public virtual void VisitRaiseEventExpression(RaiseEventExpression node)
         {
             Visit(node.Arguments);
+        }
+
+        public virtual void VisitRefVariableDeclarationExpression(RefVariableDeclarationExpression node)
+        {
+        }
+
+        public virtual void VisitRefReturnExpression(RefReturnExpression node)
+        {
+            Visit(node.Value);
         }
     }
 }

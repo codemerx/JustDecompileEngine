@@ -51,7 +51,14 @@ namespace Telerik.JustDecompiler.Steps
                 return node;
             }
 
-            return new VariableDeclarationExpression(variable, node.UnderlyingSameMethodInstructions);
+            if (variable.VariableType.IsByReference)
+            {
+                return new RefVariableDeclarationExpression(variable, node.UnderlyingSameMethodInstructions);
+            }
+            else
+            {
+                return new VariableDeclarationExpression(variable, node.UnderlyingSameMethodInstructions);
+            }
         }
 
         public override ICodeNode VisitVariableDeclarationExpression(VariableDeclarationExpression node)
