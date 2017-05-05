@@ -17,6 +17,8 @@ namespace Telerik.JustDecompiler.Languages
                     return CSharpV5.Instance;
                 case CSharpVersion.V6:
                     return CSharpV6.Instance;
+                case CSharpVersion.V7:
+                    return CSharpV7.Instance;
                 default:
                     throw new ArgumentException();
             }

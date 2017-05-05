@@ -318,7 +318,7 @@ namespace JustDecompileCmdShell
             {
                 if (languageAsString == CommandLineManager.CSharpLanguage)
                 {
-                    result = LanguageFactory.GetLanguage(CSharpVersion.V6);
+                    result = LanguageFactory.GetLanguage(CSharpVersion.V7);
                     return true;
                 }
                 else if (languageAsString == CommandLineManager.VisualBasicLanguage)
