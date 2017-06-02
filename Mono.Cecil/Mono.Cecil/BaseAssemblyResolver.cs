@@ -22,6 +22,8 @@ using Mono.Collections.Generic;
 using Mono.Cecil.AssemblyResolver;
 /*Telerik Authorship*/
 using JustDecompile.SmartAssembly.Attributes;
+/*Telerik Authorship*/
+using System.Threading;
 
 namespace Mono.Cecil {
 	public delegate AssemblyDefinition AssemblyResolveEventHandler(object sender, /*Telerik Authorship*/ AssemblyResolveEventArgs args);
@@ -101,9 +103,15 @@ namespace Mono.Cecil {
 		private readonly HashSet<string> resolvableExtensionsSet;
 		private readonly string[] architectureStrings;
 		private readonly AssemblyPathResolver assemblyPathResolver;
+        /*Telerik Authorship*/
+        private readonly ReaderWriterLockSlim resolveLock;
+        /*Telerik Authorship*/
+        private readonly ReaderWriterLockSlim directoriesLock;
+        /*Telerik Authorship*/
+        private readonly ReaderWriterLockSlim directoryAssembliesLock;
 
 #if !SILVERLIGHT && !CF
-		Collection<string> gac_paths;
+        Collection<string> gac_paths;
 #endif
 
 		/*Telerik Authorship*/
@@ -115,9 +123,19 @@ namespace Mono.Cecil {
 			userDefinedAssemblies = new List<string>();
 			resolvableExtensionsSet = new HashSet<string>(SystemInformation.ResolvableExtensions);
 			architectureStrings = GetArchitectureStrings();
+            /*Telerik Authorship*/
+            directoryAssemblies = new HashSet<DirectoryAssemblyInfo>();
 
 			assemblyPathResolver = new AssemblyPathResolver(pathRespository, new ReaderParameters(this));
-		}
+
+            /*Telerik Authorship*/
+            this.resolveLock = new ReaderWriterLockSlim();
+            /*Telerik Authorship*/
+            this.directoriesLock = new ReaderWriterLockSlim();
+            /*Telerik Authorship*/
+            this.directoryAssembliesLock = new ReaderWriterLockSlim();
+
+        }
 
 		/*Telerik Authorship*/
 		private string[] GetArchitectureStrings()
@@ -129,50 +147,68 @@ namespace Mono.Cecil {
 			}
 			return result.ToArray();
 		}
+        
+        /*Telerik Authorship*/
+        private void InvalidateDirectoryAssemblyCache()
+        {
+            DoWithWriteLock(this.directoryAssembliesLock, () =>
+            {
+                this.directoryAssemblies = new HashSet<DirectoryAssemblyInfo>(GetDirectoryAssemblies().ToList());
+            });
+        }
 
-		/*Telerik Authorship*/
-		private HashSet<DirectoryAssemblyInfo> DirectoryAssemblies
+        /*Telerik Authorship*/
+        public void AddSearchDirectory(string directory)
 		{
-			get
-			{
-				if (directoryAssemblies == null)
-				{
-					directoryAssemblies = new HashSet<DirectoryAssemblyInfo>(GetDirectoryAssemblies().ToList());
-				}
-				return directoryAssemblies;
-			}
+            string directoryInLowercase = directory.ToLowerInvariant();
+
+            if (DoWithReadLock(this.directoriesLock, () => { return directories.Contains(directoryInLowercase); }))
+            {
+                return;
+            }
+            
+            if (Directory.Exists(directory))
+            {
+                bool isAdded = DoWithWriteLock(this.directoriesLock, () =>
+                {
+                    // Double check for ensuring the entry is not added in the meantime.
+                    if (directories.Contains(directoryInLowercase))
+                    {
+                        return false;
+                    }
+
+                    directories.Add(directoryInLowercase);
+
+                    return true;
+                });
+
+                if (isAdded)
+                {
+                    this.InvalidateDirectoryAssemblyCache();
+                }
+            }
 		}
 
 		/*Telerik Authorship*/
-		private void ClearDirectoryAssemblyCache()
-		{
-			directoryAssemblies = null;
+		public void RemoveSearchDirectory(string directory)
+        {
+            /*Telerik Authorship*/
+            DoWithWriteLock(this.directoriesLock, () =>
+            {
+                directories.Remove(directory);
+            });
 		}
 
 		/*Telerik Authorship*/
-		public virtual void AddSearchDirectory(string directory)
-		{
-			if (!directories.Contains(directory.ToLowerInvariant()) && (Directory.Exists(directory)))
-			{
-				directories.Add(directory.ToLowerInvariant());
-
-				ClearDirectoryAssemblyCache();
-			}
-		}
-
-		/*Telerik Authorship*/
-		public virtual void RemoveSearchDirectory(string directory)
-		{
-			directories.Remove(directory);
-		}
-
-		/*Telerik Authorship*/
-		public virtual string[] GetSearchDirectories()
-		{
-			/*Telerik Authorship*/
-			var directories = new string[this.directories.Count];
-			Array.Copy(this.directories.ToArray(), directories, directories.Length);
-			return directories;
+		public string[] GetSearchDirectories()
+        {
+            /*Telerik Authorship*/
+            return DoWithReadLock(this.directoriesLock, () =>
+            {
+                var directories = new string[this.directories.Count];
+                Array.Copy(this.directories.ToArray(), directories, directories.Length);
+                return directories;
+            });
 		}
 
 
@@ -191,29 +227,33 @@ namespace Mono.Cecil {
 		}
 
 		/*Telerik Authorship*/
-		protected virtual IEnumerable<DirectoryAssemblyInfo> GetDirectoryAssemblies()
-		{
-			List<DirectoryAssemblyInfo> result = new List<DirectoryAssemblyInfo>();
-			foreach (string directory in directories)
-			{
-				if (!Directory.Exists(directory))
-				{
-					continue;
-				}
-				foreach (string extension in SystemInformation.ResolvableExtensions)
-				{
-					foreach (string file in Directory.GetFiles(directory, "*" + extension))
-					{
-						if (resolvableExtensionsSet.Contains(Path.GetExtension(file)) && file.Length < 260)
-						//Check is added because of the behaviour of Directory.GetFiles
-						{
-							result.Add(CreateDirectoryAssemblyInfo(file));
-						}
-					}
-				}
-			}
+		private IEnumerable<DirectoryAssemblyInfo> GetDirectoryAssemblies()
+        {
+            /*Telerik Authorship*/
+            return DoWithReadLock(this.directoriesLock, () =>
+            {
+                List<DirectoryAssemblyInfo> result = new List<DirectoryAssemblyInfo>();
+                foreach (string directory in directories)
+                {
+                    if (!Directory.Exists(directory))
+                    {
+                        continue;
+                    }
+                    foreach (string extension in SystemInformation.ResolvableExtensions)
+                    {
+                        foreach (string file in Directory.GetFiles(directory, "*" + extension))
+                        {
+                            if (resolvableExtensionsSet.Contains(Path.GetExtension(file)) && file.Length < 260)
+                            //Check is added because of the behaviour of Directory.GetFiles
+                            {
+                                result.Add(CreateDirectoryAssemblyInfo(file));
+                            }
+                        }
+                    }
+                }
 
-			return result;
+                return result;
+            });
 		}
 
 		/*Telerik Authorship*/
@@ -225,112 +265,131 @@ namespace Mono.Cecil {
 		/*Telerik Authorship*/
 		public virtual AssemblyDefinition Resolve(string fullName, ReaderParameters parameters, TargetArchitecture platform, SpecialTypeAssembly special, bool bubbleToUserIfFailed = true)
 		{
-			lock (Locker)
+			if (fullName == null)
 			{
-				if (fullName == null)
-				{
-					throw new ArgumentNullException("fullName");
-				}
-				return Resolve(AssemblyNameReference.Parse(fullName), string.Empty, parameters, platform, special, bubbleToUserIfFailed);
+				throw new ArgumentNullException("fullName");
 			}
+
+			return Resolve(AssemblyNameReference.Parse(fullName), string.Empty, parameters, platform, special, bubbleToUserIfFailed);
 		}
 
 		/*Telerik Authorship*/
 		public virtual AssemblyDefinition Resolve(AssemblyNameReference name, string path, TargetArchitecture architecture, SpecialTypeAssembly special, bool bubbleToUserIfFailed = true)
-		{
-			lock (Locker)
-			{
-				this.AddSearchDirectory(path);
+        {
+			AssemblyDefinition assemblyDefinition = Resolve(name, path, new ReaderParameters(this), architecture, special, bubbleToUserIfFailed);
 
-				AssemblyDefinition assemblyDefinition = Resolve(name, path, new ReaderParameters(this), architecture, special, bubbleToUserIfFailed);
-
-				return assemblyDefinition;
-			}
+			return assemblyDefinition;
 		}
 
 		/*Telerik Authorship*/
 		public virtual AssemblyDefinition Resolve(AssemblyNameReference name, string path, TargetArchitecture architecture, SpecialTypeAssembly special, bool addToFailedCache, bool bubbleToUserIfFailed = true)
-		{
-			lock (Locker)
-			{
-				this.AddSearchDirectory(path);
+        {
+			AssemblyDefinition assemblyDefinition = Resolve(name, path, new ReaderParameters(this), architecture, special, bubbleToUserIfFailed, addToFailedCache);
 
-				AssemblyDefinition assemblyDefinition = Resolve(name, path, new ReaderParameters(this), architecture, special, bubbleToUserIfFailed, addToFailedCache);
-
-				return assemblyDefinition;
-			}
+			return assemblyDefinition;
 		}
 
 		/*Telerik Authorship*/
 		private AssemblyDefinition Resolve(AssemblyNameReference name, string defaultPath, ReaderParameters parameters, TargetArchitecture architecture, SpecialTypeAssembly special, bool bubbleToUserIfFailed, bool addToFailedCache = true)
-		{
-			if (name == null)
-			{
-				throw new ArgumentNullException("name");
-			}
-			if (parameters == null)
-			{
-				parameters = new ReaderParameters(this);
+        {
+            if (!string.IsNullOrEmpty(defaultPath))
+            {
+                this.AddSearchDirectory(defaultPath);
+            }
+
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
+            }
+            if (parameters == null)
+            {
+                parameters = new ReaderParameters(this);
             }
 
             /*Telerik Authorship*/
             AssemblyStrongNameExtended assemblyKey = new AssemblyStrongNameExtended(name.FullName, architecture, special);
-            if (assemblyPathResolver.IsFailedAssembly(assemblyKey))
-			{
-				return null;
-			}
+            AssemblyName assemblyName = new AssemblyName(name.Name, name.FullName, name.Version, name.PublicKey) { TargetArchitecture = architecture };
+            AssemblyDefinition assembly = null;
 
-			AssemblyDefinition assembly =
-				GetFromResolvedAssemblies(new AssemblyName(name.Name, name.FullName, name.Version, name.PublicKey) { TargetArchitecture = architecture }, special);
-			if (assembly != null)
-			{
-				return assembly;
-			}
+            /*Telerik Authorship*/
+            bool isResolved = DoWithReadLock(this.resolveLock, () =>
+            {
+                if (assemblyPathResolver.IsFailedAssembly(assemblyKey))
+                {
+                    assembly = null;
 
-			/*Telerik Authorship*/
-			// This code has been added by Mono.Cecil 0.9.6. It has been commented, because retargetable references should be further
-			// researched and handled appropriately across the application. TP item N. 323383
-			//if (name.IsRetargetable)
-			//{
-			//	// if the reference is retargetable, zero it
-			//	name = new AssemblyNameReference(name.Name, new Version(0, 0, 0, 0))
-			//	{
-			//		PublicKeyToken = Empty<byte>.Array,
-			//	};
-			//}
+                    return true;
+                }
 
-			assembly = SearchDirectory(name, parameters, architecture, defaultPath) ?? TryGetTargetAssembly(name, parameters, architecture, assemblyKey);
+                assembly = GetFromResolvedAssemblies(assemblyName, special);
+                return assembly != null;
+            });
 
-			if (assembly != null)
-			{
-				if (!filePathToAssemblyDefinitionCache.ContainsKey(assembly.MainModule.FilePath))
-				{
-					AddToResolvedAssemblies(assembly);
-				}
-				return assembly;
-			}
-			assembly = GetTargetAssembly(name, parameters, architecture);
-			if (assembly != null)
-			{
-				if (!filePathToAssemblyDefinitionCache.ContainsKey(assembly.MainModule.FilePath))
-				{
-					AddToResolvedAssemblies(assembly);
-				}
-				return assembly;
-			}
-			if (bubbleToUserIfFailed)
-			{
-				return UserSpecifiedAssembly(name, architecture, assemblyKey);
-			}
-			else if (addToFailedCache)
-			{
-                assemblyPathResolver.AddToUnresolvedCache(assemblyKey);
-			}
-			return null;
+            if (isResolved)
+            {
+                return assembly;
+            }
+
+            /*Telerik Authorship*/
+            return DoWithWriteLock(this.resolveLock, () =>
+            {
+                // Double checks to ensure that the entry is not added in the meantime.
+                if (assemblyPathResolver.IsFailedAssembly(assemblyKey))
+                {
+                    return null;
+                }
+
+                assembly = GetFromResolvedAssemblies(assemblyName, special);
+                if (assembly != null)
+                {
+                    return assembly;
+                }
+
+                /*Telerik Authorship*/
+                // This code has been added by Mono.Cecil 0.9.6. It has been commented, because retargetable references should be further
+                // researched and handled appropriately across the application. TP item N. 323383
+                //if (name.IsRetargetable)
+                //{
+                //	// if the reference is retargetable, zero it
+                //	name = new AssemblyNameReference(name.Name, new Version(0, 0, 0, 0))
+                //	{
+                //		PublicKeyToken = Empty<byte>.Array,
+                //	};
+                //}
+
+                assembly = SearchDirectory(name, parameters, architecture, defaultPath) ?? TryGetTargetAssembly(name, parameters, architecture, assemblyKey);
+
+                if (assembly != null)
+                {
+                    if (!filePathToAssemblyDefinitionCache.ContainsKey(assembly.MainModule.FilePath))
+                    {
+                        AddToResolvedAssemblies(assembly);
+                    }
+                    return assembly;
+                }
+                assembly = GetTargetAssembly(name, parameters, architecture);
+                if (assembly != null)
+                {
+                    if (!filePathToAssemblyDefinitionCache.ContainsKey(assembly.MainModule.FilePath))
+                    {
+                        AddToResolvedAssemblies(assembly);
+                    }
+                    return assembly;
+                }
+                if (bubbleToUserIfFailed)
+                {
+                    return UserSpecifiedAssembly(name, architecture, assemblyKey);
+                }
+                else if (addToFailedCache)
+                {
+                    assemblyPathResolver.AddToUnresolvedCache(assemblyKey);
+                }
+                return null;
+            });
 		}
 
-		/*Telerik Authorship*/
-		private AssemblyDefinition GetFromResolvedAssemblies(AssemblyName assemblyName, SpecialTypeAssembly special)
+        /*Telerik Authorship*/
+        private AssemblyDefinition GetFromResolvedAssemblies(AssemblyName assemblyName, SpecialTypeAssembly special)
 		{
 			foreach (string architectureString in GetReferencableArchitectures(assemblyName))
 			{
@@ -393,22 +452,26 @@ namespace Mono.Cecil {
 
 		/*Telerik Authorship*/
 		private AssemblyDefinition SearchDirectory(AssemblyNameReference name, ReaderParameters parameters, TargetArchitecture architecture, string defaultPath)
-		{
-			var defaultLocations = DirectoryAssemblies.Where(d => d.Dir.Equals(defaultPath, StringComparison.OrdinalIgnoreCase));
+        {
+            /*Telerik Authorship*/
+            return DoWithReadLock(this.directoryAssembliesLock, () =>
+            {
+                var defaultLocations = this.directoryAssemblies.Where(d => d.Dir.Equals(defaultPath, StringComparison.OrdinalIgnoreCase));
 
-			AssemblyDefinition ad;
+                AssemblyDefinition ad;
 
-			if (TrySearchDirectory(name, parameters, architecture, defaultLocations, out ad))
-			{
-				return ad;
-			}
-			var notDefaultLocations = DirectoryAssemblies.Except(defaultLocations);
+                if (TrySearchDirectory(name, parameters, architecture, defaultLocations, out ad))
+                {
+                    return ad;
+                }
+                var notDefaultLocations = this.directoryAssemblies.Except(defaultLocations);
 
-			if (TrySearchDirectory(name, parameters, architecture, notDefaultLocations, out ad))
-			{
-				return ad;
-			}
-			return null;
+                if (TrySearchDirectory(name, parameters, architecture, notDefaultLocations, out ad))
+                {
+                    return ad;
+                }
+                return null;
+            });
 		}
 
 		/*Telerik Authorship*/
@@ -791,22 +854,24 @@ namespace Mono.Cecil {
 
 		/*Telerik Authorship*/
 		public virtual void ClearCache()
-		{
-			ClearDirectoriesCache();
+        {
+            /*Telerik Authorship*/
+            DoWithWriteLock(this.directoriesLock, () =>
+            {
+                this.directories.Clear();
+            });
 
-			this.directoryAssemblies = null;
+            /*Telerik Authorship*/
+            DoWithWriteLock(this.directoryAssembliesLock, () =>
+            {
+                this.directoryAssemblies.Clear();
+            });
 
-			ClearResolvedAssembliesCache();
+            ClearResolvedAssembliesCache();
 
 			this.filePathToAssemblyDefinitionCache.Clear();
 
 			this.assemblyPathResolver.ClearCache();
-		}
-
-		/*Telerik Authorship*/
-		protected virtual void ClearDirectoriesCache()
-		{
-			this.directories.Clear();
 		}
 
 		/*Telerik Authorship*/
@@ -1010,6 +1075,62 @@ namespace Mono.Cecil {
             SpecialTypeAssembly special = moduleDefinition.IsReferenceAssembly() ? SpecialTypeAssembly.Reference : SpecialTypeAssembly.None;
 
             return new AssemblyStrongNameExtended(assemblyDefinition.FullName, moduleDefinition.GetModuleArchitecture(), special);
+        }
+
+        /*Telerik Authorship*/
+        private void DoWithReadLock(ReaderWriterLockSlim locker, Action action)
+        {
+            locker.EnterReadLock();
+            try
+            {
+                action();
+            }
+            finally
+            {
+                locker.ExitReadLock();
+            }
+        }
+
+        /*Telerik Authorship*/
+        private T DoWithReadLock<T>(ReaderWriterLockSlim locker, Func<T> func)
+        {
+            locker.EnterReadLock();
+            try
+            {
+                return func();
+            }
+            finally
+            {
+                locker.ExitReadLock();
+            }
+        }
+
+        /*Telerik Authorship*/
+        private void DoWithWriteLock(ReaderWriterLockSlim locker, Action action)
+        {
+            locker.EnterWriteLock();
+            try
+            {
+                action();
+            }
+            finally
+            {
+                locker.ExitWriteLock();
+            }
+        }
+
+        /*Telerik Authorship*/
+        private T DoWithWriteLock<T>(ReaderWriterLockSlim locker, Func<T> func)
+        {
+            locker.EnterWriteLock();
+            try
+            {
+                return func();
+            }
+            finally
+            {
+                locker.ExitWriteLock();
+            }
         }
 
         protected class DirectoryAssemblyInfo
