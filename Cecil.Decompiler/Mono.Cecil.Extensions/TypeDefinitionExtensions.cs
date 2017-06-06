@@ -105,15 +105,12 @@ namespace Mono.Cecil.Extensions
 
 		public static IEnumerable<IMemberDefinition> GetMembersToDecompile(this TypeDefinition typeDefinition, bool showCompilerGeneratedMembers = true)
 		{
-			if (typeDefinition.HasProperties)
-			{
-				foreach (var property in typeDefinition.Properties)
-				{
-					yield return property;
-				}
-			}
+            foreach (var property in typeDefinition.Properties)
+            {
+                yield return property;
+            }
 
-			if (typeDefinition.HasMethods)
+            if (typeDefinition.HasMethods)
 			{
 				foreach (var method in typeDefinition.Methods)
 				{
