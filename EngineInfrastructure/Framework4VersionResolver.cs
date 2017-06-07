@@ -20,9 +20,17 @@ namespace JustDecompile.EngineInfrastructure
             FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(assemblyFilePath);
             if (versionInfo.FileMajorPart == 4)
             {
-                if (versionInfo.FileMinorPart == 6)
+                if (versionInfo.FileMinorPart == 7)
                 {
-                    if (versionInfo.FileBuildPart >= 1055)
+                    return FrameworkVersion.v4_7;
+                }
+                else if (versionInfo.FileMinorPart == 6)
+                {
+                    if (versionInfo.FileBuildPart >= 1590)
+                    {
+                        return FrameworkVersion.v4_6_2;
+                    }
+                    else if (versionInfo.FileBuildPart >= 1055)
                     {
                         return FrameworkVersion.v4_6_1;
                     }
@@ -84,7 +92,15 @@ namespace JustDecompile.EngineInfrastructure
 
                             // The following values are taken from here: https://msdn.microsoft.com/en-us/library/hh925568%28v=vs.110%29.aspx
                             int releaseKey = Convert.ToInt32(releaseKeyAsObject);
-                            if (releaseKey >= 394254)
+                            if (releaseKey >= 460798)
+                            {
+                                installedFramework4Version = FrameworkVersion.v4_7;
+                            }
+                            else if (releaseKey >= 394802)
+                            {
+                                installedFramework4Version = FrameworkVersion.v4_6_2;
+                            }
+                            else if (releaseKey >= 394254)
                             {
                                 installedFramework4Version = FrameworkVersion.v4_6_1;
                             }
