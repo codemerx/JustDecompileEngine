@@ -398,7 +398,7 @@ namespace JustDecompileCmdShell
             Console.CursorLeft = 12;
             WriteLine(SupportedLanguagesMessage);
 
-            WriteLine("[/vs:]      [/vs:2015]. The target Visual Studio(r) project version.");
+            WriteLine("[/vs:]      [/vs:2017]. The target Visual Studio(r) project version.");
             Console.CursorLeft = 12;
             WriteLine("Supported Visual Studio(r) versions: 2010 and later.");
 
