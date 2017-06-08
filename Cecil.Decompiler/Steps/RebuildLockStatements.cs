@@ -38,13 +38,25 @@ namespace Telerik.JustDecompiler.Steps
                     node.Statements.RemoveAt(--i); // the second assign
                     node.Statements.RemoveAt(--i); // the first assign
                 }
-                else // LockType.WithFlag (V1 or V2)
+                else // LockType.WithFlag (V1, V2 or V3)
                 {
-                    Lock.Body.Statements.RemoveAt(0); // the first assign if it's V1 or the method invoke if it's V2
+                    int numberOfStatementsToRemove;
                     if (lockType == LockType.WithFlagV1)
                     {
-                        Lock.Body.Statements.RemoveAt(0); // the second assign
-                        Lock.Body.Statements.RemoveAt(0); // the method invoke
+                        numberOfStatementsToRemove = 3;
+                    }
+                    else if (lockType == LockType.WithFlagV2)
+                    {
+                        numberOfStatementsToRemove = 1;
+                    }
+                    else // V3
+                    {
+                        numberOfStatementsToRemove = 2;
+                    }
+
+                    for (int j = 0; j < numberOfStatementsToRemove; j++)
+                    {
+                        Lock.Body.Statements.RemoveAt(0);
                     }
 
                     if(i > 0)
@@ -103,6 +115,14 @@ namespace Telerik.JustDecompiler.Steps
                         return false;
                     }
                 }
+                else if (this.lockType == LockType.WithFlagV3)
+                {
+                    // In V3 the flag is assigned before the try and the lock variable is assigned in the try
+                    if (statementIndex - 1 < 0)
+                    {
+                        return false;
+                    }
+                }
             }
             else if (currentStatement.CodeNodeType == CodeNodeType.ExpressionStatement &&
                 CheckTheMethodInvocation((currentStatement as ExpressionStatement).Expression as MethodInvocationExpression, "Enter"))
@@ -144,8 +164,8 @@ namespace Telerik.JustDecompiler.Steps
         /// <param name="statement">The statement that needs to be checked.</param>
         /// <returns>True if the given statement match the pattern, otherwise - false.</returns>
         /// <remarks>
-        /// This method works only for lock variable assignment for LockType.WithFlagV2 and it should be used
-        /// only when this lock type is found. Otherwise the CheckTheAssignExpressions method should be used.
+        /// This method works only for lock variable assignment for LockType.WithFlagV2 and LockType.WithFlagV3 and it should
+        /// be used only when this lock type is found. Otherwise the CheckTheAssignExpressions method should be used.
         /// </remarks>
         private bool CheckLockVariableAssignmentExpression(Statement statement)
         {
@@ -187,7 +207,16 @@ namespace Telerik.JustDecompiler.Steps
             ExpressionStatement firstStatement = @try.Try.Statements[0] as ExpressionStatement;
             if (firstStatement.Expression.CodeNodeType == CodeNodeType.BinaryExpression)
             {
-                lockType = LockType.WithFlagV1;
+                if (@try.Try.Statements.Count > 1 &&
+                    @try.Try.Statements[1].CodeNodeType == CodeNodeType.ExpressionStatement &&
+                    (@try.Try.Statements[1] as ExpressionStatement).Expression.CodeNodeType == CodeNodeType.BinaryExpression)
+                {
+                    lockType = LockType.WithFlagV1;
+                }
+                else
+                {
+                    lockType = LockType.WithFlagV3;
+                }
             }
             else if (firstStatement.Expression.CodeNodeType == CodeNodeType.MethodInvocationExpression)
             {
@@ -210,13 +239,16 @@ namespace Telerik.JustDecompiler.Steps
 
             //If the lock is with a flag and it's V1 then the statements in the try should be at least 3: 2 assignments and the method invocation
             // If the lock is with a flag and it's V2 the statement in the try should be at least 1: the method invocation.
-            bool result = (this.lockType == LockType.WithFlagV1 && @try.Try.Statements.Count > 2) || this.lockType == LockType.Simple ||
-                (this.lockType == LockType.WithFlagV2 && @try.Try.Statements.Count > 0);
+            // If the lock is with a flag and it's V3 the statements in the try should be at least 2: the lock variable assignment and the method invocation
+            bool result = (this.lockType == LockType.WithFlagV1 && @try.Try.Statements.Count > 2) ||
+                          this.lockType == LockType.Simple ||
+                          (this.lockType == LockType.WithFlagV2 && @try.Try.Statements.Count > 0) ||
+                          (this.lockType == LockType.WithFlagV3 && @try.Try.Statements.Count > 1);
             result &= @try.CatchClauses.Count == 0 && @try.Finally != null;
    
             if (result)
             {
-                if(lockType == LockType.WithFlagV1 || lockType == LockType.WithFlagV2)
+                if(lockType == LockType.WithFlagV1 || lockType == LockType.WithFlagV2 || lockType == LockType.WithFlagV3)
                 {
                     int enterMethodInvocationIndex;
                     if (lockType == LockType.WithFlagV1)
@@ -224,9 +256,14 @@ namespace Telerik.JustDecompiler.Steps
                         result &= CheckTheAssignExpressions(@try.Try.Statements[0], @try.Try.Statements[1]);
                         enterMethodInvocationIndex = 2;
                     }
-                    else // lockType == LockType.WithFlagV2
+                    else if (lockType == LockType.WithFlagV2)
                     {
                         enterMethodInvocationIndex = 0;
+                    }
+                    else // lockType == LockType.WithFlagV3
+                    {
+                        result &= CheckLockVariableAssignmentExpression(@try.Try.Statements[0]);
+                        enterMethodInvocationIndex = 1;
                     }
 
                     //The index 3 is because of the generated PhiVariable, if this variable is cleand before this step the matching will fail
@@ -308,7 +345,7 @@ namespace Telerik.JustDecompiler.Steps
             }
 
             MethodInvocationExpression theMethodInvocation = null;
-            if(this.lockType == LockType.WithFlagV1 || this.lockType == LockType.WithFlagV2)
+            if(this.lockType == LockType.WithFlagV1 || this.lockType == LockType.WithFlagV2 || this.lockType == LockType.WithFlagV3)
             {
                 VariableReference theConditionVariable = null;
                 if (statementsCount == 2)
@@ -420,7 +457,8 @@ namespace Telerik.JustDecompiler.Steps
         {
             Simple,
             WithFlagV1,
-            WithFlagV2
+            WithFlagV2,
+            WithFlagV3
         }
     }
 }
