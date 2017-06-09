@@ -33,8 +33,6 @@ namespace Telerik.JustDecompiler.Steps
     /// </summary>
     internal class RemoveCompilerOptimizationsStep : IDecompilationStep
     {
-        private const string ComputeStringHashFullName = "System.UInt32 <PrivateImplementationDetails>::ComputeStringHash(System.String)";
-
         private MethodSpecificContext methodContext;
         private Dictionary<int, IList<Expression>> blockExpressions;
         private Dictionary<int, InstructionBlock> instructionToBlockMapping;
@@ -108,7 +106,7 @@ namespace Telerik.JustDecompiler.Steps
             }
 
             MethodInvocationExpression methodInvocation = binary.Right as MethodInvocationExpression;
-            if (methodInvocation.MethodExpression.Method.FullName != ComputeStringHashFullName)
+            if (!Utilities.IsComputeStringHashMethod(methodInvocation.MethodExpression.Method))
             {
                 return false;
             }

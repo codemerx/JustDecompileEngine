@@ -22,8 +22,6 @@ namespace Telerik.JustDecompiler.Decompiler
     /// </summary>
     class ExpressionDecompilerStep : BaseInstructionVisitor, IDecompilationStep
     {
-        private const string ComputeStringHashFullName = "System.UInt32 <PrivateImplementationDetails>::ComputeStringHash(System.String)";
-
         /// PhiVariable is a variable, that represents a value left on the stack between different blocks.
 
         private Stack<Expression> expressionStack = new Stack<Expression>();
@@ -503,7 +501,7 @@ namespace Telerik.JustDecompiler.Decompiler
                     invocation.VirtualCall = false;
                     Push(invocation);
 
-                    if ((instruction.Operand as MethodReference).FullName == ComputeStringHashFullName)
+                    if (Utilities.IsComputeStringHashMethod(instruction.Operand as MethodReference))
                     {
                         this.context.MethodContext.SwitchByStringData.SwitchBlocksStartInstructions.Add(this.currentBlock.First.Offset);
                     }
