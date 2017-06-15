@@ -857,6 +857,25 @@ namespace Telerik.JustDecompiler.Languages.CSharp
 
             if (node.Operator == UnaryOperator.AddressDereference)
             {
+                if (node.Operand.CodeNodeType == CodeNodeType.VariableReferenceExpression &&
+                    (node.Operand as VariableReferenceExpression).IsByReference)
+                {
+                    this.Visit(node.Operand);
+
+                    return;
+                }
+                else if (node.Operand.CodeNodeType == CodeNodeType.ParenthesesExpression)
+                {
+                    ParenthesesExpression parentheses = node.Operand as ParenthesesExpression;
+                    if (parentheses.Expression.CodeNodeType == CodeNodeType.MethodInvocationExpression &&
+                        (parentheses.Expression as MethodInvocationExpression).IsByReference)
+                    {
+                        this.Visit(parentheses.Expression);
+
+                        return;
+                    }
+                }
+
                 base.VisitUnaryExpression(node);
                 return;
             }
@@ -1273,6 +1292,21 @@ namespace Telerik.JustDecompiler.Languages.CSharp
 
         protected override bool IsComplexTarget(Expression target)
         {
+            if (target.CodeNodeType == CodeNodeType.UnaryExpression)
+            {
+                UnaryExpression unary = target as UnaryExpression;
+                if (unary.Operator == UnaryOperator.AddressDereference &&
+                    unary.Operand.CodeNodeType == CodeNodeType.VariableReferenceExpression)
+                {
+                    VariableReferenceExpression variableReference = unary.Operand as VariableReferenceExpression;
+                    if (variableReference.IsByReference)
+                    {
+                        // derefenced ref local
+                        return false;
+                    }
+                }
+            }
+
             return base.IsComplexTarget(target) ||
                    target.CodeNodeType == CodeNodeType.DynamicConstructorInvocationExpression ||
                    target.CodeNodeType == CodeNodeType.LinqQueryExpression ||

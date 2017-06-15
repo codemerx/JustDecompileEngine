@@ -260,18 +260,6 @@ namespace Telerik.JustDecompiler.Steps
                         TypeReference targetType = (castOperand.TargetType as ByReferenceType).ElementType;
                         return new CastExpression((Expression)Visit(castOperand.Expression), targetType, null);
                     }
-
-                    VariableReferenceExpression variableReference = node.Operand as VariableReferenceExpression;
-                    if (variableReference != null && variableReference.Variable.VariableType.IsByReference)
-                    {
-                        return Visit(node.Operand);
-                    }
-
-                    MethodInvocationExpression methodInvocation = node.Operand as MethodInvocationExpression;
-                    if (methodInvocation != null && methodInvocation.IsByReference)
-                    {
-                        return Visit(node.Operand);
-                    }
                 }
                 return base.VisitUnaryExpression(node);
             }
