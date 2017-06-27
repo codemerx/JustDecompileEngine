@@ -98,6 +98,10 @@ namespace Telerik.JustDecompiler.Languages
                     new DetermineCtorInvocationStep(),
                     new RebuildExpressionTreesStep(),
                     new TransformMemberHandlersStep(),
+                    // There were a lot of issues when trying to merge the SelfAssignment step with the CombinedTransformerStep.
+                    // The SelfAssignement step is moved before VBCodePatternsStep in order to enable the VariableInliningPattern
+                    // to try to inline expressions composed in the SelfAssignement step.
+                    new SelfAssignement(),
                     new VBCodePatternsStep(inlineAggressively),
                     // TransformCatchClausesFilterExpressionStep needs to be after VBCodePatternsStep,
                     // because it works only if the TernaryConditionPattern has been applied.
@@ -112,8 +116,6 @@ namespace Telerik.JustDecompiler.Languages
                     new RebuildCatchClausesFilterStep(),
                     new DeclareVariablesOnFirstAssignment(),
                     new DeclareTopLevelVariables(),
-                    // There were a lot of issues when trying to merge the SelfAssignment step with the CombinedTransformerStep.
-                    new SelfAssignement(),
                     new RenameSplitPropertiesMethodsAndBackingFields(),
                     new RenameVBVariables(),
                     new CastEnumsToIntegersStep(),
@@ -132,8 +134,6 @@ namespace Telerik.JustDecompiler.Languages
                 {
                     new DeclareVariablesOnFirstAssignment(),
                     new DeclareTopLevelVariables(),
-                    // There were a lot of issues when trying to merge the SelfAssignment step with the CombinedTransformerStep.
-                    new SelfAssignement(),
                     new RenameSplitPropertiesMethodsAndBackingFields(),
                     new RenameVBVariables(),
                     new CastEnumsToIntegersStep(),
