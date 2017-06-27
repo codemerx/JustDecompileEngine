@@ -33,7 +33,7 @@ using Telerik.JustDecompiler.Pattern;
 
 namespace Telerik.JustDecompiler.Steps
 {
-	class VariableComparer : IEqualityComparer
+	class ExpressionComparer : IEqualityComparer
 	{
 		public bool Equals(object x, object y)
 		{
@@ -42,18 +42,13 @@ namespace Telerik.JustDecompiler.Steps
 
 			if (x == null)
 				return y == null;
-
-            var x_arg_ref = x as ArgumentReferenceExpression;
-            var y_arg_ref = y as ArgumentReferenceExpression;
-
-			if (x_arg_ref != null && y_arg_ref != null)
-				return x_arg_ref.Parameter == y_arg_ref.Parameter;
-
-            var x_var_ref = x as VariableReferenceExpression;
-            var y_var_ref = y as VariableReferenceExpression;
-
-			if (x_var_ref != null && y_var_ref != null)
-				return x_var_ref.Variable == y_var_ref.Variable;
+            
+            Expression xAsExpression = x as Expression;
+            Expression yAsExpression = y as Expression;
+            if (xAsExpression != null && yAsExpression != null)
+            {
+                return xAsExpression.Equals(yAsExpression);
+            }
 
 			return false;
 		}
@@ -75,8 +70,9 @@ namespace Telerik.JustDecompiler.Steps
 			Expression = new Pattern.Binary
 			{
 				Bind = binary => new Pattern.MatchData(OperatorKey, binary.Operator),
-				Left = new Pattern.ContextData { Name = TargetKey, Comparer = new VariableComparer() },
-				Right = new Pattern.Literal { Value = 1 }
+				Left = new Pattern.ContextData { Name = TargetKey, Comparer = new ExpressionComparer() },
+				Right = new Pattern.Literal { Value = 1 },
+                IsChecked = false
 			}
 		};
 
@@ -99,6 +95,12 @@ namespace Telerik.JustDecompiler.Steps
 
 			Expression target = (Expression)result[TargetKey];
 			BinaryOperator @operator = (BinaryOperator)result[OperatorKey];
+
+            SelfAssignmentSafetyChecker checker = new SelfAssignmentSafetyChecker();
+            if (!checker.IsSafeToSelfAssign(target))
+            {
+                return base.VisitBinaryExpression(node);
+            }
 
 			switch (@operator)
 			{
@@ -128,5 +130,49 @@ namespace Telerik.JustDecompiler.Steps
 		{
 			return (BlockStatement) VisitBlockStatement(body);
 		}
+
+        private class SelfAssignmentSafetyChecker : BaseCodeVisitor
+        {
+            private bool isSafe = true;
+
+            public bool IsSafeToSelfAssign(Expression expression)
+            {
+                this.isSafe = true;
+
+                this.Visit(expression);
+
+                return this.isSafe;
+            }
+
+            public override void Visit(ICodeNode node)
+            {
+                if (!isSafe || node == null)
+                {
+                    return;
+                }
+
+                switch (node.CodeNodeType)
+                {
+                    case CodeNodeType.LiteralExpression:
+                    case CodeNodeType.ArgumentReferenceExpression:
+                    case CodeNodeType.VariableReferenceExpression:
+                    case CodeNodeType.ThisReferenceExpression:
+                    case CodeNodeType.BaseReferenceExpression:
+                    case CodeNodeType.FieldReferenceExpression:
+                    case CodeNodeType.CastExpression:
+                    case CodeNodeType.ArrayIndexerExpression:
+                    case CodeNodeType.EnumExpression:
+                    case CodeNodeType.ArrayLengthExpression:
+                    case CodeNodeType.ArrayAssignmentVariableReferenceExpression:
+                    case CodeNodeType.ArrayAssignmentFieldReferenceExpression:
+                    case CodeNodeType.ParenthesesExpression:
+                        base.Visit(node);
+                        return;
+                }
+
+                this.isSafe = false;
+                return;
+            }
+        }
 	}
 }

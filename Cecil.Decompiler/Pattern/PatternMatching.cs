@@ -125,6 +125,7 @@ namespace Telerik.JustDecompiler.Pattern {
 		public ICodePattern Left { get; set; }
 		public ICodePattern Operator { get; set; }
 		public ICodePattern Right { get; set; }
+        public bool? IsChecked { get; set; }
 
 		protected override bool OnMatch (MatchContext context, BinaryExpression node)
 		{
@@ -134,7 +135,17 @@ namespace Telerik.JustDecompiler.Pattern {
 			if (!Operator.TryMatch (context, node.Operator))
 				return false;
 
-			return Right.TryMatch (context, node.Right);
+            if (!Right.TryMatch(context, node.Right))
+            {
+                return false;
+            }
+
+            if (IsChecked.HasValue)
+            {
+                return IsChecked.Value == node.IsChecked;
+            }
+
+            return true;
 		}
 	}
 
