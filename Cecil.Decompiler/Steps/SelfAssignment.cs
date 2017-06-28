@@ -30,6 +30,9 @@ using Telerik.JustDecompiler.Ast.Statements;
 using Telerik.JustDecompiler.Decompiler;
 using Telerik.JustDecompiler.Ast.Expressions;
 using Telerik.JustDecompiler.Pattern;
+using Mono.Cecil;
+using System.Collections.Generic;
+using Mono.Cecil.Cil;
 
 namespace Telerik.JustDecompiler.Steps
 {
@@ -59,14 +62,24 @@ namespace Telerik.JustDecompiler.Steps
 		}
 	}
 
-	public class SelfAssignement : BaseCodeTransformer, IDecompilationStep
+	public class SelfAssignment : BaseCodeTransformer, IDecompilationStep
 	{
 		const string TargetKey = "Target";
 		const string OperatorKey = "Operator";
+        const string ValueKey = "Value";
+        const string RightSideKey = "RightSide";
 
-		static readonly Pattern.ICodePattern SelfAssignmentPattern = new Pattern.Assignment
+        private TypeSystem typeSystem;
+        private Dictionary<BinaryOperator, BinaryOperator> normalToAssignOperatorMap;
+
+        public SelfAssignment()
+        {
+            this.normalToAssignOperatorMap = this.InitializeNormalToAssignOperatorMap();
+        }
+
+        static readonly Pattern.ICodePattern IncrementPattern = new Pattern.Assignment
 		{
-			Bind = assign => new Pattern.MatchData(TargetKey, assign.Left),
+            Target = new SafeSelfAssignmentExpression() { Bind = target => new Pattern.MatchData(TargetKey, target) },
 			Expression = new Pattern.Binary
 			{
 				Bind = binary => new Pattern.MatchData(OperatorKey, binary.Operator),
@@ -75,6 +88,18 @@ namespace Telerik.JustDecompiler.Steps
                 IsChecked = false
 			}
 		};
+
+        private static readonly ICodePattern AssignmentOperatorPattern = new Assignment
+        {
+            Target = new SafeSelfAssignmentExpression() { Bind = target => new Pattern.MatchData(TargetKey, target) },
+            Expression = new Binary
+            {
+                Bind = binary => new MatchData(RightSideKey, binary),
+                Left = new ContextData { Name = TargetKey, Comparer = new ExpressionComparer() },
+                Right = new SafeSelfAssignmentExpression { Bind = value => new MatchData(ValueKey, value) },
+                IsChecked = false
+            }
+        };
 
         public override ICodeNode VisitBinaryExpression(BinaryExpression node)
         {
@@ -87,33 +112,48 @@ namespace Telerik.JustDecompiler.Steps
 
 		private ICodeNode VisitAssignExpression(BinaryExpression node)
 		{
-			MatchContext result = Pattern.CodePattern.Match(SelfAssignmentPattern, node);
-			if (!result.Success)
-			{
-				return base.VisitBinaryExpression(node);
-			}
+            MatchContext result;
+            Expression target;
 
-			Expression target = (Expression)result[TargetKey];
-			BinaryOperator @operator = (BinaryOperator)result[OperatorKey];
-
-            SelfAssignmentSafetyChecker checker = new SelfAssignmentSafetyChecker();
-            if (!checker.IsSafeToSelfAssign(target))
+            result = Pattern.CodePattern.Match(IncrementPattern, node);
+            if (result.Success)
             {
-                return base.VisitBinaryExpression(node);
+                target = (Expression)result[TargetKey];
+                BinaryOperator @operator = (BinaryOperator)result[OperatorKey];
+
+                switch (@operator)
+                {
+                    case BinaryOperator.Add:
+                    case BinaryOperator.Subtract:
+                        return new UnaryExpression(
+                            GetCorrespondingOperator(@operator), target.CloneExpressionOnly(), node.UnderlyingSameMethodInstructions);
+                }
             }
 
-			switch (@operator)
-			{
-				case BinaryOperator.Add:
-				case BinaryOperator.Subtract:
-					return new UnaryExpression(
-						GetCorrespondingOperator(@operator), target.CloneExpressionOnly(), node.UnderlyingSameMethodInstructions);
-				default:
-                    return base.VisitBinaryExpression(node);
-			}
-		}
+            result = Pattern.CodePattern.Match(AssignmentOperatorPattern, node);
+            if (result.Success)
+            {
+                target = (Expression)result[TargetKey];
+                BinaryExpression rightSide = (BinaryExpression)result[RightSideKey];
+                Expression value = (Expression)result[ValueKey];
 
-		static UnaryOperator GetCorrespondingOperator(BinaryOperator @operator)
+                if (this.normalToAssignOperatorMap.ContainsKey(rightSide.Operator))
+                {
+                    List<Instruction> instructions = new List<Instruction>();
+                    instructions.AddRange(rightSide.MappedInstructions);
+                    instructions.AddRange(target.MappedInstructions);
+
+                    BinaryOperator newOperator = this.normalToAssignOperatorMap[rightSide.Operator];
+                    Expression newLeft = target.CloneExpressionOnlyAndAttachInstructions(rightSide.Left.MappedInstructions);
+
+                    return new BinaryExpression(newOperator, newLeft, value, this.typeSystem, instructions);
+                }
+            }
+
+            return base.VisitBinaryExpression(node);
+		}
+        
+        static UnaryOperator GetCorrespondingOperator(BinaryOperator @operator)
 		{
 			switch (@operator)
 			{
@@ -128,50 +168,79 @@ namespace Telerik.JustDecompiler.Steps
 
 		public BlockStatement Process(DecompilationContext context, BlockStatement body)
 		{
-			return (BlockStatement) VisitBlockStatement(body);
-		}
+            this.typeSystem = context.MethodContext.Method.Module.TypeSystem;
 
-        private class SelfAssignmentSafetyChecker : BaseCodeVisitor
+            return (BlockStatement) VisitBlockStatement(body);
+        }
+
+        protected virtual Dictionary<BinaryOperator, BinaryOperator> InitializeNormalToAssignOperatorMap()
         {
-            private bool isSafe = true;
-
-            public bool IsSafeToSelfAssign(Expression expression)
+            return new Dictionary<BinaryOperator, BinaryOperator>()
             {
-                this.isSafe = true;
+                { BinaryOperator.Add, BinaryOperator.AddAssign },
+                { BinaryOperator.Subtract, BinaryOperator.SubtractAssign },
+                { BinaryOperator.Multiply, BinaryOperator.MultiplyAssign },
+                { BinaryOperator.Divide, BinaryOperator.DivideAssign },
+                { BinaryOperator.LeftShift, BinaryOperator.LeftShiftAssign },
+                { BinaryOperator.RightShift, BinaryOperator.RightShiftAssign },
+                { BinaryOperator.BitwiseOr, BinaryOperator.OrAssign },
+                { BinaryOperator.BitwiseAnd, BinaryOperator.AndAssign },
+                { BinaryOperator.BitwiseXor, BinaryOperator.XorAssign },
+                { BinaryOperator.Modulo, BinaryOperator.ModuloAssign }
+            };
+        }
 
-                this.Visit(expression);
+        private class SafeSelfAssignmentExpression : CodePattern<Expression>
+        {
+            protected override bool OnMatch(MatchContext context, Expression node)
+            {
+                SelfAssignmentSafetyChecker checker = new SelfAssignmentSafetyChecker();
 
-                return this.isSafe;
+                return checker.IsSafeToSelfAssign(node);
             }
 
-            public override void Visit(ICodeNode node)
+            private class SelfAssignmentSafetyChecker : BaseCodeVisitor
             {
-                if (!isSafe || node == null)
+                private bool isSafe = true;
+
+                public bool IsSafeToSelfAssign(Expression expression)
                 {
+                    this.isSafe = true;
+
+                    this.Visit(expression);
+
+                    return this.isSafe;
+                }
+
+                public override void Visit(ICodeNode node)
+                {
+                    if (!isSafe || node == null)
+                    {
+                        return;
+                    }
+
+                    switch (node.CodeNodeType)
+                    {
+                        case CodeNodeType.LiteralExpression:
+                        case CodeNodeType.ArgumentReferenceExpression:
+                        case CodeNodeType.VariableReferenceExpression:
+                        case CodeNodeType.ThisReferenceExpression:
+                        case CodeNodeType.BaseReferenceExpression:
+                        case CodeNodeType.FieldReferenceExpression:
+                        case CodeNodeType.CastExpression:
+                        case CodeNodeType.ArrayIndexerExpression:
+                        case CodeNodeType.EnumExpression:
+                        case CodeNodeType.ArrayLengthExpression:
+                        case CodeNodeType.ArrayAssignmentVariableReferenceExpression:
+                        case CodeNodeType.ArrayAssignmentFieldReferenceExpression:
+                        case CodeNodeType.ParenthesesExpression:
+                            base.Visit(node);
+                            return;
+                    }
+
+                    this.isSafe = false;
                     return;
                 }
-
-                switch (node.CodeNodeType)
-                {
-                    case CodeNodeType.LiteralExpression:
-                    case CodeNodeType.ArgumentReferenceExpression:
-                    case CodeNodeType.VariableReferenceExpression:
-                    case CodeNodeType.ThisReferenceExpression:
-                    case CodeNodeType.BaseReferenceExpression:
-                    case CodeNodeType.FieldReferenceExpression:
-                    case CodeNodeType.CastExpression:
-                    case CodeNodeType.ArrayIndexerExpression:
-                    case CodeNodeType.EnumExpression:
-                    case CodeNodeType.ArrayLengthExpression:
-                    case CodeNodeType.ArrayAssignmentVariableReferenceExpression:
-                    case CodeNodeType.ArrayAssignmentFieldReferenceExpression:
-                    case CodeNodeType.ParenthesesExpression:
-                        base.Visit(node);
-                        return;
-                }
-
-                this.isSafe = false;
-                return;
             }
         }
 	}

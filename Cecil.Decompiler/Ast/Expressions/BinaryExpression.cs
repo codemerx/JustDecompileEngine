@@ -189,6 +189,14 @@ namespace Telerik.JustDecompiler.Ast.Expressions
             operatorsPriority.Add(BinaryOperator.Assign, 12);
             operatorsPriority.Add(BinaryOperator.AddAssign, 12);
             operatorsPriority.Add(BinaryOperator.SubtractAssign, 12);
+            operatorsPriority.Add(BinaryOperator.MultiplyAssign, 12);
+            operatorsPriority.Add(BinaryOperator.DivideAssign, 12);
+            operatorsPriority.Add(BinaryOperator.LeftShiftAssign, 12);
+            operatorsPriority.Add(BinaryOperator.RightShiftAssign, 12);
+            operatorsPriority.Add(BinaryOperator.OrAssign, 12);
+            operatorsPriority.Add(BinaryOperator.AndAssign, 12);
+            operatorsPriority.Add(BinaryOperator.XorAssign, 12);
+            operatorsPriority.Add(BinaryOperator.ModuloAssign, 12);
 
             operatorsPriority.Add(BinaryOperator.None, 13);
         }

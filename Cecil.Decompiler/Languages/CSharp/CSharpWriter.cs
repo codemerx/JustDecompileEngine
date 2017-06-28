@@ -567,6 +567,22 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                     return "+=";
                 case BinaryOperator.SubtractAssign:
                     return "-=";
+                case BinaryOperator.AndAssign:
+                    return "&=";
+                case BinaryOperator.DivideAssign:
+                    return "/=";
+                case BinaryOperator.LeftShiftAssign:
+                    return "<<=";
+                case BinaryOperator.ModuloAssign:
+                    return "%=";
+                case BinaryOperator.MultiplyAssign:
+                    return "*=";
+                case BinaryOperator.OrAssign:
+                    return "|=";
+                case BinaryOperator.RightShiftAssign:
+                    return ">>=";
+                case BinaryOperator.XorAssign:
+                    return "^=";
                 case BinaryOperator.NullCoalesce:
                     return "??";
                 default:

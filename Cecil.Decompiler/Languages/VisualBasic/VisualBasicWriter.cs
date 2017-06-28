@@ -833,6 +833,14 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
                     return "+=";
                 case BinaryOperator.SubtractAssign:
                     return "-=";
+                case BinaryOperator.MultiplyAssign:
+                    return "*=";
+                case BinaryOperator.DivideAssign:
+                    return "/=";
+                case BinaryOperator.LeftShiftAssign:
+                    return "<<=";
+                case BinaryOperator.RightShiftAssign:
+                    return ">>=";
                 default:
                     throw new ArgumentException();
             }

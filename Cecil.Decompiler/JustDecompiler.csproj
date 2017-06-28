@@ -457,6 +457,7 @@
     <Compile Include="Steps\RenameSplitPropertiesMethodsAndBackingFields.cs" />
     <Compile Include="Steps\ArrayVariablesStep.cs" />
     <Compile Include="Steps\VBCodePatternsStep.cs" />
+    <Compile Include="Steps\VBSelfAssignment.cs" />
     <Compile Include="Steps\VisualBasicRemoveDelegateCachingStep.cs" />
     <Compile Include="Steps\VisualBasicRemoveUnusedVariablesStep.cs" />
     <Compile Include="ThreadSafeWeakAssemblyResolver.cs" />
