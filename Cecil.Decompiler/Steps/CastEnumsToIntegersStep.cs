@@ -29,7 +29,7 @@ namespace Telerik.JustDecompiler.Steps
 
 			bool shouldUpdateType = GetExpressionTypeName(node.Left) != oldLeftTypeName || GetExpressionTypeName(node.Right) != oldRightTypeName;
 
-			if (node.IsAssignmentExpression)
+			if (node.IsAssignmentExpression || (node.IsSelfAssign && !node.IsEventHandlerAddOrRemove))
 			{
 				/// Add cast to integer type, if the left side of an assignment is of integer type and
 				/// the right side is of enum type.
