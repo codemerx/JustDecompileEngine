@@ -17,6 +17,7 @@ namespace Telerik.JustDecompiler.Steps.CodePatterns
         private readonly MethodSpecificContext methodContext;
         private readonly RestrictedVariableInliner inliner;
         private IVariablesToNotInlineFinder finder;
+        private SimpleDereferencer dereferencer;
 
         public VariableInliningPattern(CodePatternsContext patternsContext, MethodSpecificContext methodContext, IVariablesToNotInlineFinder finder)
             : base(patternsContext, methodContext.Method.Module.TypeSystem)
@@ -24,6 +25,7 @@ namespace Telerik.JustDecompiler.Steps.CodePatterns
             this.methodContext = methodContext;
             this.inliner = new RestrictedVariableInliner(typeSystem);
             this.finder = finder;
+            this.dereferencer = new SimpleDereferencer();
         }
 
         public bool TryMatch(StatementCollection statements, out int startIndex, out Statement result, out int replacedStatementsCount)
@@ -66,6 +68,8 @@ namespace Telerik.JustDecompiler.Steps.CodePatterns
                     inlinedSuccessfully = true;
                     markedForRemoval.Add(variable);
                     methodContext.RemoveVariable(variable);
+                    // the statement containing the inlined variable is not at index, since we removed the variable declaration statement
+                    statements[index] = (Statement)this.dereferencer.Visit(statements[index]);
                 }
             }
 

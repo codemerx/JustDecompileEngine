@@ -450,6 +450,7 @@
     <Compile Include="Steps\RemoveCompilerOptimizationsStep.cs" />
     <Compile Include="Steps\RenameVBVariables.cs" />
     <Compile Include="Steps\SentinelStep.cs" />
+    <Compile Include="Steps\SimpleDereferencer.cs" />
     <Compile Include="Steps\TransformCatchClausesFilterExpressionStep.cs" />
     <Compile Include="Steps\TransformMemberHandlersStep.cs" />
     <Compile Include="Steps\UnsafeMethodBodyStep.cs" />

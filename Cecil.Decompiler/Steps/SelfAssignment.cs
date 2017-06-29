@@ -79,7 +79,7 @@ namespace Telerik.JustDecompiler.Steps
 
         static readonly Pattern.ICodePattern IncrementPattern = new Pattern.Assignment
 		{
-            Target = new SafeSelfAssignmentExpression() { Bind = target => new Pattern.MatchData(TargetKey, target) },
+            Target = new SelfIncrementExpression() { Bind = target => new Pattern.MatchData(TargetKey, target) },
 			Expression = new Pattern.Binary
 			{
 				Bind = binary => new Pattern.MatchData(OperatorKey, binary.Operator),
@@ -91,12 +91,12 @@ namespace Telerik.JustDecompiler.Steps
 
         private static readonly ICodePattern AssignmentOperatorPattern = new Assignment
         {
-            Target = new SafeSelfAssignmentExpression() { Bind = target => new Pattern.MatchData(TargetKey, target) },
+            Target = new SelfAssignmentExpression() { Bind = target => new Pattern.MatchData(TargetKey, target) },
             Expression = new Binary
             {
                 Bind = binary => new MatchData(RightSideKey, binary),
                 Left = new ContextData { Name = TargetKey, Comparer = new ExpressionComparer() },
-                Right = new SafeSelfAssignmentExpression { Bind = value => new MatchData(ValueKey, value) },
+                Right = new SelfAssignmentExpression { Bind = value => new MatchData(ValueKey, value) },
                 IsChecked = false
             }
         };
@@ -190,18 +190,33 @@ namespace Telerik.JustDecompiler.Steps
             };
         }
 
-        private class SafeSelfAssignmentExpression : CodePattern<Expression>
+        private class SelfAssignmentExpression : CodePattern<Expression>
         {
             protected override bool OnMatch(MatchContext context, Expression node)
             {
-                SelfAssignmentSafetyChecker checker = new SelfAssignmentSafetyChecker();
+                SelfAssignmentSafetyChecker checker = new SelfAssignmentSafetyChecker(this.ShouldSelfAssignPointers);
 
                 return checker.IsSafeToSelfAssign(node);
             }
 
+            protected virtual bool ShouldSelfAssignPointers
+            {
+                get
+                {
+                    return true;
+                }
+            }
+
             private class SelfAssignmentSafetyChecker : BaseCodeVisitor
             {
-                private bool isSafe = true;
+                private bool isSafe;
+                private bool includePointers;
+
+                public SelfAssignmentSafetyChecker(bool includePointers)
+                {
+                    this.isSafe = true;
+                    this.includePointers = includePointers;
+                }
 
                 public bool IsSafeToSelfAssign(Expression expression)
                 {
@@ -217,6 +232,21 @@ namespace Telerik.JustDecompiler.Steps
                     if (!isSafe || node == null)
                     {
                         return;
+                    }
+
+                    if (node.CodeNodeType == CodeNodeType.UnaryExpression)
+                    {
+                        UnaryExpression unary = node as UnaryExpression;
+                        if (unary.Operator == UnaryOperator.AddressDereference)
+                        {
+                            if (this.includePointers ||
+                                (unary.Operand.HasType && !unary.Operand.ExpressionType.IsPointer))
+                            {
+                                base.Visit(node);
+
+                                return;
+                            }
+                        }
                     }
 
                     switch (node.CodeNodeType)
@@ -240,6 +270,17 @@ namespace Telerik.JustDecompiler.Steps
 
                     this.isSafe = false;
                     return;
+                }
+            }
+        }
+
+        private class SelfIncrementExpression : SelfAssignmentExpression
+        {
+            protected override bool ShouldSelfAssignPointers
+            {
+                get
+                {
+                    return false;
                 }
             }
         }

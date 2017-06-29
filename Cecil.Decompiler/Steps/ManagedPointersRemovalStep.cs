@@ -22,7 +22,7 @@ namespace Telerik.JustDecompiler.Steps
             VisitExpressions();
 
             TransformExpressions(new VariableReplacer(variableToAssignExpression));
-            TransformExpressions(new Dereferencer());
+            TransformExpressions(new ComplexDereferencer());
 
             RemoveVariablesFromContext();
 
@@ -100,80 +100,30 @@ namespace Telerik.JustDecompiler.Steps
                 throw new Exception("Managed pointer usage not in SSA");
             }
 
-            // We don't want to multiplicate method calls, since this will alter the logic.
-            if (node.Right.CodeNodeType == CodeNodeType.MethodInvocationExpression)
+            if (node.Right.CodeNodeType != CodeNodeType.VariableReferenceExpression &&
+                node.Right.CodeNodeType != CodeNodeType.ArgumentReferenceExpression &&
+                node.Right.CodeNodeType != CodeNodeType.UnaryExpression)
             {
                 return false;
             }
 
-            if (!ShouldBeInlined(node.Right))
+            if (node.Right.CodeNodeType == CodeNodeType.UnaryExpression)
             {
-                return false;
+                UnaryExpression unary = node.Right as UnaryExpression;
+                if (unary.Operator != UnaryOperator.AddressReference)
+                {
+                    return false;
+                }
+
+                if (unary.Operand.CodeNodeType != CodeNodeType.VariableReferenceExpression &&
+                    unary.Operand.CodeNodeType != CodeNodeType.ArgumentReferenceExpression)
+                {
+                    return false;
+                }
             }
 
             variableToAssignExpression.Add(byRefVariable, node);
             return true;
-        }
-
-        private bool ShouldBeInlined(Expression expression)
-        {
-            if (this.context.Language.InlineManagedPointersAggressively)
-            {
-                return true;
-            }
-
-            Queue<Expression> queue = new Queue<Expression>();
-            if (expression.CodeNodeType == CodeNodeType.UnaryExpression &&
-                (expression as UnaryExpression).Operator == UnaryOperator.AddressReference)
-            {
-                queue.Enqueue((expression as UnaryExpression).Operand);
-            }
-            else
-            {
-                queue.Enqueue(expression);
-            }
-
-            bool shouldBeInlined = true;
-            while (queue.Count > 0)
-            {
-                Expression current = queue.Dequeue();
-
-                if (current.CodeNodeType == CodeNodeType.ArrayIndexerExpression)
-                {
-                    ArrayIndexerExpression indexer = current as ArrayIndexerExpression;
-                    if (indexer.Target.CodeNodeType == CodeNodeType.ArrayCreationExpression)
-                    {
-                        return false;
-                    }
-
-                    return true;
-                }
-
-                if (current.CodeNodeType == CodeNodeType.ArgumentReferenceExpression &&
-                    (current as ArgumentReferenceExpression).Parameter.ParameterType.IsByReference)
-                {
-                    return true;
-                }
-
-                if (current.CodeNodeType != CodeNodeType.ThisReferenceExpression &&
-                    current.CodeNodeType != CodeNodeType.BaseReferenceExpression)
-                {
-                    if (current.HasType && !current.ExpressionType.IsValueType && !(current.ExpressionType.IsByReference && current.ExpressionType.GetElementType().IsValueType))
-                    {
-                        shouldBeInlined = false;
-                    }
-                }
-                
-                foreach (var item in current.Children)
-                {
-                    if (item is Expression)
-                    {
-                        queue.Enqueue(item as Expression);
-                    }
-                }
-            }
-
-            return shouldBeInlined;
         }
         
         public override void VisitUnaryExpression(UnaryExpression node)
@@ -237,7 +187,7 @@ namespace Telerik.JustDecompiler.Steps
             }
         }
 
-        private class Dereferencer : BaseCodeTransformer
+        private class ComplexDereferencer : SimpleDereferencer
         {
             public override ICodeNode VisitUnaryExpression(UnaryExpression node)
             {
@@ -246,12 +196,6 @@ namespace Telerik.JustDecompiler.Steps
                     if (node.Operand.CodeNodeType == CodeNodeType.ThisReferenceExpression)
                     {
                         return node.Operand;
-                    }
-
-                    UnaryExpression unaryOperand = node.Operand as UnaryExpression;
-                    if (unaryOperand != null && (unaryOperand.Operator == UnaryOperator.AddressReference || unaryOperand.Operator == UnaryOperator.AddressOf))
-                    {
-                        return Visit(unaryOperand.Operand);
                     }
 
                     CastExpression castOperand = node.Operand as CastExpression;

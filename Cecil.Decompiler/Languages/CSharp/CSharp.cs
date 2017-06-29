@@ -257,14 +257,6 @@ namespace Telerik.JustDecompiler.Languages
 					return new HashSet<string>(attributesToHide);
 				}
 			}
-
-            public override bool InlineManagedPointersAggressively
-            {
-                get
-                {
-                    return false;
-                }
-            }
         }
     }
 }

@@ -198,13 +198,5 @@ namespace Telerik.JustDecompiler.Languages.IL
 				return new HashSet<string>();
 			}
 		}
-
-        public override bool InlineManagedPointersAggressively
-        {
-            get
-            {
-                return false;
-            }
-        }
     }
 }
