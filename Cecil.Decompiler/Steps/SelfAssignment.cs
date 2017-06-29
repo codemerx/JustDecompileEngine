@@ -96,7 +96,7 @@ namespace Telerik.JustDecompiler.Steps
             {
                 Bind = binary => new MatchData(RightSideKey, binary),
                 Left = new ContextData { Name = TargetKey, Comparer = new ExpressionComparer() },
-                Right = new SelfAssignmentExpression { Bind = value => new MatchData(ValueKey, value) },
+                Right = new SelfAssignmentValue() { Bind = value => new MatchData(ValueKey, value) },
                 IsChecked = false
             }
         };
@@ -284,5 +284,13 @@ namespace Telerik.JustDecompiler.Steps
                 }
             }
         }
-	}
+
+        private class SelfAssignmentValue : CodePattern<Expression>
+        {
+            protected override bool OnMatch(MatchContext context, Expression node)
+            {
+                return node.CodeNodeType != CodeNodeType.BinaryExpression;
+            }
+        }
+    }
 }

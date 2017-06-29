@@ -532,7 +532,7 @@ namespace Telerik.JustDecompiler.Steps
 
         public override void VisitBinaryExpression(BinaryExpression node)
         {
-			if (node.IsAssignmentExpression)
+			if (node.IsAssignmentExpression || (node.IsSelfAssign && !node.IsEventHandlerAddOrRemove))
 			{
 				VisitAssignExpression(node);
 			}

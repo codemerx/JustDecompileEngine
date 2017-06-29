@@ -684,5 +684,14 @@ namespace Telerik.JustDecompiler.Ast.Expressions
                     throw new NotSupportedException(string.Format("Not supported type {0}.", type.FullName));
             }
         }
+
+        public bool IsEventHandlerAddOrRemove
+        {
+            get
+            {
+                return (this.Operator == BinaryOperator.AddAssign || this.Operator == BinaryOperator.SubtractAssign) &&
+                       this.Left.CodeNodeType == CodeNodeType.EventReferenceExpression;
+            }
+        }
     }
 }
