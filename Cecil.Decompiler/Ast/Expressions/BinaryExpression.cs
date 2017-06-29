@@ -219,7 +219,7 @@ namespace Telerik.JustDecompiler.Ast.Expressions
                 return;
             }
 
-            if (IsAssignmentExpression)
+            if (IsAssignmentExpression || (IsSelfAssign && !IsEventHandlerAddOrRemove))
             {
                 type = left.ExpressionType;
                 return;
