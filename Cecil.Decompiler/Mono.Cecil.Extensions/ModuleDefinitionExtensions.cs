@@ -55,48 +55,30 @@ namespace Mono.Cecil.Extensions
 
 		public static AssemblyNameReference ReferencedMscorlibRef(this ModuleDefinition self)
 		{
-			if (self == null)
-			{
-				throw new ArgumentNullException("Module definition is null.");
-			}
-
-			if (self.Assembly.Name.Name == "mscorlib")
-			{
-				return self.Assembly.Name;
-			}
-
-			foreach (AssemblyNameReference assemblyRef in self.AssemblyReferences)
-			{
-				if (assemblyRef.Name == "mscorlib")
-				{
-					return assemblyRef;
-				}
-			}
-
-			return null;
+            return self.GetReferencedCoreLibraryRef("mscorlib");
 		}
 
-		public static AssemblyNameReference ReferencedSystemRuntimeRef(this ModuleDefinition self)
-		{
-			if (self == null)
-			{
-				throw new ArgumentNullException("Module definition is null.");
-			}
+        public static AssemblyNameReference GetReferencedCoreLibraryRef(this ModuleDefinition self, string coreLibraryName)
+        {
+            if (self == null)
+            {
+                throw new ArgumentNullException("Module definition is null.");
+            }
 
-			if (self.Assembly.Name.Name == "System.Runtime")
-			{
-				return self.Assembly.Name;
-			}
+            if (self.Assembly.Name.Name == coreLibraryName)
+            {
+                return self.Assembly.Name;
+            }
 
-			foreach (AssemblyNameReference assemblyRef in self.AssemblyReferences)
-			{
-				if (assemblyRef.Name == "System.Runtime")
-				{
-					return assemblyRef;
-				}
-			}
+            foreach (AssemblyNameReference assemblyRef in self.AssemblyReferences)
+            {
+                if (assemblyRef.Name == coreLibraryName)
+                {
+                    return assemblyRef;
+                }
+            }
 
-			return null;
-		}
-	}
+            return null;
+        }
+    }
 }

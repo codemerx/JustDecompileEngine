@@ -24,11 +24,16 @@ namespace Telerik.JustDecompiler.Decompiler
 		/// <returns></returns>
 		public static TypeReference GetCorlibTypeReference(Type type, ModuleDefinition currentModule)
 		{
-			AssemblyNameReference scope = currentModule.ReferencedMscorlibRef();
+            AssemblyNameReference scope = currentModule.ReferencedMscorlibRef();
 			if (scope == null)
 			{
-				scope = currentModule.ReferencedSystemRuntimeRef();
-			}
+				scope = currentModule.GetReferencedCoreLibraryRef("System.Runtime");
+
+                if (scope == null)
+                {
+                    scope = currentModule.GetReferencedCoreLibraryRef("System.Private.CoreLib");
+                }
+            }
 			return new TypeReference(type.Namespace, type.Name, currentModule, scope);
 		}
 
