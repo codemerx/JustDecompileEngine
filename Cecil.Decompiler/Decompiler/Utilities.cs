@@ -32,6 +32,11 @@ namespace Telerik.JustDecompiler.Decompiler
                 if (scope == null)
                 {
                     scope = currentModule.GetReferencedCoreLibraryRef("System.Private.CoreLib");
+
+                    if (scope == null)
+                    {
+                        scope = currentModule.GetReferencedCoreLibraryRef("netstandard");
+                    }
                 }
             }
 			return new TypeReference(type.Namespace, type.Name, currentModule, scope);
