@@ -91,10 +91,13 @@ namespace Telerik.JustDecompiler.Steps
                 return binary;
             }
 
-            //VB.NET compiled with roslyn uses bitwise logical operators for bool conditions => negate correctly
-            if (IsBitwiseOperator(binary.Operator))
+            //Roslyn uses bitwise logical operators for bool conditions
+            if (IsBitwiseOperator(binary.Operator) && binary.ExpressionType.FullName == typeSystem.Boolean.FullName)
             {
-                if (binary.Operator == BinaryOperator.BitwiseXor) binary.Operator = BinaryOperator.ValueEquality;
+                if (binary.Operator == BinaryOperator.BitwiseXor)
+                {
+                    binary.Operator = BinaryOperator.ValueEquality;
+                }
                 else
                 {
                     binary.Left = Negate(binary.Left, typeSystem);
@@ -110,9 +113,11 @@ namespace Telerik.JustDecompiler.Steps
             if (TryGetInverseOperator(binary.Operator, out op))
             {
                 binary.Operator = op;
+                return binary;
             }
-            else throw new ArgumentException("expression"); //Generate error in unexpected case
-            return binary;
+
+            //Generate error in unexpected case
+            throw new ArgumentException("expression");
         }
 
         private static bool TryGetInverseOperator(BinaryOperator @operator, out BinaryOperator inverse)
