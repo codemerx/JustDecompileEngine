@@ -2,7 +2,7 @@
 
 This is the engine of the popular .NET decompiler [JustDecompile](http://www.telerik.com/products/decompiler.aspx). C# is the only programming language used.
 
-Copyright (c) 2011 - 2016 Telerik AD
+Copyright (c) 2011 - 2017 Telerik AD
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
@@ -29,7 +29,7 @@ is a console app that exposes that functionality and makes testing easy. When st
 
 We encourage and support an active, healthy community that accepts contributions from the public. We'd like you to be a part of that community.
 
-Before submitting a pull request, please, read and sign the [Contributors License Agreement] (https://drive.google.com/open?id=1HUQQ4snF53eSXWrKtuqei6cQ_NTRhgQpz1oXh5W_UB4&authuser=0)
+Before submitting a pull request, please, read and sign the [Contributors License Agreement](https://drive.google.com/open?id=1HUQQ4snF53eSXWrKtuqei6cQ_NTRhgQpz1oXh5W_UB4&authuser=0)
 
 ## How to Contribute to JustDecompile
 
