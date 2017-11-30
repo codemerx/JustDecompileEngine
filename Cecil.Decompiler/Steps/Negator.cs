@@ -91,12 +91,33 @@ namespace Telerik.JustDecompiler.Steps
                 return binary;
             }
 
+            //Roslyn uses bitwise logical operators for bool conditions
+            if (IsBitwiseOperator(binary.Operator) && binary.ExpressionType.FullName == typeSystem.Boolean.FullName)
+            {
+                if (binary.Operator == BinaryOperator.BitwiseXor)
+                {
+                    binary.Operator = BinaryOperator.ValueEquality;
+                }
+                else
+                {
+                    binary.Left = Negate(binary.Left, typeSystem);
+
+                    binary.Operator = binary.Operator == BinaryOperator.BitwiseAnd ? BinaryOperator.BitwiseOr : BinaryOperator.BitwiseAnd;
+
+                    binary.Right = Negate(binary.Right, typeSystem);
+                }
+                return binary;
+            }
+
             BinaryOperator op;
             if (TryGetInverseOperator(binary.Operator, out op))
             {
                 binary.Operator = op;
+                return binary;
             }
-            return binary;
+
+            //Generate error in unexpected case
+            throw new ArgumentException("expression");
         }
 
         private static bool TryGetInverseOperator(BinaryOperator @operator, out BinaryOperator inverse)
@@ -126,6 +147,18 @@ namespace Telerik.JustDecompiler.Steps
                     return false;
             }
             return true;
+        }
+
+        private static bool IsBitwiseOperator(BinaryOperator @operator)
+        {
+            switch (@operator)
+            {
+                case BinaryOperator.BitwiseAnd:
+                case BinaryOperator.BitwiseOr:
+                case BinaryOperator.BitwiseXor:
+                    return true;
+            }
+            return false;
         }
 
         private static bool IsLogicalOperator(BinaryOperator @operator)
