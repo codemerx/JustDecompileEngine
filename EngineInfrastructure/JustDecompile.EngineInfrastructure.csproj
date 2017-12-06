@@ -198,6 +198,10 @@
       <Project>{D68133BD-1E63-496E-9EDE-4FBDBF77B486}</Project>
       <Name>Mono.Cecil</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SystemInformationHelpers\SystemInformationHelpers.csproj">
+      <Project>{ced63f54-9464-4cc0-9f3f-d42014c85ac6}</Project>
+      <Name>SystemInformationHelpers</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

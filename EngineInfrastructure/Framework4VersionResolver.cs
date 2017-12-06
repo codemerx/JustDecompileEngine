@@ -1,146 +1,58 @@
-﻿using Microsoft.Win32;
-using Mono.Cecil.AssemblyResolver;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Security;
-using Telerik.JustDecompiler.External;
+﻿using SystemInformationHelpers;
 
 namespace JustDecompile.EngineInfrastructure
 {
     public static class Framework4VersionResolver
     {
-        public static FrameworkVersion GetInstalledFramework4Version()
+        public static Telerik.JustDecompiler.External.FrameworkVersion GetInstalledFramework4Version()
         {
-            return InstalledFrameworkData.GetInstalledFramework4Version();
+            FrameworkVersion framework4VersionToParse = SystemInformationHelpers.Framework4VersionResolver.GetInstalledFramework4Version();
+
+            return MapFrameworkVersion(framework4VersionToParse);
         }
 
-        public static FrameworkVersion GetFrameworkVersionByFileVersion(string assemblyFilePath)
+        public static Telerik.JustDecompiler.External.FrameworkVersion GetFrameworkVersionByFileVersion(string assemblyFilePath)
         {
-            FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(assemblyFilePath);
-            if (versionInfo.FileMajorPart == 4)
-            {
-                if (versionInfo.FileMinorPart == 7)
-                {
-                    return FrameworkVersion.v4_7;
-                }
-                else if (versionInfo.FileMinorPart == 6)
-                {
-                    if (versionInfo.FileBuildPart >= 1590)
-                    {
-                        return FrameworkVersion.v4_6_2;
-                    }
-                    else if (versionInfo.FileBuildPart >= 127)
-                    {
-                        return FrameworkVersion.v4_6_1;
-                    }
-                    else
-                    {
-                        return FrameworkVersion.v4_6;
-                    }
-                }
-                else if (versionInfo.FileMinorPart == 0 && versionInfo.FileBuildPart == 30319)
-                {
-                    if (versionInfo.FilePrivatePart >= 34209)
-                    {
-                        return FrameworkVersion.v4_5_2;
-                    }
-                    else if (versionInfo.FilePrivatePart >= 18402)
-                    {
-                        return FrameworkVersion.v4_5_1;
-                    }
-                    else if (versionInfo.FilePrivatePart > 15000)
-                    {
-                        return FrameworkVersion.v4_5;
-                    }
-                    else
-                    {
-                        return FrameworkVersion.v4_0;
-                    }
-                }
-            }
-            
-            return FrameworkVersion.Unknown;
+            FrameworkVersion framework4VersionToParse = SystemInformationHelpers.Framework4VersionResolver.GetFrameworkVersionByFileVersion(assemblyFilePath);
+
+            return MapFrameworkVersion(framework4VersionToParse);
         }
 
-        private static class InstalledFrameworkData
+        private static Telerik.JustDecompiler.External.FrameworkVersion MapFrameworkVersion(FrameworkVersion frameworkVersionToParse)
         {
-            private static FrameworkVersion? installedFramework4Version;
+            Telerik.JustDecompiler.External.FrameworkVersion resultFrameworkVersion = Telerik.JustDecompiler.External.FrameworkVersion.Unknown;
 
-            static InstalledFrameworkData()
+            switch (frameworkVersionToParse)
             {
-                installedFramework4Version = null;
+                case FrameworkVersion.v4_0:
+                    resultFrameworkVersion = Telerik.JustDecompiler.External.FrameworkVersion.v4_0;
+                    break;
+                case FrameworkVersion.v4_5:
+                    resultFrameworkVersion = Telerik.JustDecompiler.External.FrameworkVersion.v4_5;
+                    break;
+                case FrameworkVersion.v4_5_1:
+                    resultFrameworkVersion = Telerik.JustDecompiler.External.FrameworkVersion.v4_5_1;
+                    break;
+                case FrameworkVersion.v4_5_2:
+                    resultFrameworkVersion = Telerik.JustDecompiler.External.FrameworkVersion.v4_5_2;
+                    break;
+                case FrameworkVersion.v4_6:
+                    resultFrameworkVersion = Telerik.JustDecompiler.External.FrameworkVersion.v4_6;
+                    break;
+                case FrameworkVersion.v4_6_1:
+                    resultFrameworkVersion = Telerik.JustDecompiler.External.FrameworkVersion.v4_6_1;
+                    break;
+                case FrameworkVersion.v4_6_2:
+                    resultFrameworkVersion = Telerik.JustDecompiler.External.FrameworkVersion.v4_6_2;
+                    break;
+                case FrameworkVersion.v4_7:
+                    resultFrameworkVersion = Telerik.JustDecompiler.External.FrameworkVersion.v4_7;
+                    break;
+                default:
+                    break;
             }
 
-            public static FrameworkVersion GetInstalledFramework4Version()
-            {
-                if (!installedFramework4Version.HasValue)
-                {
-                    try
-                    {
-                        RegistryKey ndpKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32)
-                                                        .OpenSubKey("SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\\v4\\Full\\");
-                        using (ndpKey)
-                        {
-                            // At this line is the only chance for NullReferenceException. If it's thrown there is something wrong
-                            // with the access to the subkey "SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\\v4\\Full\\".
-                            object releaseKeyAsObject = ndpKey.GetValue("Release");
-                            if (releaseKeyAsObject == null)
-                            {
-                                installedFramework4Version = FrameworkVersion.v4_0;
-                            }
-
-                            // The following values are taken from here: https://msdn.microsoft.com/en-us/library/hh925568%28v=vs.110%29.aspx
-                            int releaseKey = Convert.ToInt32(releaseKeyAsObject);
-                            if (releaseKey >= 460798)
-                            {
-                                installedFramework4Version = FrameworkVersion.v4_7;
-                            }
-                            else if (releaseKey >= 394802)
-                            {
-                                installedFramework4Version = FrameworkVersion.v4_6_2;
-                            }
-                            else if (releaseKey >= 394254)
-                            {
-                                installedFramework4Version = FrameworkVersion.v4_6_1;
-                            }
-                            else if (releaseKey >= 393295)
-                            {
-                                installedFramework4Version = FrameworkVersion.v4_6;
-                            }
-                            else if (releaseKey >= 379893)
-                            {
-                                installedFramework4Version = FrameworkVersion.v4_5_2;
-                            }
-                            else if (releaseKey >= 378675)
-                            {
-                                installedFramework4Version = FrameworkVersion.v4_5_1;
-                            }
-                            else if (releaseKey >= 378389)
-                            {
-                                installedFramework4Version = FrameworkVersion.v4_5;
-                            }
-                            else
-                            {
-                                throw new Exception("Invalid value of Release key.");
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        if (ex is SecurityException || ex is UnauthorizedAccessException || ex is NullReferenceException)
-                        {
-                            installedFramework4Version = GetFrameworkVersionByFileVersion(Path.Combine(SystemInformation.CLR_Default_32, "v4.0.30319\\mscorlib.dll"));
-                        }
-                        else
-                        {
-                            throw;
-                        }
-                    }
-                }
-
-                return installedFramework4Version.Value;
-            }
+            return resultFrameworkVersion;
         }
     }
 }
