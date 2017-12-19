@@ -64,9 +64,13 @@ namespace JustDecompile.EngineInfrastructure
                     return FrameworkVersion.v3_5;
                 case TargetPlatform.CLR_4:
                     return GetFramework4Version(module, frameworkResolver);
+				case TargetPlatform.NetCore:
+					return GetFrameworkVersionInternal(module, TargetPlatform.NetCore);
                 case TargetPlatform.WinRT:
-                    return GetWinRTFrameworkVersion(module);
-                case TargetPlatform.Silverlight:
+                    return GetFrameworkVersionInternal(module, TargetPlatform.WinRT);
+				case TargetPlatform.Xamarin:
+					return GetFrameworkVersionInternal(module, TargetPlatform.Xamarin);
+				case TargetPlatform.Silverlight:
                     return FrameworkVersion.Silverlight;
                 case TargetPlatform.WindowsCE:
                     return FrameworkVersion.WindowsCE;
@@ -306,33 +310,75 @@ namespace JustDecompile.EngineInfrastructure
             return assemblyTypes;
         }
 
-        private FrameworkVersion GetWinRTFrameworkVersion(ModuleDefinition module)
-        {
-            FrameworkName frameworkName;
-            if (this.TryGetTargetFrameworkName(module.Assembly, out frameworkName))
-            {
-                if (frameworkName.Identifier == ".NETPortable" && frameworkName.Version == new Version(4, 6))
-                {
-                    return FrameworkVersion.NetPortableV4_6;
-                }
-                else if (frameworkName.Identifier == ".NETCore")
-                {
-                    if (frameworkName.Version == new Version(4, 5))
-                    {
-                        return FrameworkVersion.NetCoreV4_5;
-                    }
-                    else if (frameworkName.Version == new Version(4, 5, 1))
-                    {
-                        return FrameworkVersion.NetCoreV4_5_1;
-                    }
-                    else if (frameworkName.Version == new Version(5, 0))
-                    {
-                        return FrameworkVersion.NetCoreV5_0;
-                    }
-                }
-            }
+		private FrameworkVersion GetFrameworkVersionInternal(ModuleDefinition module, TargetPlatform targetPlatform)
+		{
+			FrameworkName frameworkName;
+			if (!this.TryGetTargetFrameworkName(module.Assembly, out frameworkName))
+			{
+				return FrameworkVersion.Unknown;
+			}
 
-            return FrameworkVersion.WinRT;
-        }
+			if (targetPlatform == TargetPlatform.WinRT)
+			{
+				if (frameworkName.Identifier == ".NETPortable" && frameworkName.Version == new Version(4, 6))
+				{
+					return FrameworkVersion.NetPortableV4_6;
+				}
+				else if (frameworkName.Identifier == ".NETCore")
+				{
+					if (frameworkName.Version == new Version(4, 5))
+					{
+						return FrameworkVersion.WinRT_4_5;
+					}
+					else if (frameworkName.Version == new Version(4, 5, 1))
+					{
+						return FrameworkVersion.WinRT_4_5_1;
+					}
+					else if (frameworkName.Version == new Version(5, 0))
+					{
+						return FrameworkVersion.UWP;
+					}
+				}
+				else if (frameworkName.Identifier == "WindowsPhoneApp")
+				{
+					return FrameworkVersion.WindowsPhone;
+				}
+			}
+			else if (targetPlatform == TargetPlatform.NetCore)
+			{
+				if (frameworkName.Identifier == ".NETCoreApp")
+				{
+					if (frameworkName.Version == new Version(2, 1))
+					{
+						return FrameworkVersion.NetCoreV2_1;
+					}
+					else if (frameworkName.Version == new Version(2, 0))
+					{
+						return FrameworkVersion.NetCoreV2_0;
+					}
+					else if (frameworkName.Version == new Version(1, 1))
+					{
+						return FrameworkVersion.NetCoreV1_1;
+					}
+					else if (frameworkName.Version == new Version(1, 0))
+					{
+						return FrameworkVersion.NetCoreV1_0;
+					}
+				}
+			}
+			else if (targetPlatform == TargetPlatform.Xamarin)
+			{
+				if (frameworkName.Identifier == "MonoAndroid")
+				{
+					return FrameworkVersion.XamarinAndroid;
+				}
+				else if (frameworkName.Identifier == "Xamarin.iOS")
+				{
+					return FrameworkVersion.XamarinIOS;
+				}
+			}
+
+			return FrameworkVersion.Unknown;
+		}
     }
 }

@@ -12,6 +12,8 @@
 		Silverlight,
 		WindowsPhone,
 		WindowsCE,
-        WinRT
+        WinRT,
+		NetCore,
+		Xamarin
 	}
 }
