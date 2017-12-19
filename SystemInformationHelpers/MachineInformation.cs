@@ -36,7 +36,7 @@ namespace SystemInformationHelpers
 
             try
             {
-                ProcessStartInfo getOsVersionProcess = new ProcessStartInfo("cmd.exe", "/c ver") { RedirectStandardOutput = true, UseShellExecute = false };
+				ProcessStartInfo getOsVersionProcess = new ProcessStartInfo("cmd.exe", "/c ver") { RedirectStandardOutput = true, UseShellExecute = false, CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden };
 
                 osVersion = Process
                      .Start(getOsVersionProcess)
