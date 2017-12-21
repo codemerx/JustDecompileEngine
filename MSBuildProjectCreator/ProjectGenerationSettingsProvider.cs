@@ -25,7 +25,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
                 {
                     return new ProjectGenerationSettings(true, ResourceStrings.GenerateOnlySourceFilesDueToUnknownFrameworkVersion, false);
                 }
-                else if (pair.Value == FrameworkVersion.WindowsCE || pair.Value == FrameworkVersion.WindowsPhone ||
+                else if (pair.Value == FrameworkVersion.WindowsCE || 
+					(targetPlatform == TargetPlatform.WindowsPhone && pair.Value == FrameworkVersion.WindowsPhone) ||
                     (targetPlatform == TargetPlatform.WinRT && WinRTProjectTypeDetector.GetProjectType(assembly) == WinRTProjectType.Unknown))
                 {
                     return new ProjectGenerationSettings(true, ResourceStrings.GenerateOnlySourceFilesDueToNotSupportedProjectType, false);
