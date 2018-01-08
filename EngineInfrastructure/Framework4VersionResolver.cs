@@ -45,10 +45,13 @@ namespace JustDecompile.EngineInfrastructure
                 case FrameworkVersion.v4_6_2:
                     resultFrameworkVersion = Telerik.JustDecompiler.External.FrameworkVersion.v4_6_2;
                     break;
-                case FrameworkVersion.v4_7:
-                    resultFrameworkVersion = Telerik.JustDecompiler.External.FrameworkVersion.v4_7;
-                    break;
-                default:
+				case FrameworkVersion.v4_7:
+					resultFrameworkVersion = Telerik.JustDecompiler.External.FrameworkVersion.v4_7;
+					break;
+				case FrameworkVersion.v4_7_1:
+					resultFrameworkVersion = Telerik.JustDecompiler.External.FrameworkVersion.v4_7_1;
+					break;
+				default:
                     break;
             }
 

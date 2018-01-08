@@ -40,8 +40,9 @@ namespace JustDecompileCmdShell
                 { "/net4.6", FrameworkVersion.v4_6 },
                 { "/net4.6.1", FrameworkVersion.v4_6_1 },
                 { "/net4.6.2", FrameworkVersion.v4_6_2 },
-                { "/net4.7", FrameworkVersion.v4_7 }
-            };
+                { "/net4.7", FrameworkVersion.v4_7 },
+				{ "/net4.7.1", FrameworkVersion.v4_7_1 }
+			};
         }
 
         internal static void WriteLineColor(ConsoleColor consoleColor, string description)

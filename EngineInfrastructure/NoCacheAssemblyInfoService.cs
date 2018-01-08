@@ -158,6 +158,9 @@ namespace JustDecompile.EngineInfrastructure
                 case "4.7":
                     frameworkVersion = FrameworkVersion.v4_7;
                     break;
+				case "4.7.1":
+					frameworkVersion = FrameworkVersion.v4_7_1;
+					break;
                 default:
                     return false;
             }

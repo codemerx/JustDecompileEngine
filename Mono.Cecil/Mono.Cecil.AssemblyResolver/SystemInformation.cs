@@ -21,6 +21,8 @@ namespace Mono.Cecil.AssemblyResolver
 
         public static string COMPACT_FRAMEWORK = @"{0}\Microsoft.NET\SDK\CompactFramework\{1}\WindowsCE\{2}.dll";
 
+		public static string NETCORE_SHAREDASSEMBLIES = Path.Combine(ProgramFiles, @"dotnet\shared\Microsoft.NETCore.App");
+
         public static string WINDOWS_PHONE_STRING_PATHERN = @"{0}\Reference Assemblies\Microsoft\Framework\Silverlight\{1}\Profile\WindowsPhone{2}\{3}.dll";
 
         public static string CLR = @"{0}\assembly\{1}\{2}\{3}\{4}{5}";
@@ -48,6 +50,8 @@ namespace Mono.Cecil.AssemblyResolver
         public static string[] WINDOWS_CE_VERSIONS = new string[] { "v2.0", "v3.5" };
 
         public static string[] SILVERLIGHT_VERSIONS = new string[] { "v4.0", "v5.0", "v3.0", "v2.0" };
+
+		public static string[] NETCORE_VERSIONS = new string[] { "1.0", "1.1", "2.0" };
 
         public static readonly string[] CoreAssemblies = { 
                                                               "mscorlib.dll",
@@ -87,6 +91,14 @@ namespace Mono.Cecil.AssemblyResolver
                 return Environment.GetEnvironmentVariable("windir") ?? Environment.GetEnvironmentVariable("SystemRoot");
             }
         }
+
+		public static string ProgramFiles
+		{
+			get
+			{
+				return Environment.GetEnvironmentVariable("ProgramFiles");
+			}
+		}
 
         public static string ProgramFilesX86
         {

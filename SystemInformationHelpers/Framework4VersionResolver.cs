@@ -90,7 +90,12 @@ namespace SystemInformationHelpers
 
                             // The following values are taken from here: https://msdn.microsoft.com/en-us/library/hh925568%28v=vs.110%29.aspx
                             int releaseKey = Convert.ToInt32(releaseKeyAsObject);
-                            if (releaseKey >= 460798)
+
+							if (releaseKey >= 461308)
+							{
+								installedFramework4Version = FrameworkVersion.v4_7_1;
+							}
+							else if (releaseKey >= 460798)
                             {
                                 installedFramework4Version = FrameworkVersion.v4_7;
                             }

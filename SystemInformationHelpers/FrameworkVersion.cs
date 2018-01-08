@@ -11,6 +11,7 @@ namespace SystemInformationHelpers
         v4_6,
         v4_6_1,
         v4_6_2,
-        v4_7
+        v4_7,
+		v4_7_1
     }
 }

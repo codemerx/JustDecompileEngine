@@ -336,15 +336,16 @@ namespace Mono.Cecil.AssemblyResolver
             {
                 return Enumerable.Empty<string>();
             }
-            var platforms = new List<TargetPlatform>
-            {
-                TargetPlatform.CLR_4,
-                TargetPlatform.CLR_2_3,
-                TargetPlatform.Silverlight,
-                TargetPlatform.WindowsPhone,
-                TargetPlatform.WindowsCE,
-                TargetPlatform.CLR_1,
-                TargetPlatform.WinRT
+			var platforms = new List<TargetPlatform>
+			{
+				TargetPlatform.CLR_4,
+				TargetPlatform.CLR_2_3,
+				TargetPlatform.Silverlight,
+				TargetPlatform.WindowsPhone,
+				TargetPlatform.WindowsCE,
+				TargetPlatform.CLR_1,
+				TargetPlatform.WinRT,
+				TargetPlatform.NetCore
             };
             var result = new List<string>();
             foreach (TargetPlatform platform in platforms)
@@ -383,7 +384,11 @@ namespace Mono.Cecil.AssemblyResolver
                     result.AddRange(ResolveWinRTMetadata(assemblyName));
                     result.AddRange(ResolveUWPReferences(assemblyName));
                     break;
-            }
+				case TargetPlatform.NetCore:
+					result.AddRange(ResolveNetCoreReferences(assemblyName));
+					break;
+
+			}
             AddPartCacheResult(result, runtime);
 
             return result;
@@ -399,6 +404,25 @@ namespace Mono.Cecil.AssemblyResolver
                 }
             }
         }
+
+		/*Telerik Authorship*/
+		private IEnumerable<string> ResolveNetCoreReferences(AssemblyName assemblyName)
+		{
+			foreach (var ver in assemblyName.SupportedVersions(TargetPlatform.NetCore))
+			{
+				if (Directory.Exists(SystemInformation.NETCORE_SHAREDASSEMBLIES))
+				{
+					foreach (string dirVersions in Directory.GetDirectories(SystemInformation.NETCORE_SHAREDASSEMBLIES, ver + "*"))
+					{
+						string searchPattern = string.Format("{0}\\{1}.dll", dirVersions, assemblyName.Name);
+						if (CheckFileExistence(assemblyName, searchPattern, true, true))
+						{
+							yield return searchPattern;
+						}
+					}
+				}
+			}
+		}
 
         private IEnumerable<string> ResolveSilverlightPaths(AssemblyName assemblyName)
         {

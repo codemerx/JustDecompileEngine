@@ -78,7 +78,10 @@
                 case TargetPlatform.Silverlight:
                     return SystemInformation.SILVERLIGHT_VERSIONS;
 
-                default:
+				case TargetPlatform.NetCore:
+					return SystemInformation.NETCORE_VERSIONS;
+
+				default:
                     return new string[0];
             }
         }
