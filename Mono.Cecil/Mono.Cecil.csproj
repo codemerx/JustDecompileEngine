@@ -108,7 +108,9 @@
     <Compile Include="Mono.Cecil.AssemblyResolver\AssemblyPathResolver.cs" />
     <Compile Include="Mono.Cecil.AssemblyResolver\AssemblyPathResolverCache.cs" />
     <Compile Include="Mono.Cecil.AssemblyResolver\AssemblyStrongNameExtended.cs" />
+    <Compile Include="Mono.Cecil.AssemblyResolver\ITargetPlatformResolver.cs" />
     <Compile Include="Mono.Cecil.AssemblyResolver\SpecialTypeAssembly.cs" />
+    <Compile Include="Mono.Cecil.AssemblyResolver\TargetPlatformResolver.cs" />
     <Compile Include="Mono.Cecil\ConstantValue.cs" />
     <Compile Include="SmartAssembly.Attributes.cs" />
     <Compile Include="Mono.Cecil.AssemblyResolver\SystemInformation.cs" />

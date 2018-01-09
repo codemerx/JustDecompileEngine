@@ -65,7 +65,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 		protected Dictionary<ModuleDefinition, Guid> modulesProjectsGuids;
         protected VisualStudioVersion visualStudioVersion;
         private IAssemblyInfoService assemblyInfoService;
-        private AssemblyInfo assemblyInfo;
+		protected ITargetPlatformResolver targetPlatformResolver;
+		private AssemblyInfo assemblyInfo;
         private ProjectGenerationSettings projectGenerationSettings;
 		private IProjectGenerationNotifier projectNotifier;
 
@@ -86,7 +87,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes,
  			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources,
 			string targetPath, ILanguage language, IFrameworkResolver frameworkResolver,
-            IDecompilationPreferences preferences, IAssemblyInfoService assemblyInfoService,
+            IDecompilationPreferences preferences, IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver,
 			VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010, ProjectGenerationSettings projectGenerationSettings = null,
 			IProjectGenerationNotifier projectNotifier = null)
         {
@@ -95,6 +96,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             this.userDefinedTypes = userDefinedTypes;
 			this.resources = resources;
             this.TargetPath = targetPath;
+			this.targetPlatformResolver = targetPlatformResolver;
 			this.targetDir = Path.GetDirectoryName(targetPath);
             this.language = language;
             this.frameworkResolver = frameworkResolver;
@@ -105,7 +107,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             this.currentAssemblyResolver = assembly.MainModule.AssemblyResolver;
 			this.decompilationPreferences = preferences;
 
-            platform = currentAssemblyResolver.GetTargetPlatform(assembly.MainModule.FilePath);
+            platform = currentAssemblyResolver.GetTargetPlatform(assembly.MainModule.FilePath, TargetPlatformResolver.Instance);
             namespaceHierarchyTree = assembly.BuildNamespaceHierarchyTree();
 
             filePathsService =
@@ -130,7 +132,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
         public MSBuildProjectBuilder(string assemblyPath, string targetPath, ILanguage language,
             IFrameworkResolver frameworkResolver,IDecompilationPreferences preferences, IFileGenerationNotifier notifier,
-            IAssemblyInfoService assemblyInfoService, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010,
+            IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010,
 			ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null)
         {
             this.assemblyPath = assemblyPath;
@@ -141,7 +143,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             this.frameworkResolver = frameworkResolver;
             this.decompilationPreferences = preferences;
             this.assemblyInfoService = assemblyInfoService;
-            this.visualStudioVersion = visualStudioVersion;
+			this.targetPlatformResolver = targetPlatformResolver;
+			this.visualStudioVersion = visualStudioVersion;
             this.projectGenerationSettings = projectGenerationSettings;
 
             this.currentAssemblyResolver = new WeakAssemblyResolver(GlobalAssemblyResolver.CurrentAssemblyPathCache);
@@ -149,7 +152,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             var readerParameters = new ReaderParameters(currentAssemblyResolver);
             assembly = currentAssemblyResolver.LoadAssemblyDefinition(assemblyPath, readerParameters, loadPdb: true);
 
-            platform = currentAssemblyResolver.GetTargetPlatform(assemblyPath);
+            platform = currentAssemblyResolver.GetTargetPlatform(assemblyPath, TargetPlatformResolver.Instance);
             namespaceHierarchyTree = assembly.BuildNamespaceHierarchyTree();
 
             filePathsService =
@@ -1678,7 +1681,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
 		protected virtual AssemblyInfo GetAssemblyInfo()
 		{
-			return this.assemblyInfoService.GetAssemblyInfo(this.assembly, this.frameworkResolver);
+			return this.assemblyInfoService.GetAssemblyInfo(this.assembly, this.frameworkResolver, this.targetPlatformResolver);
 		}
     }
 }

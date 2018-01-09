@@ -13,6 +13,8 @@ namespace JustDecompile.EngineInfrastructure
         UniversalWindows = 16,
         XamarinAndroid = 32,
         XamarinIOS = 64,
-        FrameworkAssembly = 128
+        FrameworkAssembly = 128,
+		AspNetCore = 256,
+		NetCore = 512
     }
 }

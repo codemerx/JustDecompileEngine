@@ -1,5 +1,6 @@
 ﻿using JustDecompile.EngineInfrastructure;
 using Mono.Cecil;
+using Mono.Cecil.AssemblyResolver;
 using System.Collections.Generic;
 using Telerik.JustDecompiler.External.Interfaces;
 using Telerik.JustDecompiler.Languages;
@@ -11,7 +12,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes,
             Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources,
             string targetPath, ILanguage language, IDecompilationPreferences preferences, VisualStudioVersion visualStudioVersion, ProjectGenerationSettings projectGenerationSettings = null)
-            : base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, preferences, NoCacheAssemblyInfoService.Instance, visualStudioVersion, projectGenerationSettings)
+            : base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, preferences, NoCacheAssemblyInfoService.Instance, TargetPlatformResolver.Instance, visualStudioVersion, projectGenerationSettings)
         {
         }
     }

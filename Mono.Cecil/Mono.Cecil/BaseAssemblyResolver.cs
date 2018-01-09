@@ -807,13 +807,13 @@ namespace Mono.Cecil {
 			{
 				return results.FirstOrDefault();
 			}
-			AssemblyDefinition assembluDefinition = SearchDirectory(assemblyNameRef, new ReaderParameters(this), assemblyName.TargetArchitecture, fallbackDir);
+			AssemblyDefinition assemblyDefinition = SearchDirectory(assemblyNameRef, new ReaderParameters(this), assemblyName.TargetArchitecture, fallbackDir);
 
-			if (assembluDefinition != null)
+			if (assemblyDefinition != null)
 			{
-				assemblyPathResolver.AddToAssemblyPathNameCache(assemblyName, assembluDefinition.MainModule.FilePath);
+				assemblyPathResolver.AddToAssemblyPathNameCache(assemblyName, assemblyDefinition.MainModule.FilePath);
 
-				return assembluDefinition.MainModule.FilePath;
+				return assemblyDefinition.MainModule.FilePath;
 			}
 
             string result = assemblyPathResolver.GetAssemblyPath(assemblyName, assemblyKey);
@@ -828,11 +828,11 @@ namespace Mono.Cecil {
 			}
 			if (bubbleToUserIfFailed)
 			{
-				assembluDefinition = UserSpecifiedAssembly(assemblyNameRef, assemblyName.TargetArchitecture, assemblyKey);
+				assemblyDefinition = UserSpecifiedAssembly(assemblyNameRef, assemblyName.TargetArchitecture, assemblyKey);
 			}
-			if (assembluDefinition != null)
+			if (assemblyDefinition != null)
 			{
-				string filePath = assembluDefinition.MainModule.FilePath;
+				string filePath = assemblyDefinition.MainModule.FilePath;
 
 				this.AddSearchDirectory(Path.GetDirectoryName(filePath));
 
@@ -842,9 +842,9 @@ namespace Mono.Cecil {
 			return result;
 		}
 
-		public virtual TargetPlatform GetTargetPlatform(string assemliyFilePath)
+		public virtual TargetPlatform GetTargetPlatform(string assemblyFilePath, ITargetPlatformResolver targetPlatformResolver)
 		{
-			return assemblyPathResolver.GetTargetPlatform(assemliyFilePath);
+			return assemblyPathResolver.GetTargetPlatform(assemblyFilePath, targetPlatformResolver);
 		}
 
 		public virtual bool ArePublicKeyEquals(byte[] publicKeyToken1, byte[] publicKeyToken2)

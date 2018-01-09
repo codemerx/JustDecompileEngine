@@ -49,7 +49,7 @@ namespace Mono.Cecil.AssemblyResolver
             AssemblyName assemblyName;
             if (TryGetAssemblyNameDefinition(filePath, true, architecture, out assemblyName))
             {
-                TargetPlatform platform = GetTargetPlatform(filePath);
+                TargetPlatform platform = GetTargetPlatform(filePath, TargetPlatformResolver.Instance);
                 if (!pathRepository.AssemblyParts.ContainsKey(filePath))
                 {
                     pathRepository.AssemblyParts.Add(filePath, platform);
@@ -103,7 +103,7 @@ namespace Mono.Cecil.AssemblyResolver
             return filePath;
         }
 
-        public TargetPlatform GetTargetPlatform(string assemblyFilePath)
+        public TargetPlatform GetTargetPlatform(string assemblyFilePath, ITargetPlatformResolver targetPlatformResolver)
         {
             if (string.IsNullOrEmpty(assemblyFilePath))
             {
@@ -120,10 +120,11 @@ namespace Mono.Cecil.AssemblyResolver
 				///*Telerik Authorship*/
 				if (moduleDef.Assembly != null && !string.IsNullOrEmpty(moduleDef.Assembly.TargetFrameworkAttributeValue))
 				{
-					TargetPlatform targetPlatform = this.GetTargetPlatformThroughTargetFrameworkAttribute(moduleDef.Assembly.TargetFrameworkAttributeValue, assemblyFilePath);
+					TargetPlatform targetPlatform = targetPlatformResolver.GetTargetPlatform(moduleDef.Assembly.TargetFrameworkAttributeValue);
 
 					if (targetPlatform != TargetPlatform.None)
 					{
+						pathRepository.AssemblyParts.Add(assemblyFilePath, targetPlatform);
 						return targetPlatform;
 					}
 				}
@@ -132,10 +133,11 @@ namespace Mono.Cecil.AssemblyResolver
 
 				if (msCorlib == null)
 				{
-					TargetPlatform targetPlatform = this.GetTargetPlatformThroughModuleSystemRuntimeReferenceVersion(moduleDef, assemblyFilePath);
+					TargetPlatform targetPlatform = targetPlatformResolver.GetTargetPlatform(moduleDef);
 
 					if (targetPlatform != TargetPlatform.None)
 					{
+						pathRepository.AssemblyParts.Add(assemblyFilePath, targetPlatform);
 						return targetPlatform;
 					}
 
@@ -172,71 +174,11 @@ namespace Mono.Cecil.AssemblyResolver
 	                }
 	            }
 
-                /*Telerik Authorship*/
-                return TargetPlatform.None;
+				/*Telerik Authorship*/
+				pathRepository.AssemblyParts.Add(assemblyFilePath, TargetPlatform.None);
+				return TargetPlatform.None;
             }
         }
-
-		/*Telerik Authorship*/
-		private TargetPlatform GetTargetPlatformThroughModuleSystemRuntimeReferenceVersion(ModuleDefinition assemblyModule, string assemblyFilePath)
-		{
-			AssemblyNameReference systemRuntime = assemblyModule.AssemblyReferences.FirstOrDefault(x => x.Name == "System.Runtime");
-
-			if (systemRuntime != null)
-			{
-				if (systemRuntime.Version.Major == 4 && (systemRuntime.Version.Minor == 1 || systemRuntime.Version.Minor == 2))
-				{
-					pathRepository.AssemblyParts.Add(assemblyFilePath, TargetPlatform.NetCore);
-					return TargetPlatform.NetCore;
-				}
-				else
-				{
-					pathRepository.AssemblyParts.Add(assemblyFilePath, TargetPlatform.WinRT);
-					return TargetPlatform.WinRT;
-				}
-			}
-
-			return TargetPlatform.None;
-		}
-
-		/*Telerik Authorship*/
-		private TargetPlatform GetTargetPlatformThroughTargetFrameworkAttribute(string targetFrameworkAttributeValue, string assemblyFilePath)
-		{
-			FrameworkName targetFrameworkAttribute = new FrameworkName(targetFrameworkAttributeValue);
-
-			if (targetFrameworkAttribute.Identifier == ".NETCoreApp")
-			{
-				pathRepository.AssemblyParts.Add(assemblyFilePath, TargetPlatform.NetCore);
-				return TargetPlatform.NetCore;
-			}
-			else if (targetFrameworkAttribute.Identifier == ".NETFramework" && targetFrameworkAttribute.Version.Major == 4)
-			{
-				pathRepository.AssemblyParts.Add(assemblyFilePath, TargetPlatform.CLR_4);
-				return TargetPlatform.CLR_4;
-			}
-			else if (targetFrameworkAttribute.Identifier == "Silverlight")
-			{
-				if (targetFrameworkAttribute.Profile == "WindowsPhone")
-				{
-					pathRepository.AssemblyParts.Add(assemblyFilePath, TargetPlatform.WindowsPhone);
-					return TargetPlatform.WindowsPhone;
-				}
-
-				pathRepository.AssemblyParts.Add(assemblyFilePath, TargetPlatform.Silverlight);
-				return TargetPlatform.Silverlight;
-			}
-			else if (targetFrameworkAttribute.Identifier == "MonoAndroid" || targetFrameworkAttribute.Identifier == "Xamarin.iOS")
-			{
-				return TargetPlatform.Xamarin;
-			}
-			else if (targetFrameworkAttribute.Identifier == "WindowsPhoneApp")
-			{
-				return TargetPlatform.WinRT;
-			}
-
-			return TargetPlatform.None;
-		}
-
 		public bool ArePublicKeyEquals(byte[] publicKeyToken1, byte[] publicKeyToken2)
         {
             if (publicKeyToken1 == null && publicKeyToken2 == null)

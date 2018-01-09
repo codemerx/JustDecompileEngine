@@ -17,7 +17,7 @@ namespace JustDecompileCmdShell
 {
     public class CmdShell : ExceptionThrownNotifier, IExceptionThrownNotifier
     {
-        private static readonly string description = "[--- Copyright (c) 2011-2017 Telerik AD. All rights reserved. ---]";
+        private static readonly string description = "[--- Copyright (c) 2011-2018 Telerik AD. All rights reserved. ---]";
         private static uint count = 0;
 
         public event EventHandler<AssemblyDefinition> ProjectGenerationStarted;
@@ -96,7 +96,7 @@ namespace JustDecompileCmdShell
                     }
                     else if (!projectInfo.IsDefaultFrameworkVersion)
                     {
-                        AssemblyInfo assemblyInfo = NoCacheAssemblyInfoService.Instance.GetAssemblyInfo(assembly, new ConsoleFrameworkResolver(projectInfo.FrameworkVersion));
+                        AssemblyInfo assemblyInfo = NoCacheAssemblyInfoService.Instance.GetAssemblyInfo(assembly, new ConsoleFrameworkResolver(projectInfo.FrameworkVersion), TargetPlatformResolver.Instance);
                         if (assemblyInfo.ModulesFrameworkVersions[assembly.MainModule] != projectInfo.FrameworkVersion)
                         {
                             CommandLineManager.WriteLineColor(ConsoleColor.Yellow, "JustDecompile managed to determine the target assembly framework. The fallback target framework version command line option is ignored.");
@@ -137,7 +137,7 @@ namespace JustDecompileCmdShell
         protected ProjectGenerationSettings GetSettings(GeneratorProjectInfo projectInfo)
         {
             return ProjectGenerationSettingsProvider.GetProjectGenerationSettings(projectInfo.Target, NoCacheAssemblyInfoService.Instance,
-                new ConsoleFrameworkResolver(projectInfo.FrameworkVersion), projectInfo.VisualStudioVersion, projectInfo.Language);
+                new ConsoleFrameworkResolver(projectInfo.FrameworkVersion), projectInfo.VisualStudioVersion, projectInfo.Language, TargetPlatformResolver.Instance);
         }
 
         protected TimeSpan RunInternal(AssemblyDefinition assembly, GeneratorProjectInfo projectInfo, ProjectGenerationSettings settings)
@@ -173,14 +173,14 @@ namespace JustDecompileCmdShell
 
         private MSBuildProjectBuilder GetProjectBuilder(AssemblyDefinition assembly, GeneratorProjectInfo projectInfo, ProjectGenerationSettings settings, ILanguage language, string projFilePath, DecompilationPreferences preferences, IFrameworkResolver frameworkResolver)
         {
-            TargetPlatform targetPlatform = assembly.MainModule.AssemblyResolver.GetTargetPlatform(assembly.MainModule.FilePath);
+            TargetPlatform targetPlatform = assembly.MainModule.AssemblyResolver.GetTargetPlatform(assembly.MainModule.FilePath, TargetPlatformResolver.Instance);
             if (targetPlatform == TargetPlatform.WinRT)
             {
-                return new WinRTProjectBuilder(projectInfo.Target, projFilePath, language, preferences, null, NoCacheAssemblyInfoService.Instance, projectInfo.VisualStudioVersion, settings);
+                return new WinRTProjectBuilder(projectInfo.Target, projFilePath, language, preferences, null, NoCacheAssemblyInfoService.Instance, TargetPlatformResolver.Instance, projectInfo.VisualStudioVersion, settings);
             }
             else
             {
-                return new MSBuildProjectBuilder(projectInfo.Target, projFilePath, language, frameworkResolver, preferences, null, NoCacheAssemblyInfoService.Instance, projectInfo.VisualStudioVersion, settings);
+                return new MSBuildProjectBuilder(projectInfo.Target, projFilePath, language, frameworkResolver, preferences, null, NoCacheAssemblyInfoService.Instance, TargetPlatformResolver.Instance, projectInfo.VisualStudioVersion, settings);
             }
         }
 

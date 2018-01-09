@@ -14,11 +14,12 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
     public static class ProjectGenerationSettingsProvider
     {
         public static ProjectGenerationSettings GetProjectGenerationSettings(string assemblyFilePath, IAssemblyInfoService assemblyInfoService,
-            IFrameworkResolver frameworkResolver, VisualStudioVersion visualStudioVersion, ILanguage language)
+            IFrameworkResolver frameworkResolver, VisualStudioVersion visualStudioVersion, ILanguage language, ITargetPlatformResolver targetPlatformResolver)
         {
             AssemblyDefinition assembly = Telerik.JustDecompiler.Decompiler.Utilities.GetAssembly(assemblyFilePath);
-            AssemblyInfo assemblyInfo = assemblyInfoService.GetAssemblyInfo(assembly, frameworkResolver);
-            TargetPlatform targetPlatform = GlobalAssemblyResolver.Instance.GetTargetPlatform(assemblyFilePath);
+            AssemblyInfo assemblyInfo = assemblyInfoService.GetAssemblyInfo(assembly, frameworkResolver, targetPlatformResolver);
+            TargetPlatform targetPlatform = GlobalAssemblyResolver.Instance.GetTargetPlatform(assemblyFilePath, targetPlatformResolver);
+
             foreach (KeyValuePair<ModuleDefinition, FrameworkVersion> pair in assemblyInfo.ModulesFrameworkVersions)
             {
                 if (pair.Value == FrameworkVersion.Unknown)
