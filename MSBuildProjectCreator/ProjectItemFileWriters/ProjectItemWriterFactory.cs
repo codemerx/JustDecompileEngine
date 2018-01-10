@@ -6,70 +6,71 @@ using Telerik.JustDecompiler.Languages.CSharp;
 using Telerik.JustDecompiler.Languages;
 using System.Collections.Generic;
 using JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices;
+using JustDecompile.Tools.MSBuildProjectBuilder.Contracts.FileManagers;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectItemFileWriters
 {
     class ProjectItemWriterFactory
     {
-        private readonly FileGenerationContext fileGenContext;
+        private readonly IProjectManager projectFileManager;
         private readonly string sourceExtension;
+		private readonly string targetDirectory;
         private readonly AssemblyDefinition assembly;
 		private object fileNamesCollisionsLock = new object();
 		private readonly IFilePathsService filePathsService;
 		private readonly Dictionary<TypeDefinition, string> typeToPathMap;
 
         public ProjectItemWriterFactory(AssemblyDefinition thisAssembly, Mono.Collections.Generic.Collection<TypeDefinition> userDefinedTypes, 
-			FileGenerationContext fileGenContext, IFilePathsService filePathsService, string sourceExtension)
+			IProjectManager projectFileManager, IFilePathsService filePathsService, string sourceExtension, string targetDirectory)
         {
             this.assembly = thisAssembly;
-            this.fileGenContext = fileGenContext;
+            this.projectFileManager = projectFileManager;
 			this.filePathsService = filePathsService;
 			this.typeToPathMap = filePathsService.GetTypesToFilePathsMap();
             this.sourceExtension = sourceExtension;
-        }
+			this.targetDirectory = targetDirectory;
+		}
 
         public IProjectItemFileWriter GetProjectItemWriter(TypeDefinition type)
         {
-            string relativeResourcePath;
-            if(fileGenContext.ResourceDesignerMap.TryGetValue(type.FullName, out relativeResourcePath) ||
+			IMsBuildProjectManager msBuildProjectManager = this.projectFileManager as IMsBuildProjectManager;
+
+			string relativeResourcePath;
+            if(this.projectFileManager.ResourceDesignerMap.TryGetValue(type.FullName, out relativeResourcePath) ||
                 IsVBResourceType(type, out relativeResourcePath))
             {
                 if (type.BaseType != null && type.BaseType.Namespace == "System.Windows.Forms" && type.BaseType.Name == "Form")
                 {
-                    return new WinFormsItemWriter(fileGenContext.TargetDirectory,
+                    return new WinFormsItemWriter(this.targetDirectory,
                                                   relativeResourcePath,
                                                   sourceExtension,
-                                                  fileGenContext.WinFormCodeEntries,
-                                                  fileGenContext.WinFormResXEntries);
+												  msBuildProjectManager);
                 }
                 else
                 {
-                    return new ResXDesignerWriter(fileGenContext.TargetDirectory,
+                    return new ResXDesignerWriter(this.targetDirectory,
                                                   relativeResourcePath,
-                                                  fileGenContext.NormalCodeEntries,
-                                                  fileGenContext.ResXEntries,
+												  this.projectFileManager,
 												  filePathsService);
                 }
             }
 
             string relativeXamlPath;
-            if(fileGenContext.XamlFullNameToRelativePathMap.TryGetValue(type.FullName, out relativeXamlPath))
+            if(this.projectFileManager.XamlFullNameToRelativePathMap.TryGetValue(type.FullName, out relativeXamlPath))
             {
                 if(assembly.EntryPoint != null && assembly.EntryPoint.DeclaringType == type)
                 {
-                    return new AppDefinitionItemWriter(fileGenContext.TargetDirectory,
+                    return new AppDefinitionItemWriter(this.targetDirectory,
                                                 relativeXamlPath,
                                                 sourceExtension,
-                                                fileGenContext.NormalCodeEntries,
-                                                fileGenContext.XamlFileEntries);
+												msBuildProjectManager);
                 }
                 else
                 {
-                    return new XamlPageItemWriter(fileGenContext.TargetDirectory,
+                    return new XamlPageItemWriter(this.targetDirectory,
                                                 relativeXamlPath,
                                                 sourceExtension,
-                                                fileGenContext.NormalCodeEntries,
-                                                fileGenContext.XamlFileEntries);
+												msBuildProjectManager);
                 }
             }
 
@@ -87,16 +88,16 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectItemFileWriters
 				}
 			}
 
-            return new RegularProjectItemWriter(fileGenContext.TargetDirectory,
+            return new RegularProjectItemWriter(this.targetDirectory,
 											   friendlyFilePath,
-                                               fileGenContext.NormalCodeEntries);
+                                               this.projectFileManager);
         }
 
         private bool IsVBResourceType(TypeDefinition type, out string relativeResourcePath)
         {
             relativeResourcePath = null;
             string resourceName;
-            return Utilities.IsVBResourceType(type, out resourceName) && fileGenContext.ResourceDesignerMap.TryGetValue(resourceName, out relativeResourcePath);
+            return Utilities.IsVBResourceType(type, out resourceName) && this.projectFileManager.ResourceDesignerMap.TryGetValue(resourceName, out relativeResourcePath);
         }
     }
 }

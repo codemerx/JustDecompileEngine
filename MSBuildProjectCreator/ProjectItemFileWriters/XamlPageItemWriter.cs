@@ -1,25 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
+using JustDecompile.Tools.MSBuildProjectBuilder.Contracts;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectItemFileWriters
 {
     class XamlPageItemWriter : BaseXamlFileWriter
     {
+		private readonly IXamlPageProjectItemWriter itemWriter;
 
-        public XamlPageItemWriter(string projectRootDirectory, string relativeXamlPath, string sourceExtension,
-            List<ProjectItemGroupCompile> codeItemGroup,
-            List<object> xamlItemGroup)
-            :base(projectRootDirectory, relativeXamlPath, sourceExtension, codeItemGroup, xamlItemGroup)
+		public XamlPageItemWriter(string projectRootDirectory, string relativeXamlPath, string sourceExtension, IXamlPageProjectItemWriter itemWriter)
+            :base(projectRootDirectory, relativeXamlPath, sourceExtension, itemWriter)
         {
-        }
+			this.itemWriter = itemWriter;
+		}
 
-        protected override object GetXamlEntry()
+        public override void GenerateProjectItems()
         {
-            ProjectItemGroupPage pageItem = new ProjectItemGroupPage();
-            pageItem.Include = this.relativeXamlPath;
-            pageItem.Generator = "MSBuild:Compile";
-            pageItem.SubType = "Designer";
-            return pageItem;
+			base.GenerateProjectItems();
+			this.itemWriter.WriteXamlPageProjectItem(base.relativeXamlPath);
         }
     }
 }

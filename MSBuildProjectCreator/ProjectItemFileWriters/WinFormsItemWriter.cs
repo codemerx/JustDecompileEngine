@@ -1,38 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using JustDecompile.Tools.MSBuildProjectBuilder.Contracts;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectItemFileWriters
 {
     class WinFormsItemWriter : BaseProjectItemFileWriter
     {
         private readonly string relativeResourcePath;
-        private readonly string relativeWinFormPath;
-        private readonly List<ProjectItemGroupCompile> winFormsItemGroup;
-        private readonly List<ProjectItemGroupEmbeddedResource> resourceItemGroup;
+		private readonly string relativeWinFormPath;
+		private readonly IWinFormsProjectItemWriter itemWriter;
 
-        public WinFormsItemWriter(string projectRootDirectory, string relativeResourcePath, string sourceExtension,
-            List<ProjectItemGroupCompile> winFormsItemGroup,
-            List<ProjectItemGroupEmbeddedResource> resourceItemGroup)
+		public WinFormsItemWriter(string projectRootDirectory, string relativeResourcePath, string sourceExtension, IWinFormsProjectItemWriter itemWriter)
         {
-            this.relativeResourcePath = relativeResourcePath;
-            this.relativeWinFormPath = Path.ChangeExtension(relativeResourcePath, sourceExtension);
+			this.relativeWinFormPath = Path.ChangeExtension(relativeResourcePath, sourceExtension);
+			this.relativeResourcePath = relativeResourcePath;
             this.fullPath = Path.Combine(projectRootDirectory, relativeWinFormPath);
-            this.winFormsItemGroup = winFormsItemGroup;
-            this.resourceItemGroup = resourceItemGroup;
-        }
+			this.itemWriter = itemWriter;
+		}
 
         public override void GenerateProjectItems()
         {
-            ProjectItemGroupCompile winFormEntry = new ProjectItemGroupCompile();
-            winFormEntry.Include = relativeWinFormPath;
-            winFormEntry.SubType = "Form";
-            winFormsItemGroup.Add(winFormEntry);
+			this.itemWriter.WriteWinFormsEntryProjectItem(this.relativeWinFormPath);
 
-            ProjectItemGroupEmbeddedResource resourceEntry = new ProjectItemGroupEmbeddedResource();
-            resourceEntry.Include = relativeResourcePath;
-            resourceEntry.DependentUpon = Path.GetFileName(relativeWinFormPath);
-            resourceItemGroup.Add(resourceEntry);
+			this.itemWriter.WriteWinFormsResourceProjectItem(this.relativeResourcePath);
         }
     }
 }

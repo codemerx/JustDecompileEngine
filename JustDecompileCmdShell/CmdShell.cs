@@ -12,6 +12,8 @@ using Mono.Cecil;
 using Mono.Cecil.AssemblyResolver;
 using JustDecompile.EngineInfrastructure;
 using Telerik.JustDecompiler.Languages.VisualBasic;
+using System.Collections.Generic;
+using JustDecompile.Tools.MSBuildProjectBuilder.ProjectBuilderMakers;
 
 namespace JustDecompileCmdShell
 {
@@ -153,7 +155,9 @@ namespace JustDecompileCmdShell
             preferences.WriteLargeNumbersInHex = projectInfo.WriteLargeNumbersInHex;
 
             IFrameworkResolver frameworkResolver = new ConsoleFrameworkResolver(projectInfo.FrameworkVersion);
-            MSBuildProjectBuilder projectBuilder = GetProjectBuilder(assembly, projectInfo, settings, projectInfo.Language, projFilePath, preferences, frameworkResolver);
+			ITargetPlatformResolver targetPlatformResolver = TargetPlatformResolver.Instance;
+
+			BaseProjectBuilder projectBuilder = GetProjectBuilder(assembly, projectInfo, settings, projectInfo.Language, projFilePath, preferences, frameworkResolver, targetPlatformResolver);
             AttachProjectBuilderEventHandlers(projectBuilder);
 
             //As per https://github.com/telerik/JustDecompileEngine/pull/2
@@ -171,20 +175,30 @@ namespace JustDecompileCmdShell
             Directory.CreateDirectory(projectInfo.Out);
         }
 
-        private MSBuildProjectBuilder GetProjectBuilder(AssemblyDefinition assembly, GeneratorProjectInfo projectInfo, ProjectGenerationSettings settings, ILanguage language, string projFilePath, DecompilationPreferences preferences, IFrameworkResolver frameworkResolver)
+        private BaseProjectBuilder GetProjectBuilder(AssemblyDefinition assembly, GeneratorProjectInfo projectInfo, ProjectGenerationSettings settings, ILanguage language, string projFilePath, DecompilationPreferences preferences, IFrameworkResolver frameworkResolver, ITargetPlatformResolver targetPlatformResolver)
         {
-            TargetPlatform targetPlatform = assembly.MainModule.AssemblyResolver.GetTargetPlatform(assembly.MainModule.FilePath, TargetPlatformResolver.Instance);
-            if (targetPlatform == TargetPlatform.WinRT)
+            TargetPlatform targetPlatform = assembly.MainModule.AssemblyResolver.GetTargetPlatform(assembly.MainModule.FilePath, targetPlatformResolver);
+			BaseProjectBuilderMaker builderMaker = null;
+
+			if (targetPlatform == TargetPlatform.NetCore)
+			{
+				builderMaker = new NetCoreProjectBuilderMaker(projectInfo.Target, projFilePath, language, frameworkResolver, targetPlatformResolver, preferences, null, NoCacheAssemblyInfoService.Instance, projectInfo.VisualStudioVersion, settings);
+			}
+			else if (targetPlatform == TargetPlatform.WinRT)
             {
-                return new WinRTProjectBuilder(projectInfo.Target, projFilePath, language, preferences, null, NoCacheAssemblyInfoService.Instance, TargetPlatformResolver.Instance, projectInfo.VisualStudioVersion, settings);
+				builderMaker = new WinRTProjectBuilderMaker(projectInfo.Target, projFilePath, language, targetPlatformResolver, preferences, null, NoCacheAssemblyInfoService.Instance, projectInfo.VisualStudioVersion, settings);
             }
             else
             {
-                return new MSBuildProjectBuilder(projectInfo.Target, projFilePath, language, frameworkResolver, preferences, null, NoCacheAssemblyInfoService.Instance, TargetPlatformResolver.Instance, projectInfo.VisualStudioVersion, settings);
+				builderMaker = new MsBuildProjectBuilderMaker(projectInfo.Target, projFilePath, language, frameworkResolver, targetPlatformResolver, preferences, null, NoCacheAssemblyInfoService.Instance, projectInfo.VisualStudioVersion, settings);
             }
+
+			builderMaker.InitializeProjectFileManager();
+
+			return builderMaker.GetBuilder();
         }
 
-        protected virtual void AttachProjectBuilderEventHandlers(MSBuildProjectBuilder projectBuilder)
+        protected virtual void AttachProjectBuilderEventHandlers(BaseProjectBuilder projectBuilder)
         {
             projectBuilder.ProjectFileCreated += OnProjectFileCreated;
             projectBuilder.ProjectGenerationFailure += OnProjectGenerationFailure;
@@ -192,7 +206,7 @@ namespace JustDecompileCmdShell
             projectBuilder.ExceptionThrown += OnExceptionThrown;
         }
         
-        protected virtual void DetachProjectBuilderEventHandlers(MSBuildProjectBuilder projectBuilder)
+        protected virtual void DetachProjectBuilderEventHandlers(BaseProjectBuilder projectBuilder)
         {
             projectBuilder.ProjectFileCreated -= OnProjectFileCreated;
             projectBuilder.ProjectGenerationFailure -= OnProjectGenerationFailure;

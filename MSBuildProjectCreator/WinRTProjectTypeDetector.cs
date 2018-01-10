@@ -6,7 +6,7 @@ using Mono.Cecil;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder
 {
-    internal class WinRTProjectTypeDetector
+    public class WinRTProjectTypeDetector
     {
         public static WinRTProjectType GetProjectType(AssemblyDefinition assembly)
         {

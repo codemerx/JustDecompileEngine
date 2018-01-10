@@ -9,6 +9,7 @@ using Mono.Cecil.AssemblyResolver;
 using Telerik.JustDecompiler.Languages;
 using Telerik.JustDecompiler.Languages.CSharp;
 using Telerik.JustDecompiler.Languages.VisualBasic;
+using JustDecompile.Tools.MSBuildProjectBuilder.Constants;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder
 {
@@ -20,26 +21,25 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 		private readonly Dictionary<ModuleDefinition, string> modulesProjectsRelativePaths;
 		private readonly Dictionary<ModuleDefinition, Guid> modulesProjectsGuids;
 		private readonly Guid languageGuid;
-        private readonly TargetPlatform targetPlatform;
         private readonly VisualStudioVersion visualStudioVersion;
 
-		internal SolutionWriter(AssemblyDefinition assembly, TargetPlatform targetPlatform, string targetDir, string solutionFileName, 
+		internal SolutionWriter(AssemblyDefinition assembly, string targetDir, string solutionFileName, 
 			Dictionary<ModuleDefinition, string> modulesProjectsRelativePaths, Dictionary<ModuleDefinition, Guid> modulesProjectsGuids,
             VisualStudioVersion visualStudioVersion, ILanguage language)
 		{
 			this.assembly = assembly;
-            this.targetPlatform = targetPlatform;
 			this.targetDir = targetDir;
 			this.solutionFileName = solutionFileName;
 			this.modulesProjectsRelativePaths = modulesProjectsRelativePaths;
 			this.modulesProjectsGuids = modulesProjectsGuids;
+
             if (language is ICSharp)
             {
-                this.languageGuid = new Guid(WinRTProjectBuilder.CSharpGUID);
+                this.languageGuid = new Guid(LanguageConstants.CSharpGUID);
             }
             else if (language is IVisualBasic)
             {
-                this.languageGuid = new Guid(WinRTProjectBuilder.VisualBasicGUID);
+                this.languageGuid = new Guid(LanguageConstants.VisualBasicGUID);
             }
             else
             {

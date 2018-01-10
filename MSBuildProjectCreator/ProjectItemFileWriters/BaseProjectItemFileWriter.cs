@@ -6,6 +6,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectItemFileWriters
     abstract class BaseProjectItemFileWriter : IProjectItemFileWriter
     {
         protected string fullPath;
+
         public string FullSourceFilePath
         {
             get

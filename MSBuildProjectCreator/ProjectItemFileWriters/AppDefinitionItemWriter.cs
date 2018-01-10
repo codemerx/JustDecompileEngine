@@ -1,24 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
+using JustDecompile.Tools.MSBuildProjectBuilder.Contracts;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectItemFileWriters
 {
     class AppDefinitionItemWriter : BaseXamlFileWriter
     {
-        public AppDefinitionItemWriter(string projectRootDirectory, string relativeXamlPath, string sourceExtension,
-            List<ProjectItemGroupCompile> codeItemGroup,
-            List<object> xamlItemGroup)
-            :base(projectRootDirectory, relativeXamlPath, sourceExtension, codeItemGroup, xamlItemGroup)
-        {
-        }
+		private readonly IAppDefinitionProjectItemWriter itemWriter;
 
-        protected override object GetXamlEntry()
+		public AppDefinitionItemWriter(string projectRootDirectory, string relativeXamlPath, string sourceExtension, IAppDefinitionProjectItemWriter itemWriter)
+            :base(projectRootDirectory, relativeXamlPath, sourceExtension, itemWriter)
         {
-            ProjectItemGroupApplicationDefinition appDefItem = new ProjectItemGroupApplicationDefinition();
-            appDefItem.Include = this.relativeXamlPath;
-            appDefItem.Generator = "MSBuild:Compile";
-            appDefItem.SubType = "Designer";
-            return appDefItem;
+			this.itemWriter = itemWriter;
+		}
+
+        public override void GenerateProjectItems()
+        {
+			base.GenerateProjectItems();
+			this.itemWriter.WriteAppDefinitionXamlEntryProjectItem(base.relativeXamlPath);
         }
     }
 }

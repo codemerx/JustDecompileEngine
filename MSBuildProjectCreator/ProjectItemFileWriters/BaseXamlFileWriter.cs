@@ -1,38 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using JustDecompile.Tools.MSBuildProjectBuilder.Contracts;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectItemFileWriters
 {
     abstract class BaseXamlFileWriter : BaseProjectItemFileWriter
     {
         protected readonly string relativeXamlPath;
-        private readonly List<object> xamlItemGroup;
-        private readonly string relativeCodePath;
-        private readonly List<ProjectItemGroupCompile> codeItemGroup;
+		private readonly IXamlProjectItemWriter itemWriter;
+		private readonly string relativeCodePath;
 
-        public BaseXamlFileWriter(string projectRootDirectory, string relativeXamlPath, string sourceExtension,
-            List<ProjectItemGroupCompile> codeItemGroup,
-            List<object> xamlItemGroup)
+		public BaseXamlFileWriter(string projectRootDirectory, string relativeXamlPath, string sourceExtension, IXamlProjectItemWriter itemWriter)
         {
             this.relativeXamlPath = relativeXamlPath;
-            this.relativeCodePath = relativeXamlPath + sourceExtension;
+			this.itemWriter = itemWriter;
+			this.relativeCodePath = relativeXamlPath + sourceExtension;
             this.fullPath = Path.Combine(projectRootDirectory, relativeCodePath);
-            this.codeItemGroup = codeItemGroup;
-            this.xamlItemGroup = xamlItemGroup;
         }
 
         public override void GenerateProjectItems()
         {
-            ProjectItemGroupCompile codeEntry = new ProjectItemGroupCompile();
-            codeEntry.Include = relativeCodePath;
-            codeEntry.SubType = "Code";
-            codeEntry.DependentUpon = Path.GetFileName(relativeXamlPath);
-            codeItemGroup.Add(codeEntry);
-
-            xamlItemGroup.Add(GetXamlEntry());
+			this.itemWriter.WriteXamlCodeEntryProjectItem(this.relativeCodePath, this.relativeXamlPath);
         }
-
-        protected abstract object GetXamlEntry();
     }
 }

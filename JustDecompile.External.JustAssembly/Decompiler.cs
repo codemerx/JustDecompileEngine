@@ -15,6 +15,11 @@ using System.IO;
 using JustDecompile.Tools.MSBuildProjectBuilder;
 using Telerik.JustDecompiler;
 using Mono.Cecil.AssemblyResolver;
+using Telerik.JustDecompiler.External.Interfaces;
+using Telerik.JustDecompiler.External;
+using JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers;
+using JustDecompile.EngineInfrastructure;
+using Telerik.JustDecompiler.Common.NamespaceHierarchy;
 
 namespace JustDecompile.External.JustAssembly
 {
@@ -306,15 +311,25 @@ namespace JustDecompile.External.JustAssembly
 			ILanguage decompilerLanguage = GetLanguage(language);
 			string csprojFileName = Path.ChangeExtension(Path.GetFileName(assemblyFilePath), decompilerLanguage.VSProjectFileExtension);
 			string csprojTargetPath = Path.Combine(targetPath, csprojFileName);
+            IFrameworkResolver frameworkResolver = new JustAssemblyProjectBuilderFrameworkVersionResolver();
+            IAssemblyResolver assemblyResolver = new WeakAssemblyResolver(GlobalAssemblyResolver.CurrentAssemblyPathCache);
+            ReaderParameters readerParameters = new ReaderParameters(assemblyResolver);
+            NoCacheAssemblyInfoService assemblyInfoService = NoCacheAssemblyInfoService.Instance;
+            AssemblyDefinition assembly = assemblyResolver.LoadAssemblyDefinition(assemblyFilePath, readerParameters, loadPdb: true);
+            AssemblyInfo assemblyInfo = assemblyInfoService.GetAssemblyInfo(assembly, frameworkResolver, TargetPlatformResolver.Instance);
+            NamespaceHierarchyTree namespaceHierarchyTree = assembly.BuildNamespaceHierarchyTree();
+            Dictionary<ModuleDefinition, Guid> modulesProjectGuids = new Dictionary<ModuleDefinition, Guid>();
 
-			JustAssemblyProjectBuilder projectBuilder;
+            MsBuildProjectFileManager projectFileManager = new MsBuildProjectFileManager(assembly, assemblyInfo, VisualStudioVersion.VS2010, modulesProjectGuids, decompilerLanguage, namespaceHierarchyTree);
+
+            JustAssemblyProjectBuilder projectBuilder;
 			if (notifier != null)
 			{
-				projectBuilder = new JustAssemblyProjectBuilder(assemblyFilePath, csprojTargetPath, decompilerLanguage, new FileGenerationNotifier(notifier));
+				projectBuilder = new JustAssemblyProjectBuilder(assemblyFilePath, csprojTargetPath, decompilerLanguage, new FileGenerationNotifier(notifier), projectFileManager, modulesProjectGuids);
 			}
 			else
 			{
-				projectBuilder = new JustAssemblyProjectBuilder(assemblyFilePath, csprojTargetPath, decompilerLanguage, null);
+				projectBuilder = new JustAssemblyProjectBuilder(assemblyFilePath, csprojTargetPath, decompilerLanguage, null, projectFileManager, modulesProjectGuids);
 			}
 
 			return projectBuilder.GenerateFiles(cancellationToken);
@@ -410,7 +425,15 @@ namespace JustDecompile.External.JustAssembly
 			}
 		}
 
-		static Dictionary<TypesCacheKey, TypeDefinition> TypesCache = new Dictionary<TypesCacheKey, TypeDefinition>();
+        class JustAssemblyProjectBuilderFrameworkVersionResolver : IFrameworkResolver
+        {
+            public FrameworkVersion GetDefaultFallbackFramework4Version()
+            {
+                return FrameworkVersion.v4_0;
+            }
+        }
+
+        static Dictionary<TypesCacheKey, TypeDefinition> TypesCache = new Dictionary<TypesCacheKey, TypeDefinition>();
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!! Implemented only for faster test & debug.  Should be removed or implemented smarter !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 		private static TypeDefinition GetTypeDefinition(string assemblyFilePath, uint moduleToken, uint typeToken)

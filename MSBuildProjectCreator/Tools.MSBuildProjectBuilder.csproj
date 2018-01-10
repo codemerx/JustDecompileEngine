@@ -139,10 +139,39 @@
     <Compile Include="..\CommonVersionAssemblyInfo.cs">
       <Link>Properties\CommonVersionAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="BaseProjectBuilder.cs" />
+    <Compile Include="Constants\LanguageConstants.cs" />
+    <Compile Include="Constants\UAPConstants.cs" />
+    <Compile Include="Constants\WinRTConstants.cs" />
+    <Compile Include="Contracts\FileManagers\IMsBuildProjectManager.cs" />
+    <Compile Include="Contracts\FileManagers\INetCoreProjectManager.cs" />
+    <Compile Include="Contracts\FileManagers\IWinRTProjectManager.cs" />
+    <Compile Include="Contracts\IAppDefinitionProjectItemWriter.cs" />
+    <Compile Include="Contracts\FileManagers\IProjectManager.cs" />
+    <Compile Include="Contracts\IProjectItemWriter.cs" />
+    <Compile Include="Contracts\IRegularProjectItemWriter.cs" />
+    <Compile Include="Contracts\IResourceProjectItemWriter.cs" />
+    <Compile Include="Contracts\IResXDesignerProjectItemWriter.cs" />
+    <Compile Include="Contracts\IWinFormsProjectItemWriter.cs" />
+    <Compile Include="Contracts\IXamlPageProjectItemWriter.cs" />
+    <Compile Include="Contracts\IXamlProjectItemWriter.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IProjectGenerationNotifier.cs" />
+    <Compile Include="NetCore\NetCoreProject.cs">
+      <DependentUpon>NetCoreProject.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="NetCore\NetCoreProjectBuilder.cs" />
+    <Compile Include="ProjectBuilderMakers\BaseProjectBuilderMaker.cs" />
+    <Compile Include="ProjectBuilderMakers\MsBuildProjectBuilderMaker.cs" />
+    <Compile Include="ProjectBuilderMakers\NetCoreProjectBuilderMaker.cs" />
+    <Compile Include="ProjectBuilderMakers\TestMSBuildProjectBuilderMaker.cs" />
+    <Compile Include="ProjectBuilderMakers\TestWinRTProjectBuidlerMaker.cs" />
+    <Compile Include="ProjectBuilderMakers\WinRTProjectBuilderMaker.cs" />
+    <Compile Include="ProjectFileManagers\MsBuildProjectFileManager.cs" />
+    <Compile Include="ProjectFileManagers\NetCoreProjectFileManager.cs" />
+    <Compile Include="ProjectFileManagers\ProjectFileManager.cs" />
+    <Compile Include="ProjectFileManagers\WinRTProjectFileManager.cs" />
     <Compile Include="ProjectGenerationSettings.cs" />
-    <Compile Include="FileGenerationContext.cs" />
     <Compile Include="FilePathsServices\DefaultFilePathsAnalyzer.cs" />
     <Compile Include="FilePathsServices\DefaultFilePathsService.cs" />
     <Compile Include="FilePathsServices\IFilePathsAnalyzer.cs" />
@@ -182,6 +211,9 @@
     <None Include="MSBuildProject.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="NetCore\NetCoreProject.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="UpdateClassGeenratedFromSchema.bat" />
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)' != 'Debug EngineOnly' And '$(Configuration)' != 'Release EngineOnly' And '$(Configuration)' != 'Debug JustAssembly' And '$(Configuration)' != 'Release JustAssembly' ">
@@ -191,6 +223,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\UI\Infrastructure\Infrastructure.csproj">
+      <Project>{274B2E5F-29B1-45AE-BADC-1BBA95EB80F0}</Project>
+      <Name>Infrastructure</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Cecil.Decompiler\JustDecompiler.csproj">
       <Project>{ED1BE103-1699-4116-A732-616BEB142EB2}</Project>
       <Name>JustDecompiler</Name>
