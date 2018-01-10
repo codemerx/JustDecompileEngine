@@ -4,7 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Resources;
+using System.Collections;
+using System.Xml.Linq;
+
+#if !NET35
 using System.Threading.Tasks;
+#endif
+
 using Mono.Cecil;
 using Mono.Cecil.AssemblyResolver;
 using Mono.Cecil.Extensions;
@@ -21,11 +28,11 @@ using Telerik.JustDecompiler.Languages;
 using JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices;
 using JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers;
 using JustDecompile.Tools.MSBuildProjectBuilder.ProjectItemFileWriters;
-using System.Resources;
-using System.Collections;
-using System.Xml.Linq;
-using Telerik.Baml;
 using JustDecompile.Tools.MSBuildProjectBuilder.Contracts.FileManagers;
+
+#if !ENGINEONLYBUILD && !JUSTASSEMBLY
+using Telerik.Baml;
+#endif
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder
 {

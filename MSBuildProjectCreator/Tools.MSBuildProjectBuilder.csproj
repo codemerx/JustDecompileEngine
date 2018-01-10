@@ -223,10 +223,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\UI\Infrastructure\Infrastructure.csproj">
-      <Project>{274B2E5F-29B1-45AE-BADC-1BBA95EB80F0}</Project>
-      <Name>Infrastructure</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Cecil.Decompiler\JustDecompiler.csproj">
       <Project>{ED1BE103-1699-4116-A732-616BEB142EB2}</Project>
       <Name>JustDecompiler</Name>
