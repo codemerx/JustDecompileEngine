@@ -102,7 +102,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers
 				throw new Exception("Unexpected type of module.");
 			}
 
-			string projectGuid = this.WriteProjectGuid(this.modulesProjectsGuids);
+			string projectGuid = this.WriteProjectGuid(this.modulesProjectsGuids, netModule);
 			string moduleName = Utilities.GetNetmoduleName(netModule);
 
 			this.netModulebasicProjectProperties = this.GetBasicProjectPropertiesInternal(netModule, moduleName, projectGuid);
@@ -110,7 +110,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers
 
 		public override void GetMainModuleBasicProjectProperties()
 		{
-			string projectGuid = this.WriteProjectGuid(this.modulesProjectsGuids);
+			string projectGuid = this.WriteProjectGuid(this.modulesProjectsGuids, this.assembly.MainModule);
 
 			this.mainModulebasicProjectProperties = this.GetBasicProjectPropertiesInternal(this.assembly.MainModule, this.assembly.Name.Name, projectGuid.ToUpper());
 		}
@@ -433,12 +433,12 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers
 			this.WinFormCodeEntries.Add(winFormEntry);
 		}
 
-		public virtual void WriteWinFormsResourceProjectItem(string relativeWinFormResourcePath)
+		public virtual void WriteWinFormsResourceProjectItem(string relativeWinFormResourcePath, string relativeWinFormPath)
 		{
 			ProjectItemGroupEmbeddedResource resourceEntry = new ProjectItemGroupEmbeddedResource()
 			{
 				Include = relativeWinFormResourcePath,
-				DependentUpon = Path.GetFileName(relativeWinFormResourcePath)
+				DependentUpon = Path.GetFileName(relativeWinFormPath)
 			};
 			
 			this.WinFormResXEntries.Add(resourceEntry);

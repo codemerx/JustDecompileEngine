@@ -17,7 +17,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectBuilderMakers
 {
 	public class WinRTProjectBuilderMaker : MsBuildProjectBuilderMaker
 	{
-		private IWinRTProjectManager projectFileManager;
+		protected IWinRTProjectManager winRTProjectFileManager;
 		private WinRTProjectType projectType;
 
 		public WinRTProjectBuilderMaker(string assemblyPath, AssemblyDefinition assembly,
@@ -41,7 +41,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectBuilderMakers
 
 		public override void InitializeProjectFileManager()
 		{
-			this.projectFileManager =
+			this.winRTProjectFileManager =
 				new WinRTProjectFileManager(this.assembly, this.assemblyInfo, this.language, this.visualStudioVersion, this.namespaceHierarchyTree,
 				this.modulesProjectsGuids, this.projectType);
 		}
@@ -49,7 +49,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectBuilderMakers
 		public override BaseProjectBuilder GetBuilder()
 		{
 			return new WinRTProjectBuilder(this.assemblyPath, this.assembly, this.userDefinedTypes, this.resources, this.targetPath, this.language,
-				this.preferences, this.projectFileManager, this.modulesProjectsGuids, this.visualStudioVersion, this.projectGenerationSettings);
+				this.preferences, this.winRTProjectFileManager, this.modulesProjectsGuids, this.visualStudioVersion, this.projectGenerationSettings);
 		}
 	}
 }

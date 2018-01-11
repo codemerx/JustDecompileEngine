@@ -228,7 +228,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers
 				EnableDefaultItems = "false"
 			};
 
-			this.WriteProjectGuid(this.modulesProjectsGuids);
+			this.WriteProjectGuid(this.modulesProjectsGuids, module);
 
 			return basicProjectProperties;
 		}

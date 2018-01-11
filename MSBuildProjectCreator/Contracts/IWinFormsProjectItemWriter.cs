@@ -6,6 +6,6 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.Contracts
 	{
 		void WriteWinFormsEntryProjectItem(string relativeWinFormPath);
 
-		void WriteWinFormsResourceProjectItem(string relativeWinFormResourcePath);
+		void WriteWinFormsResourceProjectItem(string relativeWinFormResourcePath, string relativeWinFormPath);
 	}
 }

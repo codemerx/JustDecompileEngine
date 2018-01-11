@@ -24,5 +24,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectBuilderMakers
 			: base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, frameworkResolver, targetPlatformResolver, preferences, assemblyInfoService, visualStudioVersion, settings)
 		{
 		}
+
+		public override BaseProjectBuilder GetBuilder()
+		{
+			return new TestWinRTProjectBuilder(this.assemblyPath, this.assembly, this.userDefinedTypes, this.resources, this.targetPath, this.language, this.preferences, this.winRTProjectFileManager, this.modulesProjectsGuids, this.visualStudioVersion, this.projectGenerationSettings);
+		}
 	}
 }

@@ -22,7 +22,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectItemFileWriters
         {
 			this.itemWriter.WriteWinFormsEntryProjectItem(this.relativeWinFormPath);
 
-			this.itemWriter.WriteWinFormsResourceProjectItem(this.relativeResourcePath);
+			this.itemWriter.WriteWinFormsResourceProjectItem(this.relativeResourcePath, this.relativeWinFormPath);
         }
     }
 }

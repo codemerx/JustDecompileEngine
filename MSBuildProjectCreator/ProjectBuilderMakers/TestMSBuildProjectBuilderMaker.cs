@@ -7,6 +7,7 @@ using Telerik.JustDecompiler.External;
 using Telerik.JustDecompiler.External.Interfaces;
 using Telerik.JustDecompiler.Languages;
 using Mono.Cecil.AssemblyResolver;
+using JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectBuilderMakers
 {
@@ -22,6 +23,18 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectBuilderMakers
 			: base(assemblyPath, targetPath, language, new TestsFrameworkVersionResolver(), TargetPlatformResolver.Instance, new DecompilationPreferences() { RenameInvalidMembers = true, WriteDocumentation = true, WriteFullNames = false },
 				  null, NoCacheAssemblyInfoService.Instance, visualStudioVersion, settings, projectNotifier)
 		{
+		}
+
+		public override BaseProjectBuilder GetBuilder()
+		{
+			return new TestMSBuildProjectBuilder(this.assemblyPath, this.assembly, this.targetPath, this.language, this.projectFileManager, this.modulesProjectsGuids, this.visualStudioVersion, this.projectGenerationSettings);
+		}
+
+		public override void InitializeProjectFileManager()
+		{
+			this.projectFileManager =
+				new MsBuildProjectFileManager(this.assembly, this.assemblyInfo, this.visualStudioVersion, this.modulesProjectsGuids,
+					this.language, this.namespaceHierarchyTree);
 		}
 
 		internal class TestsFrameworkVersionResolver : IFrameworkResolver

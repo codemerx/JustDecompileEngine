@@ -18,7 +18,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectBuilderMakers
 	public class MsBuildProjectBuilderMaker : BaseProjectBuilderMaker
 	{
 		protected readonly NamespaceHierarchyTree namespaceHierarchyTree;
-		private IMsBuildProjectManager projectFileManager;
+		protected IMsBuildProjectManager projectFileManager;
 
 		public MsBuildProjectBuilderMaker(string assemblyPath, AssemblyDefinition assembly, Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes,
 			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources, string targetPath, ILanguage language,

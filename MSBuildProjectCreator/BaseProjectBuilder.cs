@@ -500,45 +500,61 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			string targetDir = Path.GetDirectoryName(this.TargetPath);
 			foreach (Resource resource in module.Resources)
 			{
-				if (resource.ResourceType != ResourceType.Embedded)
+				try
 				{
-					continue;
-				}
-
-				EmbeddedResource embeddedResource = (EmbeddedResource)resource;
-				IFileGeneratedInfo args;
-				if (resource.Name.EndsWith(".resources", StringComparison.OrdinalIgnoreCase))
-				{
-					if (!embeddedResource.Name.EndsWith(".g.resources", StringComparison.OrdinalIgnoreCase))
+					if (resource.ResourceType != ResourceType.Embedded)
 					{
-						string resourceName = embeddedResource.Name.Substring(0, embeddedResource.Name.Length - 10); //".resources".Length == 10
-						string relativeResourcePath = resourcesToPathsMap[resource];
-						string fullResourcePath = Path.Combine(targetDir, relativeResourcePath);
-						if (TryCreateResXFile(embeddedResource, fullResourcePath))
+						continue;
+					}
+
+					EmbeddedResource embeddedResource = (EmbeddedResource)resource;
+					IFileGeneratedInfo args;
+					if (resource.Name.EndsWith(".resources", StringComparison.OrdinalIgnoreCase))
+					{
+						if (!embeddedResource.Name.EndsWith(".g.resources", StringComparison.OrdinalIgnoreCase))
 						{
-							this.projectFileManager.ResourceDesignerMap.Add(resourceName, relativeResourcePath);
-							args = new FileGeneratedInfo(fullResourcePath, false);
-							OnProjectFileCreated(args);
+							string resourceName = embeddedResource.Name.Substring(0, embeddedResource.Name.Length - 10); //".resources".Length == 10
+							string relativeResourcePath = resourcesToPathsMap[resource];
+							string fullResourcePath = Path.Combine(targetDir, relativeResourcePath);
+
+							if (TryCreateResXFile(embeddedResource, fullResourcePath))
+							{
+								this.projectFileManager.ResourceDesignerMap.Add(resourceName, relativeResourcePath);
+								args = new FileGeneratedInfo(fullResourcePath, false);
+								OnProjectFileCreated(args);
+							}
+						}
+						else
+						{
+							ProcessXamlResources(embeddedResource, module);
 						}
 					}
 					else
 					{
-						ProcessXamlResources(embeddedResource, module);
+						string resourceLegalName = resourcesToPathsMap[resource];
+						string resourceFullPath = Path.Combine(targetDir, resourceLegalName);
+						using (FileStream fileStream = new FileStream(resourceFullPath, FileMode.Create, FileAccess.Write))
+						{
+							embeddedResource.GetResourceStream().CopyTo(fileStream);
+						}
+
+						this.projectFileManager.AddResourceToOtherEmbeddedResources(resourceLegalName);
+
+						args = new FileGeneratedInfo(resourceFullPath, false);
+						OnProjectFileCreated(args);
 					}
 				}
-				else
+				catch (Exception ex)
 				{
-					string resourceLegalName = resourcesToPathsMap[resource];
-					string resourceFullPath = Path.Combine(targetDir, resourceLegalName);
-					using (FileStream fileStream = new FileStream(resourceFullPath, FileMode.Create, FileAccess.Write))
+					if (ResourceWritingFailure != null)
 					{
-						embeddedResource.GetResourceStream().CopyTo(fileStream);
+						ResourceWritingFailure(this, resource.Name, ex);
 					}
 
-					this.projectFileManager.AddResourceToOtherEmbeddedResources(resourceLegalName);
-
-					args = new FileGeneratedInfo(resourceFullPath, false);
-					OnProjectFileCreated(args);
+					if (this.projectNotifier != null)
+					{
+						this.projectNotifier.OnResourceWritingFailure(resource.Name, ex);
+					}
 				}
 			}
 		}
@@ -638,30 +654,45 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
 		private void ProcessXamlResources(EmbeddedResource resource, ModuleDefinition module)
 		{
-			string targetDir = Path.GetDirectoryName(TargetPath);
-			using (ResourceReader resourceReader = new ResourceReader(resource.GetResourceStream()))
+			try
 			{
-				foreach (System.Collections.DictionaryEntry resourceEntry in resourceReader)
+				string targetDir = Path.GetDirectoryName(TargetPath);
+				using (ResourceReader resourceReader = new ResourceReader(resource.GetResourceStream()))
 				{
-					string xamlResourceKey = Utilities.GetXamlResourceKey(resourceEntry, module);
-
-					bool isBamlResource = ((string)resourceEntry.Key).EndsWith(".baml", StringComparison.OrdinalIgnoreCase);
-
-					string xamlResourceRelativePath = xamlResourcesToPathsMap[xamlResourceKey];
-					string fullPath = Path.Combine(targetDir, xamlResourceRelativePath);
-
-					string fullClassName = TryWriteBamlResource(fullPath, isBamlResource, resourceEntry.Value as UnmanagedMemoryStream);
-					if (fullClassName != null)
+					foreach (System.Collections.DictionaryEntry resourceEntry in resourceReader)
 					{
-						this.projectFileManager.XamlFullNameToRelativePathMap.Add(fullClassName, xamlResourceRelativePath);
-					}
-					else
-					{
-						this.projectFileManager.AddResourceToOtherXamlResources(xamlResourceRelativePath);
-					}
+						string xamlResourceKey = Utilities.GetXamlResourceKey(resourceEntry, module);
 
-					IFileGeneratedInfo args = new FileGeneratedInfo(fullPath, false);
-					OnProjectFileCreated(args);
+						bool isBamlResource = ((string)resourceEntry.Key).EndsWith(".baml", StringComparison.OrdinalIgnoreCase);
+
+						string xamlResourceRelativePath = xamlResourcesToPathsMap[xamlResourceKey];
+						string fullPath = Path.Combine(targetDir, xamlResourceRelativePath);
+
+						string fullClassName = TryWriteBamlResource(fullPath, isBamlResource, resourceEntry.Value as UnmanagedMemoryStream);
+						if (fullClassName != null)
+						{
+							this.projectFileManager.XamlFullNameToRelativePathMap.Add(fullClassName, xamlResourceRelativePath);
+						}
+						else
+						{
+							this.projectFileManager.AddResourceToOtherXamlResources(xamlResourceRelativePath);
+						}
+
+						IFileGeneratedInfo args = new FileGeneratedInfo(fullPath, false);
+						OnProjectFileCreated(args);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				if (ResourceWritingFailure != null)
+				{
+					ResourceWritingFailure(this, resource.Name, ex);
+				}
+
+				if (this.projectNotifier != null)
+				{
+					this.projectNotifier.OnResourceWritingFailure(resource.Name, ex);
 				}
 			}
 		}

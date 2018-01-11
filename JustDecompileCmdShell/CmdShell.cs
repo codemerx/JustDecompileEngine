@@ -182,7 +182,7 @@ namespace JustDecompileCmdShell
 
 			if (targetPlatform == TargetPlatform.NetCore)
 			{
-				builderMaker = new NetCoreProjectBuilderMaker(projectInfo.Target, projFilePath, language, frameworkResolver, targetPlatformResolver, preferences, null, NoCacheAssemblyInfoService.Instance, projectInfo.VisualStudioVersion, settings);
+				builderMaker = new NetCoreProjectBuilderMaker(projectInfo.Target, projFilePath, language, targetPlatformResolver, preferences, null, NoCacheAssemblyInfoService.Instance, projectInfo.VisualStudioVersion, settings);
 			}
 			else if (targetPlatform == TargetPlatform.WinRT)
             {

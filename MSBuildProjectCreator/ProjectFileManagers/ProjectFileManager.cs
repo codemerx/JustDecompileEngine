@@ -66,10 +66,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers
 
 		public abstract void WriteResXDesignerSourceEntryProjectItem(string relativeDesignerPath, string relativeResourcePath);
 
-		protected virtual string WriteProjectGuid(Dictionary<ModuleDefinition, Guid> modulesProjectsGuids)
+		protected virtual string WriteProjectGuid(Dictionary<ModuleDefinition, Guid> modulesProjectsGuids, ModuleDefinition module)
 		{
 			Guid guid = Guid.NewGuid();
-			modulesProjectsGuids.Add(assembly.MainModule, guid);
+			modulesProjectsGuids.Add(module, guid);
 
 			return guid.ToString();
 		}

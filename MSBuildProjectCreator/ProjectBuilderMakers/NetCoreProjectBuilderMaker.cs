@@ -21,18 +21,18 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectBuilderMakers
 		public NetCoreProjectBuilderMaker(string assemblyPath, AssemblyDefinition assembly,
 			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes,
 			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources,
-			string targetPath, ILanguage language, IFrameworkResolver frameworkResolver, ITargetPlatformResolver targetPlatformResolver, IDecompilationPreferences preferences,
+			string targetPath, ILanguage language, ITargetPlatformResolver targetPlatformResolver, IDecompilationPreferences preferences,
 			IAssemblyInfoService assemblyInfoService, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2017, ProjectGenerationSettings settings = null)
-			: base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, frameworkResolver, targetPlatformResolver, preferences,
+			: base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, null, targetPlatformResolver, preferences,
 				  assemblyInfoService, visualStudioVersion, settings)
 		{
 		}
 
-		public NetCoreProjectBuilderMaker(string assemblyPath, string targetPath, ILanguage language, IFrameworkResolver frameworkResolver,
+		public NetCoreProjectBuilderMaker(string assemblyPath, string targetPath, ILanguage language,
 			ITargetPlatformResolver targetPlatformResolver, IDecompilationPreferences preferences, IFileGenerationNotifier notifier,
 			IAssemblyInfoService assemblyInfoService, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010,
 			ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null) 
-			: base(assemblyPath, targetPath, language, frameworkResolver, targetPlatformResolver, preferences, notifier, assemblyInfoService,
+			: base(assemblyPath, targetPath, language, null, targetPlatformResolver, preferences, notifier, assemblyInfoService,
 				  visualStudioVersion, projectGenerationSettings, projectNotifier)
 		{
 		}
