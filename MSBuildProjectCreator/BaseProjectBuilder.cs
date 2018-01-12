@@ -441,8 +441,6 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			if (!string.IsNullOrWhiteSpace(currentReferenceInitialLocation))
 #endif
 			{
-				string referenceAssemblyWithExtension = reference.Name + ".dll";
-
 				if (this.IsInReferenceAssemblies(referencedAssembly))
 				{
 					//TODO: Consider doing additional check, to see if the assembly is resolved because it was pointed by the used/already in the tree
@@ -796,31 +794,54 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			string x86ReferenceAssemblies = Path.Combine(programFilesX86, "Reference Assemblies");
 			string x64ReferenceAssemblies = Path.Combine(programFilesX64, "Reference Assemblies");
 
-			if (!Directory.Exists(x86ReferenceAssemblies))
+			return this.ContainsReference(x86ReferenceAssemblies, x64ReferenceAssemblies, referencedAssembly);
+		}
+
+		protected bool IsInDotNetAssemblies(AssemblyDefinition referencedAssembly)
+		{
+#if !NET35
+			string programFilesX64 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolderOption.None);
+			string programFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86, Environment.SpecialFolderOption.None);
+#else
+            string programFilesX64 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+			string programFilesX86 =  programFilesX64 + " (x86)";
+#endif
+
+			//NOTE: programFilesX64 and programFilexX86 are expected to be equal on 32-bit machine
+
+			string x86DotNetAssemblies = Path.Combine(programFilesX86, "dotnet");
+			string x64DotNetAssemblies = Path.Combine(programFilesX64, "dotnet");
+
+			return this.ContainsReference(x86DotNetAssemblies, x64DotNetAssemblies, referencedAssembly);
+		}
+
+		private bool ContainsReference(string x86Assemblies, string x64Assemblies, AssemblyDefinition referencedAssembly)
+		{
+			if (!Directory.Exists(x86Assemblies))
 			{
-				if (x86ReferenceAssemblies == x64ReferenceAssemblies)
+				if (x86Assemblies == x64Assemblies)
 				{
 					return false;
 				}
 			}
 			else
 			{
-				bool returnValue = ContainsReferencedAssembly(x86ReferenceAssemblies, referencedAssembly);
+				bool returnValue = ContainsReferencedAssembly(x86Assemblies, referencedAssembly);
 				if (returnValue)
 				{
 					return returnValue;
 				}
 			}
 
-			if (x86ReferenceAssemblies != x64ReferenceAssemblies)
+			if (x86Assemblies != x64Assemblies)
 			{
-				if (!Directory.Exists(x64ReferenceAssemblies))
+				if (!Directory.Exists(x64Assemblies))
 				{
 					return false;
 				}
 				else
 				{
-					return ContainsReferencedAssembly(x64ReferenceAssemblies, referencedAssembly);
+					return ContainsReferencedAssembly(x64Assemblies, referencedAssembly);
 				}
 			}
 			return false;

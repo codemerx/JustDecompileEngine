@@ -232,25 +232,28 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.NetCore
 			if (!string.IsNullOrWhiteSpace(currentReferenceInitialLocation))
 #endif
 			{
-				if (!Directory.Exists(referencesPath))
+				if (!this.IsInDotNetAssemblies(referencedAssembly))
 				{
-					Directory.CreateDirectory(referencesPath);
+					if (!Directory.Exists(referencesPath))
+					{
+						Directory.CreateDirectory(referencesPath);
+					}
+
+					string currentReferenceFileName = Path.GetFileName(currentReferenceInitialLocation);
+					string currentReferenceFinalLocation = Path.Combine(referencesPath, currentReferenceFileName);
+					File.Copy(currentReferenceInitialLocation, currentReferenceFinalLocation, true);
+
+					//set to normal for testing purposes-to allow the test project to delete the coppied file between test runs
+					File.SetAttributes(currentReferenceFinalLocation, FileAttributes.Normal);
+
+					string relativePath = Path.Combine(".", copiedReferencesSubfolder);
+					relativePath = Path.Combine(relativePath, currentReferenceFileName);
+
+					this.ProjectFileManager.AddReferenceProjectItem(
+						assemblyReferenceIndex,
+						Path.GetFileNameWithoutExtension(currentReferenceFinalLocation),
+						relativePath);
 				}
-
-				string currentReferenceFileName = Path.GetFileName(currentReferenceInitialLocation);
-				string currentReferenceFinalLocation = Path.Combine(referencesPath, currentReferenceFileName);
-				File.Copy(currentReferenceInitialLocation, currentReferenceFinalLocation, true);
-
-				//set to normal for testing purposes-to allow the test project to delete the coppied file between test runs
-				File.SetAttributes(currentReferenceFinalLocation, FileAttributes.Normal);
-
-				string relativePath = Path.Combine(".", copiedReferencesSubfolder);
-				relativePath = Path.Combine(relativePath, currentReferenceFileName);
-
-				this.ProjectFileManager.AddReferenceProjectItem(
-					assemblyReferenceIndex,
-					Path.GetFileNameWithoutExtension(currentReferenceFinalLocation),
-					relativePath);
 			}
 			else
 			{
