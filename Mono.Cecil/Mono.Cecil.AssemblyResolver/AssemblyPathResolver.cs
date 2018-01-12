@@ -350,17 +350,39 @@ namespace Mono.Cecil.AssemblyResolver
 		/*Telerik Authorship*/
 		private IEnumerable<string> ResolveNetCoreReferences(AssemblyName assemblyName)
 		{
+			List<string> targetDirectories = null;
+			string sharedAssembliesPath = string.Empty;
+
 			foreach (var ver in assemblyName.SupportedVersions(TargetPlatform.NetCore))
 			{
-				if (Directory.Exists(SystemInformation.NETCORE_SHAREDASSEMBLIES))
+				targetDirectories = new List<string>();
+
+				if (Directory.Exists(SystemInformation.NETCORE_DIRECTORY))
 				{
-					foreach (string dirVersions in Directory.GetDirectories(SystemInformation.NETCORE_SHAREDASSEMBLIES, ver + "*"))
+					sharedAssembliesPath = Path.Combine(SystemInformation.NETCORE_DIRECTORY, @"shared\Microsoft.NETCore.App\");
+
+					if (Directory.Exists(sharedAssembliesPath))
 					{
-						string searchPattern = string.Format("{0}\\{1}.dll", dirVersions, assemblyName.Name);
-						if (CheckFileExistence(assemblyName, searchPattern, true, true))
-						{
-							yield return searchPattern;
-						}
+						targetDirectories.AddRange(Directory.GetDirectories(sharedAssembliesPath, ver + "*"));
+					}
+				}
+
+				if (Directory.Exists(SystemInformation.NETCORE_X86_DIRECTORY))
+				{
+					sharedAssembliesPath = Path.Combine(SystemInformation.NETCORE_X86_DIRECTORY, @"shared\Microsoft.NETCore.App\");
+
+					if (Directory.Exists(sharedAssembliesPath))
+					{
+						targetDirectories.AddRange(Directory.GetDirectories(sharedAssembliesPath, ver + "*"));
+					}
+				}
+
+				foreach (string dirVersions in targetDirectories)
+				{
+					string searchPattern = string.Format("{0}\\{1}.dll", dirVersions, assemblyName.Name);
+					if (CheckFileExistence(assemblyName, searchPattern, true, true))
+					{
+						yield return searchPattern;
 					}
 				}
 			}

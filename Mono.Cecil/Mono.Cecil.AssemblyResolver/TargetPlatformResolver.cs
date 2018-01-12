@@ -58,6 +58,16 @@ namespace Mono.Cecil.AssemblyResolver
 
 		public TargetPlatform GetTargetPlatform(ModuleDefinition module)
 		{
+			if (module.Assembly != null && !string.IsNullOrEmpty(module.Assembly.TargetFrameworkAttributeValue))
+			{
+				TargetPlatform targetPlatform = this.GetTargetPlatform(module.Assembly.TargetFrameworkAttributeValue);
+
+				if (targetPlatform != TargetPlatform.None)
+				{
+					return targetPlatform;
+				}
+			}
+
 			AssemblyNameReference systemRuntime = module.AssemblyReferences.FirstOrDefault(x => x.Name == "System.Runtime");
 
 			if (systemRuntime != null && systemRuntime.Version != DefaultAssemblyVersion)

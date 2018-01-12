@@ -21,9 +21,9 @@ namespace Mono.Cecil.AssemblyResolver
 
         public static string COMPACT_FRAMEWORK = @"{0}\Microsoft.NET\SDK\CompactFramework\{1}\WindowsCE\{2}.dll";
 
-		public static string NETCORE_DIRECTORY = Path.Combine(ProgramFiles, "dotnet");
+		public static string NETCORE_DIRECTORY = Path.Combine(ProgramW6432, "dotnet");
 
-		public static string NETCORE_SHAREDASSEMBLIES = Path.Combine(NETCORE_DIRECTORY, @"shared\Microsoft.NETCore.App");
+		public static string NETCORE_X86_DIRECTORY = Path.Combine(Environment.GetEnvironmentVariable("ProgramFiles(x86)"), "dotnet");
 
 		public static string WINDOWS_PHONE_STRING_PATHERN = @"{0}\Reference Assemblies\Microsoft\Framework\Silverlight\{1}\Profile\WindowsPhone{2}\{3}.dll";
 

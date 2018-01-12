@@ -422,6 +422,10 @@ namespace JustDecompile.EngineInfrastructure
 							frameworkVersion = FrameworkVersion.NetCoreV2_1;
 						}
 					}
+					else if (moduleLocation.StartsWith(SystemInformation.WINRT_METADATA) || moduleLocation.StartsWith(SystemInformation.WINDOWS_WINMD_LOCATION))
+					{
+						frameworkVersion = FrameworkVersion.WinRT_System;
+					}
 				}
 			}
 			catch

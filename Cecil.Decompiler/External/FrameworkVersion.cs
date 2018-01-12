@@ -28,6 +28,7 @@ namespace Telerik.JustDecompiler.External
         WinRT_4_5,
         WinRT_4_5_1,
         UWP,
+		WinRT_System,
 		NetCoreV2_1,
 		NetCoreV2_0,
 		NetCoreV1_1,
