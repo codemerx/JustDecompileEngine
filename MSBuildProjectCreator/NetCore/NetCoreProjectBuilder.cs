@@ -261,6 +261,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.NetCore
 				{
 					this.ProjectFileManager.AddPackageReferenceProjectItem(reference.Name, reference.Version.ToString());
 				}
+				else
+				{
+					this.ProjectFileManager.AddReferenceProjectItem(assemblyReferenceIndex, reference.FullName);
+				}
 			}
 		}
 
