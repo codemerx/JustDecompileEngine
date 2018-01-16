@@ -48,8 +48,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
  			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources,
 			string targetPath, ILanguage language, IDecompilationPreferences preferences, IMsBuildProjectManager projectFileManager, Dictionary<ModuleDefinition, Guid> modulesProjectGuids,
 			VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010, ProjectGenerationSettings projectGenerationSettings = null,
-			IProjectGenerationNotifier projectNotifier = null)
-			: base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, preferences, projectFileManager, modulesProjectGuids, visualStudioVersion, projectGenerationSettings, projectNotifier)
+			IProjectGenerationNotifier projectNotifier = null, IFileGenerationNotifier notifier = null)
+			: base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, preferences, projectFileManager, modulesProjectGuids, visualStudioVersion, projectGenerationSettings, projectNotifier, notifier)
         {
         }
 

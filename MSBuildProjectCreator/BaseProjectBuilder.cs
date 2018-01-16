@@ -83,7 +83,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			string targetPath, ILanguage language, IDecompilationPreferences preferences,
 			IProjectManager projectFileManager, Dictionary<ModuleDefinition, Guid> modulesProjectGuids,
 			VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010, ProjectGenerationSettings projectGenerationSettings = null,
-			IProjectGenerationNotifier projectNotifier = null)
+			IProjectGenerationNotifier projectNotifier = null, IFileGenerationNotifier notifier = null)
 		{
 			this.assemblyPath = assemblyPath;
 			this.assembly = assembly;
@@ -120,7 +120,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			this.projectNotifier = projectNotifier;
 			this.modulesProjectsGuids = modulesProjectGuids;
 			this.projectFileManager = projectFileManager;
-		}
+            this.fileGeneratedNotifier = notifier;
+        }
 
 		public BaseProjectBuilder(string assemblyPath, string targetPath, ILanguage language,
 			IDecompilationPreferences preferences, IFileGenerationNotifier notifier, IProjectManager projectFileManager, Dictionary<ModuleDefinition, Guid> modulesProjectGuids,
