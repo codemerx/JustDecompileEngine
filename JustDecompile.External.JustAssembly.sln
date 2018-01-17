@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Cecil.Pdb", "Mono.Ceci
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Cecil.Mdb", "Mono.Cecil\symbols\mdb\Mono.Cecil.Mdb.csproj", "{8559DD7F-A16F-46D0-A05A-9139FAEBA8FD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemInformationHelpers", "SystemInformationHelpers\SystemInformationHelpers.csproj", "{CED63F54-9464-4CC0-9F3F-D42014C85AC6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,12 +53,16 @@ Global
 		{8559DD7F-A16F-46D0-A05A-9139FAEBA8FD}.Debug|Any CPU.Build.0 = Debug JustAssembly|Any CPU
 		{8559DD7F-A16F-46D0-A05A-9139FAEBA8FD}.Release|Any CPU.ActiveCfg = Release JustAssembly|Any CPU
 		{8559DD7F-A16F-46D0-A05A-9139FAEBA8FD}.Release|Any CPU.Build.0 = Release JustAssembly|Any CPU
+		{CED63F54-9464-4CC0-9F3F-D42014C85AC6}.Debug|Any CPU.ActiveCfg = Debug JustAssembly|Any CPU
+		{CED63F54-9464-4CC0-9F3F-D42014C85AC6}.Debug|Any CPU.Build.0 = Debug JustAssembly|Any CPU
+		{CED63F54-9464-4CC0-9F3F-D42014C85AC6}.Release|Any CPU.ActiveCfg = Release JustAssembly|Any CPU
+		{CED63F54-9464-4CC0-9F3F-D42014C85AC6}.Release|Any CPU.Build.0 = Release JustAssembly|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 7
+		SccNumberOfProjects = 8
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = http://tfs:8082/defaultcollection
 		SccProjectUniqueName0 = EngineInfrastructure\\JustDecompile.EngineInfrastructure.csproj
@@ -94,5 +100,10 @@ Global
 		SccAuxPath6 = http://tfs:8082/defaultcollection
 		SccLocalPath6 = MSBuildProjectCreator
 		SccProvider6 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName7 = SystemInformationHelpers\\SystemInformationHelpers.csproj
+		SccProjectName7 = SystemInformationHelpers
+		SccAuxPath7 = http://tfs:8082/defaultcollection
+		SccLocalPath7 = SystemInformationHelpers
+		SccProvider7 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 	EndGlobalSection
 EndGlobal
