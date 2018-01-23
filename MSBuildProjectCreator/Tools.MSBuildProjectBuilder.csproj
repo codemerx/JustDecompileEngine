@@ -165,11 +165,13 @@
     <Compile Include="ProjectBuilderMakers\MsBuildProjectBuilderMaker.cs" />
     <Compile Include="ProjectBuilderMakers\NetCoreProjectBuilderMaker.cs" />
     <Compile Include="ProjectBuilderMakers\TestMSBuildProjectBuilderMaker.cs" />
+    <Compile Include="ProjectBuilderMakers\TestNetCoreProjectBuilderMaker.cs" />
     <Compile Include="ProjectBuilderMakers\TestWinRTProjectBuidlerMaker.cs" />
     <Compile Include="ProjectBuilderMakers\WinRTProjectBuilderMaker.cs" />
     <Compile Include="ProjectFileManagers\MsBuildProjectFileManager.cs" />
     <Compile Include="ProjectFileManagers\NetCoreProjectFileManager.cs" />
     <Compile Include="ProjectFileManagers\ProjectFileManager.cs" />
+    <Compile Include="ProjectFileManagers\TestNetCoreProjectFileManager.cs" />
     <Compile Include="ProjectFileManagers\WinRTProjectFileManager.cs" />
     <Compile Include="ProjectGenerationSettings.cs" />
     <Compile Include="FilePathsServices\DefaultFilePathsAnalyzer.cs" />
@@ -180,6 +182,7 @@
     <Compile Include="ProjectJsonWriter.cs" />
     <Compile Include="SolutionWriter.cs" />
     <Compile Include="TestMSBuildProjectBuilder.cs" />
+    <Compile Include="TestNetCoreProjectBuilder.cs" />
     <Compile Include="TestWinRTProjectBuilder.cs" />
     <Compile Include="Utilities.cs" />
     <Compile Include="MSBuildProject.cs">

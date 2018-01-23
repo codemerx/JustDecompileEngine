@@ -10,6 +10,8 @@ namespace Mono.Cecil.AssemblyResolver
 		private static ITargetPlatformResolver instance;
 		private static readonly Version DefaultAssemblyVersion = new Version(0, 0, 0, 0);
 
+		protected TargetPlatformResolver() { }
+
 		public static ITargetPlatformResolver Instance
 		{
 			get
@@ -53,7 +55,7 @@ namespace Mono.Cecil.AssemblyResolver
 				return TargetPlatform.WinRT;
 			}
 
-			return TargetPlatform.None;
+			return this.GetDefaultFallbackTargetPlatform();
 		}
 
 		public TargetPlatform GetTargetPlatform(ModuleDefinition module)
@@ -85,6 +87,11 @@ namespace Mono.Cecil.AssemblyResolver
 			return this.GetPlatformTargetThroughModuleLocation(module);
 		}
 
+		protected virtual TargetPlatform GetDefaultFallbackTargetPlatform()
+		{
+			return TargetPlatform.None;
+		}
+
 		private TargetPlatform GetPlatformTargetThroughModuleLocation(ModuleDefinition module)
 		{
 			string moduleLocation = module.FullyQualifiedName ?? module.FilePath;
@@ -97,7 +104,7 @@ namespace Mono.Cecil.AssemblyResolver
 				}
 			}
 
-			return TargetPlatform.None;
+			return this.GetDefaultFallbackTargetPlatform();
 		}
 	}
 }
