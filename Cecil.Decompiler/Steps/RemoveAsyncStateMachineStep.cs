@@ -92,7 +92,7 @@ namespace Telerik.JustDecompiler.Steps
                 return false;
             }
 
-            this.moveNextMethodContext.AsyncData = new Decompiler.AsyncData(stateField, awaiterVariables);
+            this.moveNextMethodContext.AsyncData = new Decompiler.AsyncData(stateField, awaiterVariables, analyzer.variableToFieldMap);
             return true;
         }
 

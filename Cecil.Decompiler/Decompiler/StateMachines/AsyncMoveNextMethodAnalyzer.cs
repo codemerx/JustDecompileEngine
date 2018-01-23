@@ -14,6 +14,8 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
         private VariableReference stateVariable;
         private VariableReference doFinallyVariable;
 
+        public Dictionary<VariableReference, FieldReference> variableToFieldMap = new Dictionary<VariableReference, FieldReference>();
+
         public AsyncMoveNextMethodAnalyzer(MethodSpecificContext moveNextMethodContext, FieldDefinition stateField)
         {
             this.theCFG = moveNextMethodContext.ControlFlowGraph;
@@ -71,6 +73,45 @@ namespace Telerik.JustDecompiler.Decompiler.StateMachines
 
             current = current.Next;
             StateMachineUtilities.TryGetVariableFromInstruction(current, methodVariables, out stateVariable);
+
+            if (current == theCFG.Blocks[0].Last)
+            {
+                return;
+            }
+
+            current = current.Next;
+            bool variableSuccessfullyExtracted = true;
+            while (variableSuccessfullyExtracted)
+            {
+                if (current.OpCode.Code == Code.Ldarg_0)
+                {
+                    current = current.Next;
+                    if (current.OpCode.Code == Code.Ldfld)
+                    {
+                        FieldReference field = current.Operand as FieldReference;
+                        if (field != null)
+                        {
+                            current = current.Next;
+                            VariableReference variable;
+                            if (StateMachineUtilities.TryGetVariableFromInstruction(current, methodVariables, out variable))
+                            {
+                                variableToFieldMap.Add(variable, field);
+
+                                if (current == theCFG.Blocks[0].Last)
+                                {
+                                    break;
+                                }
+
+                                current = current.Next;
+
+                                continue;
+                            }
+                        }
+                    }
+                }
+
+                variableSuccessfullyExtracted = false;
+            }
         }
 
         /// <summary>
