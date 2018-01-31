@@ -26,7 +26,6 @@ using Telerik.JustDecompiler.External;
 using Telerik.JustDecompiler.External.Interfaces;
 using Telerik.JustDecompiler.Languages;
 using JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices;
-using JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers;
 using JustDecompile.Tools.MSBuildProjectBuilder.ProjectItemFileWriters;
 using JustDecompile.Tools.MSBuildProjectBuilder.Contracts.FileManagers;
 
@@ -45,12 +44,14 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
 		protected readonly string assemblyPath;
 		protected AssemblyDefinition assembly;
+		protected readonly TargetPlatform platform;
 		protected readonly string targetDir;
 		protected readonly ILanguage language;
 		protected IFileGenerationNotifier fileGeneratedNotifier;
 		protected IProjectGenerationNotifier projectNotifier;
 		protected Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes;
 		protected Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources;
+		protected readonly IFrameworkResolver frameworkResolver;
 		protected ProjectGenerationSettings projectGenerationSettings;
 		protected readonly IAssemblyResolver currentAssemblyResolver;
 		protected IFilePathsService filePathsService;
@@ -64,6 +65,9 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 		protected IExceptionFormatter exceptionFormater = SimpleExceptionFormatter.Instance;
 		protected readonly Dictionary<string, ICollection<string>> xamlGeneratedFields = new Dictionary<string, ICollection<string>>();
 		protected IProjectManager projectFileManager;
+		protected IAssemblyInfoService assemblyInfoService;
+		protected ITargetPlatformResolver targetPlatformResolver;
+		protected AssemblyInfo assemblyInfo;
 
 		private static object writeTypesLock = new object();
 
@@ -80,10 +84,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 		public BaseProjectBuilder(string assemblyPath, AssemblyDefinition assembly,
 			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes,
  			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources,
-			string targetPath, ILanguage language, IDecompilationPreferences preferences,
-			IProjectManager projectFileManager, Dictionary<ModuleDefinition, Guid> modulesProjectGuids,
+			string targetPath, ILanguage language, IFrameworkResolver frameworkResolver,
+			IDecompilationPreferences preferences, IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver,
 			VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010, ProjectGenerationSettings projectGenerationSettings = null,
-			IProjectGenerationNotifier projectNotifier = null, IFileGenerationNotifier notifier = null)
+			IProjectGenerationNotifier projectNotifier = null)
 		{
 			this.assemblyPath = assemblyPath;
 			this.assembly = assembly;
@@ -91,7 +95,10 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			this.resources = resources;
 			this.TargetPath = targetPath;
 			this.targetDir = Path.GetDirectoryName(targetPath);
+			this.targetPlatformResolver = targetPlatformResolver;
 			this.language = language;
+			this.frameworkResolver = frameworkResolver;
+			this.assemblyInfoService = assemblyInfoService;
 			this.currentAssemblyResolver = assembly.MainModule.AssemblyResolver;
 
 			this.visualStudioVersion = visualStudioVersion;
@@ -99,6 +106,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
 			this.decompilationPreferences = preferences;
 
+			this.platform = currentAssemblyResolver.GetTargetPlatform(assembly.MainModule.FilePath, TargetPlatformResolver.Instance);
 			this.namespaceHierarchyTree = assembly.BuildNamespaceHierarchyTree();
 
 			filePathsService =
@@ -115,24 +123,26 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
 			this.resourcesToPathsMap = this.filePathsService.GetResourcesToFilePathsMap();
 			this.xamlResourcesToPathsMap = this.filePathsService.GetXamlResourcesToFilePathsMap();
-
 			this.modulesToProjectsFilePathsMap = this.filePathsService.GetModulesToProjectsFilePathsMap();
+
+			this.assemblyInfo = this.assemblyInfoService.GetAssemblyInfo(this.assembly, this.frameworkResolver, this.targetPlatformResolver);
 			this.projectNotifier = projectNotifier;
-			this.modulesProjectsGuids = modulesProjectGuids;
-			this.projectFileManager = projectFileManager;
-            this.fileGeneratedNotifier = notifier;
-        }
+			this.modulesProjectsGuids = new Dictionary<ModuleDefinition, Guid>();
+		}
 
 		public BaseProjectBuilder(string assemblyPath, string targetPath, ILanguage language,
-			IDecompilationPreferences preferences, IFileGenerationNotifier notifier, IProjectManager projectFileManager, Dictionary<ModuleDefinition, Guid> modulesProjectGuids,
-			VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010,
+			IFrameworkResolver frameworkResolver, IDecompilationPreferences preferences, IFileGenerationNotifier notifier,
+			IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010,
 			ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null)
 		{
 			this.assemblyPath = assemblyPath;
 			this.TargetPath = targetPath;
 			this.targetDir = Path.GetDirectoryName(targetPath);
+			this.targetPlatformResolver = targetPlatformResolver;
 			this.language = language;
 
+			this.frameworkResolver = frameworkResolver;
+			this.assemblyInfoService = assemblyInfoService;
 			this.decompilationPreferences = preferences;
 			this.visualStudioVersion = visualStudioVersion;
 			this.projectGenerationSettings = projectGenerationSettings;
@@ -162,9 +172,9 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			this.resourcesToPathsMap = this.filePathsService.GetResourcesToFilePathsMap();
 			this.xamlResourcesToPathsMap = this.filePathsService.GetXamlResourcesToFilePathsMap();
 
+			this.assemblyInfo = this.assemblyInfoService.GetAssemblyInfo(this.assembly, this.frameworkResolver, this.targetPlatformResolver);
 			this.projectNotifier = projectNotifier;
-			this.modulesProjectsGuids = modulesProjectGuids;
-			this.projectFileManager = projectFileManager;
+			this.modulesProjectsGuids = new Dictionary<ModuleDefinition, Guid>();
 		}
 
 		public string TargetPath { get; protected set; }

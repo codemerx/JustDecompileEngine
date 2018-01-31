@@ -13,6 +13,8 @@ using Mono.Cecil.Extensions;
 using Mono.Cecil.AssemblyResolver;
 using JustDecompile.SmartAssembly.Attributes;
 using JustDecompile.Tools.MSBuildProjectBuilder.Contracts.FileManagers;
+using JustDecompile.EngineInfrastructure;
+using JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder.NetCore
 {
@@ -24,17 +26,17 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.NetCore
 			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes,
  			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources,
 			string targetPath, ILanguage language, IDecompilationPreferences preferences,
-			INetCoreProjectManager projectFileManager, Dictionary<ModuleDefinition, Guid> modulesProjectGuids, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2017, ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null)
-			: base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, preferences, projectFileManager,
-				  modulesProjectGuids, visualStudioVersion, projectGenerationSettings, projectNotifier)
+			IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2017, ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null)
+			: base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, null, preferences, assemblyInfoService, targetPlatformResolver, visualStudioVersion, projectGenerationSettings, projectNotifier)
 		{
+			this.projectFileManager = new NetCoreProjectFileManager(this.assembly, this.assemblyInfo, this.modulesProjectsGuids);
 		}
 
 		public NetCoreProjectBuilder(string assemblyPath, string targetPath, ILanguage language, IDecompilationPreferences preferences, IFileGenerationNotifier notifier,
-			INetCoreProjectManager projectFileManager, Dictionary<ModuleDefinition, Guid> modulesProjectGuids, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2017, ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null)
-			: base(assemblyPath, targetPath, language, preferences, notifier, projectFileManager, modulesProjectGuids, visualStudioVersion,
-				  projectGenerationSettings, projectNotifier)
+			IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2017, ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null)
+			: base(assemblyPath, targetPath, language, null, preferences, notifier, assemblyInfoService, targetPlatformResolver, visualStudioVersion, projectGenerationSettings, projectNotifier)
 		{
+			this.projectFileManager = new NetCoreProjectFileManager(this.assembly, this.assemblyInfo, this.modulesProjectsGuids);
 		}
 
 		private INetCoreProjectManager ProjectFileManager

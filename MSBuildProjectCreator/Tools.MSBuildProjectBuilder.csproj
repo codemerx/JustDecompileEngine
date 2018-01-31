@@ -161,13 +161,6 @@
       <DependentUpon>NetCoreProject.xsd</DependentUpon>
     </Compile>
     <Compile Include="NetCore\NetCoreProjectBuilder.cs" />
-    <Compile Include="ProjectBuilderMakers\BaseProjectBuilderMaker.cs" />
-    <Compile Include="ProjectBuilderMakers\MsBuildProjectBuilderMaker.cs" />
-    <Compile Include="ProjectBuilderMakers\NetCoreProjectBuilderMaker.cs" />
-    <Compile Include="ProjectBuilderMakers\TestMSBuildProjectBuilderMaker.cs" />
-    <Compile Include="ProjectBuilderMakers\TestNetCoreProjectBuilderMaker.cs" />
-    <Compile Include="ProjectBuilderMakers\TestWinRTProjectBuidlerMaker.cs" />
-    <Compile Include="ProjectBuilderMakers\WinRTProjectBuilderMaker.cs" />
     <Compile Include="ProjectFileManagers\MsBuildProjectFileManager.cs" />
     <Compile Include="ProjectFileManagers\NetCoreProjectFileManager.cs" />
     <Compile Include="ProjectFileManagers\ProjectFileManager.cs" />

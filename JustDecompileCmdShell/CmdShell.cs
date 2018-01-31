@@ -13,7 +13,7 @@ using Mono.Cecil.AssemblyResolver;
 using JustDecompile.EngineInfrastructure;
 using Telerik.JustDecompiler.Languages.VisualBasic;
 using System.Collections.Generic;
-using JustDecompile.Tools.MSBuildProjectBuilder.ProjectBuilderMakers;
+using JustDecompile.Tools.MSBuildProjectBuilder.NetCore;
 
 namespace JustDecompileCmdShell
 {
@@ -178,24 +178,22 @@ namespace JustDecompileCmdShell
         private BaseProjectBuilder GetProjectBuilder(AssemblyDefinition assembly, GeneratorProjectInfo projectInfo, ProjectGenerationSettings settings, ILanguage language, string projFilePath, DecompilationPreferences preferences, IFrameworkResolver frameworkResolver, ITargetPlatformResolver targetPlatformResolver)
         {
             TargetPlatform targetPlatform = assembly.MainModule.AssemblyResolver.GetTargetPlatform(assembly.MainModule.FilePath, targetPlatformResolver);
-			BaseProjectBuilderMaker builderMaker = null;
+			BaseProjectBuilder projectBuilder = null;
 
 			if (targetPlatform == TargetPlatform.NetCore)
 			{
-				builderMaker = new NetCoreProjectBuilderMaker(projectInfo.Target, projFilePath, language, targetPlatformResolver, preferences, null, NoCacheAssemblyInfoService.Instance, projectInfo.VisualStudioVersion, settings);
+				projectBuilder = new NetCoreProjectBuilder(projectInfo.Target, projFilePath, language, preferences, null, NoCacheAssemblyInfoService.Instance, TargetPlatformResolver.Instance, projectInfo.VisualStudioVersion, settings);
 			}
 			else if (targetPlatform == TargetPlatform.WinRT)
             {
-				builderMaker = new WinRTProjectBuilderMaker(projectInfo.Target, projFilePath, language, targetPlatformResolver, preferences, null, NoCacheAssemblyInfoService.Instance, projectInfo.VisualStudioVersion, settings);
+				projectBuilder = new WinRTProjectBuilder(projectInfo.Target, projFilePath, language, preferences, null, NoCacheAssemblyInfoService.Instance, TargetPlatformResolver.Instance, projectInfo.VisualStudioVersion, settings);
             }
             else
             {
-				builderMaker = new MsBuildProjectBuilderMaker(projectInfo.Target, projFilePath, language, frameworkResolver, targetPlatformResolver, preferences, null, NoCacheAssemblyInfoService.Instance, projectInfo.VisualStudioVersion, settings);
+				projectBuilder = new MSBuildProjectBuilder(projectInfo.Target, projFilePath, language, frameworkResolver, preferences, null, NoCacheAssemblyInfoService.Instance, TargetPlatformResolver.Instance, projectInfo.VisualStudioVersion, settings);
             }
 
-			builderMaker.InitializeProjectFileManager();
-
-			return builderMaker.GetBuilder();
+			return projectBuilder;
         }
 
         protected virtual void AttachProjectBuilderEventHandlers(BaseProjectBuilder projectBuilder)

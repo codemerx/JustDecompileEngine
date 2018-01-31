@@ -13,7 +13,6 @@ using Telerik.JustDecompiler.Decompiler.WriterContextServices;
 using Telerik.JustDecompiler.Decompiler.Caching;
 using JustDecompile.EngineInfrastructure;
 using Mono.Cecil.AssemblyResolver;
-using JustDecompile.Tools.MSBuildProjectBuilder.Contracts.FileManagers;
 
 namespace JustDecompile.External.JustAssembly
 {
@@ -21,8 +20,8 @@ namespace JustDecompile.External.JustAssembly
 	{
 		private Dictionary<uint, Dictionary<uint, IDecompilationResults>> decompilationResults;
 
-		public JustAssemblyProjectBuilder(string assemblyPath, string targetPath, ILanguage language, Telerik.JustDecompiler.External.IFileGenerationNotifier notifier, IMsBuildProjectManager projectFileManager, Dictionary<ModuleDefinition, Guid> modulesProjectGuids)
-			: base(assemblyPath, targetPath, language, new DecompilationPreferences(), notifier, projectFileManager, modulesProjectGuids)
+		public JustAssemblyProjectBuilder(string assemblyPath, string targetPath, ILanguage language, Telerik.JustDecompiler.External.IFileGenerationNotifier notifier)
+			: base(assemblyPath, targetPath, language, new JustAssemblyProjectBuilderFrameworkVersionResolver(), new DecompilationPreferences(), notifier, NoCacheAssemblyInfoService.Instance, TargetPlatformResolver.Instance)
 		{
 			this.decompilationResults = new Dictionary<uint, Dictionary<uint, IDecompilationResults>>();
 		}
@@ -278,6 +277,14 @@ namespace JustDecompile.External.JustAssembly
 		{
 			// caches are cleared after the assembly attributes have been written, so that
 			// assembly & module contexts aren't being calculated twice.
+		}
+
+		class JustAssemblyProjectBuilderFrameworkVersionResolver : IFrameworkResolver
+		{
+			public FrameworkVersion GetDefaultFallbackFramework4Version()
+			{
+				return FrameworkVersion.v4_0;
+			}
 		}
 	}
 }

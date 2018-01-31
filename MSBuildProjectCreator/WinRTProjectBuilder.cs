@@ -17,6 +17,7 @@ using Mono.Cecil.AssemblyResolver;
 using System.Xml;
 using JustDecompile.Tools.MSBuildProjectBuilder.Constants;
 using JustDecompile.Tools.MSBuildProjectBuilder.Contracts.FileManagers;
+using JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder
 {
@@ -36,27 +37,23 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
         public WinRTProjectBuilder(string assemblyPath, AssemblyDefinition assembly,
             Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes,
             Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources,
-            string targetPath, ILanguage language, IDecompilationPreferences preferences, IWinRTProjectManager projectFileManager, Dictionary<ModuleDefinition, Guid> modulesProjectGuids,
-			VisualStudioVersion visualStudioVersion, ProjectGenerationSettings projectGenerationSettings = null)
-            : base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, preferences, projectFileManager, modulesProjectGuids, visualStudioVersion, projectGenerationSettings)
+            string targetPath, ILanguage language, IDecompilationPreferences preferences, IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver, VisualStudioVersion visualStudioVersion, ProjectGenerationSettings projectGenerationSettings = null)
+            : base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, null, preferences, assemblyInfoService, targetPlatformResolver, visualStudioVersion, projectGenerationSettings)
         {
             Initialize();
-        }
 
-        public WinRTProjectBuilder(string assemblyPath, string targetPath, ILanguage language,
-            IDecompilationPreferences preferences, IFileGenerationNotifier notifier, IWinRTProjectManager projectFileManager,
-			Dictionary<ModuleDefinition, Guid> modulesProjectGuids, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010, ProjectGenerationSettings projectGenerationSettings = null)
-            : base(assemblyPath, targetPath, language, null, notifier, projectFileManager, modulesProjectGuids, visualStudioVersion, projectGenerationSettings)
-        {
-            Initialize();
+			this.projectFileManager = new WinRTProjectFileManager(this.assembly, this.assemblyInfo, this.language, this.visualStudioVersion, this.namespaceHierarchyTree, this.modulesProjectsGuids, this.projectType, this.IsUWPProject, this.minInstalledUAPVersion, this.maxInstalledUAPVersion);
 		}
 
-		private IWinRTProjectManager ProjectFileManager
-		{
-			get
-			{
-				return this.projectFileManager as IWinRTProjectManager;
-			}
+		public WinRTProjectBuilder(string assemblyPath, string targetPath, ILanguage language,
+            IDecompilationPreferences preferences, IFileGenerationNotifier notifier,
+			IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010,
+			ProjectGenerationSettings projectGenerationSettings = null)
+            : base(assemblyPath, targetPath, language, null, preferences, notifier, assemblyInfoService, targetPlatformResolver, visualStudioVersion, projectGenerationSettings)
+        {
+            Initialize();
+
+			this.projectFileManager = new WinRTProjectFileManager(this.assembly, this.assemblyInfo, this.language, this.visualStudioVersion, this.namespaceHierarchyTree, this.modulesProjectsGuids, this.projectType, this.IsUWPProject, this.minInstalledUAPVersion, this.maxInstalledUAPVersion);
 		}
 
 		private bool IsUWPProject
@@ -197,7 +194,6 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             }
 
             InitializeInstalledUAPVersions();
-			this.ProjectFileManager.Initialize(this.IsUWPProject, this.minInstalledUAPVersion, this.maxInstalledUAPVersion);
         }
 
         private void InitializeInstalledUAPVersions()

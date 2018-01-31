@@ -46,22 +46,25 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
         public MSBuildProjectBuilder(string assemblyPath, AssemblyDefinition assembly,
             Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes,
  			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources,
-			string targetPath, ILanguage language, IDecompilationPreferences preferences, IMsBuildProjectManager projectFileManager, Dictionary<ModuleDefinition, Guid> modulesProjectGuids,
+			string targetPath, ILanguage language, IFrameworkResolver frameworkResolver,
+			IDecompilationPreferences preferences, IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver,
 			VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010, ProjectGenerationSettings projectGenerationSettings = null,
-			IProjectGenerationNotifier projectNotifier = null, IFileGenerationNotifier notifier = null)
-			: base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, preferences, projectFileManager, modulesProjectGuids, visualStudioVersion, projectGenerationSettings, projectNotifier, notifier)
+			IProjectGenerationNotifier projectNotifier = null)
+			: base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, frameworkResolver, preferences, assemblyInfoService, targetPlatformResolver, visualStudioVersion, projectGenerationSettings, projectNotifier)
         {
+			this.projectFileManager = new MsBuildProjectFileManager(this.assembly, this.assemblyInfo, this.visualStudioVersion, this.modulesProjectsGuids, this.language, this.namespaceHierarchyTree);
         }
 
         public MSBuildProjectBuilder(string assemblyPath, string targetPath, ILanguage language,
-            IDecompilationPreferences preferences, IFileGenerationNotifier notifier,
-            IMsBuildProjectManager projectFileManager, Dictionary<ModuleDefinition, Guid> modulesProjectGuids, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010,
+            IFrameworkResolver frameworkResolver, IDecompilationPreferences preferences, IFileGenerationNotifier notifier,
+			IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010,
 			ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null)
-			:base(assemblyPath, targetPath, language, preferences, notifier, projectFileManager, modulesProjectGuids, visualStudioVersion, projectGenerationSettings, projectNotifier)
+			:base(assemblyPath, targetPath, language, frameworkResolver, preferences, notifier, assemblyInfoService, targetPlatformResolver, visualStudioVersion, projectGenerationSettings, projectNotifier)
         {
+			this.projectFileManager = new MsBuildProjectFileManager(this.assembly, this.assemblyInfo, this.visualStudioVersion, this.modulesProjectsGuids, this.language, this.namespaceHierarchyTree);
 		}
 
-		private IMsBuildProjectManager ProjectFileManager
+		protected IMsBuildProjectManager ProjectFileManager
 		{
 			get
 			{

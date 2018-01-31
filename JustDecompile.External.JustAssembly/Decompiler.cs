@@ -311,25 +311,16 @@ namespace JustDecompile.External.JustAssembly
 			ILanguage decompilerLanguage = GetLanguage(language);
 			string csprojFileName = Path.ChangeExtension(Path.GetFileName(assemblyFilePath), decompilerLanguage.VSProjectFileExtension);
 			string csprojTargetPath = Path.Combine(targetPath, csprojFileName);
-            IFrameworkResolver frameworkResolver = new JustAssemblyProjectBuilderFrameworkVersionResolver();
-            IAssemblyResolver assemblyResolver = new WeakAssemblyResolver(GlobalAssemblyResolver.CurrentAssemblyPathCache);
-            ReaderParameters readerParameters = new ReaderParameters(assemblyResolver);
-            NoCacheAssemblyInfoService assemblyInfoService = NoCacheAssemblyInfoService.Instance;
-            AssemblyDefinition assembly = assemblyResolver.LoadAssemblyDefinition(assemblyFilePath, readerParameters, loadPdb: true);
-            AssemblyInfo assemblyInfo = assemblyInfoService.GetAssemblyInfo(assembly, frameworkResolver, TargetPlatformResolver.Instance);
-            NamespaceHierarchyTree namespaceHierarchyTree = assembly.BuildNamespaceHierarchyTree();
-            Dictionary<ModuleDefinition, Guid> modulesProjectGuids = new Dictionary<ModuleDefinition, Guid>();
-
-            MsBuildProjectFileManager projectFileManager = new MsBuildProjectFileManager(assembly, assemblyInfo, VisualStudioVersion.VS2010, modulesProjectGuids, decompilerLanguage, namespaceHierarchyTree);
 
             JustAssemblyProjectBuilder projectBuilder;
+
 			if (notifier != null)
 			{
-				projectBuilder = new JustAssemblyProjectBuilder(assemblyFilePath, csprojTargetPath, decompilerLanguage, new FileGenerationNotifier(notifier), projectFileManager, modulesProjectGuids);
+				projectBuilder = new JustAssemblyProjectBuilder(assemblyFilePath, csprojTargetPath, decompilerLanguage, new FileGenerationNotifier(notifier));
 			}
 			else
 			{
-				projectBuilder = new JustAssemblyProjectBuilder(assemblyFilePath, csprojTargetPath, decompilerLanguage, null, projectFileManager, modulesProjectGuids);
+				projectBuilder = new JustAssemblyProjectBuilder(assemblyFilePath, csprojTargetPath, decompilerLanguage, null);
 			}
 
 			return projectBuilder.GenerateFiles(cancellationToken);

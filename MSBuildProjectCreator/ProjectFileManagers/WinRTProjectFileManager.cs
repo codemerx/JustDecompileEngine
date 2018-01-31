@@ -14,7 +14,7 @@ using JustDecompile.Tools.MSBuildProjectBuilder.Contracts.FileManagers;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers
 {
-	public class WinRTProjectFileManager : MsBuildProjectFileManager, IWinRTProjectManager
+	public class WinRTProjectFileManager : MsBuildProjectFileManager
 	{
 		private readonly WinRTProjectType projectType;
 		private Version minInstalledUAPVersion;
@@ -22,10 +22,13 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers
 		private bool isUWPProject;
 
 		public WinRTProjectFileManager(AssemblyDefinition assembly, AssemblyInfo assemblyInfo, ILanguage language, VisualStudioVersion visualStudioVersion,
-			NamespaceHierarchyTree namespaceHierarchyTree, Dictionary<ModuleDefinition, Guid> modulesProjectsGuids, WinRTProjectType projectType) 
+			NamespaceHierarchyTree namespaceHierarchyTree, Dictionary<ModuleDefinition, Guid> modulesProjectsGuids, WinRTProjectType projectType, bool isUWPProject, Version minInstalledUAPVersion, Version maxInstalledUAPVersion) 
 			: base(assembly, assemblyInfo, visualStudioVersion, modulesProjectsGuids, language, namespaceHierarchyTree)
 		{
 			this.projectType = projectType;
+			this.isUWPProject = isUWPProject;
+			this.minInstalledUAPVersion = minInstalledUAPVersion;
+			this.maxInstalledUAPVersion = maxInstalledUAPVersion;
 		}
 
 		public override void GetProjectItems(ModuleDefinition module, Action<ModuleDefinition> createProjectReferences)
@@ -408,13 +411,6 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers
 		private bool IsApplicationProject()
 		{
 			return this.projectType == WinRTProjectType.UWPApplication;
-		}
-
-		public void Initialize(bool isUWPProject, Version minInstalledUAPVersion, Version maxInstalledUAPVersion)
-		{
-			this.isUWPProject = isUWPProject;
-			this.minInstalledUAPVersion = minInstalledUAPVersion;
-			this.maxInstalledUAPVersion = maxInstalledUAPVersion;
 		}
 	}
 }
