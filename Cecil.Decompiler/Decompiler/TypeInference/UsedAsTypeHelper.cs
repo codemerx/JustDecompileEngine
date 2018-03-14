@@ -79,7 +79,7 @@ namespace Telerik.JustDecompiler.Decompiler.TypeInference
                 case CodeNodeType.VariableReferenceExpression:
                     VariableReferenceExpression vrEx = expression as VariableReferenceExpression;
                     return vrEx.Variable == variable ? vrEx.Variable.VariableType : null;
-                case CodeNodeType.CastExpression:
+                case CodeNodeType.ExplicitCastExpression:
                 case CodeNodeType.SafeCastExpression:
                     return typeSystem.Object;
                 case CodeNodeType.ArrayIndexerExpression:

@@ -229,8 +229,8 @@ namespace Telerik.JustDecompiler.Steps
             }
             else // Transforms the case: someCondition ? (int)boolVar1 : (int)boolVar2
             {
-                CastExpression thenCast = ternary.Then as CastExpression;
-                CastExpression elseCast = ternary.Else as CastExpression;
+                ExplicitCastExpression thenCast = ternary.Then as ExplicitCastExpression;
+                ExplicitCastExpression elseCast = ternary.Else as ExplicitCastExpression;
                 if (thenCast != null && elseCast != null &&
                     thenCast.TargetType.FullName == Constants.Int32 && thenCast.Expression.ExpressionType.FullName == Constants.Boolean &&
                     elseCast.TargetType.FullName == Constants.Int32 && elseCast.Expression.ExpressionType.FullName == Constants.Boolean)
@@ -277,7 +277,7 @@ namespace Telerik.JustDecompiler.Steps
             }
 
             ConditionExpression nestedTernary = expression as ConditionExpression;
-            CastExpression castExpression = expression as CastExpression;
+            ExplicitCastExpression castExpression = expression as ExplicitCastExpression;
             Expression nestedBinaryAsExpression = null;
             bool isNestedBinaryInUnary = false;
             if (nestedTernary == null &&

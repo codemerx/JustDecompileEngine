@@ -37,16 +37,16 @@ namespace Telerik.JustDecompiler.Steps
 			{
 				Expression toCast = node.Right;
 
-				if (node.Right is CastExpression)
+				if (node.Right is ExplicitCastExpression)
 				{
-					CastExpression rightCast = node.Right as CastExpression;
+					ExplicitCastExpression rightCast = node.Right as ExplicitCastExpression;
 					if (IsIntegerType(rightCast.TargetType))
 					{
 						toCast = rightCast.Expression;
 					}
 				} 
 
-				node.Right = new CastExpression(toCast, node.Left.ExpressionType, null);
+				node.Right = new ExplicitCastExpression(toCast, node.Left.ExpressionType, null);
 			}
 		}
 
@@ -58,16 +58,16 @@ namespace Telerik.JustDecompiler.Steps
 			{
 				Expression toCast = node.Value;
 
-				if (node.Value is CastExpression)
+				if (node.Value is ExplicitCastExpression)
 				{
-					CastExpression valueCast = node.Value as CastExpression;
+					ExplicitCastExpression valueCast = node.Value as ExplicitCastExpression;
 					if (IsIntegerType(valueCast.TargetType))
 					{
 						toCast = valueCast.Expression;
 					}
 				} 
 
-				node.Value = new CastExpression(toCast, decompiledMethodReturnType, null);
+				node.Value = new ExplicitCastExpression(toCast, decompiledMethodReturnType, null);
 			}
 		}
 
@@ -86,16 +86,16 @@ namespace Telerik.JustDecompiler.Steps
 					{
 						Expression toCast = argument;
 
-						if (argument is CastExpression)
+						if (argument is ExplicitCastExpression)
 						{
-							CastExpression argumentCast = argument as CastExpression;
+							ExplicitCastExpression argumentCast = argument as ExplicitCastExpression;
 							if (IsIntegerType(argumentCast.TargetType))
 							{
 								toCast = argumentCast.Expression;
 							}
 						}
 
-						arguments[i] = new CastExpression(toCast, parameterType, null);
+						arguments[i] = new ExplicitCastExpression(toCast, parameterType, null);
 					}
 				}
 			}

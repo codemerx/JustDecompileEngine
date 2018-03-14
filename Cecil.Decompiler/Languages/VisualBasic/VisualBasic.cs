@@ -303,7 +303,7 @@ namespace Telerik.JustDecompiler.Languages
                        nodeType == CodeNodeType.PropertyReferenceExpression ||
                        nodeType == CodeNodeType.MethodInvocationExpression ||
                        nodeType == CodeNodeType.SafeCastExpression ||
-                       nodeType == CodeNodeType.CastExpression ||
+                       nodeType == CodeNodeType.ExplicitCastExpression ||
                        nodeType == CodeNodeType.ThisReferenceExpression ||
                        nodeType == CodeNodeType.BaseReferenceExpression ||
                        nodeType == CodeNodeType.VariableReferenceExpression ||

@@ -95,7 +95,7 @@ namespace Telerik.JustDecompiler.Steps
 				{
 					if (!(node.Operand.CodeNodeType == CodeNodeType.VariableReferenceExpression ||
 						  node.Operand.CodeNodeType == CodeNodeType.ArgumentReferenceExpression ||
-						  node.Operand.CodeNodeType == CodeNodeType.CastExpression))
+						  node.Operand.CodeNodeType == CodeNodeType.ExplicitCastExpression))
 					{
 						node.Operand = new ParenthesesExpression(node.Operand);
 					}

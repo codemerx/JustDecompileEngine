@@ -255,8 +255,10 @@
     <Compile Include="Ast\Expressions\AnonymousObjectCreationExpression.cs" />
     <Compile Include="Ast\Expressions\ArrayAssignmentFieldReferenceExpression.cs" />
     <Compile Include="Ast\Expressions\ArrayVariableReferenceExpression.cs" />
+    <Compile Include="Ast\Expressions\CastExpressionBase.cs" />
     <Compile Include="Ast\Expressions\CheckedExpression.cs" />
     <Compile Include="Ast\Expressions\FieldInitializerExpression.cs" />
+    <Compile Include="Ast\Expressions\ImplicitCastExpression.cs" />
     <Compile Include="Ast\Expressions\MemberHandleExpression.cs" />
     <Compile Include="Ast\Expressions\InitializerExpression.cs" />
     <Compile Include="Ast\Expressions\ParenthesesExpression.cs" />
@@ -496,7 +498,7 @@
     <Compile Include="Ast\Statements\BreakStatement.cs" />
     <Compile Include="Ast\Expressions\BaseCtorExpression.cs" />
     <Compile Include="Ast\Expressions\CanCastExpression.cs" />
-    <Compile Include="Ast\Expressions\CastExpression.cs" />
+    <Compile Include="Ast\Expressions\ExplicitCastExpression.cs" />
     <Compile Include="Ast\Statements\CatchClause.cs" />
     <Compile Include="Ast\Statements\CatchClauseCollection.cs" />
     <Compile Include="Ast\CodeNodeType.cs" />

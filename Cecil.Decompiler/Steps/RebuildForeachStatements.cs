@@ -116,9 +116,9 @@ namespace Telerik.JustDecompiler.Steps
 						}
 					}
                 }
-				else if (node.Expression is CastExpression)
+				else if (node.Expression is ExplicitCastExpression)
                 {
-                    CastExpression theCast = node.Expression as CastExpression;
+                    ExplicitCastExpression theCast = node.Expression as ExplicitCastExpression;
 					if (IsGetCurrent(theCast.Expression))
                     {
                         this.foreachVariableType = theCast.ExpressionType;
@@ -400,9 +400,9 @@ namespace Telerik.JustDecompiler.Steps
                 return false;
             }
             Expression getCurrentInvocation;
-            if (assignment.Right is CastExpression)
+            if (assignment.Right is ExplicitCastExpression)
             {
-                getCurrentInvocation = (assignment.Right as CastExpression).Expression;
+                getCurrentInvocation = (assignment.Right as ExplicitCastExpression).Expression;
             }
             else if (assignment.Right is MethodInvocationExpression || assignment.Right is PropertyReferenceExpression)
             {

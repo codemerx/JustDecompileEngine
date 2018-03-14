@@ -198,11 +198,11 @@ namespace Telerik.JustDecompiler.Steps
                         return node.Operand;
                     }
 
-                    CastExpression castOperand = node.Operand as CastExpression;
+                    ExplicitCastExpression castOperand = node.Operand as ExplicitCastExpression;
                     if (castOperand != null && castOperand.TargetType.IsByReference)
                     {
                         TypeReference targetType = (castOperand.TargetType as ByReferenceType).ElementType;
-                        return new CastExpression((Expression)Visit(castOperand.Expression), targetType, null);
+                        return new ExplicitCastExpression((Expression)Visit(castOperand.Expression), targetType, null);
                     }
                 }
                 return base.VisitUnaryExpression(node);

@@ -82,7 +82,7 @@ namespace Telerik.JustDecompiler.Decompiler.Caching
             if (isDecompiledMemberInCache)
             {
                 CachedDecompiledMember cachedDecompiledMember = this.GetDecompiledMemberFromCache(member, language, renameInvalidMembers);
-                foreach (CastExpression cast in cachedDecompiledMember.Member.Context.AnalysisResults.AmbiguousCastsToObject)
+                foreach (ExplicitCastExpression cast in cachedDecompiledMember.Member.Context.AnalysisResults.AmbiguousCastsToObject)
                 {
                     TypeReference lastResolvedType;
                     bool? haveOverloadedOperator = Common.Extensions.ResolveToOverloadedEqualityOperator(cast.Expression.ExpressionType, out lastResolvedType);

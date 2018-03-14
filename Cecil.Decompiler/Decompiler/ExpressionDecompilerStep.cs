@@ -527,7 +527,7 @@ namespace Telerik.JustDecompiler.Decompiler
                         TypeDefinition targetTypeDef = target.ExpressionType.Resolve();
                         if (targetTypeDef != null && targetTypeDef != methodDef.DeclaringType && !targetTypeDef.IsInterface)
                         {
-                            return new CastExpression(target, methodRef.DeclaringType, null) { IsExplicitInterfaceCast = true };
+                            return new ExplicitCastExpression(target, methodRef.DeclaringType, null) { IsExplicitInterfaceCast = true };
                         }
                     }
                 }
@@ -887,7 +887,7 @@ namespace Telerik.JustDecompiler.Decompiler
         /// <returns>Returns true if there is MethodInvocationExpression embeded in <paramref name="expression"/>.</returns>
         public bool CheckForCastBecauseForeach(Expression expression)
         {
-            CastExpression castExpression = expression as CastExpression;
+            ExplicitCastExpression castExpression = expression as ExplicitCastExpression;
             if (castExpression != null && castExpression.Expression is MethodInvocationExpression)
             {
                 return true;
@@ -1638,7 +1638,7 @@ namespace Telerik.JustDecompiler.Decompiler
             if (expression.ExpressionType != null && expression.ExpressionType.GetFriendlyFullName(null) != boxingTypeRef.GetFriendlyFullName(null))
             {
                 // Happens if there was a cast and a box of an enum value to its underlying type - it's transalated as boxing the underlying type
-                expression = new CastExpression(expression, boxingTypeRef, null);
+                expression = new ExplicitCastExpression(expression, boxingTypeRef, null);
             }
             else if (expression.ExpressionType == null && expression.CodeNodeType == CodeNodeType.VariableReferenceExpression)
             {
@@ -1687,7 +1687,7 @@ namespace Telerik.JustDecompiler.Decompiler
         private void PushCastExpression(TypeReference targetType, Instruction instruction)
         {
             Instruction[] instructionArray = instruction != null ? new Instruction[] { instruction } : null;
-            Push(new CastExpression(Pop(), targetType, instructionArray));
+            Push(new ExplicitCastExpression(Pop(), targetType, instructionArray));
         }
 
         /// <summary>
@@ -1717,7 +1717,7 @@ namespace Telerik.JustDecompiler.Decompiler
 
             if (toPush.HasType && IsIntegerType(toPush.ExpressionType))
             {
-                CastExpression theCast = new CastExpression(toPush, new PointerType(methodContext.Method.Module.TypeSystem.Void), new Instruction[] { instruction });
+                ExplicitCastExpression theCast = new ExplicitCastExpression(toPush, new PointerType(methodContext.Method.Module.TypeSystem.Void), new Instruction[] { instruction });
                 Push(theCast);
                 return;
             }
@@ -1900,7 +1900,7 @@ namespace Telerik.JustDecompiler.Decompiler
                 ((addressDereference.ExpressionType.FullName != "System.Boolean") &&
                 (addressDereference.ExpressionType.FullName != type.FullName && type.FullName != "System.Object")))
             {
-                CastExpression resultingCastExpression = new CastExpression(addressDereference, type, null);
+                ExplicitCastExpression resultingCastExpression = new ExplicitCastExpression(addressDereference, type, null);
                 Push(resultingCastExpression);
             }
             else

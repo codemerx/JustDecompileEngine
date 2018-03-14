@@ -41,14 +41,14 @@ namespace Telerik.JustDecompiler.Steps
 					TypeDefinition rightType = rightSide.ExpressionType.Resolve();
 					if (ShouldAddCast(rightType, leftType))
 					{
-						node.Right = new CastExpression(rightSide, leftType, null);
+						node.Right = new ExplicitCastExpression(rightSide, leftType, null);
 						shouldUpdateType = true;
 					}
 
 					TypeDefinition supposedLeftTypeEnum = leftType.Resolve();
 					if (supposedLeftTypeEnum != null && rightType != null && supposedLeftTypeEnum.IsEnum && rightType.IsValueType && supposedLeftTypeEnum.FullName != rightType.FullName)
 					{
-						node.Right = new CastExpression(rightSide, leftType, null);
+						node.Right = new ExplicitCastExpression(rightSide, leftType, null);
 						shouldUpdateType = true;
 					}
 				}
@@ -62,7 +62,7 @@ namespace Telerik.JustDecompiler.Steps
 					TypeDefinition leftType = node.Left.ExpressionType.Resolve();
 					if (leftType != null && leftType.IsEnum)
 					{
-						node.Left = new CastExpression(node.Left, GetEnumUnderlyingType(leftType), null);
+						node.Left = new ExplicitCastExpression(node.Left, GetEnumUnderlyingType(leftType), null);
 						shouldUpdateType = true;
 					}
 				}
@@ -72,7 +72,7 @@ namespace Telerik.JustDecompiler.Steps
 					TypeDefinition rightType = node.Right.ExpressionType.Resolve();
 					if (rightType != null && rightType.IsEnum)
 					{
-						node.Right = new CastExpression(node.Right, GetEnumUnderlyingType(rightType), null);
+						node.Right = new ExplicitCastExpression(node.Right, GetEnumUnderlyingType(rightType), null);
 						shouldUpdateType = true;
 					}
 				}
@@ -90,7 +90,7 @@ namespace Telerik.JustDecompiler.Steps
 					TypeDefinition rightTypeEnum = rightSide.ExpressionType.Resolve();
 					if (ShouldAddCast(rightTypeEnum, leftTypeInteger))
 					{
-						node.Right = new CastExpression(rightSide, leftTypeInteger, null);
+						node.Right = new ExplicitCastExpression(rightSide, leftTypeInteger, null);
 						shouldUpdateType = true;
 					}
 
@@ -98,14 +98,14 @@ namespace Telerik.JustDecompiler.Steps
 					TypeDefinition leftTypeEnum = leftSide.ExpressionType.Resolve();
 					if (ShouldAddCast(leftTypeEnum, rightTypeInteger))
 					{
-						node.Left = new CastExpression(leftSide, rightTypeInteger, null);
+						node.Left = new ExplicitCastExpression(leftSide, rightTypeInteger, null);
 						shouldUpdateType = true;
 					}
 
 					if (leftTypeEnum != null && leftTypeEnum.IsEnum && rightTypeEnum != null && rightTypeEnum.IsEnum && leftTypeEnum.FullName != rightTypeEnum.FullName)
 					{
-						node.Left = new CastExpression(leftSide, GetEnumUnderlyingType(leftTypeEnum), null);
-						node.Right = new CastExpression(rightSide, GetEnumUnderlyingType(leftTypeEnum), null);
+						node.Left = new ExplicitCastExpression(leftSide, GetEnumUnderlyingType(leftTypeEnum), null);
+						node.Right = new ExplicitCastExpression(rightSide, GetEnumUnderlyingType(leftTypeEnum), null);
 						shouldUpdateType = true;
 					}
 				}
@@ -117,7 +117,7 @@ namespace Telerik.JustDecompiler.Steps
 					TypeDefinition leftSupposedEnum = node.Left.ExpressionType.Resolve();
 					if (leftSupposedEnum != null && leftSupposedEnum.IsEnum)
 					{
-						node.Left = new CastExpression(node.Left, GetEnumUnderlyingType(leftSupposedEnum), null);
+						node.Left = new ExplicitCastExpression(node.Left, GetEnumUnderlyingType(leftSupposedEnum), null);
 						shouldUpdateType = true;
 					}
 				}
@@ -127,7 +127,7 @@ namespace Telerik.JustDecompiler.Steps
 					TypeDefinition rightSupposedEnum = node.Right.ExpressionType.Resolve();
 					if (rightSupposedEnum != null && rightSupposedEnum.IsEnum)
 					{
-						node.Right = new CastExpression(node.Right, GetEnumUnderlyingType(rightSupposedEnum), null);
+						node.Right = new ExplicitCastExpression(node.Right, GetEnumUnderlyingType(rightSupposedEnum), null);
 						shouldUpdateType = true;
 					}
 				}
@@ -176,7 +176,7 @@ namespace Telerik.JustDecompiler.Steps
 					TypeDefinition supposedEnum = node.Operand.ExpressionType.Resolve();
 					if (supposedEnum != null && supposedEnum.IsEnum)
 					{
-						node.Operand = new CastExpression(node.Operand, GetEnumUnderlyingType(supposedEnum), null);
+						node.Operand = new ExplicitCastExpression(node.Operand, GetEnumUnderlyingType(supposedEnum), null);
 						node.DecideExpressionType();
 					}
 				}
@@ -222,7 +222,7 @@ namespace Telerik.JustDecompiler.Steps
 					TypeReference parameterType = parameters[i].ParameterType;
 					if (ShouldAddCast(argumentType, parameterType))
 					{
-						arguments[i] = new CastExpression(argument, parameterType, null);
+						arguments[i] = new ExplicitCastExpression(argument, parameterType, null);
 					}
 				}
 			}
@@ -238,7 +238,7 @@ namespace Telerik.JustDecompiler.Steps
 				TypeDefinition returnedType = node.Value.ExpressionType.Resolve();
 				if (ShouldAddCast(returnedType, decompiledMethodReturnType))
 				{
-					node.Value = new CastExpression(node.Value, decompiledMethodReturnType, null);
+					node.Value = new ExplicitCastExpression(node.Value, decompiledMethodReturnType, null);
 				}
 			}
 		}
@@ -255,7 +255,7 @@ namespace Telerik.JustDecompiler.Steps
 					TypeDefinition indexType = index.ExpressionType.Resolve();
 					if (ShouldAddCast(indexType, typeSystem.Int32))
 					{
-						node.Indices[i] = new CastExpression(index, typeSystem.Int32, null);
+						node.Indices[i] = new ExplicitCastExpression(index, typeSystem.Int32, null);
 					}
 				}
 			}
@@ -286,7 +286,7 @@ namespace Telerik.JustDecompiler.Steps
 				// Array elements
 				else if (ShouldAddCast(arrayType, element.ExpressionType))
 				{
-					blockExpression.Expressions[i] = new CastExpression(element, arrayType, null);
+					blockExpression.Expressions[i] = new ExplicitCastExpression(element, arrayType, null);
 				}
 			}
 		}

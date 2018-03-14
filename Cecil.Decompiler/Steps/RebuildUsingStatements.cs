@@ -173,10 +173,10 @@ namespace Telerik.JustDecompiler.Steps
 				}
 
                 Expression methodTarget = methodReference.Target;
-                if (methodTarget != null && methodTarget.CodeNodeType == CodeNodeType.CastExpression &&
-                    (methodTarget as CastExpression).TargetType.FullName == "System.IDisposable")
+                if (methodTarget != null && methodTarget.CodeNodeType == CodeNodeType.ExplicitCastExpression &&
+                    (methodTarget as ExplicitCastExpression).TargetType.FullName == "System.IDisposable")
                 {
-                    methodTarget = (methodTarget as CastExpression).Expression;
+                    methodTarget = (methodTarget as ExplicitCastExpression).Expression;
                 }
 
 				if (binaryExpression.Left.CheckInnerReferenceExpressions(methodTarget))

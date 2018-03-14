@@ -135,7 +135,7 @@ namespace Telerik.JustDecompiler.Steps.DynamicVariables
                     arguments[index].CodeNodeType != CodeNodeType.DynamicMemberReferenceExpression &&
                     !DynamicElementAnalyzer.Analyze(arguments[index]))
                 {
-                    CastExpression theCastExpression = new CastExpression(arguments[index], objectTypeRef, null);
+                    ExplicitCastExpression theCastExpression = new ExplicitCastExpression(arguments[index], objectTypeRef, null);
                     theCastExpression.DynamicPositioningFlags = new bool[] { true };
                     arguments[index] = theCastExpression;
                 }
@@ -159,9 +159,9 @@ namespace Telerik.JustDecompiler.Steps.DynamicVariables
 
         private Expression RemoveUnneededCast(Expression expression)
         {
-            while (expression.CodeNodeType == CodeNodeType.CastExpression && (expression as CastExpression).TargetType.Name[0] == '!')
+            while (expression.CodeNodeType == CodeNodeType.ExplicitCastExpression && (expression as ExplicitCastExpression).TargetType.Name[0] == '!')
             {
-                expression = (expression as CastExpression).Expression;
+                expression = (expression as ExplicitCastExpression).Expression;
             }
 
             return expression;
@@ -191,7 +191,7 @@ namespace Telerik.JustDecompiler.Steps.DynamicVariables
                 throw new Exception("Invalid number of arguments for convert expression.");
             }
 
-            return new CastExpression(arguments[0], callSiteInfo.ConvertType, instructions);
+            return new ExplicitCastExpression(arguments[0], callSiteInfo.ConvertType, instructions);
         }
 
         private Expression GenerateGetIndexExpression(IList<Expression> arguments, IEnumerable<Instruction> instructions)

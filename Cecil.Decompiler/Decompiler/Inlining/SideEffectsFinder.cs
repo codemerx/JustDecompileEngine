@@ -36,8 +36,8 @@ namespace Telerik.JustDecompiler.Decompiler.Inlining
                     return true;
                 case CodeNodeType.PropertyReferenceExpression:
                     return !(node as PropertyReferenceExpression).IsSetter;
-                case CodeNodeType.CastExpression:
-                    return !(node as CastExpression).IsExplicitInterfaceCast;
+                case CodeNodeType.ExplicitCastExpression:
+                    return !(node as ExplicitCastExpression).IsExplicitInterfaceCast;
                 case CodeNodeType.FieldReferenceExpression:
                     return !(node as FieldReferenceExpression).IsSimpleStore;
                 case CodeNodeType.ArrayIndexerExpression:

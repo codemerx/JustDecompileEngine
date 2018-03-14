@@ -155,9 +155,9 @@ namespace Telerik.JustDecompiler.Decompiler.ExpressionPropagation
 				return ChangesAssignedExpression(currentExpression, (assignedValue as UnaryExpression).Operand, assignmentRecipient);
             }
 
-            if (assignedValue is CastExpression)
+            if (assignedValue is ExplicitCastExpression)
             {
-				return ChangesAssignedExpression(currentExpression, (assignedValue as CastExpression).Expression, assignmentRecipient);            
+				return ChangesAssignedExpression(currentExpression, (assignedValue as ExplicitCastExpression).Expression, assignmentRecipient);            
             }
 
             if (assignedValue is CanCastExpression)
@@ -417,11 +417,11 @@ namespace Telerik.JustDecompiler.Decompiler.ExpressionPropagation
 							return Visit(unaryOperand.Operand);
 						}
 					}
-					if (node.Operand is CastExpression && node.Operand.ExpressionType.IsByReference)
+					if (node.Operand is ExplicitCastExpression && node.Operand.ExpressionType.IsByReference)
 					{
-						CastExpression theCast = node.Operand as CastExpression;
+						ExplicitCastExpression theCast = node.Operand as ExplicitCastExpression;
 						TypeReference targetType = (theCast.ExpressionType as ByReferenceType).ElementType;
-						CastExpression result = new CastExpression(theCast.Expression, targetType, theCast.MappedInstructions);
+						ExplicitCastExpression result = new ExplicitCastExpression(theCast.Expression, targetType, theCast.MappedInstructions);
 						return Visit(result);
 					}
                 }

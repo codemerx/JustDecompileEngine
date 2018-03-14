@@ -102,7 +102,7 @@ namespace Telerik.JustDecompiler.Steps
 					Expression result = EnumHelper.GetEnumExpression(resolvedConditionType,literalCondition,theTypeSystem);
 					if (result is LiteralExpression)
 					{
-						result = new CastExpression(result, resolvedConditionType, null);
+						result = new ExplicitCastExpression(result, resolvedConditionType, null);
 					}
 					return result;
 				}

@@ -14,9 +14,9 @@ namespace Telerik.JustDecompiler.Decompiler
 	{
 		public HashSet<TypeReference> TypesDependingOn { get; private set; }
 
-        public HashSet<CastExpression> AmbiguousCastsToObject { get; private set; }
+        public HashSet<ExplicitCastExpression> AmbiguousCastsToObject { get; private set; }
 
-        public DependsOnAnalysisVisitor(HashSet<TypeReference> typesDependingOn, HashSet<CastExpression> ambiguousCastsToObject)
+        public DependsOnAnalysisVisitor(HashSet<TypeReference> typesDependingOn, HashSet<ExplicitCastExpression> ambiguousCastsToObject)
 		{
 			this.TypesDependingOn = typesDependingOn;
             this.AmbiguousCastsToObject = ambiguousCastsToObject;
@@ -40,7 +40,7 @@ namespace Telerik.JustDecompiler.Decompiler
 			base.VisitTypeOfExpression(node);
 		}
 
-		public override void VisitCastExpression(CastExpression node)
+		public override void VisitExplicitCastExpression(ExplicitCastExpression node)
 		{
 			TypesDependingOn.UnionWith(Utilities.GetTypeReferenceTypesDepedningOn(node.ExpressionType));
             if (node.UnresolvedReferenceForAmbiguousCastToObject != null)
@@ -48,7 +48,7 @@ namespace Telerik.JustDecompiler.Decompiler
                 this.AmbiguousCastsToObject.Add(node);
             }
 
-            base.VisitCastExpression(node);
+            base.VisitExplicitCastExpression(node);
 		}
 
 		public override void VisitSafeCastExpression(SafeCastExpression node)

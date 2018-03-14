@@ -98,7 +98,7 @@ namespace Telerik.JustDecompiler.Steps
                     }
 					else
 					{
-						arguments[index] = new CastExpression(arguments[index], paramType, null);
+						arguments[index] = new ExplicitCastExpression(arguments[index], paramType, null);
 					}
                 }
             }
@@ -137,7 +137,7 @@ namespace Telerik.JustDecompiler.Steps
                         }
                         else
                         {
-                            conditionCase.Condition = new CastExpression(conditionCase.Condition, node.Condition.ExpressionType, null);
+                            conditionCase.Condition = new ExplicitCastExpression(conditionCase.Condition, node.Condition.ExpressionType, null);
                         }
                     }
                 }
@@ -166,9 +166,9 @@ namespace Telerik.JustDecompiler.Steps
 				{
 					node.Right = EnumHelper.GetEnumExpression(leftType, (node.Right as LiteralExpression), typeSystem);
 				}
-				else if (node.Right is CastExpression && (node.Right as CastExpression).Expression is LiteralExpression)
+				else if (node.Right is ExplicitCastExpression && (node.Right as ExplicitCastExpression).Expression is LiteralExpression)
 				{
-					node.Right = EnumHelper.GetEnumExpression(leftType, (node.Right as CastExpression).Expression as LiteralExpression, typeSystem);
+					node.Right = EnumHelper.GetEnumExpression(leftType, (node.Right as ExplicitCastExpression).Expression as LiteralExpression, typeSystem);
 				}
 			}
 			else
@@ -189,9 +189,9 @@ namespace Telerik.JustDecompiler.Steps
 					{
 						node.Left = EnumHelper.GetEnumExpression(rightType, (node.Left as LiteralExpression), typeSystem);
 					}
-					else if (node.Left is CastExpression && (node.Left as CastExpression).Expression is LiteralExpression)
+					else if (node.Left is ExplicitCastExpression && (node.Left as ExplicitCastExpression).Expression is LiteralExpression)
 					{
-						node.Left = EnumHelper.GetEnumExpression(rightType, (node.Left as CastExpression).Expression as LiteralExpression, typeSystem);
+						node.Left = EnumHelper.GetEnumExpression(rightType, (node.Left as ExplicitCastExpression).Expression as LiteralExpression, typeSystem);
 					}
 				}
 			}
@@ -219,7 +219,7 @@ namespace Telerik.JustDecompiler.Steps
             return result;
         }
 
-        public override ICodeNode VisitCastExpression(CastExpression node)
+        public override ICodeNode VisitExplicitCastExpression(ExplicitCastExpression node)
         {
             if (node.Expression.CodeNodeType == CodeNodeType.LiteralExpression)
             {
@@ -232,7 +232,7 @@ namespace Telerik.JustDecompiler.Steps
             }
             else
             {
-                return base.VisitCastExpression(node);
+                return base.VisitExplicitCastExpression(node);
             }
         }
 
@@ -258,13 +258,13 @@ namespace Telerik.JustDecompiler.Steps
 					{
 						node.Value = EnumHelper.GetEnumExpression(methodReturnType, node.Value as LiteralExpression, typeSystem);
 					}
-					else if (node.Value is CastExpression && (node.Value as CastExpression).Expression is LiteralExpression)
+					else if (node.Value is ExplicitCastExpression && (node.Value as ExplicitCastExpression).Expression is LiteralExpression)
 					{
-						node.Value = EnumHelper.GetEnumExpression(methodReturnType, (node.Value as CastExpression).Expression as LiteralExpression, typeSystem);
+						node.Value = EnumHelper.GetEnumExpression(methodReturnType, (node.Value as ExplicitCastExpression).Expression as LiteralExpression, typeSystem);
 					}
                     else if (node.Value.HasType && NeedsCast(node.Value.ExpressionType, methodReturnType))
 					{
-						node.Value = new CastExpression(node.Value, methodReturnType, null);
+						node.Value = new ExplicitCastExpression(node.Value, methodReturnType, null);
 					}
 				}
 			}

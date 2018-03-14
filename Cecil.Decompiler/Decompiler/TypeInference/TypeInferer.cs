@@ -100,13 +100,13 @@ namespace Telerik.JustDecompiler.Decompiler.TypeInference
                     && assignment.Right.CodeNodeType != CodeNodeType.LiteralExpression) // literal expressions are fixed at a later stage
                 {
                     // might need cast
-					if (assignment.Right.CodeNodeType == CodeNodeType.CastExpression && assignment.Right.ExpressionType.FullName == currentTypeSystem.UInt16.FullName &&
+					if (assignment.Right.CodeNodeType == CodeNodeType.ExplicitCastExpression && assignment.Right.ExpressionType.FullName == currentTypeSystem.UInt16.FullName &&
 						assignment.Left.ExpressionType.FullName == currentTypeSystem.Char.FullName)
 					{
-						((CastExpression)assignment.Right).TargetType = currentTypeSystem.Char;
+						((ExplicitCastExpression)assignment.Right).TargetType = currentTypeSystem.Char;
 						return expr;
 					}
-                    assignment.Right = new CastExpression(assignment.Right, assignment.Left.ExpressionType, null);
+                    assignment.Right = new ExplicitCastExpression(assignment.Right, assignment.Left.ExpressionType, null);
                 }
             }
             return expr;
@@ -146,7 +146,7 @@ namespace Telerik.JustDecompiler.Decompiler.TypeInference
                             }
 
                             ///Then a cast is needed.
-                            miEx.Arguments[argumentIndex] = new CastExpression(argument, argumentType, null);
+                            miEx.Arguments[argumentIndex] = new ExplicitCastExpression(argument, argumentType, null);
                             ///This should be enough to update the expression everywhere it is seen.
                         }
                     }
@@ -160,7 +160,7 @@ namespace Telerik.JustDecompiler.Decompiler.TypeInference
                             TypeReference targetType = miEx.MethodExpression.Method.DeclaringType;
                             if (!IsSubtype(targetType, variable.VariableType))
                             {
-                                miEx.MethodExpression.Target = new CastExpression(target, targetType, null);
+                                miEx.MethodExpression.Target = new ExplicitCastExpression(target, targetType, null);
                             }
                         }
                         else
@@ -182,7 +182,7 @@ namespace Telerik.JustDecompiler.Decompiler.TypeInference
                             ///binex.Right should be VariableReferenceExpression to 'variable'.
                             if (!IsSubtype(assignedAs, variable.VariableType))
                             {
-                                binEx.Right = new CastExpression(binEx.Right, assignedAs, null);
+                                binEx.Right = new ExplicitCastExpression(binEx.Right, assignedAs, null);
                             }
                         }
                     }

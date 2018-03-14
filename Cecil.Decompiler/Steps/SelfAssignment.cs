@@ -257,7 +257,7 @@ namespace Telerik.JustDecompiler.Steps
                         case CodeNodeType.ThisReferenceExpression:
                         case CodeNodeType.BaseReferenceExpression:
                         case CodeNodeType.FieldReferenceExpression:
-                        case CodeNodeType.CastExpression:
+                        case CodeNodeType.ExplicitCastExpression:
                         case CodeNodeType.ArrayIndexerExpression:
                         case CodeNodeType.EnumExpression:
                         case CodeNodeType.ArrayLengthExpression:

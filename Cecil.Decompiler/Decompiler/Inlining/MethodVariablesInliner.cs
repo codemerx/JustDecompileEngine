@@ -28,9 +28,9 @@ namespace Telerik.JustDecompiler.Decompiler.Inlining
 
         private bool IsEnumeratorGetCurrent(Expression expression)
         {
-            if (expression.CodeNodeType == CodeNodeType.CastExpression)
+            if (expression.CodeNodeType == CodeNodeType.ExplicitCastExpression)
             {
-                expression = (expression as CastExpression).Expression;
+                expression = (expression as ExplicitCastExpression).Expression;
             }
 
             return expression.CodeNodeType == CodeNodeType.MethodInvocationExpression && (expression as MethodInvocationExpression).MethodExpression.Method.Name == "get_Current";

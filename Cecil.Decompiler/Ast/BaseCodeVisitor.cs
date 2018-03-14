@@ -47,7 +47,7 @@ namespace Telerik.JustDecompiler.Ast
 
 			//A good place to watch for StackOverFlowException. That one cannot be effectively caught and results in app crash.
 			//We replace it with our own custom exception here before it occurs. The number of allowed stack frames
-			//i chosen empirically
+			//is chosen empirically
 			if (visitsOnStack == 600)
 			{
 				visitsOnStack = 0;
@@ -158,10 +158,13 @@ namespace Telerik.JustDecompiler.Ast
 				case CodeNodeType.FieldReferenceExpression:
 					VisitFieldReferenceExpression((FieldReferenceExpression)node);
 					break;
-				case CodeNodeType.CastExpression:
-					VisitCastExpression((CastExpression)node);
+				case CodeNodeType.ExplicitCastExpression:
+                    VisitExplicitCastExpression((ExplicitCastExpression)node);
 					break;
-				case CodeNodeType.SafeCastExpression:
+                case CodeNodeType.ImplicitCastExpression:
+                    VisitImplicitCastExpression((ImplicitCastExpression)node);
+                    break;
+                case CodeNodeType.SafeCastExpression:
 					VisitSafeCastExpression((SafeCastExpression)node);
 					break;
 				case CodeNodeType.CanCastExpression:
@@ -569,10 +572,15 @@ namespace Telerik.JustDecompiler.Ast
 			Visit(node.Target);
 		}
 
-		public virtual void VisitCastExpression(CastExpression node)
+		public virtual void VisitExplicitCastExpression(ExplicitCastExpression node)
 		{
 			Visit(node.Expression);
 		}
+
+        public virtual void VisitImplicitCastExpression(ImplicitCastExpression node)
+        {
+            Visit(node.Expression);
+        }
 
 		public virtual void VisitSafeCastExpression(SafeCastExpression node)
 		{

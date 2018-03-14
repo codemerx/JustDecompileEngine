@@ -311,9 +311,9 @@ namespace Telerik.JustDecompiler.Steps
             }
 
             Expression value = theAssignExpression.Right;
-            if (value.CodeNodeType == CodeNodeType.CastExpression)
+            if (value.CodeNodeType == CodeNodeType.ExplicitCastExpression)
             {
-                value = (value as CastExpression).Expression;
+                value = (value as ExplicitCastExpression).Expression;
             }
 
             if ((value.CodeNodeType != CodeNodeType.LiteralExpression || (value as LiteralExpression).Value != null) &&

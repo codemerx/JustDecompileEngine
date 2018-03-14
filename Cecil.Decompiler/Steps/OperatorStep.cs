@@ -85,12 +85,12 @@ namespace Telerik.JustDecompiler.Steps
 
             if (method.Name == "op_Explicit")
             {
-                return new CastExpression((Expression)codeTransformer.Visit(node.Arguments[0]), node.ExpressionType, node.InvocationInstructions);
+                return new ExplicitCastExpression((Expression)codeTransformer.Visit(node.Arguments[0]), node.ExpressionType, node.InvocationInstructions);
             }
 
             if (method.Name == "op_Implicit")
-            { 
-                return codeTransformer.Visit(node.Arguments[0]);
+            {
+                return new ImplicitCastExpression((Expression)codeTransformer.Visit(node.Arguments[0]), node.ExpressionType, node.InvocationInstructions);
             }
 
             if (method.Name == "get_Chars" && node.MethodExpression.Target.ExpressionType.FullName == "System.String")
@@ -135,9 +135,9 @@ namespace Telerik.JustDecompiler.Steps
             {
                 Expression right = node.Right;
                 MethodInvocationExpression methodInvocation = right as MethodInvocationExpression;
-                if (right is CastExpression)
+                if (right is ExplicitCastExpression)
                 {
-                    methodInvocation = (right as CastExpression).Expression as MethodInvocationExpression;
+                    methodInvocation = (right as ExplicitCastExpression).Expression as MethodInvocationExpression;
                 }
                 if (methodInvocation == null)
                 {

@@ -211,8 +211,8 @@ namespace Telerik.JustDecompiler.Decompiler
 			}
 
             BinaryExpression loopCondition = condition as BinaryExpression;
-            CastExpression leftCast = loopCondition.Left as CastExpression;
-            CastExpression rightCast = loopCondition.Right as CastExpression;
+            ExplicitCastExpression leftCast = loopCondition.Left as ExplicitCastExpression;
+            ExplicitCastExpression rightCast = loopCondition.Right as ExplicitCastExpression;
             if (loopCondition.Operator != BinaryOperator.ValueInequality ||
                 leftCast == null ||
                 leftCast.TargetType.Name != "Object" ||
@@ -325,13 +325,13 @@ namespace Telerik.JustDecompiler.Decompiler
             }
 
             BinaryExpression assignExpression = (statement as ExpressionStatement).Expression as BinaryExpression;
-            if (assignExpression.Right.CodeNodeType != CodeNodeType.CastExpression ||
-                (assignExpression.Right as CastExpression).Expression.CodeNodeType != CodeNodeType.MethodInvocationExpression)
+            if (assignExpression.Right.CodeNodeType != CodeNodeType.ExplicitCastExpression ||
+                (assignExpression.Right as ExplicitCastExpression).Expression.CodeNodeType != CodeNodeType.MethodInvocationExpression)
             {
                 return false;
             }
 
-            MethodInvocationExpression methodInvokeExpr = (assignExpression.Right as CastExpression).Expression as MethodInvocationExpression;
+            MethodInvocationExpression methodInvokeExpr = (assignExpression.Right as ExplicitCastExpression).Expression as MethodInvocationExpression;
             if (methodInvokeExpr.Arguments.Count != 2 || methodInvokeExpr.MethodExpression.Method.HasThis ||
                 methodInvokeExpr.MethodExpression.Method.DeclaringType.FullName != "System.Delegate" || methodInvokeExpr.MethodExpression.Method.Name != operationName)
             {

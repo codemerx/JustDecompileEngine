@@ -92,7 +92,7 @@ namespace Telerik.JustDecompiler.Decompiler
 					HandleLiteralArgument(parameterType, literalArgument);
 				}
 
-				CastExpression castArgument = arguments[i] as CastExpression;
+				ExplicitCastExpression castArgument = arguments[i] as ExplicitCastExpression;
 				if (castArgument != null)
 				{
 					HandleCastArgument(parameterType, castArgument);
@@ -100,7 +100,7 @@ namespace Telerik.JustDecompiler.Decompiler
 			}
 		}
   
-		private void HandleCastArgument(TypeReference parameterType, CastExpression castArgument)
+		private void HandleCastArgument(TypeReference parameterType, ExplicitCastExpression castArgument)
 		{
 			if (parameterType.FullName == currentTypeSystem.Char.FullName && castArgument.ExpressionType.FullName == currentTypeSystem.UInt16.FullName)
 			{
@@ -137,7 +137,7 @@ namespace Telerik.JustDecompiler.Decompiler
                 }
             }
 
-			CastExpression castValue = node.Value as CastExpression;
+			ExplicitCastExpression castValue = node.Value as ExplicitCastExpression;
 			if (castValue != null)
 			{
 				if (castValue.ExpressionType.FullName != methodContext.Method.ReturnType.FullName)
@@ -161,11 +161,11 @@ namespace Telerik.JustDecompiler.Decompiler
                 return node.BoxedExpression.CloneAndAttachInstructions(node.MappedInstructions);
             }
 
-			if (node.BoxedExpression.CodeNodeType == CodeNodeType.CastExpression && ((CastExpression)node.BoxedExpression).Expression.CodeNodeType == CodeNodeType.CastExpression)
+			if (node.BoxedExpression.CodeNodeType == CodeNodeType.ExplicitCastExpression && ((ExplicitCastExpression)node.BoxedExpression).Expression.CodeNodeType == CodeNodeType.ExplicitCastExpression)
 			{ 
 				// double cast in a boxed expression;
-				CastExpression outerCast = node.BoxedExpression as CastExpression;
-				CastExpression innerCast = outerCast.Expression as CastExpression;
+				ExplicitCastExpression outerCast = node.BoxedExpression as ExplicitCastExpression;
+				ExplicitCastExpression innerCast = outerCast.Expression as ExplicitCastExpression;
 				if (outerCast.TargetType.FullName == currentTypeSystem.Char.FullName &&
 					innerCast.TargetType.FullName == currentTypeSystem.UInt16.FullName)
 				{
@@ -178,7 +178,7 @@ namespace Telerik.JustDecompiler.Decompiler
             return node;
         }
 
-        public override ICodeNode VisitCastExpression(CastExpression node)
+        public override ICodeNode VisitExplicitCastExpression(ExplicitCastExpression node)
         {
 			if (node.Expression.CodeNodeType == CodeNodeType.LiteralExpression && node.TargetType.FullName == currentTypeSystem.Boolean.FullName)
             {
@@ -192,7 +192,7 @@ namespace Telerik.JustDecompiler.Decompiler
                 return node.Expression.CloneAndAttachInstructions(node.MappedInstructions);
             }
 
-            return base.VisitCastExpression(node);
+            return base.VisitExplicitCastExpression(node);
         }
 
         private void FixBooleanLiteral(LiteralExpression literal)

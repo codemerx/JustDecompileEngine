@@ -786,7 +786,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
             Visit(node.Body);
         }
 
-        public override void VisitCastExpression(CastExpression node)
+        public override void VisitExplicitCastExpression(ExplicitCastExpression node)
         {
             if (node.IsChecked)
             {
@@ -1327,7 +1327,7 @@ namespace Telerik.JustDecompiler.Languages.CSharp
                    target.CodeNodeType == CodeNodeType.DynamicConstructorInvocationExpression ||
                    target.CodeNodeType == CodeNodeType.LinqQueryExpression ||
                    target.CodeNodeType == CodeNodeType.ConditionExpression ||
-                   target.CodeNodeType == CodeNodeType.CastExpression ||
+                   target.CodeNodeType == CodeNodeType.ExplicitCastExpression ||
                    target.CodeNodeType == CodeNodeType.SafeCastExpression;
         }
 

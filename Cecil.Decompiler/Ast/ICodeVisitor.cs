@@ -63,8 +63,9 @@ namespace Telerik.JustDecompiler.Ast {
 		void VisitThisReferenceExpression (ThisReferenceExpression node);
 		void VisitBaseReferenceExpression (BaseReferenceExpression node);
 		void VisitFieldReferenceExpression (FieldReferenceExpression node);
-		void VisitCastExpression (CastExpression node);
-		void VisitSafeCastExpression (SafeCastExpression node);
+		void VisitExplicitCastExpression(ExplicitCastExpression node);
+		void VisitImplicitCastExpression (ImplicitCastExpression node);
+        void VisitSafeCastExpression (SafeCastExpression node);
 		void VisitCanCastExpression (CanCastExpression node);
 		void VisitTypeOfExpression (TypeOfExpression node);
 		void VisitConditionExpression (ConditionExpression node);

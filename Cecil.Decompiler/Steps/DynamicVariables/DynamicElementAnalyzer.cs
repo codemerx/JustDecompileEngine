@@ -56,9 +56,9 @@ namespace Telerik.JustDecompiler.Steps.DynamicVariables
                 genericParam = fieldReferenceExpression.Field.FieldType as GenericParameter;
                 target = fieldReferenceExpression.Target;
             }
-            else if(expression.CodeNodeType == CodeNodeType.CastExpression)
+            else if(expression.CodeNodeType == CodeNodeType.ExplicitCastExpression)
             {
-                return FixDynamicFlags(expression as CastExpression);
+                return FixDynamicFlags(expression as ExplicitCastExpression);
             }
             else if(expression.CodeNodeType == CodeNodeType.ArrayIndexerExpression)
             {

@@ -322,9 +322,9 @@ namespace Telerik.JustDecompiler.Steps
             {
                 typeArrayVariableReference = typeArrayArgument as VariableReferenceExpression;
             }
-            else if (typeArrayArgument.CodeNodeType == CodeNodeType.CastExpression)
+            else if (typeArrayArgument.CodeNodeType == CodeNodeType.ExplicitCastExpression)
             {
-                CastExpression cast = typeArrayArgument as CastExpression;
+                ExplicitCastExpression cast = typeArrayArgument as ExplicitCastExpression;
                 if (cast.ExpressionType.GetFriendlyFullName(null) == IEnumerableOfSystemType &&
                     cast.Expression.CodeNodeType == CodeNodeType.VariableReferenceExpression)
                 {
@@ -349,9 +349,9 @@ namespace Telerik.JustDecompiler.Steps
             {
                 argumentArrayVariableReference = argumentArrayExpression as VariableReferenceExpression;
             }
-            else if (argumentArrayExpression.CodeNodeType == CodeNodeType.CastExpression)
+            else if (argumentArrayExpression.CodeNodeType == CodeNodeType.ExplicitCastExpression)
             {
-                CastExpression cast = argumentArrayExpression as CastExpression;
+                ExplicitCastExpression cast = argumentArrayExpression as ExplicitCastExpression;
                 if (cast.ExpressionType.GetFriendlyFullName(null) == IEnumerableOfCSharpArgumentInfo &&
                     cast.Expression.CodeNodeType == CodeNodeType.VariableReferenceExpression)
                 {

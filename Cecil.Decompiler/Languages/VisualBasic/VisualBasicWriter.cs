@@ -1167,7 +1167,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             }
         }
 
-        public override void VisitCastExpression(CastExpression node)
+        public override void VisitExplicitCastExpression(ExplicitCastExpression node)
         {
             var castMethod = GetCastMethod(node.TargetType);
             if (castMethod == null)
@@ -1198,7 +1198,7 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
             WriteToken(")");
         }
 
-        private void WriteCastExpression(CastExpression node)
+        private void WriteCastExpression(ExplicitCastExpression node)
         {
             bool isComplexCastTarget = IsComplexTarget(node.Expression);
 
@@ -1373,12 +1373,12 @@ namespace Telerik.JustDecompiler.Languages.VisualBasic
                 var assingExpression = (BinaryExpression)incrementExpression;
 
 				BinaryExpression binaryExpression;
-				if (assingExpression.Right.CodeNodeType == CodeNodeType.CastExpression)
+				if (assingExpression.Right.CodeNodeType == CodeNodeType.ExplicitCastExpression)
 				{
-					CastExpression castExpression = assingExpression.Right as CastExpression;
-					while (castExpression.Expression.CodeNodeType == CodeNodeType.CastExpression)
+					ExplicitCastExpression castExpression = assingExpression.Right as ExplicitCastExpression;
+					while (castExpression.Expression.CodeNodeType == CodeNodeType.ExplicitCastExpression)
 					{
-						castExpression = castExpression.Expression as CastExpression;
+						castExpression = castExpression.Expression as ExplicitCastExpression;
 					}
 
 					binaryExpression = castExpression.Expression as BinaryExpression;

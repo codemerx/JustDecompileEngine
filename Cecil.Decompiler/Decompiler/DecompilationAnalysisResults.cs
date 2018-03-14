@@ -16,12 +16,12 @@ namespace Telerik.JustDecompiler.Decompiler
         /// <summary>
         /// Contains a list of cast expressions from the current method, which have unresolved references up the inheritance chain that we need to find out whether == or != is overloaded.
         /// </summary>
-        public HashSet<CastExpression> AmbiguousCastsToObject { get; private set; }
+        public HashSet<ExplicitCastExpression> AmbiguousCastsToObject { get; private set; }
 
 		public DecompilationAnalysisResults()
 		{
 			this.TypesDependingOn = new HashSet<TypeReference>();
-            this.AmbiguousCastsToObject = new HashSet<CastExpression>();
+            this.AmbiguousCastsToObject = new HashSet<ExplicitCastExpression>();
 		}
 	}
 }

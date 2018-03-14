@@ -844,12 +844,12 @@ namespace Telerik.JustDecompiler.Steps
 
         private ICodeNode ConvertCast(MethodInvocationExpression node)
         {
-            return this.ConvertCast(node, (expression, type) => new CastExpression(expression, type, null));
+            return this.ConvertCast(node, (expression, type) => new ExplicitCastExpression(expression, type, null));
         }
 
         private ICodeNode ConvertCastChecked(MethodInvocationExpression node)
         {
-            CastExpression cast = ConvertCast(node) as CastExpression;
+            ExplicitCastExpression cast = ConvertCast(node) as ExplicitCastExpression;
             return cast != null ? new CheckedExpression(cast, null) : null;
         }
 
@@ -901,7 +901,7 @@ namespace Telerik.JustDecompiler.Steps
         {
             methodRef = null;
 
-            CastExpression cast = expression as CastExpression;
+            ExplicitCastExpression cast = expression as ExplicitCastExpression;
             if (cast == null || cast.Expression.CodeNodeType != CodeNodeType.MethodInvocationExpression ||
                 cast.TargetType == null || cast.TargetType.FullName != castTargetTypeName)
             {

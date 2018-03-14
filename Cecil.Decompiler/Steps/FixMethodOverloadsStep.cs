@@ -55,7 +55,7 @@ namespace Telerik.JustDecompiler.Steps
 					}
 					if (ShouldAddCast(arguments[i], sameNameMethods, i, paramType))
 					{
-						arguments[i] = new CastExpression(arguments[i], paramType, null);
+						arguments[i] = new ExplicitCastExpression(arguments[i], paramType, null);
 					}
 				}
 			}

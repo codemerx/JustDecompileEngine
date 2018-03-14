@@ -234,6 +234,15 @@ namespace Telerik.JustDecompiler.Decompiler.Inlining
                 base.Visit(node);
             }
 
+            public override void VisitImplicitCastExpression(ImplicitCastExpression node)
+            {
+                int initialCount = count;
+
+                Visit(node.Expression);
+
+                count = initialCount;
+            }
+
             public override void VisitIfStatement(Ast.Statements.IfStatement node)
             {
                 Visit(node.Condition);

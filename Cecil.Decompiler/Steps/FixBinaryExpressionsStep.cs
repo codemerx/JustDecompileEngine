@@ -105,13 +105,13 @@ namespace Telerik.JustDecompiler.Steps
                     TypeReference rightType = GetElementType(expression.Right.ExpressionType);
                     if (rightType.FullName != typeSystem.Char.FullName)
                     {
-						if (expression.Right.CodeNodeType == CodeNodeType.CastExpression && expression.Right.ExpressionType.FullName == typeSystem.UInt16.FullName)
+						if (expression.Right.CodeNodeType == CodeNodeType.ExplicitCastExpression && expression.Right.ExpressionType.FullName == typeSystem.UInt16.FullName)
 						{
-							((CastExpression)expression.Right).TargetType = typeSystem.Char;
+							((ExplicitCastExpression)expression.Right).TargetType = typeSystem.Char;
 						}
 						else
 						{
-							expression.Right = new CastExpression(expression.Right, typeSystem.Char, null);
+							expression.Right = new ExplicitCastExpression(expression.Right, typeSystem.Char, null);
 						}
                     }
                 }
@@ -160,7 +160,7 @@ namespace Telerik.JustDecompiler.Steps
 					}
 					else
 					{
-						expression.Right = new CastExpression(expression.Right, expression.Left.ExpressionType, null);
+						expression.Right = new ExplicitCastExpression(expression.Right, expression.Left.ExpressionType, null);
 					}
                 }
                 else if (expression.Left.HasType)
@@ -193,9 +193,9 @@ namespace Telerik.JustDecompiler.Steps
                 {
                     literal = expression.Right as LiteralExpression;
                 }
-                else if (expression.Right.CodeNodeType == CodeNodeType.CastExpression)
+                else if (expression.Right.CodeNodeType == CodeNodeType.ExplicitCastExpression)
                 {
-                    CastExpression cast = expression.Right as CastExpression;
+                    ExplicitCastExpression cast = expression.Right as ExplicitCastExpression;
                     if (cast.Expression.CodeNodeType == CodeNodeType.LiteralExpression)
                     {
                         literal = cast.Expression as LiteralExpression;
@@ -221,8 +221,8 @@ namespace Telerik.JustDecompiler.Steps
                 if (CheckForOverloadedEqualityOperators(expression.Left, out leftUnresolvedReference) &&
                     CheckForOverloadedEqualityOperators(expression.Right, out rightUnresolvedReference))
                 {
-                    expression.Left = new CastExpression(left, left.ExpressionType.Module.TypeSystem.Object, null, leftUnresolvedReference);
-                    expression.Right = new CastExpression(right, right.ExpressionType.Module.TypeSystem.Object, null, rightUnresolvedReference);
+                    expression.Left = new ExplicitCastExpression(left, left.ExpressionType.Module.TypeSystem.Object, null, leftUnresolvedReference);
+                    expression.Right = new ExplicitCastExpression(right, right.ExpressionType.Module.TypeSystem.Object, null, rightUnresolvedReference);
                 }
             }
 
