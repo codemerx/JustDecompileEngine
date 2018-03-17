@@ -38,8 +38,7 @@ namespace Mono.Cecil {
 		void AddToAssemblyCache(string filePath, TargetArchitecture platform, bool storeAssemblyDefInCahce = false);
         /*Telerik Authorship*/
 		string FindAssemblyPath(AssemblyName assemblyNameReference, string fallbackDir, AssemblyStrongNameExtended assemblyKey, bool bubbleToUserIfFailed = true);
-		TargetPlatform GetTargetPlatform(string assemblyFilePath, /*Telerik Authorship*/ ITargetPlatformResolver targetPlatformResolver);
-		bool ArePublicKeyEquals(byte[] publicKeyToken1, byte[] publicKeyToken2);
+		TargetPlatform GetTargetPlatform(string assemblyFilePath);
 		void ClearCache();
 		void AddSearchDirectory(string directory);
 		void RemoveSearchDirectory(string directory);

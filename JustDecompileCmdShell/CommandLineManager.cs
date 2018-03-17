@@ -1,12 +1,13 @@
-﻿using JustDecompile.Tools.MSBuildProjectBuilder;
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Telerik.JustDecompiler.External;
 using Telerik.JustDecompiler.Languages;
 using Telerik.JustDecompiler.Languages.CSharp;
 using Telerik.JustDecompiler.Languages.VisualBasic;
+using JustDecompile.Tools.MSBuildProjectBuilder;
+using Mono.Cecil.AssemblyResolver;
 
 namespace JustDecompileCmdShell
 {

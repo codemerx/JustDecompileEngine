@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Mono.Cecil;
 using Telerik.JustDecompiler.Common;
-using Telerik.JustDecompiler.External;
+using Mono.Cecil.AssemblyResolver;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers
 {

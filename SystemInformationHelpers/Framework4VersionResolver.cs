@@ -20,7 +20,14 @@ namespace SystemInformationHelpers
             {
                 if (versionInfo.FileMinorPart == 7)
                 {
-                    return FrameworkVersion.v4_7;
+					if (versionInfo.FileBuildPart >= 2558)
+					{
+						return FrameworkVersion.v4_7_1;
+					}
+					else
+					{
+						return FrameworkVersion.v4_7;
+					}
                 }
                 else if (versionInfo.FileMinorPart == 6)
                 {

@@ -351,7 +351,6 @@
     <Compile Include="External\DecompilationPreferences.cs" />
     <Compile Include="External\ExceptionThrownNotifier.cs" />
     <Compile Include="External\ExternallyVisibleDecompilationUtilities.cs" />
-    <Compile Include="External\FrameworkVersion.cs" />
     <Compile Include="External\Interfaces\IDecompilationPreferences.cs" />
     <Compile Include="External\Interfaces\IExceptionThrownNotifier.cs" />
     <Compile Include="External\Interfaces\IFileGeneratedInfo.cs" />

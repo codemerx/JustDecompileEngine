@@ -1,4 +1,5 @@
 ﻿using JustDecompile.SmartAssembly.Attributes;
+using Mono.Cecil.AssemblyResolver;
 
 namespace Telerik.JustDecompiler.External.Interfaces
 {

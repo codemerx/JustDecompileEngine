@@ -1,4 +1,4 @@
-﻿using Telerik.JustDecompiler.External;
+﻿using Mono.Cecil.AssemblyResolver;
 using Telerik.JustDecompiler.External.Interfaces;
 
 namespace JustDecompile.EngineInfrastructure

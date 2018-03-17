@@ -102,7 +102,12 @@ namespace Mono.Cecil {
 		protected readonly IList<string> userDefinedAssemblies;
 		private readonly HashSet<string> resolvableExtensionsSet;
 		private readonly string[] architectureStrings;
-		private readonly AssemblyPathResolver assemblyPathResolver;
+        /*Telerik Authorship*/
+        private readonly ITargetPlatformResolver targetPlatformResolver;
+        /*Telerik Authorship*/
+        private readonly ReaderParameters readerParameters;
+        /*Telerik Authorship*/
+        private readonly AssemblyPathResolver assemblyPathResolver;
         /*Telerik Authorship*/
         private readonly ReaderWriterLockSlim resolveLock;
         /*Telerik Authorship*/
@@ -115,7 +120,7 @@ namespace Mono.Cecil {
 #endif
 
 		/*Telerik Authorship*/
-		protected BaseAssemblyResolver(AssemblyPathResolverCache pathRespository)
+		protected BaseAssemblyResolver(AssemblyPathResolverCache pathRespository, ITargetPlatformResolver targetPlatformResolver)
 		{
 			directories = new List<string>();
 			resolvedAssemblies = new Dictionary<AssemblyStrongNameExtended, List<AssemblyDefinition>>();
@@ -126,7 +131,12 @@ namespace Mono.Cecil {
             /*Telerik Authorship*/
             directoryAssemblies = new HashSet<DirectoryAssemblyInfo>();
 
-			assemblyPathResolver = new AssemblyPathResolver(pathRespository, new ReaderParameters(this));
+            /*Telerik Authorship*/
+            this.targetPlatformResolver = targetPlatformResolver;
+            /*Telerik Authorship*/
+            this.readerParameters = new ReaderParameters(this);
+            /*Telerik Authorship*/
+            assemblyPathResolver = new AssemblyPathResolver(pathRespository, /*Telerik Authorship*/ this.readerParameters, /*Telerik Authorship*/ this.targetPlatformResolver);
 
             /*Telerik Authorship*/
             this.resolveLock = new ReaderWriterLockSlim();
@@ -842,14 +852,10 @@ namespace Mono.Cecil {
 			return result;
 		}
 
-		public virtual TargetPlatform GetTargetPlatform(string assemblyFilePath, ITargetPlatformResolver targetPlatformResolver)
+		public virtual TargetPlatform GetTargetPlatform(string assemblyFilePath)
 		{
-			return assemblyPathResolver.GetTargetPlatform(assemblyFilePath, targetPlatformResolver);
-		}
-
-		public virtual bool ArePublicKeyEquals(byte[] publicKeyToken1, byte[] publicKeyToken2)
-		{
-			return assemblyPathResolver.ArePublicKeyEquals(publicKeyToken1, publicKeyToken2);
+            /*Telerik Authorship*/
+            return this.targetPlatformResolver.GetTargetPlatform(assemblyFilePath, this);
 		}
 
 		/*Telerik Authorship*/

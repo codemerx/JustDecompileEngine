@@ -17,8 +17,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
             IFrameworkResolver frameworkResolver, VisualStudioVersion visualStudioVersion, ILanguage language, ITargetPlatformResolver targetPlatformResolver)
         {
             AssemblyDefinition assembly = Telerik.JustDecompiler.Decompiler.Utilities.GetAssembly(assemblyFilePath);
-            AssemblyInfo assemblyInfo = assemblyInfoService.GetAssemblyInfo(assembly, frameworkResolver, targetPlatformResolver);
-            TargetPlatform targetPlatform = GlobalAssemblyResolver.Instance.GetTargetPlatform(assemblyFilePath, targetPlatformResolver);
+            AssemblyInfo assemblyInfo = assemblyInfoService.GetAssemblyInfo(assembly, frameworkResolver);
+            TargetPlatform targetPlatform = targetPlatformResolver.GetTargetPlatform(assembly.MainModule.FilePath, assembly.MainModule);
 
             foreach (KeyValuePair<ModuleDefinition, FrameworkVersion> pair in assemblyInfo.ModulesFrameworkVersions)
             {

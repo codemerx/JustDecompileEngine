@@ -21,7 +21,7 @@ namespace JustDecompile.External.JustAssembly
 		private Dictionary<uint, Dictionary<uint, IDecompilationResults>> decompilationResults;
 
 		public JustAssemblyProjectBuilder(string assemblyPath, string targetPath, ILanguage language, Telerik.JustDecompiler.External.IFileGenerationNotifier notifier)
-			: base(assemblyPath, targetPath, language, new JustAssemblyProjectBuilderFrameworkVersionResolver(), new DecompilationPreferences(), notifier, NoCacheAssemblyInfoService.Instance, TargetPlatformResolver.Instance)
+			: base(assemblyPath, targetPath, language, new JustAssemblyProjectBuilderFrameworkVersionResolver(), new DecompilationPreferences(), notifier, NoCacheAssemblyInfoService.Instance)
 		{
 			this.decompilationResults = new Dictionary<uint, Dictionary<uint, IDecompilationResults>>();
 		}

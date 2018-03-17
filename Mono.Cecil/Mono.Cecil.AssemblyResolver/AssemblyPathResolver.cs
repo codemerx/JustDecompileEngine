@@ -5,43 +5,20 @@ using System.Linq;
 using Mono.Cecil.Extensions;
 /*Telerik Authorship*/
 using AssemblyPathName = System.Collections.Generic.KeyValuePair<Mono.Cecil.AssemblyResolver.AssemblyStrongNameExtended, string>;
-/*Telerik Authorship*/
-using System.Runtime.Versioning;
 
 namespace Mono.Cecil.AssemblyResolver
 {
     internal class AssemblyPathResolver
     {
-        /*Telerik Authorship*/
-        private readonly Dictionary<AssemblyName, TargetPlatform> Mscorlibs = new Dictionary<AssemblyName, TargetPlatform>()
-        {
-            // .NET 4.0, 4.5, 4.5.1, 4.5.2
-            { new AssemblyName("mscorlib", "mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089", new Version("4.0.0.0"), new byte[] { 183, 122, 92, 86, 25, 52, 224, 137 }) { TargetArchitecture = TargetArchitecture.I386 }, TargetPlatform.CLR_4 },
-            { new AssemblyName("mscorlib", "mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089", new Version("4.0.0.0"), new byte[] { 183, 122, 92, 86, 25, 52, 224, 137 }) { TargetArchitecture = TargetArchitecture.AMD64 }, TargetPlatform.CLR_4 },
-            // .NET 2.0, 3.0, 3.5
-            { new AssemblyName("mscorlib", "mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089", new Version("2.0.0.0"), new byte[] { 183, 122, 92, 86, 25, 52, 224, 137 }) { TargetArchitecture = TargetArchitecture.I386 }, TargetPlatform.CLR_2_3 },
-            { new AssemblyName("mscorlib", "mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089", new Version("2.0.0.0"), new byte[] { 183, 122, 92, 86, 25, 52, 224, 137 }) { TargetArchitecture = TargetArchitecture.AMD64 }, TargetPlatform.CLR_2_3 },
-            // Silverlight
-            { new AssemblyName("mscorlib", "mscorlib, Version=2.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e", new Version("2.0.5.0"), new byte[] { 124, 236, 133, 215, 190, 167, 121, 142 }) { TargetArchitecture = TargetArchitecture.I386 }, TargetPlatform.Silverlight },
-            { new AssemblyName("mscorlib", "mscorlib, Version=5.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e", new Version("5.0.5.0"), new byte[] { 124, 236, 133, 215, 190, 167, 121, 142 }) { TargetArchitecture = TargetArchitecture.I386 }, TargetPlatform.Silverlight },
-            // Windows Phone
-            { new AssemblyName("mscorlib", "mscorlib, Version=2.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e", new Version("2.0.5.0"), new byte[] { 124, 236, 133, 215, 190, 167, 121, 142 }) { TargetArchitecture = TargetArchitecture.AnyCPU }, TargetPlatform.WindowsPhone },
-            { new AssemblyName("mscorlib", "mscorlib, Version=5.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e", new Version("5.0.5.0"), new byte[] { 124, 236, 133, 215, 190, 167, 121, 142 }) { TargetArchitecture = TargetArchitecture.AnyCPU }, TargetPlatform.WindowsPhone },
-            // .NET Compact Framework
-            { new AssemblyName("mscorlib", "mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=969db8053d3322ac", new Version("2.0.0.0"), new byte[] { 150, 157, 184, 5, 61, 51, 34, 172 }) { TargetArchitecture = TargetArchitecture.AnyCPU }, TargetPlatform.WindowsCE },
-            { new AssemblyName("mscorlib", "mscorlib, Version=3.5.0.0, Culture=neutral, PublicKeyToken=969db8053d3322ac", new Version("3.5.0.0"), new byte[] { 150, 157, 184, 5, 61, 51, 34, 172 }) { TargetArchitecture = TargetArchitecture.AnyCPU }, TargetPlatform.WindowsCE },
-            // .NET 1, 1.1
-            { new AssemblyName("mscorlib", "mscorlib, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089", new Version("1.0.3300.0"), new byte[] { 183, 122, 92, 86, 25, 52, 224, 137 }) { TargetArchitecture = TargetArchitecture.AnyCPU }, TargetPlatform.CLR_1 },
-            { new AssemblyName("mscorlib", "mscorlib, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b77a5c561934e089", new Version("1.0.5000.0"), new byte[] { 183, 122, 92, 86, 25, 52, 224, 137 }) { TargetArchitecture = TargetArchitecture.AnyCPU }, TargetPlatform.CLR_1 }
-        };
-
         private readonly AssemblyPathResolverCache pathRepository;
         private readonly ReaderParameters readerParameters;
+        private ITargetPlatformResolver targetPlatformResolver;
 
-        public AssemblyPathResolver(AssemblyPathResolverCache pathRepository, ReaderParameters readerParameters)
+        public AssemblyPathResolver(AssemblyPathResolverCache pathRepository, ReaderParameters readerParameters, ITargetPlatformResolver targetPlatformResolver)
         {
             this.pathRepository = pathRepository;
             this.readerParameters = readerParameters;
+            this.targetPlatformResolver = targetPlatformResolver;
         }
 
         public void AddToAssemblyCache(string filePath, TargetArchitecture architecture)
@@ -49,14 +26,14 @@ namespace Mono.Cecil.AssemblyResolver
             AssemblyName assemblyName;
             if (TryGetAssemblyNameDefinition(filePath, true, architecture, out assemblyName))
             {
-                TargetPlatform platform = GetTargetPlatform(filePath, TargetPlatformResolver.Instance);
-                if (!pathRepository.AssemblyParts.ContainsKey(filePath))
-                {
-                    pathRepository.AssemblyParts.Add(filePath, platform);
-                }
-
                 /*Telerik Authorship*/
                 ModuleDefinition module = AssemblyDefinition.ReadAssembly(filePath, readerParameters).MainModule;
+
+                /*Telerik Authorship*/
+                // Call GetTargetPlatform method to resolve assembly target platform and put it in resolver cache
+                this.targetPlatformResolver.GetTargetPlatform(filePath, module);
+
+                /*Telerik Authorship*/
                 SpecialTypeAssembly special = module.IsReferenceAssembly() ? SpecialTypeAssembly.Reference : SpecialTypeAssembly.None;
                 AssemblyStrongNameExtended assemblyKey = new AssemblyStrongNameExtended(assemblyName.FullName, assemblyName.TargetArchitecture, special);
                 if (!pathRepository.AssemblyPathName.ContainsKey(assemblyKey))
@@ -103,102 +80,13 @@ namespace Mono.Cecil.AssemblyResolver
             return filePath;
         }
 
-        public TargetPlatform GetTargetPlatform(string assemblyFilePath, ITargetPlatformResolver targetPlatformResolver)
-        {
-            if (string.IsNullOrEmpty(assemblyFilePath))
-            {
-                return TargetPlatform.None;
-            }
-            if (pathRepository.AssemblyParts.ContainsKey(assemblyFilePath))
-            {
-                return pathRepository.AssemblyParts[assemblyFilePath];
-            }
-            else
-            {
-                ModuleDefinition moduleDef = ModuleDefinition.ReadModule(assemblyFilePath, readerParameters);
-
-				///*Telerik Authorship*/
-				if (moduleDef.Assembly != null && !string.IsNullOrEmpty(moduleDef.Assembly.TargetFrameworkAttributeValue))
-				{
-					TargetPlatform targetPlatform = targetPlatformResolver.GetTargetPlatform(moduleDef.Assembly.TargetFrameworkAttributeValue);
-
-					if (targetPlatform != TargetPlatform.None)
-					{
-						pathRepository.AssemblyParts.Add(assemblyFilePath, targetPlatform);
-						return targetPlatform;
-					}
-				}
-
-				AssemblyNameReference msCorlib = moduleDef.AssemblyReferences.FirstOrDefault(a => a.Name == "mscorlib");
-
-				if (msCorlib == null)
-				{
-					TargetPlatform targetPlatform = targetPlatformResolver.GetTargetPlatform(moduleDef);
-
-					if (targetPlatform != TargetPlatform.None)
-					{
-						pathRepository.AssemblyParts.Add(assemblyFilePath, targetPlatform);
-						return targetPlatform;
-					}
-
-					// the next line is only to keep the old functionality
-					msCorlib = moduleDef.Assembly.Name;
-				}
-
-                if (moduleDef.Assembly != null && moduleDef.Assembly.Name.IsWindowsRuntime || msCorlib.IsFakeMscorlibReference())
-                {
-                    pathRepository.AssemblyParts.Add(assemblyFilePath, TargetPlatform.WinRT);
-                    return TargetPlatform.WinRT;
-                }
-
-                /*AssemblyName assemblyName = new AssemblyName(msCorlib.Name,
-                                                    msCorlib.FullName,
-                                                    msCorlib.Version,
-                                                    msCorlib.PublicKeyToken,
-                                                    Path.GetDirectoryName(assemliyFilePath)) { TargetArchitecture = moduleDef.GetModuleArchitecture() };
-                IEnumerable<string> foundPaths = GetAssemblyPaths(assemblyName);
-
-                return GetTargetPlatform(foundPaths.FirstOrDefault());*/
-
-                /*Telerik Authorship*/
-                TargetArchitecture moduleArchitecture = moduleDef.GetModuleArchitecture();
-                /*Telerik Authorship*/
-                foreach (KeyValuePair<AssemblyName, TargetPlatform> pair in Mscorlibs)
-	            {
-                    if (AreVersionEquals(pair.Key.Version, msCorlib.Version) &&
-                        ArePublicKeyEquals(pair.Key.PublicKeyToken, msCorlib.PublicKeyToken) &&
-                        moduleArchitecture.CanReference(pair.Key.TargetArchitecture))
-	                {
-                        pathRepository.AssemblyParts.Add(assemblyFilePath, pair.Value);
-                        return pair.Value;
-	                }
-	            }
-
-				/*Telerik Authorship*/
-				pathRepository.AssemblyParts.Add(assemblyFilePath, TargetPlatform.None);
-				return TargetPlatform.None;
-            }
-        }
-		public bool ArePublicKeyEquals(byte[] publicKeyToken1, byte[] publicKeyToken2)
-        {
-            if (publicKeyToken1 == null && publicKeyToken2 == null)
-            {
-                return true;
-            }
-            if (publicKeyToken1 != null && publicKeyToken2 != null)
-            {
-                return publicKeyToken1.SequenceEqual(publicKeyToken2);
-            }
-            return false;
-        }
-
         public bool CheckFileExistence(AssemblyName assemblyName, string searchPattern, bool caching, bool checkForBaseDir, bool checkForArchitectPlatfrom = true)
         {
             AssemblyName assemblyNameFromStorage;
             if (TryGetAssemblyNameDefinition(searchPattern, caching, assemblyName.TargetArchitecture, out assemblyNameFromStorage, checkForArchitectPlatfrom))
             {
-                var areEquals = AreVersionEquals(assemblyNameFromStorage.Version, assemblyName.Version)
-                                && ArePublicKeyEquals(assemblyNameFromStorage.PublicKeyToken, assemblyName.PublicKeyToken)
+                var areEquals = /*Telerik Authorship*/AssemblyNameComparer.AreVersionEquals(assemblyNameFromStorage.Version, assemblyName.Version)
+                                && /*Telerik Authorship*/AssemblyNameComparer.ArePublicKeyEquals(assemblyNameFromStorage.PublicKeyToken, assemblyName.PublicKeyToken)
                                 && assemblyName.TargetArchitecture.CanReference(assemblyNameFromStorage.TargetArchitecture)
                                 && (!checkForBaseDir || AreDefaultDirEqual(assemblyName, assemblyNameFromStorage));                
                 if (areEquals && caching)
@@ -221,6 +109,7 @@ namespace Mono.Cecil.AssemblyResolver
 
         public void ClearCache()
         {
+            this.targetPlatformResolver.ClearCache();
             pathRepository.Clear();
         }
 
@@ -331,51 +220,33 @@ namespace Mono.Cecil.AssemblyResolver
 					break;
 
 			}
-            AddPartCacheResult(result, runtime);
+
+            /*Telerik Authorship*/
+            this.targetPlatformResolver.AddPartCacheResult(result, runtime);
 
             return result;
         }
 
-        private void AddPartCacheResult(IEnumerable<string> resultPaths, TargetPlatform runtime)
-        {
-            foreach (string resultPath in resultPaths)
-            {
-                if (!string.IsNullOrEmpty(resultPath) && !pathRepository.AssemblyParts.ContainsKey(resultPath))
-                {
-                    pathRepository.AssemblyParts[resultPath] = runtime;
-                }
-            }
-        }
+        // AddPartCacheResult is moved to TargetPlatformResolver
 
 		/*Telerik Authorship*/
 		private IEnumerable<string> ResolveNetCoreReferences(AssemblyName assemblyName)
 		{
 			List<string> targetDirectories = null;
-			string sharedAssembliesPath = string.Empty;
 
 			foreach (var ver in assemblyName.SupportedVersions(TargetPlatform.NetCore))
 			{
 				targetDirectories = new List<string>();
 
-				if (Directory.Exists(SystemInformation.NETCORE_DIRECTORY))
+				if (Directory.Exists(SystemInformation.NetCoreX64SharedAssemblies))
 				{
-					sharedAssembliesPath = Path.Combine(SystemInformation.NETCORE_DIRECTORY, @"shared\Microsoft.NETCore.App\");
+                    targetDirectories.AddRange(Directory.GetDirectories(SystemInformation.NetCoreX64SharedAssemblies, ver + "*"));
+                }
 
-					if (Directory.Exists(sharedAssembliesPath))
-					{
-						targetDirectories.AddRange(Directory.GetDirectories(sharedAssembliesPath, ver + "*"));
-					}
-				}
-
-				if (Directory.Exists(SystemInformation.NETCORE_X86_DIRECTORY))
+				if (Directory.Exists(SystemInformation.NetCoreX86SharedAssemblies))
 				{
-					sharedAssembliesPath = Path.Combine(SystemInformation.NETCORE_X86_DIRECTORY, @"shared\Microsoft.NETCore.App\");
-
-					if (Directory.Exists(sharedAssembliesPath))
-					{
-						targetDirectories.AddRange(Directory.GetDirectories(sharedAssembliesPath, ver + "*"));
-					}
-				}
+                    targetDirectories.AddRange(Directory.GetDirectories(SystemInformation.NetCoreX86SharedAssemblies, ver + "*"));
+                }
 
 				foreach (string dirVersions in targetDirectories)
 				{
@@ -589,19 +460,6 @@ namespace Mono.Cecil.AssemblyResolver
             return true;
         }
 
-        private bool AreVersionEquals(Version version1, Version version2)
-        {
-            if (IsZero(version1) && IsZero(version2))
-            {
-                return true;
-            }
-            else if (!IsZero(version1) && !IsZero(version2))
-            {
-                return Version.Equals(version1, version2);
-            }
-            return false;
-        }
-
         private bool IsZero(Version version)
         {
             return version == null || (version.Major == 0 && version.Minor == 0 && version.Build == 0 && version.Revision == 0);
@@ -651,9 +509,11 @@ namespace Mono.Cecil.AssemblyResolver
             {
                 pathRepository.AssemblyPathName.RemoveAt(index);
             }
-            if (pathRepository.AssemblyParts.ContainsKey(fileName))
+            /*Telerik Authorship*/
+            if (this.targetPlatformResolver.ResolverCache.AssemblyPathToTargetPlatform.ContainsKey(fileName))
             {
-                pathRepository.AssemblyParts.Remove(fileName);
+                /*Telerik Authorship*/
+                this.targetPlatformResolver.ResolverCache.AssemblyPathToTargetPlatform.Remove(fileName);
             }
             if (pathRepository.AssemblyNameDefinition.ContainsKey(fileName))
             {

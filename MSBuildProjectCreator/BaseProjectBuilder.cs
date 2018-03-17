@@ -44,7 +44,6 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
 		protected readonly string assemblyPath;
 		protected AssemblyDefinition assembly;
-		protected readonly TargetPlatform platform;
 		protected readonly string targetDir;
 		protected readonly ILanguage language;
 		protected IFileGenerationNotifier fileGeneratedNotifier;
@@ -66,7 +65,6 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 		protected readonly Dictionary<string, ICollection<string>> xamlGeneratedFields = new Dictionary<string, ICollection<string>>();
 		protected IProjectManager projectFileManager;
 		protected IAssemblyInfoService assemblyInfoService;
-		protected ITargetPlatformResolver targetPlatformResolver;
 		protected AssemblyInfo assemblyInfo;
 
 		private static object writeTypesLock = new object();
@@ -85,7 +83,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes,
  			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources,
 			string targetPath, ILanguage language, IFrameworkResolver frameworkResolver,
-			IDecompilationPreferences preferences, IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver,
+			IDecompilationPreferences preferences, IAssemblyInfoService assemblyInfoService,
 			VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010, ProjectGenerationSettings projectGenerationSettings = null,
 			IProjectGenerationNotifier projectNotifier = null)
 		{
@@ -95,7 +93,6 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			this.resources = resources;
 			this.TargetPath = targetPath;
 			this.targetDir = Path.GetDirectoryName(targetPath);
-			this.targetPlatformResolver = targetPlatformResolver;
 			this.language = language;
 			this.frameworkResolver = frameworkResolver;
 			this.assemblyInfoService = assemblyInfoService;
@@ -106,7 +103,6 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
 			this.decompilationPreferences = preferences;
 
-			this.platform = currentAssemblyResolver.GetTargetPlatform(assembly.MainModule.FilePath, TargetPlatformResolver.Instance);
 			this.namespaceHierarchyTree = assembly.BuildNamespaceHierarchyTree();
 
 			filePathsService =
@@ -125,20 +121,19 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			this.xamlResourcesToPathsMap = this.filePathsService.GetXamlResourcesToFilePathsMap();
 			this.modulesToProjectsFilePathsMap = this.filePathsService.GetModulesToProjectsFilePathsMap();
 
-			this.assemblyInfo = this.assemblyInfoService.GetAssemblyInfo(this.assembly, this.frameworkResolver, this.targetPlatformResolver);
+			this.assemblyInfo = this.assemblyInfoService.GetAssemblyInfo(this.assembly, this.frameworkResolver);
 			this.projectNotifier = projectNotifier;
 			this.modulesProjectsGuids = new Dictionary<ModuleDefinition, Guid>();
 		}
 
 		public BaseProjectBuilder(string assemblyPath, string targetPath, ILanguage language,
 			IFrameworkResolver frameworkResolver, IDecompilationPreferences preferences, IFileGenerationNotifier notifier,
-			IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010,
+			IAssemblyInfoService assemblyInfoService, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010,
 			ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null)
 		{
 			this.assemblyPath = assemblyPath;
 			this.TargetPath = targetPath;
 			this.targetDir = Path.GetDirectoryName(targetPath);
-			this.targetPlatformResolver = targetPlatformResolver;
 			this.language = language;
 
 			this.frameworkResolver = frameworkResolver;
@@ -172,7 +167,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			this.resourcesToPathsMap = this.filePathsService.GetResourcesToFilePathsMap();
 			this.xamlResourcesToPathsMap = this.filePathsService.GetXamlResourcesToFilePathsMap();
 
-			this.assemblyInfo = this.assemblyInfoService.GetAssemblyInfo(this.assembly, this.frameworkResolver, this.targetPlatformResolver);
+			this.assemblyInfo = this.assemblyInfoService.GetAssemblyInfo(this.assembly, this.frameworkResolver);
 			this.projectNotifier = projectNotifier;
 			this.modulesProjectsGuids = new Dictionary<ModuleDefinition, Guid>();
 		}

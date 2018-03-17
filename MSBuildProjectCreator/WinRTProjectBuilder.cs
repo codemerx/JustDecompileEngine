@@ -37,8 +37,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
         public WinRTProjectBuilder(string assemblyPath, AssemblyDefinition assembly,
             Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes,
             Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources,
-            string targetPath, ILanguage language, IDecompilationPreferences preferences, IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver, VisualStudioVersion visualStudioVersion, ProjectGenerationSettings projectGenerationSettings = null)
-            : base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, null, preferences, assemblyInfoService, targetPlatformResolver, visualStudioVersion, projectGenerationSettings)
+            string targetPath, ILanguage language, IDecompilationPreferences preferences, IAssemblyInfoService assemblyInfoService, VisualStudioVersion visualStudioVersion, ProjectGenerationSettings projectGenerationSettings = null)
+            : base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, null, preferences, assemblyInfoService, visualStudioVersion, projectGenerationSettings)
         {
             Initialize();
 
@@ -47,9 +47,9 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 
 		public WinRTProjectBuilder(string assemblyPath, string targetPath, ILanguage language,
             IDecompilationPreferences preferences, IFileGenerationNotifier notifier,
-			IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010,
+			IAssemblyInfoService assemblyInfoService, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010,
 			ProjectGenerationSettings projectGenerationSettings = null)
-            : base(assemblyPath, targetPath, language, null, preferences, notifier, assemblyInfoService, targetPlatformResolver, visualStudioVersion, projectGenerationSettings)
+            : base(assemblyPath, targetPath, language, null, preferences, notifier, assemblyInfoService, visualStudioVersion, projectGenerationSettings)
         {
             Initialize();
 

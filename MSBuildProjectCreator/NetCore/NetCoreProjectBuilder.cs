@@ -26,15 +26,15 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.NetCore
 			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes,
  			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources,
 			string targetPath, ILanguage language, IDecompilationPreferences preferences,
-			IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2017, ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null)
-			: base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, null, preferences, assemblyInfoService, targetPlatformResolver, visualStudioVersion, projectGenerationSettings, projectNotifier)
+			IAssemblyInfoService assemblyInfoService, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2017, ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null)
+			: base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, null, preferences, assemblyInfoService, visualStudioVersion, projectGenerationSettings, projectNotifier)
 		{
 			this.projectFileManager = new NetCoreProjectFileManager(this.assembly, this.assemblyInfo, this.modulesProjectsGuids);
 		}
 
 		public NetCoreProjectBuilder(string assemblyPath, string targetPath, ILanguage language, IDecompilationPreferences preferences, IFileGenerationNotifier notifier,
-			IAssemblyInfoService assemblyInfoService, ITargetPlatformResolver targetPlatformResolver, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2017, ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null)
-			: base(assemblyPath, targetPath, language, null, preferences, notifier, assemblyInfoService, targetPlatformResolver, visualStudioVersion, projectGenerationSettings, projectNotifier)
+			IAssemblyInfoService assemblyInfoService, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2017, ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null)
+			: base(assemblyPath, targetPath, language, null, preferences, notifier, assemblyInfoService, visualStudioVersion, projectGenerationSettings, projectNotifier)
 		{
 			this.projectFileManager = new NetCoreProjectFileManager(this.assembly, this.assemblyInfo, this.modulesProjectsGuids);
 		}

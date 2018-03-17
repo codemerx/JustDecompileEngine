@@ -25,6 +25,6 @@ namespace Mono.Cecil
     public class DefaultAssemblyResolver : BaseAssemblyResolver
     {
         public DefaultAssemblyResolver(AssemblyPathResolverCache pathRespository)
-            : base(pathRespository) { }
+            : base(pathRespository, /*Telerik Authroship*/ TargetPlatformResolver.Instance) { }
     }
 }

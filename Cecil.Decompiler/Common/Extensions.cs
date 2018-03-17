@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
-using Telerik.JustDecompiler.External;
+using Mono.Cecil.AssemblyResolver;
 
 namespace Telerik.JustDecompiler.Common
 {
@@ -189,8 +189,17 @@ namespace Telerik.JustDecompiler.Common
 				case FrameworkVersion.v4_7_1:
 					result = "4.7.1";
 					break;
+                case FrameworkVersion.NetPortableV4_0:
+                    result = ".NETPortable v4.0";
+                    break;
+                case FrameworkVersion.NetPortableV4_5:
+					result = ".NETPortable v4.5";
+					break;
 				case FrameworkVersion.NetPortableV4_6:
                     result = ".NETPortable v4.6";
+                    break;
+                case FrameworkVersion.NetPortableV5_0:
+                    result = ".NETPortable v5.0";
                     break;
                 case FrameworkVersion.WinRT_4_5:
                     result = "WinRT - 4.5";

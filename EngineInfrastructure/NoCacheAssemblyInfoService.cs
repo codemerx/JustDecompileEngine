@@ -1,18 +1,18 @@
-﻿using JustDecompile.EngineInfrastructure.AssemblyLocators;
-using Mono.Cecil;
-using Mono.Cecil.AssemblyResolver;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
-using Telerik.JustDecompiler.External;
 using Telerik.JustDecompiler.External.Interfaces;
+using Mono.Cecil;
+using Mono.Cecil.AssemblyResolver;
+using JustDecompile.EngineInfrastructure.AssemblyLocators;
 
 namespace JustDecompile.EngineInfrastructure
 {
     public class NoCacheAssemblyInfoService : IAssemblyInfoService
     {
         private static NoCacheAssemblyInfoService instance = null;
+        protected static IAssemblyFrameworkResolver assemblyFrameworkResolver = AssemblyFrameworkResolver.Instance;
 
         protected NoCacheAssemblyInfoService()
         {
@@ -31,54 +31,34 @@ namespace JustDecompile.EngineInfrastructure
             }
         }
 
-        public AssemblyInfo GetAssemblyInfo(AssemblyDefinition assembly, IFrameworkResolver frameworkResolver, ITargetPlatformResolver targetPlatformResolver)
+        public AssemblyInfo GetAssemblyInfo(AssemblyDefinition assembly, IFrameworkResolver frameworkResolver)
         {
             AssemblyInfo assemblyInfo = new AssemblyInfo();
 
-            AddModulesFrameworkVersions(assemblyInfo, assembly, frameworkResolver, targetPlatformResolver);
+            AddModulesFrameworkVersions(assemblyInfo, assembly, frameworkResolver);
             AddAssemblyTypes(assemblyInfo, assembly);
 
             return assemblyInfo;
         }
 
-        protected virtual void AddModulesFrameworkVersions(AssemblyInfo assemblyInfo, AssemblyDefinition assembly, IFrameworkResolver frameworkResolver, ITargetPlatformResolver targetPlatformResolver)
+        protected virtual void AddModulesFrameworkVersions(AssemblyInfo assemblyInfo, AssemblyDefinition assembly, IFrameworkResolver frameworkResolver)
         {
             foreach (ModuleDefinition module in assembly.Modules)
             {
-                FrameworkVersion frameworkVersion = GetFrameworkVersionForModule(module, frameworkResolver, targetPlatformResolver);
+                FrameworkVersion frameworkVersion = GetFrameworkVersionForModule(module, frameworkResolver);
                 assemblyInfo.ModulesFrameworkVersions.Add(module, frameworkVersion);
             }
         }
 
-        protected FrameworkVersion GetFrameworkVersionForModule(ModuleDefinition module, IFrameworkResolver frameworkResolver, ITargetPlatformResolver targetPlatformResolver)
+        protected FrameworkVersion GetFrameworkVersionForModule(ModuleDefinition module, IFrameworkResolver frameworkResolver)
         {
-            //TODO: handle Silverlight/WinPhone projects
-            TargetPlatform platform = module.AssemblyResolver.GetTargetPlatform(module.FilePath, targetPlatformResolver);
-            switch (platform)
+            if (assemblyFrameworkResolver.IsCLR4Assembly(module))
             {
-                case TargetPlatform.CLR_1:
-                    return FrameworkVersion.v1_1;
-                case TargetPlatform.CLR_2:
-                    return FrameworkVersion.v2_0;
-                case TargetPlatform.CLR_2_3:
-                case TargetPlatform.CLR_3_5:
-                    return FrameworkVersion.v3_5;
-                case TargetPlatform.CLR_4:
-                    return GetFramework4Version(module, frameworkResolver);
-				case TargetPlatform.NetCore:
-					return GetFrameworkVersionInternal(module, TargetPlatform.NetCore);
-                case TargetPlatform.WinRT:
-                    return GetFrameworkVersionInternal(module, TargetPlatform.WinRT);
-				case TargetPlatform.Xamarin:
-					return GetFrameworkVersionInternal(module, TargetPlatform.Xamarin);
-				case TargetPlatform.Silverlight:
-                    return FrameworkVersion.Silverlight;
-                case TargetPlatform.WindowsCE:
-                    return FrameworkVersion.WindowsCE;
-                case TargetPlatform.WindowsPhone:
-                    return FrameworkVersion.WindowsPhone;
-                default:
-                    return FrameworkVersion.Unknown;
+                return this.GetFramework4Version(module, frameworkResolver);
+            }
+            else
+            {
+                return assemblyFrameworkResolver.GetFrameworkVersionForModule(module);
             }
         }
 
@@ -99,7 +79,7 @@ namespace JustDecompile.EngineInfrastructure
             if (module.IsMain)
             {
                 FrameworkName frameworkName;
-                if (TryGetTargetFrameworkName(module.Assembly, out frameworkName) &&
+                if (TryGetTargetFrameworkName(module.Assembly.TargetFrameworkAttributeValue, out frameworkName) &&
                     TryParseFramework4Name(frameworkName.Version.ToString(), out frameworkVersion))
                 {
                     return true;
@@ -242,14 +222,14 @@ namespace JustDecompile.EngineInfrastructure
             return true;
         }
 
-        private bool TryGetTargetFrameworkName(AssemblyDefinition assembly, out FrameworkName frameworkName)
+        private bool TryGetTargetFrameworkName(string targetFrameworkAttributeValue, out FrameworkName frameworkName)
         {
             frameworkName = null;
-            if (assembly.TargetFrameworkAttributeValue != null)
+            if (targetFrameworkAttributeValue != null)
             {
                 try
                 {
-                    frameworkName = new FrameworkName(assembly.TargetFrameworkAttributeValue);
+                    frameworkName = new FrameworkName(targetFrameworkAttributeValue);
                 }
                 catch (ArgumentException)
                 {
@@ -321,118 +301,5 @@ namespace JustDecompile.EngineInfrastructure
 
             return assemblyTypes;
         }
-
-		private FrameworkVersion GetFrameworkVersionInternal(ModuleDefinition module, TargetPlatform targetPlatform)
-		{
-			FrameworkName frameworkName;
-			if (this.TryGetTargetFrameworkName(module.Assembly, out frameworkName))
-			{
-				if (targetPlatform == TargetPlatform.WinRT)
-				{
-					if (frameworkName.Identifier == ".NETPortable" && frameworkName.Version == new Version(4, 6))
-					{
-						return FrameworkVersion.NetPortableV4_6;
-					}
-					else if (frameworkName.Identifier == ".NETCore")
-					{
-						if (frameworkName.Version == new Version(4, 5))
-						{
-							return FrameworkVersion.WinRT_4_5;
-						}
-						else if (frameworkName.Version == new Version(4, 5, 1))
-						{
-							return FrameworkVersion.WinRT_4_5_1;
-						}
-						else if (frameworkName.Version == new Version(5, 0))
-						{
-							return FrameworkVersion.UWP;
-						}
-					}
-					else if (frameworkName.Identifier == "WindowsPhoneApp")
-					{
-						return FrameworkVersion.WindowsPhone;
-					}
-				}
-				else if (targetPlatform == TargetPlatform.NetCore)
-				{
-					if (frameworkName.Identifier == ".NETCoreApp")
-					{
-						if (frameworkName.Version == new Version(2, 1))
-						{
-							return FrameworkVersion.NetCoreV2_1;
-						}
-						else if (frameworkName.Version == new Version(2, 0))
-						{
-							return FrameworkVersion.NetCoreV2_0;
-						}
-						else if (frameworkName.Version == new Version(1, 1))
-						{
-							return FrameworkVersion.NetCoreV1_1;
-						}
-						else if (frameworkName.Version == new Version(1, 0))
-						{
-							return FrameworkVersion.NetCoreV1_0;
-						}
-					}
-				}
-				else if (targetPlatform == TargetPlatform.Xamarin)
-				{
-					if (frameworkName.Identifier == "MonoAndroid")
-					{
-						return FrameworkVersion.XamarinAndroid;
-					}
-					else if (frameworkName.Identifier == "Xamarin.iOS")
-					{
-						return FrameworkVersion.XamarinIOS;
-					}
-				}
-			}
-
-			return this.GetFrameworkVersionThroughModuleLocation(module, targetPlatform);
-		}
-
-		private FrameworkVersion GetFrameworkVersionThroughModuleLocation(ModuleDefinition module, TargetPlatform targetPlatform)
-		{
-			FrameworkVersion frameworkVersion = FrameworkVersion.Unknown;
-
-			try
-			{
-				string moduleLocation = module.FullyQualifiedName ?? module.FilePath;
-
-				if (moduleLocation != null)
-				{
-					string[] modulePath = moduleLocation.Split('\\');
-
-					if (moduleLocation.StartsWith(SystemInformation.NETCORE_DIRECTORY))
-					{
-						if (modulePath[modulePath.Length - 2].StartsWith("1.0"))
-						{
-							frameworkVersion = FrameworkVersion.NetCoreV1_0;
-						}
-						else if (modulePath[modulePath.Length - 2].StartsWith("1.1"))
-						{
-							frameworkVersion = FrameworkVersion.NetCoreV1_1;
-						}
-						else if (modulePath[modulePath.Length - 2].StartsWith("2.0"))
-						{
-							frameworkVersion = FrameworkVersion.NetCoreV2_0;
-						}
-						else if (modulePath[modulePath.Length - 2].StartsWith("2.1"))
-						{
-							frameworkVersion = FrameworkVersion.NetCoreV2_1;
-						}
-					}
-					else if (moduleLocation.StartsWith(SystemInformation.WINRT_METADATA) || moduleLocation.StartsWith(SystemInformation.WINDOWS_WINMD_LOCATION))
-					{
-						frameworkVersion = FrameworkVersion.WinRT_System;
-					}
-				}
-			}
-			catch
-			{
-			}
-
-			return frameworkVersion;
-		}
 	}
 }

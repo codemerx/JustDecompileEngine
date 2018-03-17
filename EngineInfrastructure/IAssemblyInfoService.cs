@@ -6,6 +6,6 @@ namespace JustDecompile.EngineInfrastructure
 {
     public interface IAssemblyInfoService
     {
-        AssemblyInfo GetAssemblyInfo(AssemblyDefinition assembly, IFrameworkResolver frameworkResolver, ITargetPlatformResolver targetPlatformResolver);
+        AssemblyInfo GetAssemblyInfo(AssemblyDefinition assembly, IFrameworkResolver frameworkResolver);
     }
 }

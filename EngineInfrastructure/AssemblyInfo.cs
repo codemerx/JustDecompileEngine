@@ -1,8 +1,7 @@
 ﻿using Mono.Cecil;
 using System;
 using System.Collections.Generic;
-using Telerik.JustDecompiler.External;
-using Telerik.JustDecompiler.Common;
+using Mono.Cecil.AssemblyResolver;
 
 namespace JustDecompile.EngineInfrastructure
 {

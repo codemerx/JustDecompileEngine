@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JustDecompile.SmartAssembly.Attributes;
+using Mono.Cecil.AssemblyResolver;
 
 namespace Telerik.JustDecompiler.External.Interfaces
 {

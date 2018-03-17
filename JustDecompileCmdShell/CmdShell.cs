@@ -98,7 +98,7 @@ namespace JustDecompileCmdShell
                     }
                     else if (!projectInfo.IsDefaultFrameworkVersion)
                     {
-                        AssemblyInfo assemblyInfo = NoCacheAssemblyInfoService.Instance.GetAssemblyInfo(assembly, new ConsoleFrameworkResolver(projectInfo.FrameworkVersion), TargetPlatformResolver.Instance);
+                        AssemblyInfo assemblyInfo = NoCacheAssemblyInfoService.Instance.GetAssemblyInfo(assembly, new ConsoleFrameworkResolver(projectInfo.FrameworkVersion));
                         if (assemblyInfo.ModulesFrameworkVersions[assembly.MainModule] != projectInfo.FrameworkVersion)
                         {
                             CommandLineManager.WriteLineColor(ConsoleColor.Yellow, "JustDecompile managed to determine the target assembly framework. The fallback target framework version command line option is ignored.");
@@ -177,20 +177,20 @@ namespace JustDecompileCmdShell
 
         private BaseProjectBuilder GetProjectBuilder(AssemblyDefinition assembly, GeneratorProjectInfo projectInfo, ProjectGenerationSettings settings, ILanguage language, string projFilePath, DecompilationPreferences preferences, IFrameworkResolver frameworkResolver, ITargetPlatformResolver targetPlatformResolver)
         {
-            TargetPlatform targetPlatform = assembly.MainModule.AssemblyResolver.GetTargetPlatform(assembly.MainModule.FilePath, targetPlatformResolver);
+            TargetPlatform targetPlatform = targetPlatformResolver.GetTargetPlatform(assembly.MainModule.FilePath, assembly.MainModule);
 			BaseProjectBuilder projectBuilder = null;
 
 			if (targetPlatform == TargetPlatform.NetCore)
 			{
-				projectBuilder = new NetCoreProjectBuilder(projectInfo.Target, projFilePath, language, preferences, null, NoCacheAssemblyInfoService.Instance, TargetPlatformResolver.Instance, projectInfo.VisualStudioVersion, settings);
+				projectBuilder = new NetCoreProjectBuilder(projectInfo.Target, projFilePath, language, preferences, null, NoCacheAssemblyInfoService.Instance, projectInfo.VisualStudioVersion, settings);
 			}
 			else if (targetPlatform == TargetPlatform.WinRT)
             {
-				projectBuilder = new WinRTProjectBuilder(projectInfo.Target, projFilePath, language, preferences, null, NoCacheAssemblyInfoService.Instance, TargetPlatformResolver.Instance, projectInfo.VisualStudioVersion, settings);
+				projectBuilder = new WinRTProjectBuilder(projectInfo.Target, projFilePath, language, preferences, null, NoCacheAssemblyInfoService.Instance, projectInfo.VisualStudioVersion, settings);
             }
             else
             {
-				projectBuilder = new MSBuildProjectBuilder(projectInfo.Target, projFilePath, language, frameworkResolver, preferences, null, NoCacheAssemblyInfoService.Instance, TargetPlatformResolver.Instance, projectInfo.VisualStudioVersion, settings);
+				projectBuilder = new MSBuildProjectBuilder(projectInfo.Target, projFilePath, language, frameworkResolver, preferences, null, NoCacheAssemblyInfoService.Instance, projectInfo.VisualStudioVersion, settings);
             }
 
 			return projectBuilder;

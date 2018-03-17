@@ -7,9 +7,9 @@ using System.Xml.Serialization;
 using System.Xml;
 using Mono.Cecil;
 using JustDecompile.EngineInfrastructure;
-using Telerik.JustDecompiler.External;
 using Telerik.JustDecompiler.Common;
 using JustDecompile.Tools.MSBuildProjectBuilder.Contracts.FileManagers;
+using Mono.Cecil.AssemblyResolver;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder.ProjectFileManagers
 {

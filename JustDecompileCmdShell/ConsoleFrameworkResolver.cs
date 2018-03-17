@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Telerik.JustDecompiler.External;
 using Telerik.JustDecompiler.External.Interfaces;
+using Mono.Cecil.AssemblyResolver;
 
 namespace JustDecompileCmd
 {
