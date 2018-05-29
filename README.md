@@ -1,8 +1,8 @@
 # JustDecompile Engine
 
-This is the engine of the popular .NET decompiler [JustDecompile](http://www.telerik.com/products/decompiler.aspx). C# is the only programming language used.
+This is the engine of the popular .NET decompiler [JustDecompile](https://www.telerik.com/products/decompiler.aspx). C# is the only programming language used.
 
-Copyright (c) 2011 - 2017 Telerik AD
+Copyright (c) 2011 - 2018 Telerik ЕAD
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
@@ -17,7 +17,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 - Set your startup project to ConsoleRunner.
 - Enjoy
 
-See this [getting started](http://developer.telerik.com/featured/a-look-at-the-open-source-justdecompile-engine/) post for more info. 
+See this [getting started](https://developer.telerik.com/featured/a-look-at-the-open-source-justdecompile-engine/) post for more info. 
 
 ## Working with JustDecompile Engine
 
@@ -36,7 +36,7 @@ Before submitting a pull request, please, read and sign the [Contributors Licens
 
 [Feature Suggestions](http://justdecompile.uservoice.com)
 
-[Bug Reports / Discussion](http://www.telerik.com/forums/justdecompile/general-discussions)
+[Bug Reports / Discussion](https://www.telerik.com/forums/justdecompile/general-discussions)
 
 ## Related
 
