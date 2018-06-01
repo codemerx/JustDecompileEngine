@@ -386,7 +386,7 @@ namespace JustDecompileCmdShell
             WriteLine();
             SetForegroundColor(ConsoleColor.White);
             WriteLine("JustDecompile /target: /out: [/lang:] [/vs:] [/net4.0] [/net4.5] [/net4.5.1]");
-            WriteLine("[/net4.5.2] [/net4.6] [/net4.6.1] [/net4.6.2] [/net4.7] [/nodoc] [/norename]");
+            WriteLine("[/net4.5.2] [/net4.6] [/net4.6.1] [/net4.6.2] [/net4.7] [/net4.7.1] [/nodoc] [/norename]");
             WriteLine("[/nohex] [/?]");
             WriteLine();
 
@@ -404,7 +404,7 @@ namespace JustDecompileCmdShell
             Console.CursorLeft = 12;
             WriteLine("Supported Visual Studio(r) versions: 2010 and later.");
 
-            WriteLine("[/net4.0 /net4.5 /net4.5.1 /net4.5.2 /net4.6 /net4.6.1 /net4.6.2 /net4.7]");
+            WriteLine("[/net4.0 /net4.5 /net4.5.1 /net4.5.2 /net4.6 /net4.6.1 /net4.6.2 /net4.7 /net4.7.1]");
             Console.CursorLeft = 12;
             WriteLine("Fallback .NET Framework version of the generated project. This");
             Console.CursorLeft = 12;
