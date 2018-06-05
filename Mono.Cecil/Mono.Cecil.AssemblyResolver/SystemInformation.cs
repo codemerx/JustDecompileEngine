@@ -94,14 +94,6 @@ namespace Mono.Cecil.AssemblyResolver
             }
         }
 
-		public static string ProgramFiles
-		{
-			get
-			{
-				return Environment.GetEnvironmentVariable("ProgramFiles");
-			}
-		}
-
         public static string ProgramFilesX86
         {
             get

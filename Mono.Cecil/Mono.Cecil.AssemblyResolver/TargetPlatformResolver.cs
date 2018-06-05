@@ -231,7 +231,7 @@ namespace Mono.Cecil.AssemblyResolver
             {
                 targetPlatform = this.GetTargetPlatform(module.Assembly.TargetFrameworkAttributeValue);
 
-                if (targetPlatform != TargetPlatform.None)
+                if (targetPlatform != this.DefaultTargetPlatform)
                 {
                     return targetPlatform;
                 }
@@ -240,7 +240,7 @@ namespace Mono.Cecil.AssemblyResolver
             string moduleLocation = module.FullyQualifiedName ?? module.FilePath;
             targetPlatform = this.GetPlatformTargetFromModuleLocation(module, moduleLocation);
 
-            if (targetPlatform != TargetPlatform.None)
+            if (targetPlatform != this.DefaultTargetPlatform)
             {
                 return targetPlatform;
             }

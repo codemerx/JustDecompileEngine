@@ -80,7 +80,8 @@ namespace Mono.Cecil.AssemblyResolver
 
         private FrameworkVersion GetFrameworkVersionInternal(ModuleDefinition module, TargetPlatform targetPlatform)
         {
-            FrameworkVersion frameworkVersion = this.GetFrameworkVersionFromTargetFrameworkAttribute(module.Assembly.TargetFrameworkAttributeValue, targetPlatform);
+            FrameworkVersion frameworkVersion = this.DefaultFrameworkVersion;
+            frameworkVersion = this.GetFrameworkVersionFromTargetFrameworkAttribute(module.Assembly.TargetFrameworkAttributeValue, targetPlatform);
 
             if (frameworkVersion != this.DefaultFrameworkVersion)
             {
@@ -89,9 +90,11 @@ namespace Mono.Cecil.AssemblyResolver
 
             string moduleLocation = module.FullyQualifiedName ?? module.FilePath;
 
-            if (SystemInformation.IsInNetCoreSharedAssembliesDir(moduleLocation))
+            frameworkVersion = this.GetFrameworkVersionThroughModuleLocation(module, targetPlatform);
+
+            if (frameworkVersion != this.DefaultFrameworkVersion)
             {
-                return this.GetFrameworkVersionThroughModuleLocation(module, targetPlatform);
+                return frameworkVersion;
             }
 
             frameworkVersion = this.GetFrameworkVersionFromSystemRuntimeVersion(module, targetPlatform);
