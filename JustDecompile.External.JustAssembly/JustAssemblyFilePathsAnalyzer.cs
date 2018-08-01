@@ -10,8 +10,8 @@ namespace JustDecompile.External.JustAssembly
 {
 	class JustAssemblyFilePathsAnalyzer : JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices.DefaultFilePathsAnalyzer
 	{
-		public JustAssemblyFilePathsAnalyzer(AssemblyDefinition assembly, ILanguage language)
-			: base(Utilities.GetUserDefinedTypes(assembly), Utilities.GetResources(assembly), language)
+		public JustAssemblyFilePathsAnalyzer(AssemblyDefinition assembly, ILanguage language, bool decompileDangerousResources)
+			: base(Utilities.GetUserDefinedTypes(assembly, decompileDangerousResources), Utilities.GetResources(assembly), language, decompileDangerousResources)
 		{
 		}
 

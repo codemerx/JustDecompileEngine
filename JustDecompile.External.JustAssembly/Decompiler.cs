@@ -298,11 +298,11 @@ namespace JustDecompile.External.JustAssembly
 			}
 		}
 
-		public static int GetMaximumPossibleTargetPathLength(string assemblyFilePath, SupportedLanguage language)
+		public static int GetMaximumPossibleTargetPathLength(string assemblyFilePath, SupportedLanguage language, bool decompileDangerousResources)
 		{
 			AssemblyDefinition assembly = GlobalAssemblyResolver.Instance.GetAssemblyDefinition(assemblyFilePath);
 			ILanguage decompilerLanguage = GetLanguage(language);
-			JustAssemblyFilePathsAnalyzer filePathsAnalyzer = new JustAssemblyFilePathsAnalyzer(assembly, decompilerLanguage);
+			JustAssemblyFilePathsAnalyzer filePathsAnalyzer = new JustAssemblyFilePathsAnalyzer(assembly, decompilerLanguage, decompileDangerousResources);
 			return filePathsAnalyzer.GetMaximumPossibleTargetPathLength();
 		}
 
