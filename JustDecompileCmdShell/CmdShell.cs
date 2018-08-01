@@ -106,6 +106,12 @@ namespace JustDecompileCmdShell
                         }
                     }
 
+                    if (!projectInfo.DecompileDangerousResources)
+                    {
+                        CommandLineManager.WriteLineColor(ConsoleColor.Yellow, "By default JustDecompile's command-line project generataion does not decompile dangerous resources, which may contain malicious code. Decompilation of such resources will result in execution of that malicious code. Check the help [/?] for information how to turn on decompilation of such resources. WARNING: Use with trusted assemblies only.");
+                        CommandLineManager.WriteLine();
+                    }
+                    
                     CommandLineManager.WriteLineColor(ConsoleColor.White, "Project Creation:");
                     CommandLineManager.WriteLineColor(ConsoleColor.White, "============================");
 
@@ -153,6 +159,7 @@ namespace JustDecompileCmdShell
             preferences.WriteDocumentation = projectInfo.AddDocumentation;
             preferences.RenameInvalidMembers = projectInfo.RenameInvalidMembers;
             preferences.WriteLargeNumbersInHex = projectInfo.WriteLargeNumbersInHex;
+            preferences.DecompileDangerousResources = projectInfo.DecompileDangerousResources;
 
             IFrameworkResolver frameworkResolver = new ConsoleFrameworkResolver(projectInfo.FrameworkVersion);
 			ITargetPlatformResolver targetPlatformResolver = TargetPlatformResolver.Instance;

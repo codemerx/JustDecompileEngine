@@ -51,6 +51,11 @@ namespace Telerik.JustDecompiler.External
         public bool WriteLargeNumbersInHex { get; set; }
 
         /// <summary>
+        /// Decides whether to decompile resources which may contain malicious code. WARNING: Use with trusted assemblies only.
+        /// </summary>
+        public bool DecompileDangerousResources { get; set; }
+
+        /// <summary>
         /// Creates a new DecompilationPreferences object and sets its properties to the default values.
         /// </summary>
         public DecompilationPreferences()
@@ -59,6 +64,7 @@ namespace Telerik.JustDecompiler.External
 			this.WriteFullNames = false;
 			this.renameInvalidMembers = true;
             this.WriteLargeNumbersInHex = true;
+            this.DecompileDangerousResources = false;
 		}
 	}
 }

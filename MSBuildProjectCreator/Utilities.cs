@@ -88,15 +88,20 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			return true;
 		}
 
-		public static int GetResourcesCount(Dictionary<ModuleDefinition, Collection<Resource>> resources)
+		public static int GetResourcesCount(Dictionary<ModuleDefinition, Collection<Resource>> resources, bool decompileDangerousResources)
 		{
 			int result = 0;
 
 			foreach (Collection<Resource> moduleResources in resources.Values)
 			{
 				foreach (Resource resource in moduleResources)
-				{
-					if (resource.ResourceType != ResourceType.Embedded)
+                {
+                    if (!decompileDangerousResources && DangerousResourceIdentifier.IsDangerousResource(resource))
+                    {
+                        continue;
+                    }
+
+                    if (resource.ResourceType != ResourceType.Embedded)
 					{
 						continue;
 					}
@@ -119,7 +124,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			return result;
 		}
 
-		public static Dictionary<ModuleDefinition, Collection<TypeDefinition>> GetUserDefinedTypes(AssemblyDefinition assembly)
+		public static Dictionary<ModuleDefinition, Collection<TypeDefinition>> GetUserDefinedTypes(AssemblyDefinition assembly, bool decompileDangerousResources)
 		{
 			Dictionary<ModuleDefinition, Collection<TypeDefinition>> result =
 				new Dictionary<ModuleDefinition, Collection<TypeDefinition>>();
@@ -152,7 +157,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 					{
 						if (!(IsSettingsType(typeDef) ||
 							  IsVBProjectSettingsType(typeDef) ||
-							  ExistsResourceForType(typeDef.FullName, assembly) ||
+							  ExistsResourceForType(typeDef.FullName, assembly, decompileDangerousResources) ||
 							  IsVBResourceType(typeDef)))
 						{
 							continue;
@@ -213,12 +218,17 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 		}
 
 
-		private static bool ExistsResourceForType(string typeFullName, AssemblyDefinition assembly)
+		private static bool ExistsResourceForType(string typeFullName, AssemblyDefinition assembly, bool decompileDangerousResources)
 		{
 			foreach (ModuleDefinition module in assembly.Modules)
 			{
 				foreach (Resource resource in module.Resources)
 				{
+                    if (!decompileDangerousResources && DangerousResourceIdentifier.IsDangerousResource(resource))
+                    {
+                        continue;
+                    }
+
 					if (resource.ResourceType != ResourceType.Embedded)
 					{
 						continue;

@@ -114,7 +114,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 					this.Resources,
 					this.namespaceHierarchyTree,
 					this.language,
-					Utilities.GetMaxRelativePathLength(targetPath));
+					Utilities.GetMaxRelativePathLength(targetPath),
+                    this.decompilationPreferences.DecompileDangerousResources);
 			filePathsService.ExceptionThrown += OnExceptionThrown;
 
 			this.resourcesToPathsMap = this.filePathsService.GetResourcesToFilePathsMap();
@@ -158,7 +159,8 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 					this.Resources,
 					this.namespaceHierarchyTree,
 					this.language,
-					Utilities.GetMaxRelativePathLength(targetPath));
+					Utilities.GetMaxRelativePathLength(targetPath),
+                    this.decompilationPreferences.DecompileDangerousResources);
 			filePathsService.ExceptionThrown += OnExceptionThrown;
 
 			this.modulesToProjectsFilePathsMap = this.filePathsService.GetModulesToProjectsFilePathsMap();
@@ -214,7 +216,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 		{
 			get
 			{
-				return Utilities.GetResourcesCount(Resources);
+				return Utilities.GetResourcesCount(Resources, this.decompilationPreferences.DecompileDangerousResources);
 			}
 		}
 
@@ -222,7 +224,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 		{
 			get
 			{
-				return userDefinedTypes ?? (userDefinedTypes = Utilities.GetUserDefinedTypes(assembly));
+				return userDefinedTypes ?? (userDefinedTypes = Utilities.GetUserDefinedTypes(assembly, this.decompilationPreferences.DecompileDangerousResources));
 			}
 		}
 
@@ -506,6 +508,12 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 			{
 				try
 				{
+                    if (!this.decompilationPreferences.DecompileDangerousResources &&
+                        DangerousResourceIdentifier.IsDangerousResource(resource))
+                    {
+                        continue;
+                    }
+
 					if (resource.ResourceType != ResourceType.Embedded)
 					{
 						continue;
@@ -515,23 +523,23 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 					IFileGeneratedInfo args;
 					if (resource.Name.EndsWith(".resources", StringComparison.OrdinalIgnoreCase))
 					{
-						if (!embeddedResource.Name.EndsWith(".g.resources", StringComparison.OrdinalIgnoreCase))
-						{
-							string resourceName = embeddedResource.Name.Substring(0, embeddedResource.Name.Length - 10); //".resources".Length == 10
-							string relativeResourcePath = resourcesToPathsMap[resource];
-							string fullResourcePath = Path.Combine(targetDir, relativeResourcePath);
+                        if (!embeddedResource.Name.EndsWith(".g.resources", StringComparison.OrdinalIgnoreCase))
+                        {
+                            string resourceName = embeddedResource.Name.Substring(0, embeddedResource.Name.Length - 10); //".resources".Length == 10
+                            string relativeResourcePath = resourcesToPathsMap[resource];
+                            string fullResourcePath = Path.Combine(targetDir, relativeResourcePath);
 
-							if (TryCreateResXFile(embeddedResource, fullResourcePath))
-							{
-								this.projectFileManager.ResourceDesignerMap.Add(resourceName, relativeResourcePath);
-								args = new FileGeneratedInfo(fullResourcePath, false);
-								OnProjectFileCreated(args);
-							}
-						}
-						else
-						{
-							ProcessXamlResources(embeddedResource, module);
-						}
+                            if (TryCreateResXFile(embeddedResource, fullResourcePath))
+                            {
+                                this.projectFileManager.ResourceDesignerMap.Add(resourceName, relativeResourcePath);
+                                args = new FileGeneratedInfo(fullResourcePath, false);
+                                OnProjectFileCreated(args);
+                            }
+                        }
+                        else
+                        {
+                            ProcessXamlResources(embeddedResource, module);
+                        }
 					}
 					else
 					{

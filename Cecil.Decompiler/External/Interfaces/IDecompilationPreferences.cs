@@ -28,5 +28,10 @@ namespace Telerik.JustDecompiler.External.Interfaces
         /// Decides whether to write large number in hexadecimal format or not.
         /// </summary>
         bool WriteLargeNumbersInHex { get; set; }
+
+        /// <summary>
+        /// Decides whether to decompile resources which may contain malicious code. WARNING: Use with trusted assemblies only.
+        /// </summary>
+        bool DecompileDangerousResources { get; set; }
     }
 }

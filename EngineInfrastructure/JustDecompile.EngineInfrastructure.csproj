@@ -162,6 +162,7 @@
     <Compile Include="CodeViewer\DecompiledSourceCode.cs" />
     <Compile Include="CodeViewer\ICodeFormatter.cs" />
     <Compile Include="CodeViewer\JDClassificationTypes.cs" />
+    <Compile Include="DangerousResourceIdentifier.cs" />
     <Compile Include="EmptyResolver.cs" />
     <Compile Include="IAssemblyInfoService.cs" />
     <Compile Include="ILanguageSelector.cs" />

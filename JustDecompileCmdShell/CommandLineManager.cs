@@ -67,6 +67,7 @@ namespace JustDecompileCmdShell
             bool? addDocumentation = null;
             bool? renameInvalidMembers = null;
             bool? writeLargeNumbersInHex = null;
+            bool? decompileDangerousResources = null;
 
             bool isInvalidVisualStudioVersion = false;
             VisualStudioVersion visualStudioVersion = VisualStudioVersion.Unknown;
@@ -123,6 +124,13 @@ namespace JustDecompileCmdShell
             if (TryGetNoHexArgument(args))
             {
                 writeLargeNumbersInHex = false;
+                isProjectGenerationRequested = true;
+                numberOfFoundValidArguments++;
+            }
+
+            if (TryGetDecompileDangerousResourcesArgument(args))
+            {
+                decompileDangerousResources = true;
                 isProjectGenerationRequested = true;
                 numberOfFoundValidArguments++;
             }
@@ -208,6 +216,11 @@ namespace JustDecompileCmdShell
             if (writeLargeNumbersInHex.HasValue)
             {
                 result.WriteLargeNumbersInHex = writeLargeNumbersInHex.Value;
+            }
+
+            if (decompileDangerousResources.HasValue)
+            {
+                result.DecompileDangerousResources = decompileDangerousResources.Value;
             }
 
             if (visualStudioVersion != VisualStudioVersion.Unknown)
@@ -309,6 +322,16 @@ namespace JustDecompileCmdShell
             return false;
         }
 
+        private static bool TryGetDecompileDangerousResourcesArgument(string[] args)
+        {
+            List<string> @params = args.ToList();
+            if (@params.FirstOrDefault(p => (p == "/decompileDangerousResources")) != null)
+            {
+                return true;
+            }
+            return false;
+        }
+
         private static bool TryGetFrameworkVersion(string[] args, string targetFramework)
         {
             bool contains = args.Contains(targetFramework);
@@ -387,7 +410,7 @@ namespace JustDecompileCmdShell
             SetForegroundColor(ConsoleColor.White);
             WriteLine("JustDecompile /target: /out: [/lang:] [/vs:] [/net4.0] [/net4.5] [/net4.5.1]");
             WriteLine("[/net4.5.2] [/net4.6] [/net4.6.1] [/net4.6.2] [/net4.7] [/net4.7.1] [/nodoc] [/norename]");
-            WriteLine("[/nohex] [/?]");
+            WriteLine("[/nohex] [/decompileDangerousResources] [/?]");
             WriteLine();
 
             WriteLine("[/?]        Display command line help.");
@@ -421,6 +444,12 @@ namespace JustDecompileCmdShell
             WriteLine("WARNING: Enabling this might result in code that fails to compile.");
 
             WriteLine("[/nohex]    Disable output of large numbers in HEX format.");
+            
+            WriteLine("[/decompileDangerousResources] Enable decompilation of dangerous resources,");
+            Console.CursorLeft = 12;
+            WriteLine("which may contain malicious code. Decompilation of such resources will result");
+            Console.CursorLeft = 12;
+            WriteLine("in execution of that malicious code. WARNING: Use with trusted assemblies only.");
 
             WriteLine();
 

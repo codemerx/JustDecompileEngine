@@ -15,5 +15,7 @@
         bool ShowCompilerGeneratedMembers { get; }
         
         bool WriteLargeNumbersInHex { get; }
+
+        bool WriteDangerousResources { get; }
     }
 }

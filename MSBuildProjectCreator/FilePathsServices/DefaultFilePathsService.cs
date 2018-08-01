@@ -14,6 +14,7 @@ using Telerik.Baml;
 using Telerik.JustDecompiler.Common.NamespaceHierarchy;
 using Telerik.JustDecompiler;
 using Telerik.JustDecompiler.External;
+using JustDecompile.EngineInfrastructure;
 
 namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 {
@@ -31,6 +32,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 		private readonly ILanguage language;
 		private readonly string sourceExtension;
 		private readonly NamespaceHierarchyTree namespaceHierarchyTree;
+        private readonly bool decompileDangerousResources;
 
 		public const string XamlExtension = ".xaml";
 		public const string XamlResourcesShortNameStartSymbol = ")";
@@ -40,7 +42,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 		private const string ResourceDesignerNameExtension = ".Designer";
 
 		public DefaultFilePathsService(AssemblyDefinition assembly, string assemblyPath, string mainModuleProjectFileName, Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes,
-			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources, NamespaceHierarchyTree namespaceHierarchyTree, ILanguage language, int maxRelativePathLength)
+			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources, NamespaceHierarchyTree namespaceHierarchyTree, ILanguage language, int maxRelativePathLength, bool decompileDangerousResources)
 		{
 			this.assembly = assembly;
 			this.assemblyPath = assemblyPath;
@@ -49,13 +51,14 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 			this.namespaceHierarchyTree = namespaceHierarchyTree;
 			this.language = language;
 			this.maxRelativePathLength = maxRelativePathLength;
+            this.decompileDangerousResources = decompileDangerousResources;
 
 			this.assemblyResolver = new WeakAssemblyResolver(GlobalAssemblyResolver.CurrentAssemblyPathCache);
 
 			this.typesData = GetFilePathsServiceData();
 			this.resources = resources;
-			this.xamlResources = GetXamlResources(resources);
-			this.sourceExtension = language.VSCodeFileExtension;
+            this.xamlResources = GetXamlResources(resources);
+            this.sourceExtension = language.VSCodeFileExtension;
 		}
 
 		public string GetSolutionRelativePath()
@@ -139,29 +142,32 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 		{
 			List<XamlResource> result = new List<XamlResource>();
 
-			foreach (KeyValuePair<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> moduleResources in resources)
-			{
-				foreach (Resource resource in moduleResources.Value)
-				{
-					if (resource.ResourceType != ResourceType.Embedded)
-					{
-						continue;
-					}
+            if (this.decompileDangerousResources)
+            {
+                foreach (KeyValuePair<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> moduleResources in resources)
+                {
+                    foreach (Resource resource in moduleResources.Value)
+                    {
+                        if (resource.ResourceType != ResourceType.Embedded)
+                        {
+                            continue;
+                        }
 
-					EmbeddedResource embeddedResource = (EmbeddedResource)resource;
-					if (resource.Name.EndsWith(".g.resources", StringComparison.OrdinalIgnoreCase))
-					{
-						using (ResourceReader resourceReader = new ResourceReader(embeddedResource.GetResourceStream()))
-						{
-							foreach (System.Collections.DictionaryEntry resourceEntry in resourceReader)
-							{
-								result.Add(new XamlResource(resourceEntry, moduleResources.Key));
-							}
-						}
-					}
-				}
-			}
-
+                        EmbeddedResource embeddedResource = (EmbeddedResource)resource;
+                        if (resource.Name.EndsWith(".g.resources", StringComparison.OrdinalIgnoreCase))
+                        {
+                            using (ResourceReader resourceReader = new ResourceReader(embeddedResource.GetResourceStream()))
+                            {
+                                foreach (System.Collections.DictionaryEntry resourceEntry in resourceReader)
+                                {
+                                    result.Add(new XamlResource(resourceEntry, moduleResources.Key));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+			
 			return result;
 		}
 
@@ -383,6 +389,12 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 			{
 				foreach (Resource resource in moduleResources.Value)
 				{
+                    if (!this.decompileDangerousResources &&
+                        DangerousResourceIdentifier.IsDangerousResource(resource))
+                    {
+                        continue;
+                    }
+
 					if (resource.ResourceType != ResourceType.Embedded)
 					{
 						continue;

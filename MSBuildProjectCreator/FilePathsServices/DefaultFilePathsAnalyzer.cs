@@ -12,13 +12,15 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 		private readonly Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes;
 		private readonly Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources;
 		private readonly string sourceExtension;
+        private readonly bool decompileDangerousResources;
 
-		public DefaultFilePathsAnalyzer(Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes, 
-			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources, ILanguage language)
+        public DefaultFilePathsAnalyzer(Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes, 
+			Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources, ILanguage language, bool decompileDangerousResources)
 		{
 			this.userDefinedTypes = userDefinedTypes;
 			this.resources = resources;
 			this.sourceExtension = language.VSCodeFileExtension;
+            this.decompileDangerousResources = decompileDangerousResources;
 		}
 
 		public int GetMinimumNeededRelativeFilePathLength(string projFileName)
@@ -40,7 +42,7 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder.FilePathsServices
 
 		protected virtual int GetResourcesMaxFileLength()
 		{
-			int resourcesCount = Utilities.GetResourcesCount(resources);
+			int resourcesCount = Utilities.GetResourcesCount(resources, this.decompileDangerousResources);
 
 			return Math.Max(
 				DefaultFilePathsService.XamlResourcesShortNameStartSymbol.Length + Convert.ToString(resourcesCount).Length +
