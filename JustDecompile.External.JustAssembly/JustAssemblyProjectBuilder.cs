@@ -20,13 +20,23 @@ namespace JustDecompile.External.JustAssembly
 	{
 		private Dictionary<uint, Dictionary<uint, IDecompilationResults>> decompilationResults;
 
-		public JustAssemblyProjectBuilder(string assemblyPath, string targetPath, ILanguage language, Telerik.JustDecompiler.External.IFileGenerationNotifier notifier)
-			: base(assemblyPath, targetPath, language, new JustAssemblyProjectBuilderFrameworkVersionResolver(), new DecompilationPreferences(), notifier, NoCacheAssemblyInfoService.Instance)
-		{
-			this.decompilationResults = new Dictionary<uint, Dictionary<uint, IDecompilationResults>>();
-		}
+        public JustAssemblyProjectBuilder(string assemblyPath, string targetPath, ILanguage language, Telerik.JustDecompiler.External.IFileGenerationNotifier notifier)
+            : base(assemblyPath, targetPath, language, new JustAssemblyProjectBuilderFrameworkVersionResolver(), new DecompilationPreferences(), notifier, NoCacheAssemblyInfoService.Instance)
+        {
+            this.decompilationResults = new Dictionary<uint, Dictionary<uint, IDecompilationResults>>();
+        }
 
-		public IAssemblyDecompilationResults GenerateFiles(CancellationToken cancellationToken)
+        public JustAssemblyProjectBuilder(string assemblyPath, AssemblyDefinition assembly,
+            Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> userDefinedTypes,
+             Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> resources,
+            string targetPath, ILanguage language, IDecompilationPreferences preferences, Telerik.JustDecompiler.External.IFileGenerationNotifier notifier)
+            : base(assemblyPath, assembly, userDefinedTypes, resources, targetPath, language, new JustAssemblyProjectBuilderFrameworkVersionResolver(), preferences, NoCacheAssemblyInfoService.Instance)
+        {
+            this.decompilationResults = new Dictionary<uint, Dictionary<uint, IDecompilationResults>>();
+            this.fileGeneratedNotifier = notifier;
+        }
+
+        public IAssemblyDecompilationResults GenerateFiles(CancellationToken cancellationToken)
 		{
 			this.decompilationResults = new Dictionary<uint, Dictionary<uint, IDecompilationResults>>();
 			

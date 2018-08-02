@@ -306,24 +306,32 @@ namespace JustDecompile.External.JustAssembly
 			return filePathsAnalyzer.GetMaximumPossibleTargetPathLength();
 		}
 
-		public static IAssemblyDecompilationResults GenerateFiles(string assemblyFilePath, string targetPath, SupportedLanguage language,  CancellationToken cancellationToken, IFileGenerationNotifier notifier = null)
+		public static IAssemblyDecompilationResults GenerateFiles(string assemblyFilePath, AssemblyDefinition assembly, string targetPath, SupportedLanguage language,  CancellationToken cancellationToken, bool decompileDangerousResources, IFileGenerationNotifier notifier = null)
 		{
 			ILanguage decompilerLanguage = GetLanguage(language);
 			string csprojFileName = Path.ChangeExtension(Path.GetFileName(assemblyFilePath), decompilerLanguage.VSProjectFileExtension);
 			string csprojTargetPath = Path.Combine(targetPath, csprojFileName);
 
+            Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<TypeDefinition>> assemblyUserDefinedTypes = Utilities.GetUserDefinedTypes(assembly, decompileDangerousResources);
+            Dictionary<ModuleDefinition, Mono.Collections.Generic.Collection<Resource>> assemblyResources = Utilities.GetResources(assembly);
+
+            IDecompilationPreferences decompilationPreferences = new DecompilationPreferences()
+            {
+                DecompileDangerousResources = decompileDangerousResources
+            };
+
             JustAssemblyProjectBuilder projectBuilder;
 
-			if (notifier != null)
-			{
-				projectBuilder = new JustAssemblyProjectBuilder(assemblyFilePath, csprojTargetPath, decompilerLanguage, new FileGenerationNotifier(notifier));
-			}
-			else
-			{
-				projectBuilder = new JustAssemblyProjectBuilder(assemblyFilePath, csprojTargetPath, decompilerLanguage, null);
-			}
+            if (notifier != null)
+            {
+                projectBuilder = new JustAssemblyProjectBuilder(assemblyFilePath, assembly, assemblyUserDefinedTypes, assemblyResources, csprojTargetPath, decompilerLanguage, decompilationPreferences, new FileGenerationNotifier(notifier));
+            }
+            else
+            {
+                projectBuilder = new JustAssemblyProjectBuilder(assemblyFilePath, assembly, assemblyUserDefinedTypes, assemblyResources, csprojTargetPath, decompilerLanguage, decompilationPreferences, null);
+            }
 
-			return projectBuilder.GenerateFiles(cancellationToken);
+            return projectBuilder.GenerateFiles(cancellationToken);
 		}
 
 		internal static IMemberDefinition GetMember(string assemblyFilePath, uint moduleToken, uint typeToken, uint memberToken, SupportedLanguage language)
