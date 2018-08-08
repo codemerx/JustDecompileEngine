@@ -9,14 +9,14 @@ namespace JustDecompile.Tools.MSBuildProjectBuilder
 {
 	public class TestMSBuildProjectBuilder : MSBuildProjectBuilder
 	{
-		public TestMSBuildProjectBuilder(string assemblyPath, string targetPath, ILanguage language, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010, ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null)
-			: base(assemblyPath, targetPath, language, new TestsFrameworkVersionResolver(), new DecompilationPreferences() { RenameInvalidMembers = true, WriteDocumentation = true, WriteFullNames = false, DecompileDangerousResources = true }, null, NoCacheAssemblyInfoService.Instance, visualStudioVersion, projectGenerationSettings, projectNotifier)
-		{
-			this.exceptionFormater = TestCaseExceptionFormatter.Instance;
-			this.currentAssemblyResolver.ClearCache();
-		}
+        public TestMSBuildProjectBuilder(string assemblyPath, string targetPath, ILanguage language, DecompilationPreferences decompilationPreferences, VisualStudioVersion visualStudioVersion = VisualStudioVersion.VS2010, ProjectGenerationSettings projectGenerationSettings = null, IProjectGenerationNotifier projectNotifier = null)
+            : base(assemblyPath, targetPath, language, new TestsFrameworkVersionResolver(), decompilationPreferences, null, NoCacheAssemblyInfoService.Instance, visualStudioVersion, projectGenerationSettings, projectNotifier)
+        {
+            this.exceptionFormater = TestCaseExceptionFormatter.Instance;
+            this.currentAssemblyResolver.ClearCache();
+        }
 
-		class TestsFrameworkVersionResolver : IFrameworkResolver
+        class TestsFrameworkVersionResolver : IFrameworkResolver
         {
             public FrameworkVersion GetDefaultFallbackFramework4Version()
             {
