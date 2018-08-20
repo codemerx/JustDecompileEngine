@@ -1019,7 +1019,7 @@ namespace Telerik.JustDecompiler.Languages
 
 				TypeReference parameterType = parameter.ParameterType;
 
-				if (parameter is ByReferenceType)
+				if (parameterType is ByReferenceType)
 				{
 					WriteOutOrRefKeyWord(parameter);
 					WriteSpace();
