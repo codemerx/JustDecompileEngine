@@ -34,7 +34,7 @@ Before submitting a pull request, please, read and sign the [Contributors Licens
 ## How to Contribute to JustDecompile
 
 
-[Feature Suggestions](http://justdecompile.uservoice.com)
+[Feature Suggestions](https://feedback.telerik.com/Project/189)
 
 [Bug Reports / Discussion](https://www.telerik.com/forums/justdecompile/general-discussions)
 
