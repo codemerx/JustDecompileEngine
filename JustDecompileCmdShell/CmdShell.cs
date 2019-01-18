@@ -19,7 +19,7 @@ namespace JustDecompileCmdShell
 {
     public class CmdShell : ExceptionThrownNotifier, IExceptionThrownNotifier
     {
-        private static readonly string description = "[--- Copyright (c) 2011-2018 Telerik EAD. All rights reserved. ---]";
+        private static readonly string description = "[--- Copyright (c) 2011-2019 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved. ---]";
         private static uint count = 0;
 
         public event EventHandler<AssemblyDefinition> ProjectGenerationStarted;
