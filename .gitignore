@@ -195,4 +195,9 @@ FakesAssemblies/
 # Visual Studio 6 workspace options file
 *.opt
 
+!Decompiler.Tests/Integration/Expected/**/*
+!Decompiler.Tests/Integration/Resources/**/*
+!Mono.Cecil.Pdb.Shared/Microsoft.Cci.Pdb
+!Mono.Cecil.Pdb.Shared/Mono.Cecil.Pdb/
+
 .DS_Store
