@@ -43,14 +43,14 @@ namespace Application.UseCases.OpenAccount
 
 		public Task Execute(decimal amount, string currency)
 		{
-			return this.OpenAccount(new Money(amount, new Currency(currency)));
+			return this.OpenAccount(new Money(amount, new Domain.ValueObjects.Currency(currency)));
 		}
 
 		private async Task OpenAccount(Money amountToDeposit)
 		{
 			string currentUserId = this._userService.GetCurrentUserId();
 			Account account = this._accountFactory.NewAccount(currentUserId, amountToDeposit.get_Currency());
-			Credit credit = this._accountFactory.NewCredit(account, amountToDeposit, DateTime.get_Now());
+			Credit credit = this._accountFactory.NewCredit(account, amountToDeposit, DateTime.Now);
 			await this.Deposit(account, credit).ConfigureAwait(false);
 			IOutputPort outputPort = this._outputPort;
 			if (outputPort != null)

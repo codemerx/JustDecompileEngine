@@ -37,7 +37,7 @@ namespace Application.UseCases.Withdraw
 
 		public Task Execute(Guid accountId, decimal amount, string currency)
 		{
-			return this.Withdraw(new AccountId(accountId), new Money(amount, new Currency(currency)));
+			return this.Withdraw(new AccountId(accountId), new Money(amount, new Domain.ValueObjects.Currency(currency)));
 		}
 
 		public void SetOutputPort(IOutputPort outputPort)
@@ -53,7 +53,7 @@ namespace Application.UseCases.Withdraw
 			IAccount account1 = account;
 			account = null;
 			Account account2 = account1 as Account;
-			if ((object)account2 == (object)null)
+			if (account2 == null)
 			{
 				this._outputPort.NotFound();
 			}
@@ -63,7 +63,7 @@ namespace Application.UseCases.Withdraw
 				Money money = await configuredTaskAwaitable1;
 				Money money1 = money;
 				money = new Money();
-				Debit debit = this._accountFactory.NewDebit(account2, money1, DateTime.get_Now());
+				Debit debit = this._accountFactory.NewDebit(account2, money1, DateTime.Now);
 				if (account2.GetCurrentBalance().Subtract(debit.get_Amount()).get_Amount() >= decimal.Zero)
 				{
 					await this.Withdraw(account2, debit).ConfigureAwait(false);

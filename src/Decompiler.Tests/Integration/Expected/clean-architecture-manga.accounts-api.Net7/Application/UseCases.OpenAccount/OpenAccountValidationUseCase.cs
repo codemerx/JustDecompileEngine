@@ -27,7 +27,7 @@ namespace Application.UseCases.OpenAccount
 		public async Task Execute(decimal amount, string currency)
 		{
 			bool flag;
-			flag = (!(currency != Currency.Dollar.get_Code()) || !(currency != Currency.Euro.get_Code()) || !(currency != Currency.BritishPound.get_Code()) || !(currency != Currency.Canadian.get_Code()) || !(currency != Currency.Real.get_Code()) ? false : currency != Currency.Krona.get_Code());
+			flag = (!(currency != Domain.ValueObjects.Currency.Dollar.get_Code()) || !(currency != Domain.ValueObjects.Currency.Euro.get_Code()) || !(currency != Domain.ValueObjects.Currency.BritishPound.get_Code()) || !(currency != Domain.ValueObjects.Currency.Canadian.get_Code()) || !(currency != Domain.ValueObjects.Currency.Real.get_Code()) ? false : currency != Domain.ValueObjects.Currency.Krona.get_Code());
 			if (flag)
 			{
 				this._notification.Add("currency", "Currency is required.");

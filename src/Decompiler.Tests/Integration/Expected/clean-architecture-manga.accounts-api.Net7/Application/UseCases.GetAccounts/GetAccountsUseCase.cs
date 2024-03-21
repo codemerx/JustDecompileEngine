@@ -33,11 +33,11 @@ namespace Application.UseCases.GetAccounts
 		private async Task GetAccounts(string externalUserId)
 		{
 			ConfiguredTaskAwaitable<IList<Account>> configuredTaskAwaitable = this._accountRepository.GetAccounts(externalUserId).ConfigureAwait(false);
-			IList<Account> list = await configuredTaskAwaitable;
-			IList<Account> list1 = list;
-			list = null;
-			this._outputPort.Ok(list1);
-			list1 = null;
+			IList<Account> accounts = await configuredTaskAwaitable;
+			IList<Account> accounts1 = accounts;
+			accounts = null;
+			this._outputPort.Ok(accounts1);
+			accounts1 = null;
 		}
 
 		public void SetOutputPort(IOutputPort outputPort)

@@ -45,7 +45,7 @@ namespace Application.UseCases.Transfer
 
 		public Task Execute(Guid originAccountId, Guid destinationAccountId, decimal amount, string currency)
 		{
-			return this.Transfer(new AccountId(originAccountId), new AccountId(destinationAccountId), new Money(amount, new Currency(currency)));
+			return this.Transfer(new AccountId(originAccountId), new AccountId(destinationAccountId), new Money(amount, new Domain.ValueObjects.Currency(currency)));
 		}
 
 		public void SetOutputPort(IOutputPort outputPort)
@@ -73,7 +73,7 @@ namespace Application.UseCases.Transfer
 			else
 			{
 				account = account4 as Account;
-				flag = (object)account != (object)null;
+				flag = account != null;
 			}
 			if (!flag)
 			{
@@ -92,7 +92,7 @@ namespace Application.UseCases.Transfer
 				Money money = await configuredTaskAwaitable1;
 				Money money1 = money;
 				money = new Money();
-				Debit debit = this._accountFactory.NewDebit(account5, money1, DateTime.get_Now());
+				Debit debit = this._accountFactory.NewDebit(account5, money1, DateTime.Now);
 				if (account5.GetCurrentBalance().Subtract(debit.get_Amount()).get_Amount() >= decimal.Zero)
 				{
 					ConfiguredTaskAwaitable configuredTaskAwaitable2 = this.Withdraw(account5, debit).ConfigureAwait(false);
@@ -101,7 +101,7 @@ namespace Application.UseCases.Transfer
 					Money money2 = await configuredTaskAwaitable1;
 					Money money3 = money2;
 					money2 = new Money();
-					Credit credit = this._accountFactory.NewCredit(account, money3, DateTime.get_Now());
+					Credit credit = this._accountFactory.NewCredit(account, money3, DateTime.Now);
 					configuredTaskAwaitable2 = this.Deposit(account, credit).ConfigureAwait(false);
 					await configuredTaskAwaitable2;
 					IOutputPort outputPort1 = this._outputPort;

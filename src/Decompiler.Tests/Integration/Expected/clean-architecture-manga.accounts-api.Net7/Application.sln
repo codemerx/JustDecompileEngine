@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application.csproj", "{97673D48-06BB-40F8-BB7E-6FC33C7A2F59}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application.csproj", "{BF127000-3596-482C-80E0-2771048E6F71}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -8,10 +8,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{97673D48-06BB-40F8-BB7E-6FC33C7A2F59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{97673D48-06BB-40F8-BB7E-6FC33C7A2F59}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{97673D48-06BB-40F8-BB7E-6FC33C7A2F59}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{97673D48-06BB-40F8-BB7E-6FC33C7A2F59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF127000-3596-482C-80E0-2771048E6F71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF127000-3596-482C-80E0-2771048E6F71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF127000-3596-482C-80E0-2771048E6F71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF127000-3596-482C-80E0-2771048E6F71}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

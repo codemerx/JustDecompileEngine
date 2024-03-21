@@ -43,7 +43,7 @@ namespace Application.UseCases.CloseAccount
 			IAccount account1 = account;
 			account = null;
 			Account account2 = account1 as Account;
-			if ((object)account2 == (object)null)
+			if (account2 == null)
 			{
 				this._outputPort.NotFound();
 			}

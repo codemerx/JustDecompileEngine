@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectGuid>{97673D48-06BB-40F8-BB7E-6FC33C7A2F59}</ProjectGuid>
+    <ProjectGuid>{BF127000-3596-482C-80E0-2771048E6F71}</ProjectGuid>
     <SchemaVersion>2</SchemaVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -29,165 +29,168 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Runtime, Version=7.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="System.Runtime">
+      <HintPath>./ApplicationReferences/System.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="Domain, Version=6.0.0.0, Culture=neutral, PublicKeyToken=null" />
     <Reference Include="System.Collections, Version=7.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="System.Linq, Version=7.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="System.Private.CoreLib, Version=7.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs">
+    <Compile Include="Properties/AssemblyInfo.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.Deposit\IOutputPort.cs">
+    <Compile Include="Application/UseCases.GetAccount/IGetAccountUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.Deposit\DepositPresenter.cs">
+    <Compile Include="Application/UseCases.Transfer/ITransferUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.GetAccounts\GetAccountPresenter.cs">
+    <Compile Include="Application/UseCases.Withdraw/IOutputPort.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.Withdraw\IOutputPort.cs">
+    <Compile Include="Application/UseCases.GetAccount/IOutputPort.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.Withdraw\IWithdrawUseCase.cs">
+    <Compile Include="Application/UseCases.Withdraw/IWithdrawUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.OpenAccount\OpenAccountPresenter.cs">
+    <Compile Include="Application/UseCases.OpenAccount/OpenAccountPresenter.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.CloseAccount\CloseAccountPresenter.cs">
+    <Compile Include="Application/UseCases.GetAccounts/GetAccountPresenter.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.GetAccount\GetAccountUseCase.cs">
+    <Compile Include="Application/UseCases.GetAccount/GetAccountPresenter.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.Withdraw\WithdrawValidationUseCase.cs">
+    <Compile Include="Application/UseCases.GetAccounts/IGetAccountsUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.Transfer\IOutputPort.cs">
+    <Compile Include="Application/UseCases.Deposit/DepositPresenter.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.Transfer\ITransferUseCase.cs">
+    <Compile Include="Application/UseCases.Withdraw/WithdrawPresenter.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.Withdraw\WithdrawPresenter.cs">
+    <Compile Include="Application/UseCases.GetAccounts/IOutputPort.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.GetAccounts\GetAccountsUseCase.cs">
+    <Compile Include="Application/UseCases.Transfer/TransferPresenter.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.GetAccounts\IGetAccountsUseCase.cs">
+    <Compile Include="Application/UseCases.Deposit/IDepositUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.GetAccounts\IOutputPort.cs">
+    <Compile Include="Application/UseCases.Deposit/IOutputPort.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.Deposit\IDepositUseCase.cs">
+    <Compile Include="Application/UseCases.CloseAccount/CloseAccountPresenter.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.GetAccount\GetAccountValidationUseCase.cs">
+    <Compile Include="Application/UseCases.GetAccounts/GetAccountsUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.GetAccount\IGetAccountUseCase.cs">
+    <Compile Include="Application/UseCases.GetAccount/GetAccountUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.GetAccount\IOutputPort.cs">
+    <Compile Include="Application/UseCases.CloseAccount/IOutputPort.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.Transfer\TransferPresenter.cs">
+    <Compile Include="Application/Services/ICurrencyExchange.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.CloseAccount\ICloseAccountUseCase.cs">
+    <Compile Include="Application/UseCases.Withdraw/WithdrawValidationUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.CloseAccount\IOutputPort.cs">
+    <Compile Include="Application/UseCases.Transfer/TransferValidationUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\Services\ICurrencyExchange.cs">
+    <Compile Include="Application/UseCases.Transfer/IOutputPort.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\Services\IUnitOfWork.cs">
+    <Compile Include="Application/UseCases.OpenAccount/IOpenAccountUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\Services\IUserService.cs">
+    <Compile Include="Application/UseCases.OpenAccount/IOutputPort.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.OpenAccount\OpenAccountUseCase.cs">
+    <Compile Include="Application/Services/IUnitOfWork.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.CloseAccount\CloseAccountValidationUseCase.cs">
+    <Compile Include="Application/Services/IUserService.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.GetAccount\GetAccountPresenter.cs">
+    <Compile Include="Application/UseCases.OpenAccount/OpenAccountUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.Deposit\DepositUseCase.cs">
+    <Compile Include="Application/UseCases.GetAccount/GetAccountValidationUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.CloseAccount\CloseAccountUseCase.cs">
+    <Compile Include="Application/UseCases.CloseAccount/CloseAccountUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.Transfer\TransferValidationUseCase.cs">
+    <Compile Include="Application/UseCases.Withdraw/WithdrawUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.Withdraw\WithdrawUseCase.cs">
+    <Compile Include="Application/UseCases.OpenAccount/OpenAccountValidationUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.OpenAccount\IOpenAccountUseCase.cs">
+    <Compile Include="Application/UseCases.Deposit/DepositUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\Services\Notification.cs">
+    <Compile Include="Application/UseCases.CloseAccount/CloseAccountValidationUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.OpenAccount\OpenAccountValidationUseCase.cs">
+    <Compile Include="Application/Services/Notification.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.OpenAccount\IOutputPort.cs">
+    <Compile Include="Application/UseCases.CloseAccount/ICloseAccountUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.Deposit\DepositValidationUseCase.cs">
+    <Compile Include="Application/UseCases.Deposit/DepositValidationUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Application\UseCases.Transfer\TransferUseCase.cs">
+    <Compile Include="Application/UseCases.Transfer/TransferUseCase.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

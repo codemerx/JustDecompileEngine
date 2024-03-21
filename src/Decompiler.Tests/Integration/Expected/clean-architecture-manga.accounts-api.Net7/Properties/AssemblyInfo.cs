@@ -12,7 +12,7 @@ using System.Runtime.Versioning;
 [assembly: AssemblyTitle("Application")]
 [assembly: AssemblyVersion("6.0.0.0")]
 [assembly: CompilationRelaxations(8)]
-[assembly: Debuggable(,)]    // JustDecompile was unable to locate the assembly where attribute parameters types are defined. Generating parameters values is impossible.
+[assembly: Debuggable(DebuggableAttribute.DebuggingModes.Default | DebuggableAttribute.DebuggingModes.DisableOptimizations | DebuggableAttribute.DebuggingModes.IgnoreSymbolStoreSequencePoints | DebuggableAttribute.DebuggingModes.EnableEditAndContinue)]
 [assembly: NeutralResourcesLanguage("en")]
 [assembly: RuntimeCompatibility(WrapNonExceptionThrows=true)]
 [module: RefSafetyRules(11)]

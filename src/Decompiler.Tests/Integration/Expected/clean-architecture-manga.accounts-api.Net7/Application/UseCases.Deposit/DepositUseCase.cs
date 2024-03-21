@@ -39,7 +39,7 @@ namespace Application.UseCases.Deposit
 			IAccount account1 = account;
 			account = null;
 			Account account2 = account1 as Account;
-			if ((object)account2 == (object)null)
+			if (account2 == null)
 			{
 				this._outputPort.NotFound();
 			}
@@ -49,7 +49,7 @@ namespace Application.UseCases.Deposit
 				Money money = await configuredTaskAwaitable1;
 				Money money1 = money;
 				money = new Money();
-				Credit credit = this._accountFactory.NewCredit(account2, money1, DateTime.get_Now());
+				Credit credit = this._accountFactory.NewCredit(account2, money1, DateTime.Now);
 				await this.Deposit(account2, credit).ConfigureAwait(false);
 				this._outputPort.Ok(credit, account2);
 			}
@@ -68,7 +68,7 @@ namespace Application.UseCases.Deposit
 
 		public Task Execute(Guid accountId, decimal amount, string currency)
 		{
-			return this.Deposit(new AccountId(accountId), new Money(amount, new Currency(currency)));
+			return this.Deposit(new AccountId(accountId), new Money(amount, new Domain.ValueObjects.Currency(currency)));
 		}
 
 		public void SetOutputPort(IOutputPort outputPort)
