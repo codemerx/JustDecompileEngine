@@ -17,13 +17,6 @@ namespace AsyncEnumTest
 		{
 		}
 
-		[DebuggerStepThrough]
-		// <Main>
-		private static void u003cMainu003e(string[] args)
-		{
-			Program.Main(args).GetAwaiter().GetResult();
-		}
-
 		private static async Task loop()
 		{
 			object obj;

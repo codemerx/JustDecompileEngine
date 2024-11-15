@@ -16,9 +16,9 @@
     along with CodemerxDecompile.  If not, see<https://www.gnu.org/licenses/>.
 */
 
-using Microsoft.XmlDiffPatch;
 using System;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using Xunit;
 
@@ -33,8 +33,8 @@ namespace Decompiler.Tests.Helpers
                 Fail($"Folder {actualFolderPath} not found");
             }
 
-            string[] expectedFileNames = Directory.GetFiles(expectedFolderPath);
-            string[] actualFileNames = Directory.GetFiles(actualFolderPath);
+            string[] expectedFileNames = RemoveOSSpecificFiles(Directory.GetFiles(expectedFolderPath));
+            string[] actualFileNames = RemoveOSSpecificFiles(Directory.GetFiles(actualFolderPath));
 
             if (!actualFolderPath.EndsWith("References")) // Temporarily skipping References folders since output differs in different operating systems
             {
@@ -67,6 +67,9 @@ namespace Decompiler.Tests.Helpers
 
                 AssertFoldersDiffRecursively(expectedSubFolderFullName, actualSubFolderFullName);
             }
+            
+            static string[] RemoveOSSpecificFiles(string[] filePaths) =>
+                filePaths.Where(f => !f.EndsWith(".DS_Store")).ToArray();
         }
 
         private static void AssertFileContent(string expectedFileName, string actualFileName, string actualFolderPath)

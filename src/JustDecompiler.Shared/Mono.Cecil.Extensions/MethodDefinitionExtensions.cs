@@ -219,5 +219,29 @@ namespace Mono.Cecil.Extensions
         {
             return self != null && self.IsStatic && self.DeclaringType.FullName == "System.Linq.Queryable";
         }
+        
+        /* AGPL */
+        public static bool IsCompilerGenerated(this MethodDefinition method) =>
+            method.HasCompilerGeneratedAttribute() || method.IsAsyncMainHelperMethod();
+
+        private static bool IsAsyncMainHelperMethod(this MethodDefinition method)
+        {
+            if (method is not { Name: "<Main>", ReturnType: { FullName: "System.Void" } })
+                return false;
+
+            if (method.Parameters.Count != 1)
+                return false;
+
+            ParameterDefinition parameter = method.Parameters[0];
+            if (parameter.ParameterType is not { IsArray: true })
+                return false;
+
+            TypeReference elementType = parameter.ParameterType.GetElementType();
+            if (elementType is not { FullName: "System.String" })
+                return false;
+
+            return true;
+        }
+        /* End AGPL */
 	}
 }

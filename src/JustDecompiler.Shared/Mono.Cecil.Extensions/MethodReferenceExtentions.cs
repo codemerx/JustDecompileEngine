@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Mono.Cecil.Extensions
 {
     public static class MethodReferenceExtentions
     {
-        private static string compilerGeneratedAttributeName = typeof(CompilerGeneratedAttribute).FullName;
-
         /// <summary>
         /// Selectively resolves the definiatoin from a method reference.
         /// </summary>
@@ -65,22 +62,10 @@ namespace Mono.Cecil.Extensions
             {
                 return false;
             }
-            return methodDef.HasCompilerGeneratedAttribute();
-        }
 
-        public static bool HasCompilerGeneratedAttribute(this ICustomAttributeProvider attributeProvider)
-        {
-            if (attributeProvider.CustomAttributes == null)
-                return false;
-
-            foreach (var attribute in attributeProvider.CustomAttributes)
-            {
-                if (attribute.Constructor != null && attribute.AttributeType != null && attribute.AttributeType.FullName == compilerGeneratedAttributeName)
-                {
-                    return true;
-                }
-            }
-            return false;
+            /* AGPL */
+            return methodDef.IsCompilerGenerated();
+            /* End AGPL */
         }
 
         /// <summary>

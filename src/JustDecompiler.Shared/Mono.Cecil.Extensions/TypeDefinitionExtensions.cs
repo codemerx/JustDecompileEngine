@@ -260,38 +260,33 @@ namespace Mono.Cecil.Extensions
 			{
 				foreach (FieldDefinition field in typeDefinition.Fields)//.OrderBy(f => f.Name))
 				{
-					if (!showCompilerGeneratedMembers && field.IsCompilerGenerated() || field.HasCustomAttribute(attributesToSkip))
-					{
+					if (!showCompilerGeneratedMembers && field.IsCompilerGenerated())
 						continue;
-					}
+					
+					if (field.HasCustomAttribute(attributesToSkip))
+						continue;
 
                     if (backingFields.Contains(field))
-                    {
                         continue;
-                    }
 
-					if (fieldsToSkip != null)
-					{
-						if (fieldsToSkip.Contains(field.Name))
-						{
-							continue;
-						}
-					}
+                    if (fieldsToSkip != null && fieldsToSkip.Contains(field.Name))
+	                    continue;
 
 					yield return field;
 				}
 			}
+
 			if (typeDefinition.HasProperties)
 			{
 				foreach (PropertyDefinition property in typeDefinition.Properties.OrderBy(p => p.Name))
 				{
 					if (property.HasCustomAttribute(attributesToSkip))
-					{
 						continue;
-					}
+
 					yield return property;
 				}
 			}
+
 			if (typeDefinition.HasMethods)
 			{
                 IEnumerable<MethodDefinition> methods = typeDefinition.Methods;
@@ -303,42 +298,43 @@ namespace Mono.Cecil.Extensions
 				foreach (MethodDefinition method in methods.OrderBy(m => m.Name))
 				{
 					if (method.IsGetter || method.IsSetter)
-					{
 						continue;
-					}
 
                     if (method.IsAddOn || method.IsRemoveOn)
-                    {
                         continue;
-                    }
 
-					if (!showCompilerGeneratedMembers && method.HasCompilerGeneratedAttribute() || method.HasCustomAttribute(attributesToSkip))
-					{
+					/* AGPL */
+					if (!showCompilerGeneratedMembers && method.IsCompilerGenerated())
 						continue;
-					}
+                    /* End AGPL */
+
+					if (method.HasCustomAttribute(attributesToSkip))
+						continue;
 
 					yield return method;
 				}
 			}
+			
 			if (typeDefinition.HasEvents)
 			{
 				foreach (EventDefinition @event in typeDefinition.Events.OrderBy(e => e.Name))
 				{
 					if (@event.HasCustomAttribute(attributesToSkip))
-					{
 						continue;
-					}
+
 					yield return @event;
 				}
 			}
+			
 			if (typeDefinition.HasNestedTypes)
 			{
 				foreach (TypeDefinition nestedType in typeDefinition.NestedTypes.OrderBy(t => t.Name))
 				{
-					if (!showCompilerGeneratedMembers && nestedType.HasCompilerGeneratedAttribute() || nestedType.HasCustomAttribute(attributesToSkip))
-					{
+					if (!showCompilerGeneratedMembers && nestedType.HasCompilerGeneratedAttribute())
 						continue;
-					}
+					
+					if (nestedType.HasCustomAttribute(attributesToSkip))
+						continue;
 
 					yield return nestedType;
 				}
